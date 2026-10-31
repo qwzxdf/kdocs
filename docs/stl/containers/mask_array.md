@@ -13,12 +13,13 @@ tags:
 `#include <valarray>`
 </div>
 
-`v[mask]`（`mask` は `valarray<bool>`）と書くと、`true` の位置の要素だけを選べます。その結果の型が `mask_array` です。代入すると、元の `valarray` の対応する要素が書き換わります。
+`std::valarray` の要素のうち、条件に合うものだけを書き換えたい。たとえば「3 より大きい要素を 0 にする」。`v[v > 3] = 0` と書けて、`v > 3` が `valarray<bool>` を作り、それを添字にすると、真の位置だけが選ばれます。その結果が `std::mask_array` です。
 
 !!! tip "ポイント"
-    - `valarray` の部分選択に使う。
-    - `v[選び方]` の形で書く。
-    - ゲームではほとんど使わない（`span` や `mdspan` のほうが一般的）。
+    - `v[bool の valarray]` で、真の位置の要素を選ぶ
+    - 代入すると、選ばれた要素だけが更新される
+    - `v > 3` のように、比較から作れる
+    - 選んだ要素を取り出すと、新しい `valarray` になる
 
 !!! info "このページを読む前に"
     [`std::valarray`](valarray.md) を先に読んでください。
@@ -28,59 +29,65 @@ tags:
 ### std::mask_array {#mask_array}
 
 ```cpp
-template <class T>
-class mask_array;  // v[mask] が返す型
+template <class T> class mask_array;
 ```
 
-- 戻り値: 選んだ要素
-- 計算量: 選んだ要素の数に比例
+直接作らず、`valarray<T>::operator[](const valarray<bool>&)` の戻り値として得ます。
 
+使える操作は、代入（`=`）と、複合代入（`+=`、`*=` など）です。右辺は、スカラー（`= 0`）か、選ばれた個数と同じ長さの `valarray` で、選ばれた要素だけに適用されます。
+
+選ばれた要素を取り出すには、`const` の `valarray` に `[mask]` を使うと、新しい `valarray` が返ります。
+
+`mask` の大きさは、元の `valarray` と同じでなければなりません。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <iterator>
 #include <print>
 #include <valarray>
+#include <vector>
 
 int main() {
-  std::valarray<int> v = {1, 2, 3, 4};
-  std::valarray<bool> mask = {true, false, true, false};
-  v[mask] = 0;
-  std::println("{} {} {} {}", v[0], v[1], v[2], v[3]);
+  std::valarray<int> v = {1, 2, 3, 4, 5, 6};
+
+  // 3 より大きい要素を 0 にする
+  v[v > 3] = 0;
+  std::println("{}", std::vector<int>(std::begin(v), std::end(v)));
+
+  // 選ばれた要素に、別の valarray の値を順に入れる
+  std::valarray<int> w = {10, 20, 30, 40};
+  const std::valarray<bool> mask = {true, false, true, false};
+  w[mask] = std::valarray<int>{7, 8};
+  std::println("{}", std::vector<int>(std::begin(w), std::end(w)));
 }
 ```
 
 ```text title="実行結果"
-0 2 0 4
+[1, 2, 3, 0, 0, 0]
+[7, 20, 8, 40]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 配列の一部を一括で書き換える | `v[std::mask_array(...)] = x;` |
+大量の数値に、条件つきの一括処理をかけるときに使います。ゲームでは `std::ranges` のフィルターが主です。
 
 ## よくあるミス
 
-??? failure "マスクの長さが違う"
-    `mask` は `v` と同じ長さにします。
+??? failure "mask の大きさが違う"
+    未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`valarray`](valarray.md) | 数値計算用の配列 |
+| [`indirect_array`](indirect_array.md) | 添字の列で選ぶ |
+| [`slice`](slice.md) | 等間隔で選ぶ |
+| [`valarray`](valarray.md) | 対象 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] valarray から、bool の配列（マスク）で選んだ要素への参照
-    - [x] `v[...]` の形で使う
-    - [x] valarray 専用
+C++98 から使えます。
 
 ## 関連ページ
 

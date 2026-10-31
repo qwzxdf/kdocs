@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-`stol` は、`stoi` の仲間で、文字列を `long` に変換します。大きな整数や高い精度の小数が必要なときに使います。
+文字列 `"123"` を整数に直したい。`std::stol(str)` は、`std::string` を `long` に変換します。先頭の空白を読み飛ばし、数字として読める所まで変換して、残りは無視します。変換できなければ、例外を投げます。
 
 !!! tip "ポイント"
-    - 失敗したときは例外を投げる。
-    - 第 2 引数で、読み終えた位置を受け取れる。
-    - 例外を避けたいなら [`from_chars`](../io/from_chars.md)。
+    - 先頭の空白を飛ばし、符号と数字を読む
+    - 数字でない文字に当たったら、そこで止まる（残りは無視）
+    - 全く変換できなければ `std::invalid_argument`、範囲外なら `std::out_of_range`
+    - 第 2 引数で、読み終えた位置を受け取れる
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,63 +29,79 @@ tags:
 
 ### std::stol {#stol}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 long stol(const std::string& str, std::size_t* pos = nullptr, int base = 10);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | string | 変換する文字列 |
-| `pos` | size_t* | 省略可。読み終えた位置を受け取る |
-| `base` | int | 省略可。進数（既定は 10） |
+| `str` | `const std::string&` | 変換する文字列 |
+| `pos` | `std::size_t*` | 読み終えた位置の受け取り先。不要なら `nullptr` |
+| `base` | `int` | 進数。2〜36、または 0（自動判定） |
 
-- 戻り値: 変換した long
-- 計算量: O(文字数)
+`base` が 0 のとき、`0x` で始まれば 16 進、`0` で始まれば 8 進、それ以外は 10 進です。
 
+`"12abc"` は、12 を返し、`pos` に 2 を入れます。余計な文字が続いていることを検出したいなら、`pos` が文字列の長さに等しいかを確かめます。
+
+例外を使うので、ユーザーの入力のように、失敗がありうる変換では、`try` で囲むか、例外を投げない `std::from_chars` を使います。Windows では `long` が 32 ビットです。64 ビットが必要なら `stoll` です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <stdexcept>
 #include <string>
 
 int main() {
-  std::println("{}", std::stol("-42"));
+  std::println("{}", std::stol("123"));
+  std::println("{}", std::stol("  -42"));  // 先頭の空白は読み飛ばす
+
+  std::size_t pos = 0;
+  std::println("{} 読み終えた位置 {}", std::stol("12abc", &pos), pos);
+
+  std::println("16 進: {}", std::stol("ff", nullptr, 16));
+
+  try {
+    std::stol("abc");
+  } catch (const std::invalid_argument&) {
+    std::println("変換できない: invalid_argument");
+  }
 }
 ```
 
 ```text title="実行結果"
+123
 -42
+12 読み終えた位置 2
+16 進: 255
+変換できない: invalid_argument
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 設定ファイルの数値を読む | `std::stol("-42")` |
+設定ファイルの数値の読み込みに使います。入力が信頼できないなら、`from_chars` で例外なしに検査します。
 
 ## よくあるミス
 
-??? failure "例外を捕まえない"
-    `std::invalid_argument`（数字でない）と `std::out_of_range`（範囲外）を投げます。外から入った文字列は `try` で囲むか、`from_chars` を使います。
+??? failure "余計な文字を見逃す"
+    `"12abc"` が 12 になります。`pos` で確かめます。
+
+??? failure "例外を考えない"
+    変換できないと例外で止まります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`stoi`](stoi.md) | int の版 |
-| [`from_chars`](../io/from_chars.md) | 例外を投げない版 |
+| [`stoul`](stoul.md) | 符号なし |
+| [`stoll`](stoll.md) | `long long` |
+| `std::from_chars` | 例外なしで速い |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列を long に変換
-    - [x] 失敗は例外
-    - [x] 例外が嫌なら from_chars
 
 ## 関連ページ
 

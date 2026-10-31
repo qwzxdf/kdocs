@@ -15,11 +15,13 @@ tags:
 `#include <string>`
 </div>
 
-設定ファイルから読んだ「9.80665」のような文字列を `double` の値として使いたい。精度が要る計算では、`float` では足りないことがあります。`std::stod` は、文字列を `double` に変換する関数です。[`stof`](stof.md) の `double` 版で、使い方はまったく同じです。読めない文字列には `std::invalid_argument`、範囲外には `std::out_of_range` を投げます。
+`std::stod(str)` は、文字列を `double` に変換します。`"3.14"` も `"1e3"` も、`"-0.5"` も読めます。ロケールの影響を受け、小数点が `,` のロケールでは、`"3.14"` が `3` まで読まれることがあります。
 
 !!! tip "ポイント"
-    - 失敗は例外。
-    - ロケールの影響を受ける。
+    - `double` に変換する
+    - 指数表記（`1e3`）や、`inf`、`nan` も読める
+    - ロケールで小数点が変わる環境がある
+    - 失敗は例外（`invalid_argument` / `out_of_range`）
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,11 +30,17 @@ tags:
 
 ### std::stod {#stod}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 double stod(const std::string& str, std::size_t* pos = nullptr);
 ```
 
-- `stof` の double 版です。
+`strtod` の仕様に従います。先頭の空白を飛ばし、符号、数字、小数点、指数を読みます。`"1.5abc"` は 1.5 を返し、`pos` が 3 になります。
+
+ロケールの影響を受けるため、`setlocale` で、小数点が `,` の国のロケールに設定されていると、`"3.14"` が `3` と読まれます。ゲームの設定ファイルのように、環境に依存してはいけないデータには、ロケールに依存しない `std::from_chars` が適しています。
+
+値が `double` の範囲を超えると `out_of_range` です。
 
 ## 実際に動かしてみる
 
@@ -41,48 +49,42 @@ double stod(const std::string& str, std::size_t* pos = nullptr);
 #include <string>
 
 int main() {
-  double v = std::stod("3.25");
-  std::println("{}", v);
+  std::println("{}", std::stod("3.14"));
+  std::println("{}", std::stod("1e3"));
+  std::println("{}", std::stod("-0.5"));
+
+  std::size_t pos = 0;
+  std::println("{} 位置 {}", std::stod("1.5abc", &pos), pos);
 }
 ```
 
 ```text title="実行結果"
-3.25
+3.14
+1000
+-0.5
+1.5 位置 3
 ```
 
 ## ゲームでの使いどころ
 
-座標や時刻のように、`float` では桁が足りない値を読み込むときに使います。ワールドの座標が大きいゲームでは、`double` で位置を持つことがあります。
-
-ゲームの内部では `float` を使うことが多いので、`stof` のほうが出番は多めです。外部ファイルの値は不正かもしれないので、`try` で囲むか、`from_chars` を使います。
-
-ロケールに影響されるのも、`stof` と同じです。小数点にカンマを使うロケールで、`"1.5"` が `1` と読まれる場合があります。
+設定ファイルの小数の読み込みに使いますが、ロケールの影響を避けるなら `from_chars` です。
 
 ## よくあるミス
 
-??? failure "例外を受けない"
-    `try` / `catch` で受けます。
-
-??? failure "不正な文字列で例外が飛ぶ"
-    外部の入力が不正だと、`invalid_argument` が投げられます。`try` で守るか、例外を投げない `from_chars` を使います。
+??? failure "ロケールに依存することを知らない"
+    小数点が `,` のロケールで読み違えます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`stof`](stof.md) | float |
-| [`std::from_chars`](../io/from_chars.md) | 例外なし |
+| [`stold`](stold.md) | `long double` |
+| [`stol`](stol.md) | 整数 |
+| `std::from_chars` | ロケールに依存しない |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列 → double
-    - [x] 失敗は例外
-    - [x] stof の double 版
 
 ## 関連ページ
 

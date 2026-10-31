@@ -15,11 +15,13 @@ tags:
 `#include <string>`
 </div>
 
-ミリ秒単位の時刻や、大きな ID を文字列から読み込みたい。`int` は 32 ビットで、約 21 億までしか表せません。`std::stoll` は、文字列を `long long`（64 ビット整数）に変換する関数です。[`stoi`](stoi.md) の 64 ビット版で、使い方は同じです。符号なしの 64 ビットが必要なら、`stoull` を使います。
+`std::stoll(str)` は、文字列を `long long`（64 ビット以上）に変換します。Windows の `long` は 32 ビットなので、大きな数を扱うなら `stoll` を使います。
 
 !!! tip "ポイント"
-    - 失敗は例外。
-    - 符号なしの 64 ビットは `stoull`。
+    - `long long` に変換する
+    - `long` が 32 ビットの環境（Windows）でも、64 ビットを読める
+    - 例外の規則は `stol` と同じ
+    - 第 3 引数 `base` で、進数を指定する
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,61 +30,60 @@ tags:
 
 ### std::stoll {#stoll}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 long long stoll(const std::string& str, std::size_t* pos = nullptr, int base = 10);
 ```
 
-- `stoi` の long long 版です。int に入らない大きな数（所持金、タイムスタンプ）に使います。`stol`、`stoul`、`stoull` もあります。
+引数の意味は `stol` と同じです。範囲を超える値は `std::out_of_range` です。
+
+ID やタイムスタンプ（Unix 時間のミリ秒など）のように、32 ビットに収まらない値は、`stoll` を使います。ファイルサイズのバイト数も同様です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <stdexcept>
 #include <string>
 
 int main() {
-  long long v = std::stoll("9000000000");   // int に収まらない大きさ
-  std::println("{}", v);
+  std::println("{}", std::stoll("9000000000"));  // 32 ビットを超える
+  std::println("{}", std::stoll("-123"));
+
+  try {
+    std::stoll("99999999999999999999");  // long long にも収まらない
+  } catch (const std::out_of_range&) {
+    std::println("範囲外: out_of_range");
+  }
 }
 ```
 
 ```text title="実行結果"
 9000000000
+-123
+範囲外: out_of_range
 ```
 
 ## ゲームでの使いどころ
 
-セーブデータにプレイ時間のミリ秒や、64 ビットの ID を保存しているときに使います。`int` に収まらない値を読むと `out_of_range` になるので、最初から `stoll` を選びます。
-
-ハッシュ値の読み込みにも向いています。64 ビットのハッシュを文字列で保存したなら、`stoull` で読み戻します。
-
-例外を使いたくない場面では、`std::from_chars` を使います。速く、ロケールにも影響されません。
+64 ビットの ID や時刻を、文字列から読むときに使います。
 
 ## よくあるミス
 
-??? failure "int で受けて桁あふれ"
-    大きな値は `long long` で受けます。
-
-??? failure "`int` に代入して桁あふれ"
-    `int x = std::stoll(s);` と書くと、64 ビットの値が 32 ビットに切り詰められます。受ける変数も `long long` にします。
+??? failure "stol で大きな値を読む"
+    Windows では 32 ビットに収まらず、`out_of_range` になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`stoi`](stoi.md) | 32 ビット |
-| [`std::from_chars`](../io/from_chars.md) | 例外なし |
+| [`stol`](stol.md) | `long` |
+| [`stoull`](stoull.md) | 符号なし 64 ビット |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列 → long long
-    - [x] 失敗は例外
-    - [x] 64 ビット整数
 
 ## 関連ページ
 

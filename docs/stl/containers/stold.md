@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-`stold` は、`stoi` の仲間で、文字列を `long double` に変換します。大きな整数や高い精度の小数が必要なときに使います。
+`std::stold(str)` は、文字列を `long double` に変換します。`stod` の精度が高い版です。MSVC では `long double` が `double` と同じ 64 ビットなので、結果は `stod` と同じです。
 
 !!! tip "ポイント"
-    - 失敗したときは例外を投げる。
-    - 小数の変換は `stof`・`stod`・`stold`。
-    - 例外を避けたいなら [`from_chars`](../io/from_chars.md)。
+    - `long double` に変換する
+    - MSVC では `double` と同じ精度
+    - GCC / Clang（x86）では 80 ビットの拡張精度
+    - 規則は `stod` と同じ
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,18 +29,15 @@ tags:
 
 ### std::stold {#stold}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 long double stold(const std::string& str, std::size_t* pos = nullptr);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | string | 変換する文字列 |
-| `pos` | size_t* | 省略可。読み終えた位置を受け取る |
+`long double` の精度と範囲は、環境で違います。ゲームでは、`float` や `double` で足りるので、`long double` を使う機会はほとんどありません。
 
-- 戻り値: 変換した long double
-- 計算量: O(文字数)
-
+文字列の読み取りの規則（空白、符号、指数、`inf`、`nan`、ロケールの影響）は `stod` と同じです。
 
 ## 実際に動かしてみる
 
@@ -48,42 +46,36 @@ long double stold(const std::string& str, std::size_t* pos = nullptr);
 #include <string>
 
 int main() {
-  std::println("{}", std::stold("3.5"));
+  const long double v = std::stold("2.5");
+  std::println("{}", static_cast<double>(v));
+  std::println("{}", sizeof(long double) >= sizeof(double));
 }
 ```
 
 ```text title="実行結果"
-3.5
+2.5
+true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 設定ファイルの数値を読む | `std::stold("3.5")` |
+ほとんど使いません。高い精度が必要な計算の入力で使います。
 
 ## よくあるミス
 
-??? failure "例外を捕まえない"
-    `std::invalid_argument`（数字でない）と `std::out_of_range`（範囲外）を投げます。外から入った文字列は `try` で囲むか、`from_chars` を使います。
+??? failure "MSVC で精度が上がると思う"
+    `double` と同じです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`stoi`](stoi.md) | int の版 |
-| [`from_chars`](../io/from_chars.md) | 例外を投げない版 |
+| [`stod`](stod.md) | `double` |
+| [`stol`](stol.md) | 整数 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列を long double に変換
-    - [x] 失敗は例外
-    - [x] 例外が嫌なら from_chars
 
 ## 関連ページ
 

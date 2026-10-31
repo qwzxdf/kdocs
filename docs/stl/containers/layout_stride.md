@@ -14,39 +14,40 @@ tags:
 `#include <mdspan>`
 </div>
 
-`std::layout_stride` は、**次元ごとの「歩幅（次の要素まで何個とぶか）」を自分で指定する**配置の規則です。行や列を飛ばして見たり、大きな画像の一部分を切り出して見たりするときに使います。`layout_right` / `layout_left` では表せない並びを `mdspan` で扱えます。
+`layout_left` と `layout_right` は、並び方が決まっていますが、「3 行目ごとに取る」「列を 1 つ飛ばしに見る」のように、任意の間隔（ストライド）で見たいことがあります。`std::layout_stride` は、次元ごとの間隔を、実行時に指定できるレイアウトです。
 
 !!! tip "ポイント"
-    - `m(i, j)` の位置は `i * stride0 + j * stride1`。
-    - 歩幅は、`mapping` のコンストラクタに渡す。
-    - 大きな 2 次元配列から、一部分を切り出す（`submdspan`）と、この規則になる。
+    - 次元ごとのストライド（要素の間隔）を指定する
+    - 部分的な見え方（行列の列だけ、1 つ飛ばし）を作れる
+    - `mapping(extents, strides)` で構築する
+    - `submdspan` の結果などで使われる
 
 !!! info "このページを読む前に"
     [`std::mdspan`](mdspan.md) を先に読んでください。
 
-## 宣言
+## 関数の詳しい説明
+
+### std::layout_stride {#layout_stride}
+
+<span class="ver ver-23">C++23</span>
 
 ```cpp
-struct std::layout_stride {
-  template <class Extents>
-  class mapping;
+struct layout_stride {
+  template <class Extents> class mapping;
 };
 ```
 
-## 関数の詳しい説明
+`mapping` は、`extents` と、各次元のストライドの配列から作ります。`m[i, j]` の位置は、`i * stride(0) + j * stride(1)` です。
 
-### mapping::operator() {#operator}
+行優先の 2×3 は、ストライドが `{3, 1}`、列優先は `{1, 2}` です。
 
 ```cpp
-constexpr index_type operator()(Indices... idx) const noexcept;
+layout_stride::mapping<extents<size_t, 2, 2>> map(extents<size_t, 2, 2>{}, std::array{3, 2});
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `idx...` | 整数 | 各次元の添字 |
+これにより、3 列の行列から、1 列飛ばしで 2 列を取り出す（ストライド 2）といった見方ができます。ストライドが、実際のデータの範囲を超えないようにするのは、利用者の責任です。
 
-- 戻り値: メモリ上の位置（`Σ idx × stride`）
-- 計算量: O(1)
+## 実際に動かしてみる
 
 ```cpp
 #include <array>
@@ -54,48 +55,44 @@ constexpr index_type operator()(Indices... idx) const noexcept;
 #include <print>
 
 int main() {
-  using Ext = std::dextents<int, 2>;
-  // 2 行 3 列。行の歩幅は 6、列の歩幅は 2（要素を 1 つおきに見る）
-  std::layout_stride::mapping<Ext> m(Ext(2, 3), std::array<int, 2>{6, 2});
+  // 2 行 4 列の行列 (行優先)
+  std::array<int, 8> data = {0, 1, 2, 3, 4, 5, 6, 7};
 
-  std::println("(1,2) → {} / 必要な長さ {}", m(1, 2), m.required_span_size());
+  // 列を 1 つ飛ばしに見る: 2 行 x 2 列、ストライドは {4, 2}
+  using E = std::extents<std::size_t, 2, 2>;
+  std::layout_stride::mapping<E> map(E{}, std::array<std::size_t, 2>{4, 2});
+  std::mdspan<int, E, std::layout_stride> m(data.data(), map);
+
+  std::println("{} {}", m[0, 0], m[0, 1]);  // 0 と 2
+  std::println("{} {}", m[1, 0], m[1, 1]);  // 4 と 6
 }
 ```
 
 ```text title="実行結果"
-(1,2) → 10 / 必要な長さ 11
+0 2
+4 6
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 大きな画像から、一部（タイル）だけを切り出して見る | 歩幅は元の幅のまま、`extents` だけを小さくする |
-| RGBA の画像から R チャンネルだけを見る | 歩幅を 4 にする |
+画像の一部分や、行列の間引き（ミップマップのような）を、コピーなしで見るときに使います。
 
 ## よくあるミス
 
-??? failure "required_span_size を無視する"
-    元になる配列の長さは、`required_span_size()` 以上にします。足りないと範囲外アクセスです。
+??? failure "ストライドが範囲を超える"
+    配列の外を読みます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::layout_right`](layout_right.md) | 隙間のない行優先 |
-| [`std::layout_left`](layout_left.md) | 隙間のない列優先 |
-| [`std::views::stride`](../algorithms/views/stride.md) | 1 次元で n 個おきに見る |
+| [`layout_left`](layout_left.md) | 列優先 |
+| [`submdspan`](submdspan.md) | 部分的な見え方を作る |
+| [`mdspan`](mdspan.md) | 使う側 |
 
 ## コンパイラ対応
 
-C++23 の機能です。GCC 14 / Clang 18 / MSVC 19.39 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 次元ごとの歩幅を自分で決める
-    - [x] 切り出しや間引きに向く
-    - [x] `required_span_size()` を確認
+C++23 から使えます。
 
 ## 関連ページ
 
