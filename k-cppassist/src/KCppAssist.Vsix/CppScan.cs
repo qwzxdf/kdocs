@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KCppAssist
@@ -40,6 +41,80 @@ namespace KCppAssist
                 int bodyClose = AccessorEditor.FindClose(text, bodyOpen);
                 if (bodyOpen < caret && (bodyClose < 0 || caret <= bodyClose))
                     return Regex.Replace(m.Groups[1].Value, @"<.*>", "");
+            }
+            return null;
+        }
+
+        private static readonly Regex DefQualified = new Regex(
+            @"(?<![\w:])((?:[A-Za-z_]\w*(?:<[^<>]*>)?::)*)([A-Za-z_]\w*(?:<[^<>]*>)?)::~?[A-Za-z_]\w*\s*\(");
+
+        /// <summary>
+        /// caret のある関数が属するクラスを、修飾つきで返す。「Class::Func(...) {」の本体の中と、
+        /// クラスの本体に直接書いた関数の中(ヘッダーや、クラスの中に書いた cpp)のどちらでも見つかる。なければ null。
+        /// 内側にあるほうを選ぶ。
+        /// </summary>
+        public static ClassRef EnclosingClassRef(string text, int caret)
+        {
+            string masked = CppText.Mask(text);
+            var scopes = Scopes.Parse(text);
+            ClassRef byDef = null;
+            int defOpen = -1;
+
+            var matches = DefQualified.Matches(masked);
+            int checkedCount = 0;
+            for (int i = matches.Count - 1; i >= 0 && checkedCount < 60; i--)
+            {
+                Match m = matches[i];
+                if (m.Index >= caret) continue;
+                checkedCount++;
+
+                int ls = m.Index;
+                while (ls > 0 && masked[ls - 1] != '\n') ls--;
+                string prefix = masked.Substring(ls, m.Index - ls);
+                if (!Regex.IsMatch(prefix, @"^[\s\w:<>\*&,~]*$")) continue;
+                if (Regex.IsMatch(prefix, @"\b(return|else|case|co_return|throw|new|delete|if|while|for|switch)\b")) continue;
+
+                int open = m.Index + m.Length - 1;
+                int close = MatchParen(masked, open);
+                if (close < 0) continue;
+                int j = close + 1;
+                while (j < masked.Length && masked[j] != '{' && masked[j] != ';') j++;
+                if (j >= masked.Length || masked[j] != '{') continue;
+                int bodyOpen = j;
+                int bodyClose = AccessorEditor.FindClose(masked, bodyOpen);
+                if (!(bodyOpen < caret && (bodyClose < 0 || caret <= bodyClose))) continue;
+
+                var r = new ClassRef { Name = Regex.Replace(m.Groups[2].Value, @"<.*>", "") };
+                foreach (string q in m.Groups[1].Value.Split(new[] { "::" }, System.StringSplitOptions.RemoveEmptyEntries))
+                    r.Outer.Add(Regex.Replace(q.Trim(), @"<.*>", ""));
+                byDef = r;
+                defOpen = bodyOpen;
+                break;
+            }
+
+            // クラスの本体に直接書いた関数の中(クラスの「{」より内側で、さらに別の「{」の中)
+            Scopes.Scope byClass = null;
+            foreach (var s in scopes.Where(s => s.IsClass && s.Open < caret && caret < s.Close).OrderByDescending(s => s.Open))
+            {
+                int depth = 0;
+                for (int k = s.Open + 1; k < caret && k < masked.Length; k++)
+                {
+                    if (masked[k] == '{') depth++;
+                    else if (masked[k] == '}') depth--;
+                }
+                if (depth >= 1) { byClass = s; break; }
+            }
+
+            if (byDef != null && (byClass == null || defOpen > byClass.Open))
+            {
+                byDef.Namespaces = Scopes.NamespacesAt(scopes, caret);
+                return byDef;
+            }
+            if (byClass != null)
+            {
+                var r = new ClassRef { Name = byClass.Name, InFileOpen = byClass.Open };
+                r.Outer = byClass.ParentChain();
+                return r;
             }
             return null;
         }
