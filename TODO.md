@@ -102,7 +102,9 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 
 - [ ] 2-9-1. 薄いページを見つける指標を作る（`tools/survey_depth.py` を拡張）。参考文献が名前だけ、文章量が少ない、表の割合が高い、コードのコメントが少ない、読点の密度が高いページを、点数で並べる
 - [ ] 2-9-2. `check_docs.py` に警告を足す: 参考文献に著者・URL・ページがない、同じ段落が 1 ページに 2 回ある、読点の密度が高い
-- [ ] 2-9-3. `graphics/`（348 ページ）を、点数の低いものから 1 ページずつ直す。まず下位 50 ページを目標にする
+- [ ] 2-9-3. `graphics/`（約 320 ページ）を、`python tools/survey_graphics.py` の点数が低いものから 1 ページずつ、質の基準 10 項目で直す（資料を実際に読む。PDF は pypdf で本文を取り出す）。必要なら、ページを増やしてよい
+    - 済み（2026-11-04）: `postprocess/upscaling/xess.md`、`fsr.md`、`dlss.md`、`ao/mssao.md`。表の機械変換は 2 列の説明表だけ済み
+    - 次の候補（点数の低い順）: `shadows/vsm/comparison.md`、`translucency/alpha-test/comparison.md`、`gi/probes/compare.md`、`reflections/ssr-basics/artifacts.md`、`postprocess/upscaling/index.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md
 - [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
 - [ ] 2-9-6. `graphics/` が進んだら、`libs/`・`engine/`・`3d/`・`directx/`・`optimize/` などを、同じ指標で順に直す
