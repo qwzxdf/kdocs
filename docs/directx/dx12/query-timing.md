@@ -109,7 +109,7 @@ DrawBoundingBox();
 command_list->EndQuery(occlusion_heap.Get(), D3D12_QUERY_TYPE_BINARY_OCCLUSION, index);
 ```
 
-`BINARY_OCCLUSION` は「1 ピクセルでも通ったか」だけを返します。`OCCLUSION` は通ったピクセル数を返します。結果は遅れて読むので「前のフレームで隠れていた物は、描かない」という使い方をします（[Culling](../../rendering/culling.md)）。
+`BINARY_OCCLUSION` は「1 ピクセルでも通ったか」だけを返します。`OCCLUSION` は通ったピクセル数を返します。結果は遅れて読むので「前のフレームで隠れていた物は、描かない」という使い方をします（[Culling](../../graphics/pipeline/culling.md)）。
 
 ## 本格的に計測する
 
@@ -146,5 +146,5 @@ PIX on Windows は無料で、D3D12 の標準のツールです。GPU のカウ�
 - [ID3D12CommandQueue](api/id3d12commandqueue.md)
 - [Frame Resources](frame-resources.md)
 - [Debug Layer](debug-layer.md)
-- [Tools](../../rendering/tools.md)
+- [Tools](../../graphics/pipeline/tools.md)
 - [Microsoft Learn: クエリ](https://learn.microsoft.com/ja-jp/windows/win32/direct3d12/queries)

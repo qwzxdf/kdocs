@@ -49,7 +49,7 @@ device->CreateShaderResourceView(shadow_tex, &srv_desc, &shadow_srv);
 | --- | --- |
 | `R32_TYPELESS` | 深度として書きシェーダーから読むため、型なしで作る |
 | DSV は `D32_FLOAT`、SRV は `R32_FLOAT` | 同じ領域を 2 通りに見る |
-| 解像度 | 1024〜4096。大きいほど細かい影・メモリと帯域を食う（[メモリ帯域幅](../../../rendering/bandwidth.md)） |
+| 解像度 | 1024〜4096。大きいほど細かい影・メモリと帯域を食う（[Memory Bandwidth](../../pipeline/bandwidth.md)） |
 | フォーマット | 16 ビットで足りることも多い（精度を許容できれば、帯域が半分） |
 | 描画する物 | 影を落とす物だけ。ライティングなしのシェーダー（頂点シェーダーのみ） |
 

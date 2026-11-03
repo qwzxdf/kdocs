@@ -135,4 +135,4 @@ HBAO+ の発想を自前の実装に取り入れるなら、3 つの点を押さ
 - [HBAO](hbao.md)
 - [SAO（Scalable AO）](sao.md)
 - [GTAO](gtao.md)
-- [縮小バッファの効果](../../rendering/low-res-effects.md)
+- [Low-Resolution Effects](../pipeline/low-res-effects.md)

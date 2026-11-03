@@ -119,7 +119,7 @@ T = exp( −∫ σ(s) ds )                   密度が、場所で変わる媒�
 float3 transmittance = exp(-g_sigma_t * distance);
 ```
 
-`g_sigma_t` は <strong>RGB の 3 成分</strong>の、消散係数です。空気中のレイリー散乱は 青の方が大きく、赤の方が小さいので遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
+`g_sigma_t` は <strong>RGB の 3 成分</strong>の、消散係数です。空気中のレイリー散乱は 青の方が大きく、赤の方が小さいので遠くの景色は、青みを帯びます（[Rayleigh Scattering](index.md)）。
 
 ## 密度が変わる媒質：数値積分
 

@@ -401,4 +401,4 @@ history.Swap();
 - [Anti-Aliasing](index.md)
 - [TAA Challenges](taa-challenges.md)
 - [Velocity Buffer](../motion-blur/velocity-buffer.md)
-- [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)
+- [TAA, Upscaling and VRS Cost](../taa-upscaling-cost.md)

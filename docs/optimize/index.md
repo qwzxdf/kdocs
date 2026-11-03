@@ -33,7 +33,7 @@
 | [コンパイル時の計算（constexpr）](compile-time.md) | `constexpr` / `consteval` / `constinit` / `if constexpr`。実行時の計算をビルド時に |
 | [ビルド時間の最適化](build-time.md) | include の整理、PCH、並列ビルド、unity ビルド |
 | [フレーム時間の設計](frame-budget.md) | フレームバジェット、固定タイムステップ、スパイク対策 |
-| [描画最適化（別セクション）](../rendering/index.md) | 描画の最適化は、独立したセクションに移動しました |
+| [描画最適化（別セクション）](../graphics/pipeline/index.md) | 描画の最適化は、独立したセクションに移動しました |
 | [ベイク（事前計算）](baking.md) | ライトマップ・ナビメッシュ・アニメ圧縮など、重い計算をビルド時に済ませる |
 | [シリアライズでロードを速く](serialization-speed.md) | JSON をバイナリに。ゼロコピー。既存のシリアライズのページへ |
 | [ロード時間・起動時間](loading.md) | 待たせない。バイナリ化・非同期 |

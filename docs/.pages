@@ -13,8 +13,7 @@ nav:
   - 設計: design
   - 最適化: optimize
   - DirectX: directx
-  - 描画: graphics
-  - 描画最適化: rendering
+  - グラフィックス: graphics
   - 文字コード: encoding
   - 外部ライブラリ: libs
   - K-HLSL: khlsl

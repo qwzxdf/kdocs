@@ -102,7 +102,7 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 - [ ] 2-9-1. 薄いページを見つける指標を作る（`tools/survey_depth.py` を拡張）。参考文献が名前だけ、文章量が少ない、表の割合が高い、コードのコメントが少ない、読点の密度が高いページを、点数で並べる
 - [ ] 2-9-2. `check_docs.py` に警告を足す: 参考文献に著者・URL・ページがない、同じ段落が 1 ページに 2 回ある、読点の密度が高い
 - [ ] 2-9-3. `graphics/`（348 ページ）を、点数の低いものから 1 ページずつ直す。まず下位 50 ページを目標にする
-- [ ] 2-9-4. 描画の統合: `rendering/`（33 ページ）を `graphics/` に移す。影（`rendering/shadows.md`）と TAA（`rendering/taa-upscaling.md`）を、見本として先に試す。リンク（約 130 か所）と `autolinks.yml` を一括で直して、古い URL にはリダイレクトを付ける。ナビの「描画最適化」を消して、名前を「グラフィックス」にそろえる
+- [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
 - [ ] 2-9-6. `graphics/` が進んだら、`libs/`・`engine/`・`3d/`・`directx/`・`optimize/` などを、同じ指標で順に直す
 

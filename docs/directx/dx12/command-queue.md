@@ -96,7 +96,7 @@ other_queue->Wait(fence.Get(), value);
 
 最初は DIRECT のキューだけで十分です。次の段階として COPY のキューを足すとテクスチャやメッシュの読み込みを裏で進められます。ロード画面を短くしたいときに効きます。
 
-COMPUTE のキューは描画が GPU の一部しか使っていないときに効果があります。たとえば、メモリ帯域や固定機能がボトルネックの描画と計算の重い処理を並行させると、GPU の空きを埋められます。ただし、描画と計算が同じ部分を取り合うとかえって遅くなることもあります。必ず計測してから採用します（[Async Compute](../../rendering/async-compute.md)）。
+COMPUTE のキューは描画が GPU の一部しか使っていないときに効果があります。たとえば、メモリ帯域や固定機能がボトルネックの描画と計算の重い処理を並行させると、GPU の空きを埋められます。ただし、描画と計算が同じ部分を取り合うとかえって遅くなることもあります。必ず計測してから採用します（[Async Compute](../../graphics/pipeline/async-compute.md)）。
 
 ## よくあるミス
 
@@ -126,5 +126,5 @@ COMPUTE のキューは描画が GPU の一部しか使っていないときに�
 - [ID3D12CommandQueue](api/id3d12commandqueue.md)
 - [Command List](command-list.md)
 - [Fence](fence.md)
-- [Async Compute](../../rendering/async-compute.md)
+- [Async Compute](../../graphics/pipeline/async-compute.md)
 - [Microsoft Learn: ID3D12CommandQueue](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d12/nn-d3d12-id3d12commandqueue)

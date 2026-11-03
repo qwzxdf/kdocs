@@ -165,7 +165,7 @@ device->CopyDescriptorsSimple(1,                // 個数
                               D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 ```
 
-こうするとテクスチャごとのディスクリプタは一度だけ書けば済み `CreateXxxView` の呼び出しを減らせます。バインドレスではヒープ全体を 1 つの配列として、シェーダーが番号で直接引きます（[Bindless](../../rendering/gpu-driven-dx12/bindless.md)）。
+こうするとテクスチャごとのディスクリプタは一度だけ書けば済み `CreateXxxView` の呼び出しを減らせます。バインドレスではヒープ全体を 1 つの配列として、シェーダーが番号で直接引きます（[Bindless](../../graphics/pipeline/gpu-driven-dx12/bindless.md)）。
 
 ## よくあるミス
 
@@ -199,5 +199,5 @@ device->CopyDescriptorsSimple(1,                // 個数
 - [Descriptor](descriptor.md)
 - [ID3D12DescriptorHeap](api/id3d12descriptorheap.md)
 - [Root Signature](root-signature.md)
-- [Bindless](../../rendering/gpu-driven-dx12/bindless.md)
+- [Bindless](../../graphics/pipeline/gpu-driven-dx12/bindless.md)
 - [Microsoft Learn: ID3D12DescriptorHeap](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d12/nn-d3d12-id3d12descriptorheap)

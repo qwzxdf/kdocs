@@ -230,9 +230,9 @@ UV が 0〜1 の外にはみ出したときの挙動は、サンプラーのア�
 
 | 対策 | 内容 |
 | --- | --- |
-| 解像度を下げる／アップスケール | ピクセル数を減らす（[TAA・アップスケール](../../rendering/taa-upscaling.md)） |
-| オーバードローを減らす | 手前から描いて、隠れたピクセルを省略（[オーバードロー](../../rendering/overdraw.md)） |
-| シェーダーを軽く | テクスチャ読み込み・計算を減らす（[シェーダーのコスト](../../rendering/shader-cost.md)） |
+| 解像度を下げる／アップスケール | ピクセル数を減らす（[TAA・アップスケール](../../graphics/postprocess/taa-upscaling-cost.md)） |
+| オーバードローを減らす | 手前から描いて、隠れたピクセルを省略（[Overdraw](../../graphics/pipeline/overdraw.md)） |
+| シェーダーを軽く | テクスチャ読み込み・計算を減らす（[Shader Cost](../../graphics/pipeline/shader-cost.md)） |
 
 ## よくあるミス
 

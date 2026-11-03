@@ -42,11 +42,11 @@ DirectX の用語（デバイス、ビュー、ステート、ディスクリプ
 | G バッファ、ディファード | [Multiple Render Targets](dx11/mrt.md) |
 | 計算シェーダーを使う手法（ぼかし、froxel、FFT） | [Compute Shader](dx11/compute-shader.md)、[Unordered Access View (UAV)](dx11/uav.md) |
 | レイトレーシング（RTAO、反射、DDGI） | [DXR Host Setup](dx12/dxr-host.md)（DirectX 12） |
-| GPU ドリブン | [GPU Driven（D3D12 詳細）](../rendering/gpu-driven-dx12/index.md) |
+| GPU ドリブン | [GPU Driven (D3D12)](../graphics/pipeline/gpu-driven-dx12/index.md) |
 
 ## 関連ページ
 
 - [DirectXMath](../gamemath/directxmath.md)
 - [描画の流れ（入門）](../3d/render-flow/index.md)
 - [シェーダー](../graphics/index.md)
-- [描画最適化](../rendering/index.md)
+- [Pipeline and Optimization](../graphics/pipeline/index.md)

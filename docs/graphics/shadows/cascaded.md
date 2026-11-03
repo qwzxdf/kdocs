@@ -313,7 +313,7 @@ shadow = lerp(1.0, shadow, fade);
 | バイアス | テクセルの大きさが違うので、カスケードごとに調整（[Shadow Bias](bias/index.md)）。ワールド単位のテクセル サイズに比例させる |
 | PCF のぼけの幅 | カスケードで、1 テクセルの大きさが違うので、カーネルをスケールして、ワールドでの幅をそろえる |
 | LOD・カリング | 遠いカスケードは、低い LOD・小さい物を省く |
-| 更新頻度 | 遠いカスケードは、数フレームに 1 回更新（[影のコスト](../../rendering/shadows.md)） |
+| 更新頻度 | 遠いカスケードは、数フレームに 1 回更新（[Shadow Cost](cost.md)） |
 
 ## カスケードごとのカリング
 
@@ -323,7 +323,7 @@ shadow = lerp(1.0, shadow, fade);
 | --- | --- |
 | カスケードごとのカリング | そのカスケードの箱に入る物体だけ |
 | 小さい物の除外 | 遠いカスケードでは、小さな物体を影から外す |
-| インスタンシング・GPU Driven | カスケードごとの描画をまとめて（[GPU Driven](../../rendering/gpu-driven.md)） |
+| インスタンシング・GPU Driven | カスケードごとの描画をまとめて（[GPU Driven](../pipeline/gpu-driven.md)） |
 | 1 回の描画で全カスケード | ジオメトリ シェーダーや、ビュー インスタンシングで、1 回のドローで複数のカスケードへ。ただし、効果は環境による |
 
 ## 設計のパラメータ
@@ -389,5 +389,5 @@ shadow = lerp(1.0, shadow, fade);
 - [Shadow Map Basics](shadow-map-basics/index.md)
 - [Shadow Bias](bias/index.md)
 - [PCF](pcf.md)
-- [影のコスト](../../rendering/shadows.md)
+- [Shadow Cost](cost.md)
 - [投影（プロジェクション）](../../3d/projection.md)

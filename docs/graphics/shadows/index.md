@@ -95,12 +95,12 @@ float3 color = direct + ambient;
 
 | 項目 | コスト |
 | --- | --- |
-| シャドウ マップの描画 | シーンを光から見て再描画。ジオメトリ処理が主（[影のコスト](../../rendering/shadows.md)） |
+| シャドウ マップの描画 | シーンを光から見て再描画。ジオメトリ処理が主（[Shadow Cost](cost.md)） |
 | メモリ | シャドウ マップの解像度 × 枚数（2048² を 4 枚で数十 MB） |
 | サンプリング | 画素ごとにシャドウ マップを複数回読む（PCF） |
 | カスケード・ライト数 | 枚数に比例 |
 
-<strong>描画コストの減らし方</strong>は、[描画最適化の「影のコスト」](../../rendering/shadows.md)にまとめています。このセクションは、手法の原理と品質を扱います。
+<strong>描画コストの減らし方</strong>は、[描画最適化の「影のコスト」](cost.md)にまとめています。このセクションは、手法の原理と品質を扱います。
 
 ## 参考
 
@@ -113,7 +113,7 @@ float3 color = direct + ambient;
 
 - [シェーダー](../index.md)
 - [Shadow Map Basics](shadow-map-basics/index.md)
-- [影のコスト](../../rendering/shadows.md)
+- [Shadow Cost](cost.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [Ambient Occlusion (AO)](../ao/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

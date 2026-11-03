@@ -17,7 +17,7 @@ tags:
 
 !!! info "このページを読む前に"
     - [TAA](../antialiasing/taa.md)（過去のフレームを混ぜる仕組みの基礎）
-    - [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)（コストの面から）
+    - [TAA, Upscaling and VRS Cost](../taa-upscaling-cost.md)（コストの面から）
 
 ## 空間方式と時間方式 {#types}
 
@@ -82,4 +82,4 @@ tags:
 ## 関連ページ {#related}
 
 - [TAA](../antialiasing/taa.md)
-- [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)
+- [TAA, Upscaling and VRS Cost](../taa-upscaling-cost.md)
