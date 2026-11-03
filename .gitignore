@@ -18,3 +18,7 @@ CLAUDE.local.md
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# プレビュー用（tools/preview.py）
+mkdocs.preview.yml
+site-preview/

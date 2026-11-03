@@ -16,6 +16,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - 一括の修正は Python スクリプトで行う。`sed` で `|` や `\|` を含むパターンは使わない（GNU sed では `\|` が「または」になる）
 - 検索は Material の search プラグインを使わず、自前（`hooks/searchindex.py` がビルド時に `search/meta.json` と `search/body.*.json` を作り、`docs/javascripts/search.js` が部分一致で走査する）。Pagefind は日本語の語分割が合わず（「コンストラクタ」が 0 件）、見送った
 - プレビューは `mkdocs serve`（`serve.bat`、`http://127.0.0.1:8123/kdocs/`）。起動中のサーバーは止めない。アプリ内ブラウザで見てよい
+  - 数ページだけをすぐ見たいときは `preview.bat docs/graphics/shadows/cascaded.md`（`tools/preview.py`）。指定したページだけをビルドするので、起動に数秒しかかからない（`http://127.0.0.1:8124/kdocs/`）。除外したページへのリンクは切れる
 
 ## 拡張機能（K-HLSL・K-CppAssist）の版を上げるとき
 
