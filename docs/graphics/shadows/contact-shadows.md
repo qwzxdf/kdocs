@@ -262,34 +262,36 @@ tags:
 4. 深度の差が大きすぎるときは、遠くの面の手前を通っただけとして無視します。これが、厚みの扱いです。
 
 ```hlsl
-float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float jitter) {
-  // レイの長さは短い（0.1〜1 m 程度）
+float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
+  // 画素から光の方向へ、短いレイを伸ばす（長いと、別の面に当たって誤った影が出る）
   float3 ray_end = view_pos + light_dir_view * kContactDistance;
-  float2 uv0 = ProjectToUV(view_pos);
-  float2 uv1 = ProjectToUV(ray_end);
+  float2 uv0 = ProjectToUV(view_pos);   // レイの始点の画面上の位置
+  float2 uv1 = ProjectToUV(ray_end);    // 終点の画面上の位置
   float z0 = view_pos.z;
   float z1 = ray_end.z;
 
-  float shadow = 1.0;
+  float shadow = 1.0;                   // 1 = 光が当たる、0 = 影
   [loop] for (int i = 1; i <= kContactSteps; ++i) {
-    float t = (i - 1.0 + jitter) / kContactSteps;  // jitter でずらす
+    // jitter で、ステップの位置を画素ごとに、少しずつずらす
+    float t = (i - 1.0 + jitter) / kContactSteps;
     float2 uv = lerp(uv0, uv1, t);
-    // 透視投影では 1/z が画面上で線形なので、1/z を補間して z に戻す
+    // 画面上で線形なのは 1/z なので、1/z を補間して z に戻す
     float ray_z = 1.0 / lerp(1.0 / z0, 1.0 / z1, t);
     float scene_z = LinearDepth(depth_tex.SampleLevel(point_sampler, uv, 0).r);
+
+    // 正なら、レイは深度バッファの面より奥（面の裏側）にある
     float diff = ray_z - scene_z;
-    // kBias より大きい（自己遮蔽を除く）、かつ kThickness より小さい（厚みの内側）
-    // なら、遮蔽されている
+    // kBias 以下なら面そのもの（自己遮蔽）。kThickness 以上なら遠くの面
     if (diff > kBias && diff < kThickness) {
       shadow = 0.0;
-      break;
+      break;                            // 1 か所で遮られれば十分
     }
   }
   return shadow;
 }
 ```
 
-`jitter` は、画素ごとにステップの位置をずらす値です（IGN など）。ステップ数を少なくしても、縞がノイズに変わるので、TAA で消せます。1/z で補間するやり方は、[SSR](../reflections/ssr-basics/index.md) と同じです。`kThickness` より奥にあるものは、遮蔽物ではないとして扱います。
+`jitter` は、画素ごとにステップの位置をずらす値です（IGN など）。ステップ数を少なくしても、縞がノイズに変わるので、TAA で消せます。1/z で補間するやり方は、[SSR](../reflections/ssr-basics/index.md) と同じです。
 
 ## 厚みの問題
 
