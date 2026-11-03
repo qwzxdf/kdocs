@@ -93,6 +93,7 @@ grep -n "vsix" docs/khlsl/index.md
 ## サンプルコード
 
 - C++23、Google C++ Style。**解説目的なのでコメントは入れる**
+    - コメントは細かめに、「何をするか」より「何を意味するか・なぜか」を書く（符号や向き、1 と 0 の意味、なぜその値か）。引っかかりそうな行にコメントがない・言い換えだけ・後ろの文章との重複、は避ける。短いものは行の右側（40 字前後まで）、長いものは直前の行に書く。見本: `docs/graphics/shadows/contact-shadows.md` の `ContactShadow`
 - include の順: 標準ヘッダ → 空行 → ライブラリのヘッダ
 - 出力があるサンプルは `int main` まで書いた完全なプログラムにし、直後に ` ```text title="実行結果" ` を置く
 - `int main` があると「Compiler Explorer で実行」ボタンが自動で付く（`docs/javascripts/godbolt.js`、GCC 16.1）
