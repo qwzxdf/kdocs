@@ -57,7 +57,7 @@ FSR 3 のアップスケールの品質モードは、次のとおりです。�
 
 ## ジッター {#jitter}
 
-FSR 2 の README ではジッターのずらし量は Halton 列（底が 2 と 3）です。SDK の関数 `ffxFsr2GetJitterPhaseCount(renderWidth, displayWidth)` が列の長さを返します。品質モードごとの長さは Quality が 18、Balanced が 23、Performance が 32、Ultra Performance が 72 です。独自の倍率 n を使うときは `ceil(8 * n^2)` で出します。
+FSR 2 の README では、ずらし量は Halton 列（底が 2 と 3）です。SDK の関数 `ffxFsr2GetJitterPhaseCount(renderWidth, displayWidth)` が列の長さを返します。値は [Upscaler Comparison](comparison.md#phases) にあります。独自の倍率 n を使うときは `ceil(8 * n^2)` で出します。
 
 ずらし量を加えるのは不透明な物体だけではありません。半透明やレイトレースの物体も含めて、描画する全部のパスに加えます。動きベクトルにはジッターを入れません（ジッターを打ち消すフラグを立てた場合を除きます）。
 
@@ -73,7 +73,7 @@ README の式は次のとおりです。
 float mip_bias = std::log2(render_width / display_width) - 1.0f;
 ```
 
-倍率ごとの値は Quality が -1.58、Balanced が -1.76、Performance が -2.0、Ultra Performance が -2.58 です。XeSS の推奨が `log2` だけで終わるのに対して、FSR 2 の式は 1.0 を余計に引いています。同じ名前の値でもアップスケーラによって式が違うことに注意します。
+倍率ごとの値は Quality が -1.58、Balanced が -1.76、Performance が -2.0、Ultra Performance が -2.58 です。3 社の式の違いは [Upscaler Comparison](comparison.md#mip-bias) にあります。
 
 ## 入力 {#inputs}
 
@@ -85,7 +85,7 @@ FSR 2 の README が挙げる入力は、次のとおりです。
 
 ### 深度 {#depth}
 
-描画解像度で浮動小数点が 1 つです。リバース Z（[1..0]）なら `FFX_FSR2_ENABLE_DEPTH_INVERTED` を遠方クリップが無限なら `FFX_FSR2_ENABLE_DEPTH_INFINITE` を立てます。この 2 つを併用して遠方の値を低くしすぎると、深度の分離でアーティファクトが出ます。
+描画解像度で浮動小数点が 1 つです。リバース Z（[1..0]）なら `FFX_FSR2_ENABLE_DEPTH_INVERTED` を、遠方クリップが無限なら `FFX_FSR2_ENABLE_DEPTH_INFINITE` を立てます。この 2 つを併用して遠方の値を低くしすぎると、深度の分離でアーティファクトが出ます。
 
 ### 動きベクトル {#motion-vectors}
 

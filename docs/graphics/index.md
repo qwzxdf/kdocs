@@ -85,6 +85,7 @@ tags:
     - [Lens Effects](postprocess/lens-effects/index.md)
     - [Outlines and Toon](postprocess/stylized/index.md)
     - [Post-Processing Cost](postprocess/cost.md)
+    - [Upscaler Comparison](postprocess/upscaling/comparison.md)
     - [TAA, Upscaling and VRS Cost](postprocess/taa-upscaling-cost.md)
 
 ??? abstract map "Translucency"
