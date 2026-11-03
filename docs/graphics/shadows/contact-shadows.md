@@ -263,6 +263,7 @@ tags:
 
 ```hlsl
 float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float jitter) {
+  // レイの長さは短い（0.1〜1 m 程度）
   float3 ray_end = view_pos + light_dir_view * kContactDistance;
   float2 uv0 = ProjectToUV(view_pos);
   float2 uv1 = ProjectToUV(ray_end);
@@ -271,11 +272,14 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
   float shadow = 1.0;
   [loop] for (int i = 1; i <= kContactSteps; ++i) {
-    float t = (i - 1.0 + jitter) / kContactSteps;
+    float t = (i - 1.0 + jitter) / kContactSteps;  // jitter でずらす
     float2 uv = lerp(uv0, uv1, t);
+    // 透視投影では 1/z が画面上で線形なので、1/z を補間して z に戻す
     float ray_z = 1.0 / lerp(1.0 / z0, 1.0 / z1, t);
     float scene_z = LinearDepth(depth_tex.SampleLevel(point_sampler, uv, 0).r);
     float diff = ray_z - scene_z;
+    // kBias より大きい（自己遮蔽を除く）、かつ kThickness より小さい（厚みの内側）
+    // なら、遮蔽されている
     if (diff > kBias && diff < kThickness) {
       shadow = 0.0;
       break;
@@ -285,13 +289,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `1/z` で補間 | 透視投影では、1/z が画面上で線形（[SSR](../reflections/ssr-basics/index.md)） |
-| `jitter` | 画素ごとのステップ位置のずらし（IGN）。ステップ数を少なくしても、縞がノイズに変わる |
-| `kBias` | 自己遮蔽（面自身）を避ける、小さな許容値 |
-| `kThickness` | 厚み。これ以上、遮蔽物の奥にあるものは、遮蔽物ではないとして扱う |
-| `kContactDistance` | 短い距離（0.1〜1 m 程度） |
+`jitter` は、画素ごとにステップの位置をずらす値です（IGN など）。ステップ数を少なくしても、縞がノイズに変わるので、TAA で消せます。1/z で補間するやり方は、[SSR](../reflections/ssr-basics/index.md) と同じです。`kThickness` より奥にあるものは、遮蔽物ではないとして扱います。
 
 ## 厚みの問題
 
