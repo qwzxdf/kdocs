@@ -97,7 +97,7 @@ color_pass.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 color_pass.DepthFunc = D3D11_COMPARISON_EQUAL;
 ```
 
-深度を先に描くと本描画のピクセル シェーダーが見える物だけで走り <strong>オーバードロー</strong>（隠れる物の、シェーディング）がなくなります（[Overdraw](../../rendering/overdraw.md)）。
+深度を先に描くと本描画のピクセル シェーダーが見える物だけで走り <strong>オーバードロー</strong>（隠れる物の、シェーディング）がなくなります（[Overdraw](../../graphics/pipeline/overdraw.md)）。
 
 ### スカイボックス
 
@@ -200,5 +200,5 @@ struct DepthStates {
 - [Depth Buffer and DSV](depth-stencil.md)
 - [Blend State](blend-state.md)
 - [Rasterizer State](rasterizer-state.md)
-- [Overdraw](../../rendering/overdraw.md)
+- [Overdraw](../../graphics/pipeline/overdraw.md)
 - [Microsoft Learn: ID3D11Device::CreateDepthStencilState](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d11/nf-d3d11-id3d11device-createdepthstencilstate)

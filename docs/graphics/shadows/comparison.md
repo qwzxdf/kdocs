@@ -84,7 +84,7 @@ tags:
 | ④ フィルタ | PCF のサンプル数・カーネル。ノイズ ＋ TAA |
 | ⑤ 補助 | コンタクト シャドウ・AO |
 | ⑥ 例外処理 | アルファ テスト・半透明・キャラクター・遠景 |
-| ⑦ 最適化 | カリング・キャッシュ・更新頻度・LOD（[影のコスト](../../rendering/shadows.md)） |
+| ⑦ 最適化 | カリング・キャッシュ・更新頻度・LOD（[Shadow Cost](cost.md)） |
 
 ## デバッグのヒント
 
@@ -132,4 +132,4 @@ tags:
 - [Cascaded Shadow Maps (CSM)](cascaded.md)
 - [PCF](pcf.md)
 - [Ray-Traced Shadows](ray-traced.md)
-- [影のコスト](../../rendering/shadows.md)
+- [Shadow Cost](cost.md)

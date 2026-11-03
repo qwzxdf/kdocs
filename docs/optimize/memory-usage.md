@@ -236,4 +236,4 @@ int main() {
 - [メモリとキャッシュ](memory-cache.md)
 - [RAII とスマートポインタ](../design/patterns/raii.md)
 - [リソース管理](../engine/resource.md)
-- [描画の最適化](../rendering/index.md)
+- [描画の最適化](../graphics/pipeline/index.md)

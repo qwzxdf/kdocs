@@ -1394,4 +1394,4 @@ tags:
 - [FXAA](fxaa.md)
 - [SMAA](smaa.md)
 - [TAA](taa.md)
-- [Forward と Deferred](../../../rendering/forward-deferred.md)
+- [Forward and Deferred](../../pipeline/forward-deferred.md)

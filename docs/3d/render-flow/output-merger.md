@@ -343,7 +343,7 @@ struct PSOutput {
 };
 ```
 
-G バッファなど、この仕組みを使う方式は[フォワードとディファード](../../rendering/forward-deferred.md)で扱います。
+G バッファなど、この仕組みを使う方式は[フォワードとディファード](../../graphics/pipeline/forward-deferred.md)で扱います。
 
 ## 早期深度テスト（Early-Z）
 
@@ -356,7 +356,7 @@ G バッファなど、この仕組みを使う方式は[フォワードとデ�
 | 手前から描く | 隠れるピクセルが前もって捨てられる |
 | 深度プリパス | 先に深度だけ描いて、後で色を描く（オーバードローを完全に省く） |
 
-詳しくは[オーバードロー](../../rendering/overdraw.md)で扱います。
+詳しくは[Overdraw](../../graphics/pipeline/overdraw.md)で扱います。
 
 ## よくあるミス
 

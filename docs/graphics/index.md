@@ -1,12 +1,14 @@
 ---
-title: シェーダー
+title: グラフィックス
 tags:
   - シェーダー
+  - 描画
+  - 最適化
 ---
 
-# シェーダー
+# グラフィックス
 
-このセクションは、<strong>ゲームの画面を作る、シェーダーで書く描画手法</strong>を原理から説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を順に追います。速さの話（何が重く、どう減らすか）は、[描画最適化](../rendering/index.md)に分けて書いています。
+このセクションは、<strong>ゲームの画面を作る描画手法</strong>を、原理から軽量化まで説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を順に追います。各分野には、その手法を軽くする話（コスト）のページもあります。描画全体の流れと、何が重くなるかは、[Pipeline and Optimization](pipeline/index.md)で説明します。
 
 ## セクションの地図
 
@@ -45,6 +47,7 @@ tags:
     - [Shadow Volumes](shadows/shadow-volumes.md)
     - [Special Cases](shadows/special-cases/index.md)
     - [Shadow Techniques Compared](shadows/comparison.md)
+    - [Shadow Cost](shadows/cost.md)
 
 ??? abstract map "Reflections"
     [Reflections のトップ](reflections/index.md)
@@ -81,6 +84,8 @@ tags:
     - [Color Grading](postprocess/color-grading/index.md)
     - [Lens Effects](postprocess/lens-effects/index.md)
     - [Outlines and Toon](postprocess/stylized/index.md)
+    - [Post-Processing Cost](postprocess/cost.md)
+    - [TAA, Upscaling and VRS Cost](postprocess/taa-upscaling-cost.md)
 
 ??? abstract map "Translucency"
     [Translucency のトップ](translucency/index.md)
@@ -89,6 +94,7 @@ tags:
     - [Alpha Testing](translucency/alpha-test/index.md)
     - [Order-Independent Transparency (OIT)](translucency/oit/index.md)
     - [Refraction](translucency/refraction/index.md)
+    - [Particles and Translucency Cost](translucency/particles-cost.md)
 
 ??? abstract map "Water"
     [Water のトップ](water/index.md)
@@ -107,6 +113,31 @@ tags:
     - [Terrain Texturing](terrain/texturing/index.md)
     - [Vegetation](terrain/vegetation/index.md)
     - [Terrain Generation](terrain/generation/index.md)
+
+??? abstract map "Pipeline and Optimization"
+    [Pipeline and Optimization のトップ](pipeline/index.md)
+
+    - [Rendering Pipeline Overview](pipeline/overview.md)
+    - [Bottlenecks](pipeline/bottlenecks.md)
+    - [Memory Bandwidth](pipeline/bandwidth.md)
+    - [Forward and Deferred](pipeline/forward-deferred.md)
+    - [Tiled and Clustered](pipeline/light-culling.md)
+    - [Visibility Buffer](pipeline/visibility-buffer.md)
+    - [Draw Calls and Batching](pipeline/draw-calls.md)
+    - [Culling](pipeline/culling.md)
+    - [GPU Driven Rendering](pipeline/gpu-driven.md)
+    - [GPU Driven (D3D12)](pipeline/gpu-driven-dx12/index.md)
+    - [Mesh Shader and Meshlet](pipeline/mesh-shaders.md)
+    - [Overdraw](pipeline/overdraw.md)
+    - [Low-Resolution Effects](pipeline/low-res-effects.md)
+    - [Hi-Z and Screen-Space Tracing](pipeline/hiz.md)
+    - [Shader Cost](pipeline/shader-cost.md)
+    - [LOD and Impostors](pipeline/lod.md)
+    - [Texture Streaming](pipeline/texture-streaming.md)
+    - [Async Compute](pipeline/async-compute.md)
+    - [2D Rendering](pipeline/2d.md)
+    - [Profiling Tools](pipeline/tools.md)
+    - [Optimization Case Studies](pipeline/cases.md)
 
 ??? abstract map "Sky and Atmosphere"
     [Sky and Atmosphere のトップ](atmosphere/index.md)
@@ -144,26 +175,13 @@ tags:
 | --- | --- |
 | コードを実際に動かしたい（DirectX 11 の、土台） | [D3D11 Pass Recipes](../directx/dx11/pass-recipes.md)（ビュー・フルスクリーン三角形・ディスパッチ・定数バッファ・束縛の衝突）→ 各セクションへ |
 | AO を実装したい | [AO Theory](ao/theory/index.md) → [Hemisphere SSAO](ao/ssao-hemisphere.md) → [AO Filtering](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
-| 重い・遅いときに直したい | [描画最適化](../rendering/index.md)の[手法の地図](../rendering/index.md#手法の地図) → 各分野の「コスト」のページ（下の表） |
+| 重い・遅いときに直したい | [Pipeline and Optimization](pipeline/index.md)の[手法の地図](pipeline/index.md#手法の地図) → 各分野の「Cost」のページ（[Shadow Cost](shadows/cost.md)・[Post-Processing Cost](postprocess/cost.md) など） |
 | 方式を選びたい | [AO Comparison](ao/comparison.md) |
 | アーティファクトを直したい | [AO Artifacts](ao/artifacts/index.md) |
-
-## 原理と最適化の対応
-
-同じ話題は、<strong>原理（どう見せるか）をこのセクション、コスト（どう軽くするか）を[描画最適化](../rendering/index.md)</strong>に分けて書いています。
-
-| 話題 | 原理（このセクション） | 軽くする（描画最適化） |
-| --- | --- | --- |
-| 影 | [Shadows](shadows/index.md) | [影のコスト](../rendering/shadows.md) |
-| ポストプロセス | [Post-Processing](postprocess/index.md) | [ポストプロセス](../rendering/postprocess.md)・[TAA・アップスケーラ・VRS](../rendering/taa-upscaling.md) |
-| AO・反射の高速化 | [Ambient Occlusion (AO)](ao/index.md)・[Reflections](reflections/index.md) | [Hi-Z とスクリーン空間トレース](../rendering/hiz.md)・[縮小バッファの効果](../rendering/low-res-effects.md) |
-| 半透明 | [Translucency](translucency/index.md) | [パーティクルと半透明](../rendering/particles.md)・[オーバードロー](../rendering/overdraw.md) |
-| 地形の LOD | [Terrain](terrain/index.md) | [LOD とインポスター](../rendering/lod.md) |
-| シェーダーの計算 | （各分野のコード） | [シェーダーのコスト](../rendering/shader-cost.md) |
 
 ## 関連ページ
 
 - [3D ゲーム](../3d/index.md)
 - [法線とライティング](../3d/lighting-normals.md)
 - [PBR](../3d/pbr.md)
-- [描画最適化](../rendering/index.md)
+- [Pipeline and Optimization](pipeline/index.md)

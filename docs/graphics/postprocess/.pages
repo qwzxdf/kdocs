@@ -9,3 +9,5 @@ nav:
   - Color Grading: color-grading
   - Lens Effects: lens-effects
   - Outlines and Toon: stylized
+  - cost.md
+  - taa-upscaling-cost.md

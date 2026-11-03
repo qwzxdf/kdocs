@@ -93,7 +93,7 @@ context->UpdateSubresource(texture.Get(), 0, nullptr, pixels, width * 4, 0);    
 context->GenerateMips(srv.Get());                           // 残りの段を GPU が、縮小して、作る
 ```
 
-`GenerateMips` は SRV を渡します。`DEFAULT` で `RENDER_TARGET` が付いていて `GENERATE_MIPS` の `MiscFlags` がある、テクスチャだけが使えます。製品ではビルド時に高品質なミップを作って、DDS ファイルに保存します（[Texture Streaming](../../rendering/texture-streaming.md)）。
+`GenerateMips` は SRV を渡します。`DEFAULT` で `RENDER_TARGET` が付いていて `GENERATE_MIPS` の `MiscFlags` がある、テクスチャだけが使えます。製品ではビルド時に高品質なミップを作って、DDS ファイルに保存します（[Texture Streaming](../../graphics/pipeline/texture-streaming.md)）。
 
 | ミップ | 大きさ（1024×1024 の場合） |
 | --- | --- |

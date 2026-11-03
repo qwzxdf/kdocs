@@ -40,4 +40,4 @@ tags:
 - [Global Illumination (GI)](../gi/index.md)
 - [Post-Processing](../postprocess/index.md)
 - [Water](../water/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

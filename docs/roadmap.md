@@ -48,11 +48,11 @@ title: 学習ロードマップ
 
 動くようになったら、見た目と速さを磨きます。
 
-1. [シェーダー](graphics/index.md)：ライティング、影、ポストプロセスの原理
-2. [描画最適化](rendering/index.md)：それを軽くする方法
+1. [グラフィックス](graphics/index.md)：ライティング、影、ポストプロセスの原理
+2. [Pipeline and Optimization](graphics/pipeline/index.md)：描画の流れと、それを軽くする方法
 3. [RenderDoc と PIX](vs/renderdoc-pix.md)、[GPU デバッグの流れ](vs/gpu-debug.md)：描画が壊れたときの調べ方
 
-「シェーダー」と「描画最適化」は、同じ話題を原理と軽量化に分けた対になっています。
+各分野には、原理のページと、軽くする話（Cost）のページが並んでいます。
 
 ## 段階 5：チームで作る {#step5}
 

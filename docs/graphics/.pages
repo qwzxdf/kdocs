@@ -10,4 +10,5 @@ nav:
   - Terrain: terrain
   - Sky and Atmosphere: atmosphere
   - Skin and Hair: skin-hair
+  - Pipeline and Optimization: pipeline
   - ...

@@ -154,7 +154,7 @@ F5 でデバッグ実行すると、診断ツールが画面に出ます（表�
 | ロックの待ち（`WaitForSingleObject` など） | スレッドの競合（[マルチスレッド化](../optimize/multithreading.md)） |
 | ログ・文字列の関数 | 文字列の作成（[文字列とハッシュ](../optimize/strings-hash.md)） |
 | STL の内部関数 | どの呼び出し元から来ているかを呼び出し元ビューで確認 |
-| 描画のドライバー（D3D・`dxgi`）の関数 | 描画命令の数が多い（[描画の最適化](../rendering/index.md)） |
+| 描画のドライバー（D3D・`dxgi`）の関数 | 描画命令の数が多い（[描画の最適化](../graphics/pipeline/index.md)） |
 
 ### ソースコードの行を見る
 

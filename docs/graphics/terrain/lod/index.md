@@ -36,7 +36,7 @@ LOD の設計で難しいのは、切り替えです。細かさが変わる境�
 | <strong>標準的なゲーム（数 km）</strong> | <strong>四分木（CDLOD）</strong>。モーフィング付き |
 | 無限に近い地形・海 | クリップマップ |
 | 既存のエンジンで簡単に | テッセレーション ＋ 距離係数 |
-| 大規模・密 | メッシュ シェーダー ＋ GPU ドリブン（[GPU Driven](../../../rendering/index.md)） |
+| 大規模・密 | メッシュ シェーダー ＋ GPU ドリブン（[GPU Driven](../../pipeline/index.md)） |
 
 ## ページ一覧
 
@@ -67,4 +67,4 @@ LOD の設計で難しいのは、切り替えです。細かさが変わる境�
 
 - [Terrain](../index.md)
 - [Heightmaps and Meshes](../heightmap-mesh/index.md)
-- [LOD とインポスター](../../../rendering/lod.md)
+- [LOD and Impostors](../../pipeline/lod.md)

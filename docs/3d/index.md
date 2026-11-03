@@ -73,6 +73,6 @@
 ## 関連ページ
 
 - [SIMD（ベクトル化）](../optimize/simd.md)
-- [描画の最適化](../rendering/index.md)
+- [描画の最適化](../graphics/pipeline/index.md)
 - [Dear ImGui（ギズモ）](../libs/imgui/imguizmo.md)
 - [Jolt Physics（物理演算）](../libs/jolt/index.md)

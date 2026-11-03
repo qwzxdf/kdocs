@@ -100,7 +100,7 @@
   link: 3d/depth-culling.md
 - terms: [カリング, culling, Culling, 視錐台カリング, バックフェイスカリング]
   text: 見えないものを、描画しないこと（裏向きの面・画面の外・隠れたもの）。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [深度バッファ, Z バッファ, Zバッファ, デプスバッファ, depth buffer, 深度テスト, デプステスト]
   text: ピクセルごとに、一番手前の距離を覚えておき、奥のものを描かないようにする仕組み。
   link: 3d/depth-culling.md
@@ -115,16 +115,16 @@
   link: 3d/mesh-textures.md
 - terms: [シェーダー, shader, シェーダ, HLSL]
   text: GPU 上で動く、頂点や色を計算する小さなプログラム。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [ドローコール, ドロー コール, 描画命令, draw call, Draw Call, ドロー コール数]
   text: CPU が GPU に出す、1 回の描画の命令。多いと CPU が重くなる。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [インスタンシング, instancing, インスタンス描画]
   text: 同じメッシュを、1 回の描画命令で、大量に描く方法。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [LOD, レベルオブディテール, Level of Detail]
   text: 遠くのものを、頂点の少ない簡易なモデルに切り替えること（Level of Detail）。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [PBR, 物理ベースレンダリング, Physically Based Rendering, 物理ベース]
   text: 光の物理的な振る舞いに沿って、陰影を計算する描画。材質は、色・金属度・粗さで表す。
   link: 3d/pbr.md
@@ -292,10 +292,10 @@
   link: libs/jolt/vehicles.md
 - terms: [GPU, グラフィックスカード, グラフィックボード]
   text: 描画専用の部品。大量の頂点・ピクセルを、並列に計算する。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [CPU]
   text: プログラムを実行する、コンピューターの頭脳。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [バッファ, buffer, Buffer]
   text: データを置いておく、メモリの置き場。GPU 用のものは、頂点バッファ・定数バッファなど。
   link: 3d/mesh-textures.md
@@ -310,13 +310,13 @@
   link: 3d/model-basics.md
 - terms: [レンダーターゲット, render target, レンダー ターゲット, RTV]
   text: 描画の結果を書き込む先の画像（テクスチャ）。画面そのもの、または画面外のテクスチャ。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [SRV, シェーダーリソースビュー, Shader Resource View]
   text: シェーダーから、テクスチャなどを読むための見え方（ビュー）。
   link: libs/imgui/textures.md
 - terms: [スワップチェーン, swap chain, SwapChain, ダブルバッファ]
   text: 画面に出す画像と、描画中の画像を、交互に入れ替える仕組み。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [VSync, 垂直同期]
   text: 画面の更新タイミングに、描画を合わせる設定。フレームを一定にするが、遅延や待ちが出る。
   link: engine/game-loop.md
@@ -379,7 +379,7 @@
   link: design/practice/performance-design.md
 - terms: [ボトルネック, bottleneck]
   text: 全体の速さを決めている、一番遅い部分。
-  link: rendering/bottlenecks.md
+  link: graphics/pipeline/bottlenecks.md
 - terms: [インライン展開, inline, inlining]
   text: 関数の呼び出しを、中身で置き換える最適化。
   link: optimize/compiler.md
@@ -637,136 +637,136 @@
   link: 3d/skinning-animation.md
 - terms: [ステートの切り替え, 状態の切り替え, ステート変更, パイプライン ステート, PSO]
   text: シェーダー・ブレンド・深度設定などの、描画の「設定」を変えること。ドロー コールより重いことがある。DX12 では設定一式を PSO（パイプライン ステート オブジェクト）にまとめる。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [バッチ, batch, Batch, バッチング]
   text: 複数の物体を、まとめて 1 回の描画命令で描くこと。ドロー コールの回数を減らすための工夫。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [CPU バウンド, CPU bound, CPU がボトルネック]
   text: 描画の命令を作る CPU 側の処理が遅く、GPU が待たされている状態。解像度を下げても速くならない。
-  link: rendering/bottlenecks.md
+  link: graphics/pipeline/bottlenecks.md
 - terms: [GPU バウンド, GPU bound, GPU がボトルネック]
   text: GPU の描画処理が遅く、CPU が待たされている状態。解像度を下げると速くなるのが目印。
-  link: rendering/bottlenecks.md
+  link: graphics/pipeline/bottlenecks.md
 - terms: [フレームタイム, frame time, フレーム時間]
   text: 1 フレームにかかる時間（ミリ秒）。60 FPS なら約 16.7 ms。FPS より、足し引きしやすい。
   link: optimize/frame-budget.md
 - terms: [ラスタライズ, rasterize, ラスタライザ, rasterizer, ラスタライザー]
   text: 三角形を、画面のどのピクセルに当たるかに変換する処理（GPU の固定機能）。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [ピクセルシェーダー, pixel shader, フラグメントシェーダー, fragment shader]
   text: 画面の 1 ピクセルごとに動き、その色を計算するシェーダー。重くなりやすい。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [頂点シェーダー, vertex shader]
   text: 頂点 1 つごとに動き、位置を変換するシェーダー。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [コンピュートシェーダー, compute shader, コンピュート シェーダー]
   text: 描画ではなく、汎用の計算を GPU でさせるシェーダー。ライト カリングや GPU カリングに使う。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [ROP, レンダー出力]
   text: 計算した色を、レンダーターゲットに書き込み・ブレンドする、GPU の最終段。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [メモリ帯域幅, 帯域幅, 帯域, bandwidth, Bandwidth, メモリ帯域]
   text: メモリが 1 秒に送れるデータ量（GB/s）。画面サイズのテクスチャを何度も読み書きすると、ここが足りなくなる。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [VRAM, ビデオメモリ, グラフィックスメモリ]
   text: GPU 専用のメモリ。テクスチャ・バッファ・レンダーターゲットを置く。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [オーバードロー, overdraw, Overdraw]
   text: 同じピクセルを何度も塗ること。隠れて見えなくなる分の計算が無駄になる。
-  link: rendering/overdraw.md
+  link: graphics/pipeline/overdraw.md
 - terms: [Early-Z, Early Z, アーリーZ, 早期深度テスト]
   text: ピクセルシェーダーの前に深度テストをして、隠れたピクセルの計算を省く、GPU の自動の最適化。
-  link: rendering/overdraw.md
+  link: graphics/pipeline/overdraw.md
 - terms: [Z プリパス, Zプリパス, 深度プリパス, depth prepass, Z prepass]
   text: 色の計算の前に、深度だけを先に描くパス。後の色のパスで、隠れた部分の計算を省ける。
-  link: rendering/overdraw.md
+  link: graphics/pipeline/overdraw.md
 - terms: [クアッド, quad overdraw, クアッドオーバードロー]
   text: GPU がピクセルを 2×2 の 4 つ組で実行する単位。小さな三角形だと、無駄になる計算が多い。
-  link: rendering/overdraw.md
+  link: graphics/pipeline/overdraw.md
 - terms: [Forward, フォワード, フォワードレンダリング, Forward Rendering]
   text: 物体を描くときに、その場でライティングまで計算する方式。ライトが多いと重い。
-  link: rendering/forward-deferred.md
+  link: graphics/pipeline/forward-deferred.md
 - terms: [Deferred, ディファード, ディファードレンダリング, Deferred Rendering, ディファードシェーディング]
   text: まず物体の情報を G-Buffer に書き、後で画面全体にライティングする方式。ライトが多くても、ピクセル数に比例した重さで済む。
-  link: rendering/forward-deferred.md
+  link: graphics/pipeline/forward-deferred.md
 - terms: [G-Buffer, Gバッファ, ジーバッファ, GBuffer]
   text: Deferred で、各ピクセルの色・法線・粗さなどを書いておく、画面サイズのテクスチャ群。
-  link: rendering/forward-deferred.md
+  link: graphics/pipeline/forward-deferred.md
 - terms: [ライトボリューム, light volume, ライト ボリューム]
   text: ライトが届く範囲を表す球や円錐。その範囲のピクセルだけを、ライティングする。
-  link: rendering/forward-deferred.md
+  link: graphics/pipeline/forward-deferred.md
 - terms: [Tiled, タイルド, Tiled Deferred, Tiled Forward, Forward+, フォワードプラス]
   text: 画面を 16×16 ほどのタイルに分け、タイルごとに影響するライトを絞り込む方式。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [Clustered, クラスタード, Clustered Deferred, Clustered Forward]
   text: 画面を奥行き方向にも分けた 3D の格子（クラスター）ごとに、ライトを絞る方式。奥行きが大きく違う場面に強い。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [ライトカリング, light culling, ライト カリング]
   text: 画面の各領域に、影響するライトだけを割り当てて、無駄なライト計算を省くこと。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [groupshared, グループ共有メモリ]
   text: コンピュートシェーダーで、同じスレッドグループ内のスレッドが共有する、高速な小さなメモリ。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [スレッドグループ, thread group, ワープ, warp, ウェーブ, wavefront]
   text: GPU が一緒に動かす、数十スレッドの組（NVIDIA はワープ、AMD はウェーブ）。同じ命令を同時に実行する。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [ダイバージェンス, divergence]
   text: 同じ組のスレッドが、別々の分岐に進むこと。両方の道を順に実行するので遅くなる。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [占有率, オキュパンシー, occupancy, Occupancy]
   text: GPU が同時に動かせるウェーブの数。多いほど、メモリ待ちを他のウェーブで隠せる。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [レジスタ, register]
   text: シェーダーが使う、一時変数の置き場。多く使うと、同時に動かせる組が減る。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [ALU]
   text: 足し算・掛け算などを行う、GPU の計算部分。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [FP16, 半精度, min16float]
   text: 16 ビットの小数。32 ビットより精度は低いが、レジスタと演算が半分で済む。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [異方性フィルタリング, 異方性, ミップレベル, mip level]
   text: ミップレベルは、遠い面ほど小さなミップを選ぶ仕組みの段数。異方性フィルタリングは、斜めに見える面で、ぼやけを減らす。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [BC 圧縮, BC7, BC1, BC3, BC5, DXT, ブロック圧縮, テクスチャ圧縮, 圧縮テクスチャ]
   text: テクスチャを GPU が直接読める形で小さくする方式。メモリと帯域を節約できる。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [テクスチャアトラス, texture atlas, アトラス, テクスチャ配列, texture array]
   text: 小さな画像を 1 枚にまとめたもの（アトラス）や、同じ大きさの画像を重ねたもの（配列）。テクスチャの切り替えを減らせる。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [バインドレス, bindless, Bindless]
   text: テクスチャを、切り替えずに、番号で直接参照できる仕組み。1 回の描画で多数の材質を扱える。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [インダイレクト描画, indirect draw, Indirect Draw, DrawIndexedInstancedIndirect, ExecuteIndirect]
   text: 描画の引数（個数・開始位置）を、GPU 上のバッファから読んで描く方式。GPU 自身が描画内容を決められる。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [GPU Driven, GPU ドリブン, GPU Driven Rendering]
   text: カリングと描画命令の作成を、CPU ではなく GPU にやらせる方式。物体が数万個あっても CPU の負担が増えない。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [Meshlet, メッシュレット, meshlet]
   text: メッシュを、64 頂点ほどの小さな塊に分けたもの。塊ごとにカリングできる。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [Mesh Shader, メッシュシェーダー, メッシュ シェーダー, Task Shader, Amplification Shader]
   text: Meshlet を直接処理する、新しいシェーダー段（DX12 Ultimate）。従来の頂点処理を置き換える。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [Visibility Buffer, ビジビリティバッファ, 可視性バッファ]
   text: 材質の値の代わりに、三角形の ID だけを画面に書く方式。G-Buffer より書き込みが少ない。
-  link: rendering/visibility-buffer.md
+  link: graphics/pipeline/visibility-buffer.md
 - terms: [Hi-Z, HZB, 階層的深度, Hierarchical Z]
   text: 深度バッファを、各段が「範囲内の最も奥の深度」になるように、縮小して重ねたもの。カリングやトレースを速くする。
-  link: rendering/hiz.md
+  link: graphics/pipeline/hiz.md
 - terms: [オクルージョンカリング, occlusion culling, オクルージョン カリング]
   text: 他の物体に隠れて見えない物体を、描かないこと。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [フラスタムカリング, frustum culling]
   text: カメラの視界の外にある物体を、描かないこと。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [八分木, Octree, octree, オクツリー, 四分木, Quadtree, quadtree, kd-tree]
   text: 空間を再帰的に分けた木構造。近くの物体を、素早く探したり、まとめて除外できる。
   link: optimize/algorithms.md
 - terms: [スクリーン空間, screen space, スクリーンスペース]
   text: 画面のピクセル座標で考える空間。SSAO や SSR は、画面の深度を使って計算する。
-  link: rendering/hiz.md
+  link: graphics/pipeline/hiz.md
 - terms: [SSAO, スクリーン空間AO, SSAO（スクリーン空間 AO）]
   text: 画面の深度から、くぼみに生じる暗さ（環境光遮蔽）を近似する方法。
   link: graphics/ao/ssao-hemisphere.md
@@ -847,37 +847,37 @@
   link: graphics/reflections/rt-reflections/denoise.md
 - terms: [バイラテラル, bilateral, アップサンプル, upsample]
   text: 深度などの違いを考慮して、境界をまたいで混ぜないようにするぼかし・拡大。縮小バッファの拡大に使う。
-  link: rendering/low-res-effects.md
+  link: graphics/pipeline/low-res-effects.md
 - terms: [ダウンサンプル, downsample, 縮小バッファ, 半分解像度, ハーフ解像度]
   text: 画像を小さくすること。縮小した解像度で効果を計算すると、計算量が大きく減る。
-  link: rendering/low-res-effects.md
+  link: graphics/pipeline/low-res-effects.md
 - terms: [ブルーム, bloom, Bloom]
   text: 明るい部分が、にじんで光って見える効果。
-  link: rendering/postprocess.md
+  link: graphics/postprocess/cost.md
 - terms: [被写界深度, DOF, depth of field]
   text: ピントの合った距離以外が、ぼやけて見える効果。
-  link: rendering/postprocess.md
+  link: graphics/postprocess/cost.md
 - terms: [ポストプロセス, post process, ポストエフェクト, post-process]
   text: 描き終わった画面全体に、後から掛ける効果（ブルーム・トーンマップなど）。
-  link: rendering/postprocess.md
+  link: graphics/postprocess/cost.md
 - terms: [TAA, 時間的アンチエイリアシング, テンポラル, temporal, TAAU]
   text: 毎フレーム少しずらして描き、過去のフレームと混ぜて、ギザギザや細かいノイズを滑らかにする方法。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [アンチエイリアシング, anti-aliasing, MSAA, FXAA, ジャギー]
   text: 斜めの線のギザギザ（ジャギー）を、目立たなくする処理。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [DLSS, FSR, アップスケーラ, アップスケール, upscaling, XeSS]
   text: 低い解像度で描いた画面を、高い解像度へ拡大して、きれいに見せる技術。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [動的解像度, dynamic resolution]
   text: 負荷に応じて、描画の解像度をフレームごとに変える方法。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [VRS, 可変レートシェーディング, variable rate shading]
   text: 画面の場所ごとに、シェーディングの細かさを変える機能（DX12 Ultimate）。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [非同期コンピュート, async compute, Async Compute]
   text: 描画とコンピュートを、別のキューで同時に走らせて、GPU の空きを埋める方法。
-  link: rendering/async-compute.md
+  link: graphics/pipeline/async-compute.md
 - terms: [カスケードシャドウマップ, CSM, Cascaded Shadow Maps, カスケード, シャドウマップ, shadow map, 影マップ]
   text: 影を、カメラの近くは細かく、遠くは粗く、複数枚の影マップで描く方法。
   link: graphics/shadows/cascaded.md
@@ -886,19 +886,19 @@
   link: graphics/shadows/pcf.md
 - terms: [インポスター, impostor, ビルボード, billboard]
   text: 遠くの物を、常にカメラに向く 1 枚の画像で代用する方法。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [バーチャルテクスチャ, virtual texture, ミップストリーミング, テクスチャストリーミング]
   text: 巨大なテクスチャを、必要な部分・必要なミップだけメモリに置く方法。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [パーティクル, particle, Particle, パーティクルシステム]
   text: 煙・火花・雨など、小さな板を大量に飛ばして表現する効果。
-  link: rendering/particles.md
+  link: graphics/translucency/particles-cost.md
 - terms: [半透明, アルファブレンド, alpha blend, アルファテスト, alpha test, 透過]
   text: 後ろが透けて見える描き方。奥から順に重ねる必要があり、Early-Z が効きにくく、重くなりやすい。
-  link: rendering/particles.md
+  link: graphics/translucency/particles-cost.md
 - terms: [PIX, RenderDoc, Nsight, Nsight Graphics, Radeon GPU Profiler, GPU プロファイラ]
   text: GPU の描画を調べるツール。ドロー コールごとの時間・状態・シェーダーを確認できる。
-  link: rendering/tools.md
+  link: graphics/pipeline/tools.md
 - terms: [DirectX 11, DX11, D3D11, Direct3D 11]
   text: Windows の描画 API の 1 つ。このサイトの描画の例は、これを使っている。
   link: libs/imgui/basics.md
@@ -907,28 +907,28 @@
   link: libs/imgui/dx12.md
 - terms: [DirectX 12 Ultimate, DX12 Ultimate, レイトレーシング, ray tracing, DXR]
   text: DX12 の新機能の一式（メッシュ シェーダー・レイトレーシング・VRS など）。対応 GPU が必要。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [ドライバ, driver, グラフィックスドライバ, GPU ドライバ]
   text: API の命令を、GPU のハードウェア命令に変換するソフトウェア。DX11 では、この処理が CPU の負担になる。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [同期待ち, ストール, stall, 読み戻し, readback]
   text: CPU と GPU が、互いの完了を待って止まること。GPU の結果を CPU で読むと、起きやすい。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [フェンス, fence, Fence, バリア, barrier]
   text: GPU の処理の順序や完了を、同期するための仕組み。
-  link: rendering/async-compute.md
+  link: graphics/pipeline/async-compute.md
 - terms: [InterlockedAdd, アトミックカウンター]
   text: 複数のスレッドが同時に使っても、壊れない、加算の操作。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [構造化バッファ, StructuredBuffer, structured buffer, RWStructuredBuffer, UAV]
   text: 構造体の配列を GPU に置くバッファ。UAV は、シェーダーから書き込める形のビュー。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [頂点キャッシュ, vertex cache]
   text: 変換済みの頂点を、一時的に覚えておき、同じ頂点を共有する三角形で再利用する、GPU の仕組み。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [法線の円錐, normal cone, Normal Cone]
   text: 塊の全ての三角形の向きを、1 つの円錐で表したもの。裏向きの塊を、まとめて除外できる。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [重心座標, barycentric, バリセントリック]
   text: 三角形の中の点を、3 頂点からの重みで表す座標。頂点の属性（UV・法線）の補間に使う。
   link: gamemath/interpolation.md
@@ -940,25 +940,25 @@
   link: gamemath/color.md
 - terms: [RGBA, RGBA8, R11G11B10, DXGI_FORMAT, ピクセルフォーマット, テクスチャフォーマット]
   text: ピクセルの色の、データの形。ビット数が少ないほど、メモリと帯域が節約できる。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [フィルレート, fill rate]
   text: GPU が、1 秒に塗れるピクセル数。解像度やオーバードローが増えると、足りなくなる。
-  link: rendering/bottlenecks.md
+  link: graphics/pipeline/bottlenecks.md
 - terms: [スループット, throughput, レイテンシ, latency]
   text: スループットは、単位時間に処理できる量。レイテンシは、1 つの結果が出るまでの待ち時間。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [並列, parallel, 並列処理, 並列化]
   text: 複数の処理を、同時に行うこと。GPU は、数千の並列処理が得意。
   link: optimize/multithreading.md
 - terms: [パッキング, packing]
   text: 複数のデータを、1 つの領域に詰め込むこと。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [量子化, quantization, quantize]
   text: 値の精度を落として（細かさを減らして）、小さなビット数で表すこと。メモリと帯域を節約する。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [LUT, ルックアップテーブル, lookup table, 事前計算, precompute]
   text: 計算結果を、先に表にしておき、実行時は、表を引くだけにする方法。
-  link: rendering/postprocess.md
+  link: graphics/postprocess/cost.md
 - terms: [近似式, 近似]
   text: 正確な計算の代わりに、軽くて、十分に近い値を出す式。
   link: gamemath/trigonometry.md
@@ -970,16 +970,16 @@
   link: optimize/baking.md
 - terms: [ヒステリシス, hysteresis]
   text: 切り替える境目に、余裕（幅）を持たせて、行ったり来たりのちらつきを防ぐこと。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [ポップイン, popping, pop-in, LOD ポップ]
   text: 物体や詳細度が、突然、現れたり切り替わったりして、目立つこと。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [ディザ, dither, ディザリング, dithering, ディザフェード]
   text: 点の細かい模様で、半透明や、切り替えを、ごまかす方法。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [フォグ, fog, Fog, ボリューメトリックフォグ, volumetric fog]
   text: 遠くが霞んで見える効果。ボリューメトリックは、光の筋なども表せる。
-  link: rendering/postprocess.md
+  link: graphics/postprocess/cost.md
 - terms: [静的ライティング, 動的ライト, dynamic light, 静的ライト]
   text: 動かない光は、事前に計算して保存し（静的）、動く光だけ実行時に計算する（動的）。
   link: optimize/baking.md
@@ -1003,13 +1003,13 @@
   link: basics/compiler.md
 - terms: [ピクセル, pixel]
   text: 画面を作る、小さな点 1 つ。1920×1080 の画面なら、約 207 万個ある。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [アニメーション, animation]
   text: 時間とともに、動きや見た目を変えること。キャラの動き、UI の動きなど。
   link: 3d/skinning-animation.md
 - terms: [API, Application Programming Interface]
   text: プログラムから、ほかの機能（OS・ライブラリ・GPU）を呼び出すための窓口。DirectX も API の 1 つ。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [ベクトル, vector]
   text: 向きと大きさを持つ量。ゲームでは、位置・速度・方向を表す数のならび（x, y, z）。std::vector（配列）とは別物。
   link: gamemath/vectors.md
@@ -1069,7 +1069,7 @@
   link: optimize/index.md
 - terms: [フォーマット, format]
   text: データの形式・並べ方。画像のフォーマット、ピクセルのフォーマットなど。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [パターン, デザインパターン, design pattern]
   text: よく出てくる困りごとに対する、設計の定番の型。
   link: design/patterns/index.md
@@ -1087,7 +1087,7 @@
   link: vs/libraries.md
 - terms: [エフェクト, effect]
   text: 爆発・光・煙などの、画面の演出。
-  link: rendering/particles.md
+  link: graphics/translucency/particles-cost.md
 - terms: [DLL, ダイナミックリンクライブラリ]
   text: 実行時に読み込まれるライブラリのファイル（.dll）。
   link: vs/libraries.md
@@ -1168,7 +1168,7 @@
   link: optimize/data-layout.md
 - terms: [ハードウェア, hardware]
   text: コンピューターの機械そのもの（CPU・GPU・メモリなど）。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [ライセンス, license]
   text: ライブラリやデータを使うときの、使用条件。MIT・Apache・GPL など。
   link: libs/index.md
@@ -1192,7 +1192,7 @@
   link: gamemath/numeric.md
 - terms: [インスタンス, instance]
   text: クラスから作った、1 つ 1 つの実体。または、同じ形を複数並べて描くときの 1 個分。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [アイコン, icon]
   text: 小さな絵で機能を表すもの。
   link: libs/imgui/fonts.md
@@ -1222,7 +1222,7 @@
   link: vs/index.md
 - terms: [パイプライン, pipeline]
   text: 処理を、段階に分けて、順に流す仕組み。描画では、頂点 → ラスタライズ → ピクセルの流れ。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [チャンネル, channel]
   text: 色の成分（R・G・B・A）や、音の系統。
   link: gamemath/color.md
@@ -1246,13 +1246,13 @@
   link: encoding/unicode-basics.md
 - terms: [モバイル, mobile]
   text: スマートフォン・タブレットなど。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [モジュール, module]
   text: 機能ごとに分けた、プログラムの部品。
   link: design/foundations/layers.md
 - terms: [トレース, trace, レイトレース]
   text: 光線などを、たどって調べること。
-  link: rendering/hiz.md
+  link: graphics/pipeline/hiz.md
 - terms: [デバイス, device]
   text: 機器。DirectX では、GPU を操作するための ID3D11Device などのオブジェクト。
   link: libs/imgui/basics.md
@@ -1264,7 +1264,7 @@
   link: basics/pointer.md
 - terms: [NVIDIA, AMD, Intel]
   text: GPU（グラフィックスカード）を作っている会社。
-  link: rendering/tools.md
+  link: graphics/pipeline/tools.md
 - terms: [MIT, MIT ライセンス, Apache, GPL]
   text: ライブラリの使用条件の種類。MIT や Apache は、自由に使いやすい。GPL は、公開の義務が重い。
   link: libs/index.md
@@ -1306,7 +1306,7 @@
   link: libs/imgui/widgets.md
 - terms: [スプライト, sprite]
   text: 2D ゲームで、画面に置く、1 枚の絵。
-  link: rendering/2d.md
+  link: graphics/pipeline/2d.md
 - terms: [スナップショット, snapshot]
   text: ある時点の状態を、まるごと保存したもの。
   link: engine/serialization/index.md
@@ -1318,7 +1318,7 @@
   link: gamemath/color.md
 - terms: [PNG, JPG, JPEG, DDS, 画像形式]
   text: 画像のファイル形式。PNG は劣化がなく、JPG は小さいが劣化する。DDS は GPU 向けの圧縮に対応する。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [XML, TOML, CSV]
   text: データを、テキストで書くための形式。
   link: engine/serialization/index.md
@@ -1327,7 +1327,7 @@
   link: libs/recast/crowd.md
 - terms: [RT]
   text: Render Target（レンダーターゲット）の略。描画の結果を書く先の画像。
-  link: rendering/pipeline.md
+  link: graphics/pipeline/overview.md
 - terms: [チャンク, chunk]
   text: 大きなデータを、区切った 1 つのかたまり。マップを一定の大きさに分けたものなど。
   link: gamemath/grids.md
@@ -1342,7 +1342,7 @@
   link: gamemath/intersection.md
 - terms: [クラスター, クラスタ, cluster]
   text: 近いものを、まとめたかたまり。描画では、3D の格子の 1 マスや、三角形の塊のこと。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [ISO, ICU, ISO 8859]
   text: 国際的な規格の名前や、文字を扱うライブラリ（ICU）。
   link: encoding/libraries.md
@@ -1420,10 +1420,10 @@
   link: 3d/lighting-normals.md
 - terms: [ゴースト, ghost, 残像]
   text: 過去のフレームを混ぜる処理で、動く物の後ろに、残像が出る現象。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [テッセレーション, tessellation]
   text: 面を、細かく分割して、三角形を増やす処理。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [デカール, decal]
   text: 壁や地面に、あとから貼る絵。弾痕・血しぶき・看板など。
   link: 3d/mesh-textures.md
@@ -1435,7 +1435,7 @@
   link: 3d/lighting-normals.md
 - terms: [バイアス, bias]
   text: 値を、少しずらす補正。影のにじみ（シャドウ アクネ）を防ぐのに使う。
-  link: rendering/shadows.md
+  link: graphics/shadows/cost.md
 - terms: [ディスクリプタ, descriptor]
   text: DirectX 12 で、GPU が見るリソース（テクスチャなど）の、場所と形を記した小さなデータ。
   link: libs/imgui/dx12.md
@@ -1576,7 +1576,7 @@
   link: gamemath/grids.md
 - terms: [ポータル, portal]
   text: 部屋と部屋をつなぐ、入口。カリングで使う。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [ピボット, pivot]
   text: 回転や拡大の、中心になる点。
   link: 3d/transforms-mvp.md
@@ -1657,10 +1657,10 @@
   link: basics/file-io.md
 - terms: [ハイブリッド, hybrid]
   text: 2 つの方式を、組み合わせたもの。
-  link: rendering/lod.md
+  link: graphics/pipeline/lod.md
 - terms: [バリエーション, variation, バリアント, variant]
   text: 同じものの、少し違う種類。シェーダーの組み合わせなど。
-  link: rendering/shader-cost.md
+  link: graphics/pipeline/shader-cost.md
 - terms: [クエスト, quest]
   text: ゲームの中で、プレイヤーに与える依頼や目的。
   link: gamemath/balance.md
@@ -1675,7 +1675,7 @@
   link: gamemath/balance.md
 - terms: [VR, ブイアール]
   text: Virtual Reality。専用の装置で、仮想の世界を体験する技術。
-  link: rendering/taa-upscaling.md
+  link: graphics/postprocess/taa-upscaling-cost.md
 - terms: [BGM, 効果音]
   text: ゲームの背景に流れる音楽（BGM）や、動作に合わせた音（効果音）。
   link: engine/resource.md
@@ -1717,16 +1717,16 @@
   link: libs/index.md
 - terms: [BC4, BC6H]
   text: GPU が直接読める、テクスチャの圧縮形式。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [KTX2, KTX]
   text: GPU 向けに圧縮したテクスチャを入れる、ファイル形式。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [POD, trivial, トリビアル]
   text: 単純なデータだけの型。memcpy でコピーしても安全。
   link: engine/serialization/index.md
 - terms: [PVS, Potentially Visible Set]
   text: ある場所から、見える可能性のあるものを、事前に計算した一覧。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [TBB]
   text: Intel の、並列処理のライブラリ。
   link: optimize/multithreading.md
@@ -1771,16 +1771,16 @@
   link: graphics/shadows/shadow-volumes.md
 - terms: [ExecuteIndirect, コマンドシグネチャ, コマンド シグネチャ]
   text: GPU が書いた引数バッファから、描画やディスパッチを連続して発行する D3D12 の機能。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [ビンドレス, Bindless, ResourceDescriptorHeap]
   text: テクスチャ等を、バインドせず、ヒープ内の番号でシェーダーから直接引く方式。
-  link: rendering/gpu-driven-dx12/bindless.md
+  link: graphics/pipeline/gpu-driven-dx12/bindless.md
 - terms: [メッシュレット, Meshlet]
   text: メッシュを数十〜百数十個の三角形の塊に分け、塊ごとにカリングできるようにしたもの。
-  link: rendering/gpu-driven-dx12/meshlets.md
+  link: graphics/pipeline/gpu-driven-dx12/meshlets.md
 - terms: [増幅シェーダー, Amplification Shader]
   text: メッシュ シェーダーの前段で、メッシュレットをカリングして起動数を決めるシェーダー。
-  link: rendering/gpu-driven-dx12/meshlets.md
+  link: graphics/pipeline/gpu-driven-dx12/meshlets.md
 
 - terms: [プローブ, Probe, ライト プローブ]
   text: 空間の点に、周囲の光（放射照度や周囲の画像）を保存したもの。間接光や反射に使う。
@@ -1802,7 +1802,7 @@
   link: graphics/reflections/rt-reflections/index.md
 - terms: [コンピュート]
   text: 描画とは別に、GPU で汎用の計算を行うシェーダー。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [フォールバック, Fallback]
   text: 主な方法が使えないときに切り替える、代わりの方法。
   link: graphics/reflections/ssr-fallback.md
@@ -1856,10 +1856,10 @@
   link: graphics/gi/voxel-gi.md
 - terms: [ディスパッチ, Dispatch]
   text: コンピュート シェーダーを、指定の数のグループで起動すること。
-  link: rendering/gpu-driven-dx12/meshlets.md
+  link: graphics/pipeline/gpu-driven-dx12/meshlets.md
 - terms: [プリパス]
   text: 本描画の前に、深度だけを先に描くパス。
-  link: rendering/overdraw.md
+  link: graphics/pipeline/overdraw.md
 - terms: [パンニング, ピーター パンニング, Peter Panning]
   text: 影が物体から浮いて見える現象。バイアスが大きすぎると起きる。
   link: graphics/shadows/bias/peter-panning.md
@@ -1961,7 +1961,7 @@
   link: graphics/postprocess/color-grading/index.md
 - terms: [ピラミッド, Pyramid]
   text: 解像度を半分ずつにした画像の重ね（ミップ）。
-  link: rendering/gpu-driven-dx12/hiz-two-pass.md
+  link: graphics/pipeline/gpu-driven-dx12/hiz-two-pass.md
 - terms: [ホライゾン, Horizon, 水平線]
   text: 地面や遮蔽物が作る、見える範囲の境界の角度。
   link: graphics/ao/hbao.md
@@ -1982,10 +1982,10 @@
   link: graphics/postprocess/bloom/composite.md
 - terms: [ペイロード, Payload]
   text: あるステージから次へ渡す、運ぶデータ。
-  link: rendering/gpu-driven-dx12/meshlets.md
+  link: graphics/pipeline/gpu-driven-dx12/meshlets.md
 - terms: [リードバック]
   text: GPU のデータを、CPU が読み戻すこと。
-  link: rendering/gpu-driven-dx12/sync-debug.md
+  link: graphics/pipeline/gpu-driven-dx12/sync-debug.md
 - terms: [バンプ, Bump, バンプ マップ]
   text: 凹凸を、法線などで表したもの。
   link: stl/memory/allocator.md
@@ -2066,13 +2066,13 @@
   link: libs/serialization/struct-pack.md
 - terms: [ループ, Loop]
   text: 同じ処理を繰り返す仕組み。
-  link: rendering/gpu-driven-dx12/meshlets.md
+  link: graphics/pipeline/gpu-driven-dx12/meshlets.md
 - terms: [ソート, Sort, 並べ替え]
   text: 要素を、決めた順に並べ替えること。
   link: stl/algorithms/binary_search.md
 - terms: [ヘルパー, Helper]
   text: 補助的な小さな関数やクラス。
-  link: rendering/gpu-driven-dx12/scene-data.md
+  link: graphics/pipeline/gpu-driven-dx12/scene-data.md
 - terms: [ゲッター, Getter]
   text: メンバの値を返す関数。
   link: design/foundations/class-design.md
@@ -2141,7 +2141,7 @@
   link: libs/ufbx/quickstart.md
 - terms: [アセンブラ, Assembler, アセンブリ]
   text: 機械語に近い、命令を文字で書いた言語。
-  link: rendering/mesh-shaders.md
+  link: graphics/pipeline/mesh-shaders.md
 - terms: [オーバーラン, Overrun, バッファオーバーラン]
   text: 確保した範囲を超えて書き込むこと。
   link: optimize/allocators/debug.md
@@ -2171,7 +2171,7 @@
   link: graphics/reflections/probes/index.md
 - terms: [カウンタ, Counter]
   text: 回数を数える変数。
-  link: rendering/gpu-driven-dx12/culling.md
+  link: graphics/pipeline/gpu-driven-dx12/culling.md
 - terms: [キャプチャ, Capture]
   text: 画面や状態を、記録として取り込むこと。ラムダのキャプチャも指す。
   link: basics/lambda.md
@@ -2249,7 +2249,7 @@
   link: gamemath/simplemath.md
 - terms: [Direct3D, D3D]
   text: DirectX の中の、3D 描画を担当する API。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [OpenGL]
   text: クロスプラットフォームの 3D 描画 API。
   link: gamemath/coordinate-systems.md
@@ -2387,16 +2387,16 @@
   link: graphics/reflections/ssr-basics/index.md
 - terms: [BC]
   text: テクスチャを、小さなブロック単位で圧縮する形式。
-  link: rendering/texture-streaming.md
+  link: graphics/pipeline/texture-streaming.md
 - terms: [RGBA16F, R16G16B16A16_FLOAT]
   text: 各チャンネルが 16 ビット浮動小数点の画像形式。
-  link: rendering/bandwidth.md
+  link: graphics/pipeline/bandwidth.md
 - terms: [CBV, Constant Buffer View]
   text: 定数バッファを、シェーダーから見せるための記述子（D3D12）。
-  link: rendering/gpu-driven-dx12/scene-data.md
+  link: graphics/pipeline/gpu-driven-dx12/scene-data.md
 - terms: [Unordered Access View]
   text: リソースを、シェーダーから読み書きするための記述子。
-  link: rendering/gpu-driven-dx12/sync-debug.md
+  link: graphics/pipeline/gpu-driven-dx12/sync-debug.md
 - terms: [DSV, Depth Stencil View]
   text: 深度ステンシル バッファを、書き込み先に使うための記述子。
   link: 3d/depth-culling.md
@@ -2489,7 +2489,7 @@
   link: design/practice/performance-design.md
 - terms: [NVIDIA Nsight]
   text: NVIDIA の、GPU デバッグ・プロファイリング ツール。
-  link: rendering/tools.md
+  link: graphics/pipeline/tools.md
 - terms: [PhysX]
   text: NVIDIA の、物理エンジン。
   link: optimize/baking.md
@@ -2540,7 +2540,7 @@
   link: optimize/measure.md
 - terms: [AMD Radeon GPU Profiler, RGP]
   text: AMD の、GPU プロファイラ。
-  link: rendering/tools.md
+  link: graphics/pipeline/tools.md
 - terms: [Qt]
   text: C++ の、GUI アプリケーション用フレームワーク。
   link: encoding/libraries.md
@@ -2564,7 +2564,7 @@
   link: stl/utilities/hash.md
 - terms: [SPD, Single Pass Downsampler]
   text: 1 回のディスパッチで、全ミップを作る方法（AMD）。
-  link: rendering/gpu-driven-dx12/hiz-two-pass.md
+  link: graphics/pipeline/gpu-driven-dx12/hiz-two-pass.md
 - terms: [D32, D32_FLOAT]
   text: 32 ビット浮動小数点の深度フォーマット。
   link: 3d/depth-culling.md
@@ -2702,10 +2702,10 @@
   link: graphics/postprocess/bloom/index.md
 - terms: [加算ブレンド, Additive Blending]
   text: 色を足し合わせる、ブレンド方式。光の表現に使う。
-  link: rendering/particles.md
+  link: graphics/translucency/particles-cost.md
 - terms: [Alpha Blending]
   text: 透明度で、背景と色を混ぜる方法。
-  link: rendering/particles.md
+  link: graphics/translucency/particles-cost.md
 - terms: [クリップ]
   text: 透明度が低い画素を、捨てる方法。
   link: graphics/reflections/planar.md
@@ -2792,40 +2792,40 @@
   link: libs/imgui/node-editor.md
 - terms: [バッチ処理]
   text: まとめて処理すること。
-  link: rendering/2d.md
+  link: graphics/pipeline/2d.md
 - terms: [Pipeline State Object]
   text: シェーダーや描画設定を、まとめたオブジェクト（D3D12）。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [ルート シグネチャ, Root Signature]
   text: シェーダーが使う、リソースの受け渡し方を定義するもの（D3D12）。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [記述子]
   text: リソースの場所や形式を、GPU に教えるデータ。
-  link: rendering/gpu-driven-dx12/bindless.md
+  link: graphics/pipeline/gpu-driven-dx12/bindless.md
 - terms: [リソース バリア, Resource Barrier]
   text: リソースの使い方（状態）を切り替えて、同期を取る命令。
-  link: rendering/gpu-driven-dx12/sync-debug.md
+  link: graphics/pipeline/gpu-driven-dx12/sync-debug.md
 - terms: [コマンド リスト, Command List]
   text: GPU へ出す命令を、貯めておくもの。
-  link: rendering/draw-calls.md
+  link: graphics/pipeline/draw-calls.md
 - terms: [コマンド アロケータ, Command Allocator]
   text: コマンド リストの記録に使う、メモリ領域。
-  link: rendering/gpu-driven-dx12/sync-debug.md
+  link: graphics/pipeline/gpu-driven-dx12/sync-debug.md
 - terms: [アップロード ヒープ, Upload Heap]
   text: CPU が書き、GPU が読む、データ転送用のメモリ。
-  link: rendering/gpu-driven-dx12/scene-data.md
+  link: graphics/pipeline/gpu-driven-dx12/scene-data.md
 - terms: [デフォルト ヒープ, Default Heap]
   text: GPU 専用で、最も速いメモリ。
-  link: rendering/gpu-driven-dx12/scene-data.md
+  link: graphics/pipeline/gpu-driven-dx12/scene-data.md
 - terms: [ディスクリプタ ヒープ, Descriptor Heap]
   text: 記述子を、並べて置いておく場所。
   link: libs/imgui/dx12.md
 - terms: [間接描画]
   text: 描画の引数を、GPU のバッファから読んで実行する方式。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [GPU 駆動]
   text: カリングや描画の決定を、GPU に任せる方式。
-  link: rendering/gpu-driven.md
+  link: graphics/pipeline/gpu-driven.md
 - terms: [タイル ベース, Tile Based, TBDR]
   text: 画面を小さなタイルに分けて、処理する方式。
   link: graphics/shadows/local-lights/index.md
@@ -2924,7 +2924,7 @@
   link: graphics/shadows/vsm/index.md
 - terms: [Feature Level, フィーチャー レベル]
   text: GPU が対応している機能の水準（D3D の 11_0・12_0 など）。
-  link: rendering/light-culling.md
+  link: graphics/pipeline/light-culling.md
 - terms: [DirectX Raytracing]
   text: DirectX 12 の、レイトレーシング機能。
   link: graphics/shadows/ray-traced.md
@@ -2963,7 +2963,7 @@
   link: graphics/ao/gtao.md
 - terms: [バインド, Bind]
   text: リソースを、シェーダーやパイプラインに結びつけること。
-  link: rendering/gpu-driven-dx12/bindless.md
+  link: graphics/pipeline/gpu-driven-dx12/bindless.md
 - terms: [ウォッチ, Watch, ウォッチ ウィンドウ]
   text: デバッグ中に、変数の値を監視する画面。
   link: vs/debugging.md
@@ -3014,7 +3014,7 @@
   link: libs/recast/crowd.md
 - terms: [サブメッシュ, Submesh]
   text: 1 つのメッシュの中の、素材ごとの部分。
-  link: rendering/culling.md
+  link: graphics/pipeline/culling.md
 - terms: [シリアライザ, Serializer]
   text: データを、保存できる形に変換するもの。
   link: libs/serialization/cista.md
@@ -3062,7 +3062,7 @@
   link: encoding/unicode-basics.md
 - terms: [インダイレクト, Indirect]
   text: 間接的に、別の場所を経由すること。
-  link: rendering/gpu-driven-dx12/execute-indirect.md
+  link: graphics/pipeline/gpu-driven-dx12/execute-indirect.md
 - terms: [グレーディング, Color Grading, カラー グレーディング]
   text: 映像の色を調整して、雰囲気を作ること。
   link: graphics/postprocess/color-grading/index.md
@@ -3092,7 +3092,7 @@
   link: basics/move.md
 - terms: [ファイルパス, File Path]
   text: ファイルの場所を表す、文字列。
-  link: rendering/gpu-driven-dx12/hiz-two-pass.md
+  link: graphics/pipeline/gpu-driven-dx12/hiz-two-pass.md
 - terms: [コマンドライン, Command Line, コマンド ライン]
   text: 文字で命令を入力する、画面や方式。
   link: vs/ninja.md

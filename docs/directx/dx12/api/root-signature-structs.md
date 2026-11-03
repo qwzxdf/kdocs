@@ -301,7 +301,7 @@ DirectX Raytracing のローカル ルート シグネチャであることを�
 
 Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェーダーは、バインドされている CBV/SRV/UAV ヒープを番号で直接引けるようになります。バインドレスの土台です。付けずに `ResourceDescriptorHeap` を使うシェーダーで PSO を作ると失敗します。このフラグはバージョン 1.1 の記述でシリアライズします。
 
-もう 1 つ決まりがあります。このフラグを付けたルート シグネチャは、`SetGraphicsRootSignature` を呼ぶ時点で、ヒープがすでに `SetDescriptorHeaps` で結ばれている必要があります。順序が逆だと、デバッグ レイヤーがエラーを出します（[バインドレス](../../../rendering/gpu-driven-dx12/bindless.md)）。
+もう 1 つ決まりがあります。このフラグを付けたルート シグネチャは、`SetGraphicsRootSignature` を呼ぶ時点で、ヒープがすでに `SetDescriptorHeaps` で結ばれている必要があります。順序が逆だと、デバッグ レイヤーがエラーを出します（[バインドレス](../../../graphics/pipeline/gpu-driven-dx12/bindless.md)）。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED {#d3d12_root_signature_flag_sampler_heap_directly_indexed}
 

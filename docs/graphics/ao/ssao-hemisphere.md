@@ -524,7 +524,7 @@ DrawFullscreenTriangle();     // 水平
 | kernel size | サンプル数 | 8〜16 |
 | power | コントラスト | 1.0〜2.0 |
 | noise size | ノイズ テクスチャの一辺 | 4（ぼかしの周期と合わせる） |
-| 解像度 | AO を計算する解像度 | フル or 半分（半分なら、アップサンプルが必要。[縮小バッファの効果](../../rendering/low-res-effects.md)） |
+| 解像度 | AO を計算する解像度 | フル or 半分（半分なら、アップサンプルが必要。[Low-Resolution Effects](../pipeline/low-res-effects.md)） |
 
 ## 法線を深度から復元する
 

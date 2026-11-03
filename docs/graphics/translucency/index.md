@@ -48,7 +48,7 @@ tags:
 ## 関連ページ
 
 - [シェーダー](../index.md)
-- [パーティクルと半透明](../../rendering/particles.md)
-- [オーバードロー](../../rendering/overdraw.md)
+- [Particles and Translucency Cost](particles-cost.md)
+- [Overdraw](../pipeline/overdraw.md)
 - [Post-Processing](../postprocess/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

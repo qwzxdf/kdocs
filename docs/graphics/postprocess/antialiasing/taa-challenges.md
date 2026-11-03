@@ -156,7 +156,7 @@ float3 Sharpen(float3 center, float3 blurred, float strength) {
 
 TAA の発展形として、低解像度で描き、時間的に蓄積しながら、高解像度に拡大する方式があります。ジッターと履歴によって、元の画素数より多くの情報を取り出します。TAAU・TSR はエンジン内蔵の時間的アップスケール、FSR 2/3 は AMD のオープンな実装、DLSS は NVIDIA のニューラル ネットワークによる実装です。
 
-詳しい運用は[TAA とアップスケール（最適化）](../../../rendering/taa-upscaling.md)を参照してください。
+詳しい運用は[TAA とアップスケール（最適化）](../taa-upscaling-cost.md)を参照してください。
 
 ## より良いやり方
 
@@ -203,4 +203,4 @@ TAA の発展形として、低解像度で描き、時間的に蓄積しなが�
 - [Anti-Aliasing](index.md)
 - [TAA](taa.md)
 - [Comparison and Choosing](comparison.md)
-- [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)
+- [TAA, Upscaling and VRS Cost](../taa-upscaling-cost.md)

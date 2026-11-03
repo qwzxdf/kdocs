@@ -83,8 +83,8 @@ VsOutput FullscreenVS(uint vertex_id : SV_VertexID) {
 ## 関連ページ
 
 - [シェーダー](../index.md)
-- [ポストプロセス](../../rendering/postprocess.md)
-- [TAA・アップスケーラ・VRS](../../rendering/taa-upscaling.md)
-- [縮小バッファの効果](../../rendering/low-res-effects.md)
+- [Post-Processing Cost](cost.md)
+- [TAA, Upscaling and VRS Cost](taa-upscaling-cost.md)
+- [Low-Resolution Effects](../pipeline/low-res-effects.md)
 - [Reflections](../reflections/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

@@ -53,4 +53,4 @@ tags:
 - [シェーダー](../index.md)
 - [Water](../water/index.md)
 - [Shadows](../shadows/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

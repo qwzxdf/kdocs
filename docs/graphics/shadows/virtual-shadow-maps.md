@@ -415,7 +415,7 @@ MarkPageNeeded(mip, page);
 
 割り当てられた（または無効になった）ページだけ、シャドウ マップの描画を行います。各ページの範囲に入る物体をカリングして描きます。
 
-ページの描画の工夫です。ページごとに、ページの範囲（ライト空間の箱）に入るクラスタや物体だけを描きます。ページ × オブジェクトの判定を GPU で行い、間接描画します（[GPU Driven](../../rendering/gpu-driven.md)）。Nanite の小さな三角形は、コンピュートでソフトウェア ラスタライズします。ハードウェアより効率が良いことがあります。
+ページの描画の工夫です。ページごとに、ページの範囲（ライト空間の箱）に入るクラスタや物体だけを描きます。ページ × オブジェクトの判定を GPU で行い、間接描画します（[GPU Driven](../pipeline/gpu-driven.md)）。Nanite の小さな三角形は、コンピュートでソフトウェア ラスタライズします。ハードウェアより効率が良いことがあります。
 
 ### ④ 影の参照
 
@@ -501,4 +501,4 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 - [Shadows](index.md)
 - [Cascaded Shadow Maps (CSM)](cascaded.md)
 - [PCSS](pcss.md)
-- [GPU Driven Rendering](../../rendering/gpu-driven.md)
+- [GPU Driven Rendering](../pipeline/gpu-driven.md)

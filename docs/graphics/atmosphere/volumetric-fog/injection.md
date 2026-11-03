@@ -381,7 +381,7 @@ float3 scattering = inscattered * density * albedo;
 | シャドウ マップを引く | 影の中の霧は光らない。この結果、物の影が光の筋として見える |
 | 位相関数 | 前方に強く散る（g ≈ 0.6〜0.8）。太陽の方を見ると霧が明るい（[Atmospheric Scattering](../scattering/index.md)） |
 | 環境光 | 全体にうっすら足す（暗すぎる霧の防止） |
-| ライトの数が多い場合 | froxel ごとにライトをカリング（[Tiled と Clustered](../../../rendering/light-culling.md)） |
+| ライトの数が多い場合 | froxel ごとにライトをカリング（[Tiled and Clustered](../../pipeline/light-culling.md)） |
 | 解像度が低くても綺麗 | 霧は低周波（細かい構造がない）ので低解像度で十分 |
 
 ## ステップ 2：ライトの光を注入する

@@ -161,7 +161,7 @@ grep -n "vsix" docs/khlsl/index.md
     - 各ページは濃く（引数、フラグ、落とし穴、動くコード、図、よくあるミス。表は「表の規則」に従い、引数・フラグは項目ごとに本文で書く）。見本は `dx12/factory-device.md`
     - **DX12 のコードでは `d3dx12.h` と `CD3DX12_*` を使わない。** 構造体は素の `D3D12_*` を書く。頻出の組み立て（ヒープ設定、バッファとテクスチャの記述、バリア、ハンドルの加算、既定の PSO 設定）は、`dx12/util.md` の `dx12_util.h` の関数（`MakeHeapProperties`、`MakeBufferDesc`、`MakeTransitionBarrier`、`OffsetHandle` など）を使う。`UpdateSubresources` は使わず、`GetCopyableFootprints` と `CopyTextureRegion` で書く
     - 今後、`dx11/` と `dx12/` にはそれぞれ、手順を順に進める**ガイド**（ウィンドウを出す → デバイス → 三角形 …）を足す。今のページは概念・API の解説として残す
-- **「シェーダー」（原理: `docs/graphics/`）と「描画最適化」（コスト: `docs/rendering/`）は、同じ話題を役割で分ける。** 影・ポストプロセス・半透明・LOD などは、原理を前者、軽くする話を後者に書き、お互いの「関連ページ」にリンクする。対応表は `docs/graphics/index.md` の「原理と最適化の対応」
+- **「グラフィックス」（`docs/graphics/`）は、原理と軽量化を 1 つのセクションにまとめる。** 影・ポストプロセス・半透明などの分野は、原理のページと、軽くする話の `cost.md`（title は「… Cost」）を、同じフォルダに置いて、お互いの「関連ページ」にリンクする。描画全体の流れと分野をまたぐ最適化（バンド幅・ドローコール・カリング・GPU Driven など）は、`docs/graphics/pipeline/`。古い `docs/rendering/` の URL は、`redirects.yml` から転送する（ページを移動したら `tools/move_pages.py` を使う）
 - **C# 連携**（`docs/csharp/`）: 章立て。人間らしい文体（動機 → 例 → つまずき）で書く。足りない話題は本編の章として足す
 
 ## 仕組み

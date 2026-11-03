@@ -165,5 +165,5 @@ context->ResolveSubresource(back_buffer.Get(), 0, msaa_texture.Get(), 0, DXGI_FO
 - [Render Target View (RTV)](render-target-view.md)
 - [Blend State](blend-state.md)
 - [D3D11 Pass Recipes](pass-recipes.md)
-- [Forward and Deferred](../../rendering/forward-deferred.md)
+- [Forward and Deferred](../../graphics/pipeline/forward-deferred.md)
 - [Microsoft Learn: ID3D11DeviceContext::OMSetRenderTargets](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-omsetrendertargets)

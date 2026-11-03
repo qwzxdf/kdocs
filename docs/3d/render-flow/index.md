@@ -112,7 +112,7 @@ tags:
 | **とにかく全体を知りたい** | このページ → [1 フレームの中身](frame-passes.md) |
 | 順番に理解したい | 上の表の順（①〜⑦） |
 | シェーダーを書きたい | [頂点の工程](vertex-stage.md) → [ピクセルの色](pixel-shader.md) |
-| 重い原因を探したい | [ラスタライズ](rasterize.md) → [深度・ブレンド](output-merger.md) → [描画最適化](../../rendering/index.md) |
+| 重い原因を探したい | [ラスタライズ](rasterize.md) → [深度・ブレンド](output-merger.md) → [Pipeline and Optimization](../../graphics/pipeline/index.md) |
 
 ## 用語
 
@@ -131,5 +131,5 @@ tags:
 - [3D ゲーム](../index.md)
 - [モデルの基本](../model-basics.md)
 - [座標変換（MVP）](../transforms-mvp.md)
-- [描画のしくみ（最適化の入口）](../../rendering/pipeline.md)
+- [描画のしくみ（最適化の入口）](../../graphics/pipeline/overview.md)
 - [シェーダー](../../graphics/index.md)

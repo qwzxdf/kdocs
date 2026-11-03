@@ -47,4 +47,4 @@ GI は、方式がとても多い分野です。ライトマップ、プロー�
 - [Ambient Occlusion (AO)](../ao/index.md)
 - [Reflections](../reflections/index.md)
 - [Shadows](../shadows/index.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

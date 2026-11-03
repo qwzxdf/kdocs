@@ -497,5 +497,5 @@ tags:
 
 - [Post-Processing](../index.md)
 - [Motion Blur](../motion-blur/index.md)
-- [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)
+- [TAA, Upscaling and VRS Cost](../taa-upscaling-cost.md)
 - [ラスタライズ](../../../3d/render-flow/rasterize.md)

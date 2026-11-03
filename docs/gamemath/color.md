@@ -28,7 +28,7 @@ tags:
 | --- | --- | --- |
 | 8 ビット整数 | 0〜255 | 画像ファイル・見た目の指定（`#FF8800`） |
 | 浮動小数点 | 0.0〜1.0 | シェーダー・計算 |
-| HDR（浮動小数点） | 1 を超える値も使う | 明るさの差が大きい場面（[ポストプロセス](../rendering/postprocess.md)） |
+| HDR（浮動小数点） | 1 を超える値も使う | 明るさの差が大きい場面（[Post-Processing Cost](../graphics/postprocess/cost.md)） |
 
 ```cpp
 float ToFloat(uint8_t v) { return static_cast<float>(v) / 255.0f; }
@@ -319,5 +319,5 @@ float Luminance(Vector3 linear_rgb) {
 - [ゲーム数学](index.md)
 - [補間（lerp）](interpolation.md)
 - [PBR](../3d/pbr.md)
-- [ポストプロセス](../rendering/postprocess.md)
-- [テクスチャとストリーミング](../rendering/texture-streaming.md)
+- [Post-Processing Cost](../graphics/postprocess/cost.md)
+- [Texture Streaming](../graphics/pipeline/texture-streaming.md)

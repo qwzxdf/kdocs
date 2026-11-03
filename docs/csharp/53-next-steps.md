@@ -155,7 +155,7 @@ MiniEngine.sln
 
 - [DirectX 12 Guide](../directx/dx12/index.md)：エンジンの描画の部品
 - [シェーダー](../graphics/index.md)：描画の原理（ライト、影、ポスト プロセス）
-- [描画最適化](../rendering/index.md)：描画を軽くする工夫
+- [Pipeline and Optimization](../graphics/pipeline/index.md)：描画を軽くする工夫
 - [設計パターン](../design/patterns/index.md)：コマンド、オブザーバー、ECS など、この教材で使った考え方の一般形
 - [外部ライブラリ](../libs/index.md)：ImGui、glTF の読み込み、物理など
 - [Visual Studio](../vs/index.md)：プロジェクトの設定

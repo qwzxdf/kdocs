@@ -17,7 +17,7 @@ Unreal Engine 5 の看板機能である Lumen と Nanite は、名前だけが�
 !!! info "このページを読む前に"
     - [Global Illumination (GI)](index.md)
     - [DDGI](ddgi.md)（動的なプローブによる GI）
-    - [Mesh Shaders](../../rendering/mesh-shaders.md)（Nanite に近い考え方の入り口）
+    - [Mesh Shaders](../pipeline/mesh-shaders.md)（Nanite に近い考え方の入り口）
 
 ## Lumen：動的 GI を 1 つにまとめる {#lumen}
 
@@ -51,7 +51,7 @@ Nanite は、メッシュを約 128 個程度の三角形からなる小さな�
 
 三角形が 1 ピクセル程度に小さいと、ハードウェアのラスタライザーは、効率が悪くなります（1 ピクセルのために、2×2 のクアッドを処理する）。そこで、Nanite は、小さい三角形をコンピュート シェーダー（ソフトウェアのラスタライザー）で描き、大きい三角形だけをハードウェアで描き分けます。
 
-描画した結果は、ビジビリティ バッファ（各ピクセルがどの三角形か、の ID）に書きます。その後、ID から材質を引いて、ライティングします。[Visibility Buffer](../../rendering/visibility-buffer.md) の考え方です。
+描画した結果は、ビジビリティ バッファ（各ピクセルがどの三角形か、の ID）に書きます。その後、ID から材質を引いて、ライティングします。[Visibility Buffer](../pipeline/visibility-buffer.md) の考え方です。
 
 ## 自分の描画に取り入れるなら {#apply}
 
@@ -75,5 +75,5 @@ Lumen と Nanite をそのまま自作するのは、大規模な作業です。
 
 - [Global Illumination (GI)](index.md)
 - [DDGI](ddgi.md)
-- [Mesh Shaders](../../rendering/mesh-shaders.md)
-- [Visibility Buffer](../../rendering/visibility-buffer.md)
+- [Mesh Shaders](../pipeline/mesh-shaders.md)
+- [Visibility Buffer](../pipeline/visibility-buffer.md)

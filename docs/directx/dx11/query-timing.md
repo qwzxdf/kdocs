@@ -126,7 +126,7 @@ if (context->GetData(occlusion_query.Get(), &pixels, sizeof(pixels), 0) == S_OK 
 }
 ```
 
-結果は 1〜数フレーム、遅れるので「前のフレームで隠れていた物は、描かない」運用になります（[Occlusion Culling](../../rendering/culling.md)）。
+結果は 1〜数フレーム、遅れるので「前のフレームで隠れていた物は、描かない」運用になります（[Occlusion Culling](../../graphics/pipeline/culling.md)）。
 
 ## パイプライン統計
 
@@ -161,7 +161,7 @@ while (context->GetData(event_query.Get(), &done, sizeof(done), 0) != S_OK || !d
 | RenderDoc | 1 フレームを撮って各段の入出力を見る。無料 |
 | NVIDIA Nsight、AMD Radeon GPU Profiler | ベンダー固有の詳細な、カウンター |
 
-製品のゲームではタイムスタンプ クエリをデバッグ表示に組み込んでおくとどのパスが重いかをすぐに確認できます（[Tools](../../rendering/tools.md)）。
+製品のゲームではタイムスタンプ クエリをデバッグ表示に組み込んでおくとどのパスが重いかをすぐに確認できます（[Tools](../../graphics/pipeline/tools.md)）。
 
 ## よくあるミス
 
@@ -191,6 +191,6 @@ while (context->GetData(event_query.Get(), &done, sizeof(done), 0) != S_OK || !d
 
 - [DirectX 11 Guide](index.md)
 - [Debug Layer](debug-layer.md)
-- [Tools](../../rendering/tools.md)
-- [Occlusion Culling](../../rendering/culling.md)
+- [Tools](../../graphics/pipeline/tools.md)
+- [Occlusion Culling](../../graphics/pipeline/culling.md)
 - [Microsoft Learn: ID3D11Query](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d11/nn-d3d11-id3d11query)

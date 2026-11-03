@@ -58,6 +58,7 @@ hooks:
   - hooks/glossary.py
   - hooks/pageicons.py
   - hooks/searchindex.py
+  - hooks/redirects.py
 
 plugins:
   - awesome-pages

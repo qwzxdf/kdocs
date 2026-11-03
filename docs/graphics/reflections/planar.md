@@ -240,4 +240,4 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 - [Reflection Probes](probes/index.md)
 - [SSR Basics](ssr-basics/index.md)
 - [座標系](../../gamemath/coordinate-systems.md)
-- [描画最適化](../../rendering/index.md)
+- [Pipeline and Optimization](../pipeline/index.md)

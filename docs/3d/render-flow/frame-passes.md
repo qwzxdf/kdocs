@@ -231,7 +231,7 @@ tags:
 <g stroke="currentColor" stroke-width="2"><line x1="342" y1="59" x2="368" y2="59" marker-end="url(#rfa)"/><line x1="302" y1="119" x2="340" y2="135" marker-end="url(#rfa)"/><line x1="302" y1="159" x2="340" y2="143" marker-end="url(#rfa)"/></g>
 </svg>
 
-詳しくは[フォワードとディファード](../../rendering/forward-deferred.md)で扱います。
+詳しくは[フォワードとディファード](../../graphics/pipeline/forward-deferred.md)で扱います。
 
 ## パスをつなぐ：画像の使い回し
 
@@ -252,7 +252,7 @@ tags:
 | コスト | 内容 |
 | --- | --- |
 | メモリ | 中間画像（HDR・G バッファ）が増える |
-| 帯域幅 | 各パスで画像を読み書き（[メモリ帯域](../../rendering/bandwidth.md)） |
+| 帯域幅 | 各パスで画像を読み書き（[メモリ帯域](../../graphics/pipeline/bandwidth.md)） |
 | 切り替え | レンダー ターゲットやシェーダーの切り替え |
 | オーバードロー | 同じピクセルに何度も描く |
 
@@ -307,6 +307,6 @@ tags:
 
 - [描画の流れ（入門）](index.md)
 - [画面に出す](present.md)
-- [描画のしくみ（最適化の入口）](../../rendering/pipeline.md)
-- [フォワードとディファード](../../rendering/forward-deferred.md)
+- [描画のしくみ（最適化の入口）](../../graphics/pipeline/overview.md)
+- [フォワードとディファード](../../graphics/pipeline/forward-deferred.md)
 - [シェーダー](../../graphics/index.md)

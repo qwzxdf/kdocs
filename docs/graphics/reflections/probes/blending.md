@@ -44,7 +44,7 @@ float3 BlendedReflection(float3 pos, float3 R, float roughness) {
 }
 ```
 
-クラスタード（セル分割）で、各セルに影響するプローブを事前に絞り込むと、速くなります（[Tiled と Clustered](../../../rendering/light-culling.md)のライトと同じ構造）。
+クラスタード（セル分割）で、各セルに影響するプローブを事前に絞り込むと、速くなります（[Tiled and Clustered](../../pipeline/light-culling.md)のライトと同じ構造）。
 
 ## ベイクと動的更新
 | 方式 | 内容 | 向く場面 |
