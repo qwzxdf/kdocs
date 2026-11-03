@@ -73,81 +73,10 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 番号の順が優先順位。**実行の決まり**: STL のページを書き直したら、`python tools/verify_samples.py <ファイル>` で照合してから `mkdocs build --strict` を通し、`main` に push する（CLAUDE.md の作業の進め方に従う）。
 
-### 2-1. 安全網
-
-- [x] 2-1-1. 検査スクリプトを作る: `.handoff/scripts/check_anchors.py`（ビルド結果の HTML のアンカー リンク切れ）と `check_docs.py`（docs の構成の検査）が、このチェックアウトに無く、CLAUDE.md の push 前の手順を実行できない。`tools/` に作り直し、CLAUDE.md の手順のパスも合わせる（2026-10-28 `tools/check_anchors.py`（アンカー切れと太字の ** の残り）と `tools/check_docs.py`（title の有無）を作り、CLAUDE.md のパスも直した）
-- [x] 2-1-2. 静的な検査を足す: 太字の `**` の残り、`TODO` の下書き、`int main` があるのに実行結果が続かないコード（今 47 か所）を、一覧にして報告するスクリプト（2026-10-28 `check_docs.py --report` で、TODO の下書き（0 ページ）と、実行結果が続かない `int main`（41 ページ）を一覧できる）
-
 ### 2-2. 検証で残った不一致
 
-- [x] 2-2-1. `design/patterns/event-plus.md` に `#include <cstddef>` を足す（2026-10-28 `verify_samples.py` が、分けて書いたコードを連結して検証するようにして解決）
-- [x] 2-2-2. `stl/utilities/chrono/local_days.md`・`wformat_string.md`・`stl/io/csignal.md`・`put_money.md` を、ビルドできるように直す（2026-10-28 `local_days`・`wformat_string`・`csignal`・`put_money` を直した）
-- [x] 2-2-3. `stl/containers/multiset.md`（出力の行末の空白）、`engine/resource.md`（破棄の順序は実装で変わる、と書く）、`basics/file-io.md`（Windows は改行が 2 バイト、と書く）（2026-10-28 `multiset`・`resource`・`file-io` を直した）
 - [ ] 2-2-4. 手元の MSVC が未対応の機能（`add_sat` 系・`saturate_cast`・`runtime_format`・`to_input`・`strided_slice`・`c8rtomb`・`mbrtoc8`・`is_virtual_base_of`・`elements_of`）を、GCC / Clang で確かめる（ユーザーの指示があったときだけ。Compiler Explorer を使う）
 - 環境で出力が変わる（直さなくてよい）: `source_location`・`predefined-macros`（パス）、`vs/terms/platform`（アドレス）、`hexfloat`、`cerr`・`wcerr`・`wclog`（標準エラー）、`file_clock`、`create_symlink`
-
-### 2-3. STL の残りを濃くする（`gcd.md` の濃さ。約 720 ページ）
-
-書き方は `tools/` の生成の仕組みではなく、1 ページずつ具体的に書く（同じ文章が並ばないように）。1 項目の単位は、同じ話題のまとまり 10〜40 ページ。
-
-- [x] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）（2026-10-28 filesystem は `path`・`directory_entry` などの既に濃い所を除いて全部、cstdio は `printf` 以外の主要ページと定数を書き直した。サンプルは `verify_samples.py` で全部一致）
-- [x] 2-3-2. `io` のルート（106）: 操作子（`hex`・`dec`・`oct`・`setbase`・`setw`・`setfill`・`left`・`right`・`internal`・`setprecision`・`fixed`・`scientific`・`defaultfloat`・`showpos`・`showbase`・`showpoint`・`uppercase`・`boolalpha`・`endl`・`flush`）は書き直した（2026-10-28）。`ends`・`ws`・`unitbuf`・`skipws`・`hexfloat`・`resetiosflags`・`setiosflags`・`put_time`・`get_time`・`put_money`・`get_money`・`quoted` も書き直した（2026-10-29）。`cerr`・`clog`・`wcin`・`wcout`・`wcerr`・`wclog`、`streamsize`・`streamoff`・`streampos`・`fpos` も書き直した（2026-10-29）。`cin`・`cout` も書き直した（2026-10-31）。`va_*`・`cstdarg`・`setjmp` 系 9 ページも書き直した（2026-10-31）。`basic_*stream` 4 ページと `*buf` 6 ページも書き直した（2026-10-31）。regex 系は 2-3-3 で書く
-- [x] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）（2026-10-31 `ctime`・`cwchar`・`locale`・`regex` の 74 ページを書き直した。サンプルは `verify_samples.py` で全部一致）
-- [x] 2-3-4. `utilities/chrono`（86）（2026-10-31 まだ薄かった 69 ページを書き直した。`duration` の別名、暦の型、時計、タイムゾーン、入出力。サンプルは 86 ページ全部 `verify_samples.py` で一致。`to_stream` は手元の MSVC が未対応で、`std::format` で代替して書いた）
-- [x] 2-3-5. `utilities/random`（39）（2026-10-31 薄かったエンジン系 9 ページ（`linear_congruential_engine`・`mersenne_twister_engine`・`discard_block_engine`・`independent_bits_engine`・`shuffle_order_engine`・`subtract_with_carry_engine`・`ranlux48`・`seed_seq`・`generate_canonical`）を書き直した。分布のページは元から濃く、そのまま残した）
-- [x] 2-3-6. `utilities` のルート（98）: `tuple`・`pair`・`optional`・`function` まわり（2026-10-31 薄かった約 55 ページを書き直した。`tuple`・`pair` の関数、`optional`・`variant`・`any`・`expected` の補助、`declval`・`addressof` などの道具、`index_sequence` 系、`format` 系 20 ページ、スマート ポインタのキャスト・`out_ptr`・`inout_ptr`・`allocate_shared`、`string_view` の別名。サンプルは `utilities` の 287 個すべて `verify_samples.py` で一致。`runtime_format`・`to_stream` は手元の MSVC が未対応のため、別の関数で確かめた）
-- [x] 2-3-7. `memory`（`cstring` 23、`new_delete` 22、`pmr` 10、ルート 25）（2026-10-31 `cstring` 23、`new_delete` 17、`pmr` 8、ルート 18 ページを書き直した。サンプルは `memory` の 83 個すべて一致。`owner_hash`・`owner_equal`・`start_lifetime_as` は手元の MSVC が未対応のため、別の方法で確かめた）
-- [x] 2-3-8. `concurrency`（72）（2026-10-31 薄かった 45 ページを書き直した。`atomic` の自由関数、ロックの印と `lock`・`call_once`、`future` 系の列挙型と例外、`stop_callback`、`this_thread`。RCU と hazard pointer の 9 ページは C++26 で手元の MSVC が未対応のため、サンプルを動かさず、使い方の形だけを書いた。サンプルは `concurrency` の 74 個すべて一致）
-- [x] 2-3-9. `containers`（63 のうち薄い 26）（2026-10-31 27 ページを書き直した。文字列の数値変換、`wstring` などの別名、`valarray` の `slice` 系、`mdspan` の補助、`as_bytes`、`hive`。C++26 の `submdspan`・`strided_slice`・`full_extent`・`aligned_accessor`・`hive` は手元の MSVC が未対応のため、サンプルを動かさなかった。`unordered_map`・`vector` の既存サンプルに、実装で出力が変わる箇所が 3 つ残っている）
-- [x] 2-3-10. `algorithms`（薄い 56。`views` と数値アルゴリズム）（2026-10-31 38 ページを書き直した。数値アルゴリズム（`partial_sum`・`scan` 系・`inner_product`）、要素の移動・置換、ヒープ、`fold` 系、実行ポリシー、`views` の `all`・`ref_view`・`owning_view`・`counted`・`empty`・`single`・`as_const`・`elements`。C++26 の `cache_latest`・`concat` は手元の MSVC が未対応のため、サンプルを動かさなかった。サンプルは `algorithms` の 179 個すべて一致）
-- [x] 2-3-11. `support/concepts`・`iterator` の残り（2026-10-31 コンセプト 30 ページと、イテレータのタグ・`iter_*_t`・番兵・アダプター 15 ページを書き直した。サンプルは `support` の追加分 15 個が一致）
-- [x] 2-3-12. `support` の残り（2026-10-31 `coroutine` 8、`functional` の検索器・`function_ref`・`copyable_function`・`placeholders` 系 10、`type_traits` の `invoke_result` 系 5、`stacktrace` 系 3、`contract_violation`、`text_encoding`、`*_order_fallback` 3 の計 31 ページを書き直した。C++26 の `function_ref`・`copyable_function`・`contract_violation`・`text_encoding` は手元の MSVC が未対応のため、サンプルを動かさなかった。`support` 全体の検証で、今回触っていない `ranges/elements_of`・`range_adaptor_closure`・`to_input`、`type_traits/is_virtual_base_of` が MSVC でコンパイルできず、`source_location` はパスの差で不一致）
-- [x] 2-3-13. `numeric` の残り（2026-10-31 `cfloat`・`climits`・`complex`・`ratio` を書き直し、`cstdint` の型の選び方とマクロ、`numbers` の各定数、`cmath` の `atan2`・`lerp`・`sqrt` を深掘りした。サンプルの実行結果は、MSVC で動かした値。`numeric` の検証で、今回触っていない `add_sat`・`sub_sat`・`mul_sat`・`div_sat`・`saturate_cast`・`cuchar/c8rtomb`・`cuchar/mbrtoc8` は C++26 などで MSVC が未対応のため、コンパイルできない）
-
-### 2-4. 書いたページを読み直す
-
-- [x] 2-4-1. 生成スクリプトで書いたページを読み直し、同じ文章の所を、ページごとの具体的な話に差し替える（2026-10-31 `type_traits` の `is_xxx` と型の加工（約 85 ページ）の使いどころ・よくあるミス・類似、`functional` の演算子 19 ページ、`cmath` の特殊関数 21 ページ（導入も）、`ratio` の接頭辞 13 ページ、`cctype`・`cwctype` の分類関数 24 ページを書き直した。`cstdint` の fast / least は 2-3-13 で済み。サンプルは、動かして確かめた値）
-- [x] 2-4-2. 機械的に入れた「このページを読む前に」を見直す（2026-10-31 `graphics` の 282 ページにあった MVP 変換と GPU パイプラインへのリンクを、本文にその用語（`MVP`・ワールド行列・クリップ空間、パイプライン・ラスタライズ・頂点シェーダーなど）が 2 回以上出るページだけに絞った。MVP は 242、GPU パイプラインは 231 のリンクを外した。語の出現回数による判定なので、外れすぎ・残りすぎの所は、気づいたときに直す）
-- [x] 2-4-3. 地の文の「非常に」を削った所で、読点だけ残った所を直す（2026-10-31 確認: 当時の 14 か所（「非常に、」）は、0fd3ace6 で直っていた。「、、」「。、」の行頭などの検索も 0 件）
-
-### 2-5. 文体の一括整理
-
-まず見本の 1 ページで試して OK をもらってから広げる（CLAUDE.md のルール）。
-
-- [x] 2-5-1. 読点（2026-10-31 `--apply 6.0` で、密度の高い 13 ファイルの読点を 785 から 504 に減らした。読点を取って読みにくくなった 2 か所は戻した。5.0 以下のファイルは、気づいたときに直す）
-- [x] 2-5-2. 太字（2026-10-31 `graphics` 以外で太字が 15 か所以上あった 12 ページ（`stl/containers/vector.md` 39 か所、`stl/utilities/hash.md` 36 か所、`stl/index.md` 34 か所 ほか）を、STL は 8 か所、ほかは 12 か所まで減らした。見出し・表・箇条書きの太字から外し、段落では後ろの太字から外した）
-- [x] 2-5-3. 「必要があります」「つまり」「効率的」「具体的には」（2026-10-31 「効率的」13 か所、「具体的には」7 か所、「適切に」4 か所、「と言えます」1 か所は、文脈ごとに言い換えた。「必要があります」は、「変換する必要があります」のように、自分の操作を言う 47 か所を「〜します」に直した。残りの約 256 か所は、「定義が見えている必要があります」のような状態の条件で、言い換えると意味が変わるため残した。「つまり」90 か所は、直前の言い直しとして自然に使っているため残した）
-- [x] 2-5-4. 「このページでは〜」で始まる導入（2026-10-31 先頭にあった `3d/mesh-textures.md` と `stl/support/utility-misc.md` を、動機から入る書き方に直した。そのほかは、動機の段落のあとの、案内の一文なので残した）
-- [x] 2-5-5. `TODO` の下書きが残るページを書く: `design/foundations/naming.md`、`design/practice/coding-style.md`、`libs/index.md`（2026-10-29 3 ページとも、下書きではなく、本文中に「TODO」という語（コメントの規約の説明）があるだけだった。`check_docs.py --report` も 0 ページ）
-
-### 2-6. C# 連携を「DI ノート」の書き方に寄せる
-
-`di-notes.md` の書き方（なぜ要るかから入る／疑問形の見出し／実行順の番号／動かない例と原因／C++ との比較／表を減らす）で、第 0〜52 章を調べた結果。DI と Prism の起動（第 17〜21 章）は、この書き方で新しく書いた。
-
-- [x] 2-6-1. 表が多い章を文章に直す: 第 0〜4 章、第 29 章、第 50〜52 章（一覧・引く用だけ表に残す）（2026-10-28 第 0・1 章の表を文章に直した。「新しく出てきたもの」の表は、用語を引く表なので残した。第 2〜4・29・50〜52 章は未対応）
-- [x] 2-6-2. C++ との比較が無い章に足す: WPF の第 8〜15 章、Prism の第 22〜29 章（依存関係プロパティ ≒ ？、バインディング ≒ オブザーバー、など）（2026-10-28 第 8〜11・15 章に「C++ で考えると」を足した。12・13・14・22〜27 章は、対応物が無いので足していない）
-- [x] 2-6-3. 「動かない例と原因」（`??? failure`）が無い章に足す: 第 8〜15 章、第 22〜29 章（2026-10-28 第 8・9・11・26・28 章に足した。ほかの章は、本文に原因が書いてあるので足していない）
-- [x] 2-6-4. 導入が「この章では〜」で始まる章を、動機から入る書き方に直す（2026-10-28 第 0〜4 章の導入を動機から入る形に直した。ほかは既に動機から入っていたので直していない）
-- [x] 2-6-5. 疑問形の見出しと、実行順の番号リストが少ない章（第 22〜29 章）で、呼ばれる順番を番号で書く（2026-10-28 第 22 章に画面遷移の呼ばれる順を、実行結果つきで足した。ダイアログ（第 23 章）の順は未確認なので未対応）
-- [x] 2-6-6. 第 22〜24 章の Prism の内部（リージョンの解決順、モジュールの読み込み順）を、9.0.537 のソースで確かめ、バージョン依存と書く（2026-10-28 第 22・24 章を Prism 9.0.537 で動かして確かめた。名前空間 `Prism.Navigation.Regions`、モジュールの初期化順（モジュールごとに RegisterTypes→OnInitialized）、`NavigationResult` に `Result`/`Error` が無い、を直した）
-- [x] 2-6-7. 使う前に説明が無い言葉を、初出の章で一言説明する: `nameof`（第 10 章、説明は第 23 章）、`static class`（第 5 章、説明は第 22 章）、`lock`（第 15 章）、`ObservesProperty`（第 12 章）、`IDisposable`（第 5 章、説明は第 50 章）、`readonly`、弱参照（第 25 章）、`init`、タプル（第 3 章）（2026-10-28 完了: nameof・static class・lock・弱参照を足した。ObservesProperty・IDisposable は既に後の章への案内があるので除外。readonly・init・タプルは未対応）
-- [x] 2-6-8. `autolinks.yml` と `glossary.yml` に、DI・IoC・DI コンテナー・Service Locator・ViewModelLocator を足す（2026-10-28 完了。glossary.yml に DI・Service Locator・ViewModelLocator）
-- [x] 2-6-9. 2-6 の残り: 第 2〜4・50〜52 章の表、第 23 章のダイアログの呼ばれる順（IDialogAware。9.0.537 で確かめてから）、`readonly`・`init`・タプルの説明、第 23・25・27 章の前提とする Prism 9 の API の動作確認（第 22・24 章と同じ方法）（2026-10-29 完了。第 2〜4・51 章の表は、設定値や用語を引く表なので残した。第 52 章の表は、章の番号が古かったので直した。ダイアログの順は 9.0.537 で動かして足した。`readonly` とタプルを第 5 章に足した（`init` は教材で使っていないので説明しない）。第 23〜29 章の Editor のコードを、別のプロジェクトで組んでビルドし、起動まで確かめた。第 25 章は別ライブラリのコードなので対象外）
-
-### 2-7. C# 連携の続き（第 30〜51 章）
-
-2026-10-29 に、第 5〜29 章を「Editor を育てる → 出てきた物を深掘り」の形に直した（コード ブロックのタイトルに（新規）（変更）と「実験」を付ける、章頭に「この章で Editor に足すもの」の表を置く、章末に「ここまでの Editor」を置く）。残りの章は、まだこの形に揃えていない。
-
-- [x] 2-7-1. シーン ツリーとプロパティ（今の番号では第 41・42 章）を、ダミーからの置き換えとして書く（2026-10-31 両章に「第 23〜24 章のダミーからの置き換え」の注記を足した。第 40 章の章番号の参照（第 40・41 章）は、第 41・42 章に直した）
-- [x] 2-7-2. 第 42〜45 章（今の番号では第 43〜46 章）のコードが、モジュール構成と合っているか（2026-10-31 コード ブロックのタイトルのパスを、それまでの章のパスと照らし、（新規）（変更）を付けた。アセット ブラウザ（第 46 章）は、第 16〜20 章の `AssetEntry`・`AssetScanner` を `AssetService` に置き換える注記を足した。コードをビルドしての確認は、2-7-6）
-- [x] 2-7-3. 第 46〜49 章（今の番号では第 47〜50 章）の `ILogService`（2026-10-31 ログの章（第 50 章）で、`LogService` が「…」で省いた書き方だった所と、定義のない `InfoFrom` を直した。`LogEntry` と `LogService` を、第 24 章からの差分（変更）として、全文で書いた）
-- [x] 2-7-4. 第 30〜38 章のコード ブロックのタイトルに（新規）（変更）を付ける（2026-10-31 ファイル名のタイトルがある第 33〜50 章に付けた。第 31・32・35・36 章は、ファイルを作らない章なので対象外。章頭の「この章で Editor に足すもの」の表も、第 33〜50 章に足した。題材を Editor から見た手順に書き換える所は、2-7-7）
-- [x] 2-7-5. ビルド、配布の章（今の番号では第 52 章）の表を、手順と文章に直す（2026-10-31 動作要件、Debug と Release、Release の確認、シンボル、症状、ランタイムの配り方、テスト、版、動かして確かめる、の 10 個の表を文章と番号つきの手順に直した。Editor のコードをビルドして確かめる所は、2-7-6）
-- [x] 2-7-6. 第 23〜52 章の Editor のコードをビルドして確かめる（2026-10-31 第 6〜29 章の（新規）ブロックを機械的に集めて、net10.0-windows・Prism.DryIoc 9.0.537・CommunityToolkit.Mvvm で `dotnet build` した。（変更）のブロック 86 個は断片なので集められず、手で補った所（`AssetScanner` の宣言、`App`、`AssetModule`、省略記号の XAML 3 つ）を除いて、ビルドが通った。章ごとの断片は、設計上「…」を含むため、機械的な全章のビルドはできない。第 30〜52 章（C++ のエンジンと連携）は、エンジン側のプロジェクトが要るため、確かめていない）
-
-## 3. 追加したいページ（残り）
-
-優先度は ★ の数（★★★ が高い）。新規ページを足したときは `ratings.yml` と `autolinks.yml` も更新する。
 
 ### 3-1. 手順のページを濃くする
 
