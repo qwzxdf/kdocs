@@ -84,12 +84,18 @@ namespace KCppAssist
         // 呼び出し規約(void __cdecl() と void() は同じ型)
         private static readonly Regex Calls = new Regex(@"\b__(?:cdecl|stdcall|fastcall|vectorcall)\b", RegexOptions.Compiled);
 
+        // 関数ポインタの引数: void (*handle_result)(void* arg, const Slice& k)。1 = 戻り値の型、2 = 名前(なくてもよい)、3 = 引数のリスト
+        private static readonly Regex FnPtr = new Regex(
+            @"^(.*?)\(\s*(?:[*&^]|\w+::\*)\s*([A-Za-z_]\w*)?\s*(?:\[[^\]]*\])?\s*\)\s*\((.*)\)\s*(?:const|noexcept|volatile|\s)*$", RegexOptions.Singleline | RegexOptions.Compiled);
+
         /// <summary>引数の名前。名前のない引数(型だけ)なら null。</summary>
         public static string ParamName(string p)
         {
             p = StripComments(p);
             string def;
             string core = Regex.Replace(StripDefault(p, out def), @"\s+", " ").Trim();
+            var fp = FnPtr.Match(core);
+            if (fp.Success) return fp.Groups[2].Success && fp.Groups[2].Length > 0 ? fp.Groups[2].Value : null;
             var m = NameSplit.Match(core);
             if (!m.Success) return null;
             string ident = m.Groups[2].Value;
@@ -106,6 +112,15 @@ namespace KCppAssist
             p = StripComments(p);
             string def;
             string core = Regex.Replace(StripDefault(p, out def), @"\s+", " ").Trim();
+            var fp = FnPtr.Match(core);
+            if (fp.Success)
+            {
+                // 関数ポインタは、内側の引数の名前を除いて「戻り値(*)(型, 型)」にそろえる
+                var inner = SplitParams(fp.Groups[3].Value);
+                string args = inner == null ? Regex.Replace(fp.Groups[3].Value, @"\s+", "") : string.Join(",", inner.Select(TypeKey));
+                string ret = Regex.Replace(Regex.Replace(fp.Groups[1].Value, @"\s+", " ").Trim(), @"\s*([*&<>,:()])\s*", "$1");
+                return ret + "(*)(" + args + ")";
+            }
             string name = ParamName(p);
             if (name != null)
             {
@@ -120,6 +135,111 @@ namespace KCppAssist
         }
 
         public static List<string> TypeKeys(List<string> ps) { return ps.Select(TypeKey).ToList(); }
+
+        // ---- 別名(HANDLE と void* など)----
+
+        private static readonly Dictionary<string, string> Aliases = new Dictionary<string, string>
+        {
+            { "HANDLE", "void*" }, { "LPVOID", "void*" }, { "PVOID", "void*" }, { "LPCVOID", "const void*" },
+            { "LPSTR", "char*" }, { "PSTR", "char*" }, { "LPCSTR", "const char*" }, { "PCSTR", "const char*" },
+            { "LPWSTR", "wchar_t*" }, { "PWSTR", "wchar_t*" }, { "LPCWSTR", "const wchar_t*" }, { "PCWSTR", "const wchar_t*" },
+            { "DWORD", "unsigned long" }, { "ULONG", "unsigned long" }, { "LONG", "long" }, { "WORD", "unsigned short" }, { "USHORT", "unsigned short" },
+            { "BYTE", "unsigned char" }, { "UCHAR", "unsigned char" }, { "UINT", "unsigned int" }, { "INT", "int" }, { "BOOL", "int" },
+            { "uint8_t", "unsigned char" }, { "uint16_t", "unsigned short" }, { "uint32_t", "unsigned int" }, { "uint64_t", "unsigned long long" },
+            { "int8_t", "signed char" }, { "int16_t", "short" }, { "int32_t", "int" }, { "int64_t", "long long" },
+            { "UINT8", "unsigned char" }, { "UINT16", "unsigned short" }, { "UINT32", "unsigned int" }, { "UINT64", "unsigned long long" },
+            { "INT8", "signed char" }, { "INT16", "short" }, { "INT32", "int" }, { "INT64", "long long" },
+        };
+        private static readonly Regex AliasWord = new Regex(@"(?<![\w:])(?:std::)?([A-Za-z_]\w*)(?![\w])", RegexOptions.Compiled);
+
+        /// <summary>
+        /// 型のキーを、別名をそろえた形にする(HANDLE = void*、uint32_t = unsigned int、unsigned = unsigned int など)。
+        /// 相手の引数を探すときの比較にだけ使う。引数の並びを合わせる(Align)には使わない(int を int32_t に変えたら、その変更を写したいので)。
+        /// </summary>
+        public static string AliasNorm(string key)
+        {
+            string s = AliasWord.Replace(key, m => { string v; return Aliases.TryGetValue(m.Groups[1].Value, out v) ? v : m.Value; });
+            s = Regex.Replace(s, @"\b(unsigned|signed)\b(?!\s+(?:int|long|short|char)\b)", "$1 int");
+            s = Regex.Replace(s, @"\bsigned int\b", "int");
+            s = Regex.Replace(s, @"\b(long|short)\s+int\b", "$1");
+            s = Regex.Replace(s, @"\bunsigned (long|short) int\b", "unsigned $1");
+            s = Regex.Replace(s, @"\s+", " ");
+            return Regex.Replace(s, @"\s*([*&<>,:()])\s*", "$1").Trim();
+        }
+
+        // ---- 引数の途中に #if が入るもの ----
+
+        private static readonly Regex Directive = new Regex(@"^[ \t]*#[ \t]*(\w+)", RegexOptions.Compiled);
+
+        /// <summary>引数の括弧の中に、#if などのプリプロセッサの行があるか。</summary>
+        public static bool HasDirectives(string inner) { return Regex.IsMatch(inner, @"(?m)^[ \t]*#"); }
+
+        /// <summary>
+        /// #if / #else の枝を 1 つずつ選んだ中身を全部返す(最大 16 通り)。#if だけで #else がないときは、その枝を使わない場合も入れる。
+        /// </summary>
+        public static List<string> Variants(string inner)
+        {
+            var lines = inner.Replace("\r", "").Split('\n');
+            int i = 0;
+            string end;
+            return ExpandLines(lines, ref i, out end);
+        }
+
+        private static List<string> ExpandLines(string[] lines, ref int i, out string end)
+        {
+            var results = new List<string> { "" };
+            while (i < lines.Length)
+            {
+                var m = Directive.Match(lines[i]);
+                if (m.Success)
+                {
+                    string d = m.Groups[1].Value;
+                    if (d == "if" || d == "ifdef" || d == "ifndef")
+                    {
+                        i++;
+                        var branches = new List<string>();
+                        bool hasElse = false;
+                        while (true)
+                        {
+                            string e;
+                            branches.AddRange(ExpandLines(lines, ref i, out e));
+                            if (e == "elif") continue;
+                            if (e == "else") { hasElse = true; continue; }
+                            break;
+                        }
+                        if (!hasElse) branches.Add("");
+                        var next = new List<string>();
+                        foreach (string r in results)
+                            foreach (string b in branches)
+                            {
+                                if (next.Count >= 16) break;
+                                next.Add(r + b);
+                            }
+                        results = next;
+                        continue;
+                    }
+                    if (d == "elif" || d == "else" || d == "endif") { end = d; i++; return results; }
+                    i++;
+                    continue;
+                }
+                for (int k = 0; k < results.Count; k++) results[k] += lines[i] + "\n";
+                i++;
+            }
+            end = null;
+            return results;
+        }
+
+        /// <summary>括弧の中身から、引数の型のキーの並びを返す。#if があれば、枝の選び方ごとに 1 つずつ。読めないものは入れない。</summary>
+        public static List<List<string>> KeyVariants(string inner)
+        {
+            var result = new List<List<string>>();
+            foreach (string v in HasDirectives(inner) ? Variants(inner) : new List<string> { inner })
+            {
+                var l = SplitParams(v);
+                if (l != null) result.Add(TypeKeys(l));
+            }
+            return result;
+        }
 
         /// <summary>引数のリストで、既定値のある引数のあとに、既定値のない引数があるか(C++ では書けない)。</summary>
         public static bool DefaultsOutOfOrder(List<string> ps)

@@ -31,9 +31,10 @@ static class SyncTests
             if (SignatureSync.Norm(sb[i].Inner(before)) != SignatureSync.Norm(sa[i].Inner(after))) { idx = i; break; }
         if (idx < 0) return "!変更なし";
         var edited = sb[idx];
-        var oldList = SignatureSync.SplitParams(edited.Inner(before));
-        var newList = SignatureSync.SplitParams(sa[idx].Inner(after));
-        if (oldList == null || newList == null) return "!書きかけ";
+        var oldKeys = SignatureSync.KeyVariants(edited.Inner(before));
+        var newKeys = SignatureSync.KeyVariants(sa[idx].Inner(after));
+        if (oldKeys.Count == 0 || newKeys.Count == 0) return "!書きかけ";
+        bool editedHasIf = SignatureSync.HasDirectives(edited.Inner(before)) || SignatureSync.HasDirectives(sa[idx].Inner(after));
         if (edited.HasBody && edited.InClass) return "!相手なし(クラスの中の本体)";
 
         bool wantDef = !edited.HasBody;
@@ -43,18 +44,19 @@ static class SyncTests
             int score = SyncPlan.Counterpart(s, edited, wantDef);
             if (score > 0) targets.Add(new KeyValuePair<FunctionScan.Sig, int>(s, score));
         }
-        var oldKeys = SignatureSync.TypeKeys(oldList);
-        var newKeys = SignatureSync.TypeKeys(newList);
-        Func<KeyValuePair<FunctionScan.Sig, int>, List<string>> keysOf = t => { var l = SignatureSync.SplitParams(t.Key.Inner(other)); return l == null ? null : SignatureSync.TypeKeys(l); };
+        Func<KeyValuePair<FunctionScan.Sig, int>, List<List<string>>> keysOf = t => SignatureSync.KeyVariants(t.Key.Inner(other));
 
-        var matches = SyncPlan.Matches(targets, t => t.Value, keysOf, oldKeys);
+        var matches = SyncPlan.MatchesAny(targets, t => t.Value, keysOf, oldKeys);
         if (matches.Count == 0)
         {
-            if (targets.Any(t => SyncPlan.SameKeys(keysOf(t), newKeys))) return "!もう合っている";
+            if (targets.Any(t => SyncPlan.SameKeysAny(keysOf(t), newKeys))) return "!もう合っている";
             return "!見つからない";
         }
         if (matches.Count > 1) return "!複数ある";
         var t0 = matches[0].Key;
+        if (editedHasIf || SignatureSync.HasDirectives(t0.Inner(other))) return "!#if";
+        var oldList = SignatureSync.SplitParams(edited.Inner(before));
+        var newList = SignatureSync.SplitParams(sa[idx].Inner(after));
         var cpList = SignatureSync.SplitParams(t0.Inner(other));
         if (cpList == null) return "!相手が書きかけ";
         string newInner = SignatureSync.Rebuild(oldList, newList, cpList, !wantDef, t0.Inner(other));
@@ -230,6 +232,21 @@ static class SyncTests
             var sigs = FunctionScan.Scan(big.ToString());
             Check("大きなファイルの解析(" + big.Length / 1024 + " KB)", (sigs.Count == 6000 && sw.ElapsedMilliseconds < 1000).ToString(), "True");
         }
+
+        // ---- 13. 取りこぼしの 3 種(別名・関数ポインタ・#if) ----
+        string h13 = "class A {\n public:\n  void Wait(HANDLE h, DWORD ms);\n  void Call(void (*cb)(void* arg, int n), int x);\n};\n";
+        Case("別名: HANDLE と void*、DWORD と unsigned long", h13, h13.Replace("DWORD ms)", "DWORD ms, int k)"),
+             "void A::Wait(void* h, unsigned long ms) {}\n", "void A::Wait(void* h, unsigned long ms, int k) {}\n");
+        Case("別名: uint32_t と unsigned、int32_t と int", "class A {\n public:\n  void F(uint32_t a, int32_t b);\n};\n", "class A {\n public:\n  void F(uint32_t a, int32_t b, int c);\n};\n",
+             "void A::F(unsigned a, int b) {}\n", "void A::F(unsigned a, int b, int c) {}\n");
+        Case("関数ポインタ: 内側の名前が違っても同じ", h13, h13.Replace("int x)", "int x, int k)"),
+             "void A::Call(void (*cb)(void*, int), int x) {}\n", "void A::Call(void (*cb)(void*, int), int x, int k) {}\n");
+        Case("関数ポインタ: 型が違えば別", h13, h13.Replace("int x)", "int x, int k)"),
+             "void A::Call(void (*cb)(void*, float), int x) {}\n", "!見つからない");
+        Check("#if: 枝の選び方ごとの型の並び", string.Join(" | ", SignatureSync.KeyVariants("int a,\n#if defined(X)\n int b,\n#else\n float b,\n#endif\n int c").Select(l => string.Join(",", l))), "int,int,int | int,float,int");
+        Check("#if: #else のない枝は、使わない場合も数える", string.Join(" | ", SignatureSync.KeyVariants("int a\n#ifdef X\n, int b\n#endif").Select(l => string.Join(",", l))), "int,int | int");
+        Check("#if: 相手の引数にどの枝でも合わなければ見つからない", Sync("void F(int a, float c);\n", "void F(int a, float c, int d);\n", "void F(int a,\n#if defined(X)\n int b,\n#endif\n int c) {}\n"), "!見つからない");
+        Check("#if: 枝のどれかと合えば見つけて、書き換えない", Sync("void F(int a, int c);\n", "void F(int a, int c, int d);\n", "void F(int a,\n#if defined(X)\n int b,\n#endif\n int c) {}\n"), "!#if");
 
         Check("既定値の順序: 後ろに既定値なしが来る", SignatureSync.DefaultsOutOfOrder(SignatureSync.SplitParams("int a = 3, int b")).ToString(), "True");
         Check("既定値の順序: 正しい", SignatureSync.DefaultsOutOfOrder(SignatureSync.SplitParams("int a, int b = 3, int c = 4")).ToString(), "False");

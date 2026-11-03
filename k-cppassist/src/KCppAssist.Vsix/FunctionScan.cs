@@ -20,6 +20,10 @@ namespace KCppAssist
             public bool InClass;        // クラスの本体の中に書かれている
             public List<string> Chain = new List<string>();   // 名前の前に付く、namespace とクラスの並び(外側から順。囲んでいるものと、Class::Func の修飾の両方)
             public bool IsConst;        // ')' のあとに const が付く(オーバーロードの区別に使う)
+            public int PrefixStart;     // 戻り値の型などを含む、文の頭の位置(長すぎる文は末尾の 600 文字から)
+            public int NameStart;       // 修飾(Class::)を含む、名前の頭の位置
+            public int Enclosing;       // Chain の先頭の、囲んでいる namespace・クラスの数(残りは Class::Func の修飾)
+            public int End;             // 定義なら本体の「}」の位置、宣言なら「;」の位置
 
             public string Inner(string text) { return text.Substring(Open + 1, Close - Open - 1); }
         }
@@ -182,6 +186,9 @@ namespace KCppAssist
 
             var sig = new Sig { Class = cls, Name = name, Open = open, Close = close, HasBody = body, InClass = qual.Trim().Length == 0 && top.Key };
             sig.Chain.AddRange(enclosing);
+            sig.PrefixStart = open - prefix.Length;
+            sig.NameStart = sig.PrefixStart + nm.Index;
+            sig.Enclosing = enclosing.Count;
             if (qual.Trim().Length > 0)
                 foreach (string part in qual.Split(new[] { "::" }, StringSplitOptions.RemoveEmptyEntries))
                     sig.Chain.Add(Regex.Replace(part, @"\s*<.*>\s*", "").Trim());
@@ -196,8 +203,9 @@ namespace KCppAssist
             {
                 int e = MatchClose(m, j, '{', '}');
                 after = e < 0 ? n : e + 1;
+                sig.End = e < 0 ? n - 1 : e;
             }
-            else after = j + 1;
+            else { after = j + 1; sig.End = j; }
             return sig;
         }
 
