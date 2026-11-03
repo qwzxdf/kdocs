@@ -39,11 +39,9 @@ tags:
 <text x="450" y="214" style="font-size:12px">ライトが 100 個でも、1000 個でも、</text><text x="450" y="232" style="font-size:12px">近くの数個だけの計算で、済む</text>
 </svg>
 
-| 目的 | 説明 |
-| --- | --- |
-| 計算量の削減 | ピクセルごとに全ライトではなく、近くのライトだけ |
-| 帯域の削減（Deferred） | ライトごとに、G-Buffer をフルスクリーンで読まず、1 回だけ読む |
-| スケーラビリティ | ライトを数千個にしてもピクセルあたりの負担が増えない |
+- 計算量の削減: ピクセルごとに全ライトではなく、近くのライトだけ
+- 帯域の削減（Deferred）: ライトごとに、G-Buffer をフルスクリーンで読まず、1 回だけ読む
+- スケーラビリティ: ライトを数千個にしてもピクセルあたりの負担が増えない
 
 ## Tiled（タイル分割）
 
@@ -51,14 +49,12 @@ tags:
 
 <svg class="fig flow" viewBox="0 0 1604 112" role="img" aria-label="Tiled：画面を、タイルに分けて、タイルごとに、影響するライトの、リストを作る"><defs><marker id="fl9676" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Tiled：画面をタイルに分けて、タイルごとに、影響するライトの、リストを作る</text><line x1="141.0" y1="64.0" x2="199.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9676)"/><line x1="403.0" y1="64.0" x2="461.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9676)"/><text x="432.0" y="58.0" text-anchor="middle" style="font-size:12px">深度の範囲</text><line x1="655.0" y1="64.0" x2="713.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9676)"/><line x1="921.0" y1="64.0" x2="979.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9676)"/><line x1="1194.0" y1="64.0" x2="1252.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9676)"/><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">深度バッファ</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="202.0" y="44.0" width="198" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="301.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイルに分ける （16×16）</text><circle cx="204.0" cy="46.0" r="10" fill="#2ea043"/><text x="204.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="464.0" y="44.0" width="188" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="558.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイルの 最小・最大深度</text><circle cx="466.0" cy="46.0" r="10" fill="#e5a828"/><text x="466.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="716.0" y="44.0" width="202" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="817.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ライトを タイルの形と判定</text><circle cx="718.0" cy="46.0" r="10" fill="#e5484d"/><text x="718.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="982.0" y="44.0" width="209" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="1086.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイルごとの ライト リスト</text><circle cx="984.0" cy="46.0" r="10" fill="#9664e6"/><text x="984.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="1255.0" y="44.0" width="321" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="1415.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルは、 自分のタイルの ライトだけ計算</text><circle cx="1257.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="1257.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
-| 手順 | 内容 |
-| --- | --- |
-| **1. 画面をタイルに分ける** | 16×16 ピクセルが定番（1920×1080 なら、約 8000 タイル） |
-| 2. タイルの深度の範囲を求める | タイル内の最小深度・最大深度（コンピュート シェーダーで、リダクション） |
-| 3. タイルの形（視錐台）を作る | タイルの 4 辺と最小・最大深度で囲まれた、小さな視錐台 |
-| 4. ライトを判定 | 各ライト（球）がタイルの視錐台と交わるか |
-| 5. リストに追加 | 交わるライトの番号をタイルのリストに（共有メモリ → バッファ） |
-| 6. ピクセルは、リストを読む | 自分のタイルのライトだけを計算 |
+1. **1. 画面をタイルに分ける**: 16×16 ピクセルが定番（1920×1080 なら、約 8000 タイル）
+2. 2. タイルの深度の範囲を求める: タイル内の最小深度・最大深度（コンピュート シェーダーで、リダクション）
+3. 3. タイルの形（視錐台）を作る: タイルの 4 辺と最小・最大深度で囲まれた、小さな視錐台
+4. 4. ライトを判定: 各ライト（球）がタイルの視錐台と交わるか
+5. 5. リストに追加: 交わるライトの番号をタイルのリストに（共有メモリ → バッファ）
+6. 6. ピクセルは、リストを読む: 自分のタイルのライトだけを計算
 
 コンピュート シェーダーで、タイル ＝ 1 つのスレッド グループとして、共有メモリ（groupshared）にリストを作ります。スレッドが手分けして、ライトを判定するので速いです。
 
@@ -72,11 +68,9 @@ tags:
 
 ### 弱点
 
-| 弱点 | 説明 |
-| --- | --- |
-| 深度の不連続 | タイル内に近い物と遠い物（物体の縁）があると最小〜最大の深度が広くなり、ライトが多く残る（無駄が出る） |
-| 半透明 | 深度バッファが不透明のみなので半透明の位置は、考慮されない（別の対策が必要） |
-| 奥行きの情報が粗い | 2.5 次元（画面方向のみ、奥行きは、min/max の 1 区間） |
+- 深度の不連続: タイル内に近い物と遠い物（物体の縁）があると最小〜最大の深度が広くなり、ライトが多く残る（無駄が出る）
+- 半透明: 深度バッファが不透明のみなので半透明の位置は、考慮されない（別の対策が必要）
+- 奥行きの情報が粗い: 2.5 次元（画面方向のみ、奥行きは、min/max の 1 区間）
 
 この弱点を解決するのが、Clustered です。
 
@@ -109,11 +103,9 @@ tags:
 スライス番号 ＝ floor( log(z / near) / log(far / near) × スライス数 )
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| スライス数 | 24〜32 がよく使われる |
-| 対数分割の理由 | 透視投影で遠くはピクセルあたりの奥行きが大きいため、画面上の均等な大きさに近づく |
-| クラスターの総数 | 例：タイル 120×68 × 24 スライス ＝ 約 20 万（タイルを大きくして、減らすことも） |
+- スライス数: 24〜32 がよく使われる
+- 対数分割の理由: 透視投影で遠くはピクセルあたりの奥行きが大きいため、画面上の均等な大きさに近づく
+- クラスターの総数: 例：タイル 120×68 × 24 スライス ＝ 約 20 万（タイルを大きくして、減らすことも）
 
 ### 利点
 
@@ -127,22 +119,18 @@ tags:
 
 ### 弱点
 
-| 弱点 | 説明 |
-| --- | --- |
-| メモリが増える | クラスターの数 × リストの大きさ |
-| 構築のコスト | クラスターごとにライトを判定（数が多い）。コンピュートで並列化 |
-| 実装がやや複雑 | スライスの計算・リストの管理 |
+- メモリが増える: クラスターの数 × リストの大きさ
+- 構築のコスト: クラスターごとにライトを判定（数が多い）。コンピュートで並列化
+- 実装がやや複雑: スライスの計算・リストの管理
 
 ## ライト リストの、データ構造
 
 **クラスター／タイルごとに、ライトの番号のリスト**を持ちます。
 
-| 構造 | 内容 |
-| --- | --- |
-| ライト バッファ | 全ライトの情報（位置・色・半径）の配列 |
-| ライト インデックス リスト | 「セルごとのライト番号」を 1 本の配列に詰めたもの |
-| グリッド | セルごとに、「リストの開始位置」と「個数」 |
-| カウンター（UAV） | コンピュートがリストに書き込む位置（アトミック加算） |
+- ライト バッファ: 全ライトの情報（位置・色・半径）の配列
+- ライト インデックス リスト: 「セルごとのライト番号」を 1 本の配列に詰めたもの
+- グリッド: セルごとに、「リストの開始位置」と「個数」
+- カウンター（UAV）: コンピュートがリストに書き込む位置（アトミック加算）
 
 ```text
 グリッド[セル] → (開始位置, 個数)
@@ -160,25 +148,21 @@ tags:
 
 ### それぞれの使いどころ
 
-| 方式 | 向く場面 |
-| --- | --- |
-| Tiled Deferred | PC・コンソールの不透明中心。帯域に余裕がある |
-| Tiled Forward（Forward+） | MSAA が欲しい・材質を自由にしたい |
-| Clustered Forward | 半透明・ボリューム効果をライトに反応させたい。VR |
-| Clustered Deferred | 大規模・ライトが多い |
+- Tiled Deferred: PC・コンソールの不透明中心。帯域に余裕がある
+- Tiled Forward（Forward+）: MSAA が欲しい・材質を自由にしたい
+- Clustered Forward: 半透明・ボリューム効果をライトに反応させたい。VR
+- Clustered Deferred: 大規模・ライトが多い
 
 現在の多くのゲームは、Clustered（または Tiled）を Forward か Deferred と組み合わせています。ハイブリッド（不透明は Deferred、半透明は Clustered Forward）も、一般的です。
 
 ## 実装の注意
 
-| 注意 | 説明 |
-| --- | --- |
-| **コンピュート シェーダーが必要** | DX11 はコンピュート シェーダー（`CSMain`）を使える（Feature Level 11 以上） |
-| タイルの大きさ | 16×16 が多い。小さいと精度が上がるがタイル数が増える |
-| ライトの上限 | タイル／クラスターあたりの、最大ライト数を決める（超えたら、切り捨て） |
-| ライトの半径 | 「影響範囲」を必要な広さに決める（大きすぎると絞れない） |
-| 影 | 影付きライトは、別に（影マップのコスト。[そのほかの最適化](../postprocess/taa-upscaling-cost.md)） |
-| 半透明（Tiled） | 深度の範囲が不透明のみ。半透明は全ライト、または、Clustered |
+- **コンピュート シェーダーが必要**: DX11 はコンピュート シェーダー（`CSMain`）を使える（Feature Level 11 以上）
+- タイルの大きさ: 16×16 が多い。小さいと精度が上がるがタイル数が増える
+- ライトの上限: タイル／クラスターあたりの、最大ライト数を決める（超えたら、切り捨て）
+- ライトの半径: 「影響範囲」を必要な広さに決める（大きすぎると絞れない）
+- 影: 影付きライトは、別に（影マップのコスト。[そのほかの最適化](../postprocess/taa-upscaling-cost.md)）
+- 半透明（Tiled）: 深度の範囲が不透明のみ。半透明は全ライト、または、Clustered
 
 ## 手法の進化と改善点（まとめ）
 

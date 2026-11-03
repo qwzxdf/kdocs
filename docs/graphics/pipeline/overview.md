@@ -23,14 +23,12 @@ tags:
 
 <svg class="fig flow" viewBox="0 0 1309 196" role="img" aria-label="CPU が描画命令を作り、GPU が処理する"><defs><marker id="fl12852" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">CPU が描画命令を作り、GPU が処理する</text><line x1="150.0" y1="87.0" x2="150.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="275.0" y1="148.0" x2="333.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><text x="304.0" y="142.0" text-anchor="middle" style="font-size:12px">送る</text><line x1="494.0" y1="148.0" x2="552.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="802.0" y1="148.0" x2="860.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="1096.0" y1="148.0" x2="1154.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><rect x="79.5" y="44.0" width="141" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">CPU ゲームの更新</text><circle cx="81.5" cy="46.0" r="10" fill="#4c8bf5"/><text x="81.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="244" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="150.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画命令を作る （ドローコール）</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="336.0" y="128.0" width="155" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="413.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPU 頂点シェーダー</text><circle cx="338.0" cy="130.0" r="10" fill="#e5a828"/><text x="338.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="555.0" y="128.0" width="244" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="677.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ラスタライズ （ピクセルに分解）</text><circle cx="557.0" cy="130.0" r="10" fill="#e5484d"/><text x="557.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="863.0" y="128.0" width="230" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="978.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルシェーダー （色付け）</text><circle cx="865.0" cy="130.0" r="10" fill="#9664e6"/><text x="865.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="1157.0" y="128.0" width="124" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="1219.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面に書き込む</text><circle cx="1159.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="1159.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| **ドロー コール** | 「この形をこの設定で描いて」という GPU への 1 回の描画命令 |
-| 頂点シェーダー | 頂点（三角形の角）の位置を計算するプログラム |
-| ピクセル シェーダー | 画面の 1 点（ピクセル）の色を計算するプログラム |
-| オーバードロー | 同じピクセルに何度も描くこと（手前に隠れて見えないものまで描く） |
-| フィルレート | 1 秒に描けるピクセル数。GPU の限界の 1 つ |
-| メモリ帯域 | GPU がテクスチャなどを読み書きできる速さ |
+- **ドロー コール**: 「この形をこの設定で描いて」という GPU への 1 回の描画命令
+- 頂点シェーダー: 頂点（三角形の角）の位置を計算するプログラム
+- ピクセル シェーダー: 画面の 1 点（ピクセル）の色を計算するプログラム
+- オーバードロー: 同じピクセルに何度も描くこと（手前に隠れて見えないものまで描く）
+- フィルレート: 1 秒に描けるピクセル数。GPU の限界の 1 つ
+- メモリ帯域: GPU がテクスチャなどを読み書きできる速さ
 
 ## CPU と GPU、どちらが遅いか
 
@@ -91,12 +89,10 @@ device->CreateSamplerState(&desc, &debug_sampler);
 
 「ドロー コールが多いと遅い」と言われるのは、CPU が 1 回ごとに次のような仕事をするためです。
 
-| 仕事 | 内容 |
-| --- | --- |
-| 状態の検証 | シェーダー、ステート、リソースの組み合わせが正しいかを確認 |
-| リソースの束縛 | ビューや定数バッファをパイプラインにつなぐ |
-| 命令の生成 | GPU が理解できる命令の列に変換して書き込む（ドライバー） |
-| 同期の管理 | 読み書きの衝突の整理（D3D11 はドライバーが D3D12 はアプリが行う） |
+- 状態の検証: シェーダー、ステート、リソースの組み合わせが正しいかを確認
+- リソースの束縛: ビューや定数バッファをパイプラインにつなぐ
+- 命令の生成: GPU が理解できる命令の列に変換して書き込む（ドライバー）
+- 同期の管理: 読み書きの衝突の整理（D3D11 はドライバーが D3D12 はアプリが行う）
 
 1 回の命令は数マイクロ秒から十数マイクロ秒（環境により大きく変わる）で、<strong>数千回、積み重なると数十 ミリ秒</strong>になります。そのため、同じメッシュをインスタンスでまとめる状態を変えない順に並べるといった対策が効きます（[Draw Calls and Batching](draw-calls.md)）。D3D12 はこの CPU の負荷が小さく、複数のスレッドで命令を記録できます。
 

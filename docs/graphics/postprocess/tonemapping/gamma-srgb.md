@@ -208,13 +208,11 @@ device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf())
 
 <strong>HDR ディスプレイは、SDR より広い明るさ（数百〜数千ニト）と広い色域</strong>を出せます。SDR 用のトーンマップの結果をそのまま送ると、HDR の良さが活きません。
 
-| 項目 | 内容 |
-| --- | --- |
-| 色空間 | Rec.2020（広い色域） |
-| 伝達関数 | PQ（ST.2084）：絶対的な明るさ（ニト）を 10 ビットに効率よく入れる曲線 |
-| スワップチェーン形式 | `R10G10B10A2_UNORM`（HDR10）、または `R16G16B16A16_FLOAT`（scRGB） |
-| 色空間の設定 | `IDXGISwapChain3::SetColorSpace1` で `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` |
-| トーンマップ | ディスプレイの最大輝度（ニト）に合わせた HDR 用の曲線。SDR 用とは別 |
+- 色空間: Rec.2020（広い色域）
+- 伝達関数: PQ（ST.2084）：絶対的な明るさ（ニト）を 10 ビットに効率よく入れる曲線
+- スワップチェーン形式: `R10G10B10A2_UNORM`（HDR10）、または `R16G16B16A16_FLOAT`（scRGB）
+- 色空間の設定: `IDXGISwapChain3::SetColorSpace1` で `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020`
+- トーンマップ: ディスプレイの最大輝度（ニト）に合わせた HDR 用の曲線。SDR 用とは別
 
 ```cpp
 swap_chain->SetColorSpace1(DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020);

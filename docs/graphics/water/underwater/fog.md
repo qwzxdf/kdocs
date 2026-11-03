@@ -29,12 +29,10 @@ float3 scattered = water_color * (1.0 - transmittance);
 float3 final_color = scene_color * transmittance + scattered;
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 赤が先に消える | 遠くは青緑になる |
-| `distance_to_pixel` | 深度から求めたカメラからの距離（水面を通る分も含む） |
-| 水深で明るさを変える | 深いほど暗い（太陽光が届かない）。`exp(−k · depth)` |
-| 空は水の色 | 空の部分は遠距離扱いで水の色になる |
+- 赤が先に消える: 遠くは青緑になる
+- `distance_to_pixel`: 深度から求めたカメラからの距離（水面を通る分も含む）
+- 水深で明るさを変える: 深いほど暗い（太陽光が届かない）。`exp(−k · depth)`
+- 空は水の色: 空の部分は遠距離扱いで水の色になる
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="水中の霧">
 <text x="20" y="24" class="fig-title">水中の霧：距離とともに、赤 → 緑 → 青の順に消える</text>
@@ -90,11 +88,9 @@ float3 T = exp(-g_absorption * distance);
 float3 color = scene * T + g_water_color * (1.0 - T);
 ```
 
-| 項目 | 内容 |
-| --- | --- |
-| 空（深度が最大の画素） | 空は、水の中からは見えない（水面の向こう）。水の色で塗る |
-| 水面を見上げたとき | 水面の描画（[The Underside of the Surface and Crossing It](surface-back.md)）。水面より向こうの空の描画は別に扱う |
-| 水中の遠い物 | 距離が大きいほど水の色（`water_color`）に近づく |
+- 空（深度が最大の画素）: 空は、水の中からは見えない（水面の向こう）。水の色で塗る
+- 水面を見上げたとき: 水面の描画（[The Underside of the Surface and Crossing It](surface-back.md)）。水面より向こうの空の描画は別に扱う
+- 水中の遠い物: 距離が大きいほど水の色（`water_color`）に近づく
 
 ### 水の色（`water_color`）と深さ
 
@@ -118,11 +114,9 @@ float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);     // 青の
 
 水中の物をライティングするとき <strong>光が水の中を通ってくる</strong>間に吸収されます。
 
-| 光源 | 水中での色 |
-| --- | --- |
-| 太陽光 | 水面から物までの、深さに応じて赤から消える |
-| 環境光（空の光） | 同様。全体に暗く青くなる |
-| 水中のライト（懐中電灯、ランプ） | 光源から物までの、距離に応じて吸収される。近くでは白く遠くでは青緑 |
+- 太陽光: 水面から物までの、深さに応じて赤から消える
+- 環境光（空の光）: 同様。全体に暗く青くなる
+- 水中のライト（懐中電灯、ランプ）: 光源から物までの、距離に応じて吸収される。近くでは白く遠くでは青緑
 
 ```hlsl
 // 太陽光を水中の深さ d で減衰させる。
@@ -133,11 +127,9 @@ float3 sun_underwater = sun_color * exp(-g_absorption * depth_below_surface);
 
 遠くの地形や物を描くとき <strong>空気中の大気（空気遠近法）は、水中では使いません</strong>。水中では 水の霧で置き換えます。
 
-| カメラの位置 | 使う霧 |
-| --- | --- |
-| 空気中 | 大気の霧（[Aerial Perspective and Fog](../../atmosphere/aerial-fog/index.md)） |
-| 水中 | 水中の霧（このページ） |
-| 水面をまたぐ（半分水中、半分空気中） | 水面の高さで霧を切り替える（[The Underside of the Surface and Crossing It](surface-back.md)） |
+- 空気中: 大気の霧（[Aerial Perspective and Fog](../../atmosphere/aerial-fog/index.md)）
+- 水中: 水中の霧（このページ）
+- 水面をまたぐ（半分水中、半分空気中）: 水面の高さで霧を切り替える（[The Underside of the Surface and Crossing It](surface-back.md)）
 
 水中では 視界が短くなるので、遠景（地形のチャンク、遠くの物）の描画は早めに打ち切って、コストを減らせます。
 

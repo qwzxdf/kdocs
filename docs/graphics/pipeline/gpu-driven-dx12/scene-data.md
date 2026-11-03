@@ -47,12 +47,10 @@ ComPtr<ID3D12Resource> CreateUploadBuffer(ID3D12Device* device, uint64_t size) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `D3D12_HEAP_TYPE_DEFAULT` | GPU 専用メモリ。GPU から最速。CPU からはマップできない |
-| `D3D12_HEAP_TYPE_UPLOAD` | CPU から書ける（write-combined）。GPU は読める。初期状態は `GENERIC_READ` 固定 |
-| `ALLOW_UNORDERED_ACCESS` | UAV で書くバッファに必須のフラグ（カリング出力など） |
-| `ThrowIfFailed` | `HRESULT` を検査して、例外を投げる自前のヘルパー |
+- `D3D12_HEAP_TYPE_DEFAULT`: GPU 専用メモリ。GPU から最速。CPU からはマップできない
+- `D3D12_HEAP_TYPE_UPLOAD`: CPU から書ける（write-combined）。GPU は読める。初期状態は `GENERIC_READ` 固定
+- `ALLOW_UNORDERED_ACCESS`: UAV で書くバッファに必須のフラグ（カリング出力など）
+- `ThrowIfFailed`: `HRESULT` を検査して、例外を投げる自前のヘルパー
 
 ### 静的データのアップロード
 
@@ -84,11 +82,9 @@ ComPtr<ID3D12Resource> UploadStaticBuffer(ID3D12Device* device, ID3D12GraphicsCo
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `keep_alive` | コピーが GPU で完了するまで、アップロード バッファを解放してはいけない。フェンスの完了後に破棄 |
-| `Map` の `read_range(0, 0)` | CPU は読まないと宣言（不要なキャッシュ処理を避ける） |
-| 遷移 | `COPY_DEST` → 用途の状態（頂点・インデックス・SRV など） |
+- `keep_alive`: コピーが GPU で完了するまで、アップロード バッファを解放してはいけない。フェンスの完了後に破棄
+- `Map` の `read_range(0, 0)`: CPU は読まないと宣言（不要なキャッシュ処理を避ける）
+- 遷移: `COPY_DEST` → 用途の状態（頂点・インデックス・SRV など）
 
 ## 構造化バッファと SRV/UAV
 
@@ -123,11 +119,9 @@ void CreateStructuredBufferUav(ID3D12Device* device, ID3D12Resource* buffer,
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `Format = UNKNOWN` | 構造化バッファは、フォーマットを指定しない |
-| `StructureByteStride` | 1 要素のバイト数（`sizeof(InstanceData)` など）。HLSL の構造体と一致させる |
-| UAV の第 2 引数 `nullptr` | カウンタ リソース（隠しカウンタ）を使わない。今回は、`ByteAddressBuffer` に、自前のカウンタを置く |
+- `Format = UNKNOWN`: 構造化バッファは、フォーマットを指定しない
+- `StructureByteStride`: 1 要素のバイト数（`sizeof(InstanceData)` など）。HLSL の構造体と一致させる
+- UAV の第 2 引数 `nullptr`: カウンタ リソース（隠しカウンタ）を使わない。今回は、`ByteAddressBuffer` に、自前のカウンタを置く
 
 ByteAddressBuffer（生バッファ）の UAV は、`Format = R32_TYPELESS`・`Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW`・`NumElements` はワード（4 バイト）数で作ります。
 
@@ -190,11 +184,9 @@ class DescriptorHeap {
 };
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `GetDescriptorHandleIncrementSize` | 記述子 1 個のバイト数（GPU 依存）。ハンドルを進めるのに使う |
-| シェーダー可視ヒープ | `SetDescriptorHeaps` でバインドできるのは、種類ごとに 1 つ（CBV/SRV/UAV と、サンプラー） |
-| `Allocate` | 単純な連番。解放して再利用する場合は、フリー リストが要る（[バインドレス](bindless.md)） |
+- `GetDescriptorHandleIncrementSize`: 記述子 1 個のバイト数（GPU 依存）。ハンドルを進めるのに使う
+- シェーダー可視ヒープ: `SetDescriptorHeaps` でバインドできるのは、種類ごとに 1 つ（CBV/SRV/UAV と、サンプラー）
+- `Allocate`: 単純な連番。解放して再利用する場合は、フリー リストが要る（[バインドレス](bindless.md)）
 
 CBV/SRV/UAVのヒープは、アプリ全体で 1 つの大きなものにして、全リソースの記述子をそこに置くのが、GPU Driven・バインドレスの基本です。
 
@@ -223,11 +215,9 @@ void Renderer::CreateFrameResources() {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 永続マップ | `Map` したまま、`Unmap` しない。アップロード ヒープでは、問題ない（毎フレーム Map/Unmap しない） |
-| フレームごとのバッファ | `frames_[frame_index_]` を使う。そのフレームのフェンスが完了してから、再利用 |
-| `kMaxInstances` | 最大インスタンス数。超えたら、書き込まない・警告（バッファ オーバーランを防ぐ） |
+- 永続マップ: `Map` したまま、`Unmap` しない。アップロード ヒープでは、問題ない（毎フレーム Map/Unmap しない）
+- フレームごとのバッファ: `frames_[frame_index_]` を使う。そのフレームのフェンスが完了してから、再利用
+- `kMaxInstances`: 最大インスタンス数。超えたら、書き込まない・警告（バッファ オーバーランを防ぐ）
 
 ### GPU 側への反映
 
@@ -254,11 +244,9 @@ void Renderer::UploadInstances(ID3D12GraphicsCommandList* list, uint32_t count) 
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 全体コピー | 全インスタンスをコピーする単純な形。動く物が少ないなら、動いた範囲だけコピー（ダーティ範囲） |
-| バリアで挟む | SRV 状態 → コピー先 → SRV 状態。カリング CS が読む前にコピーが完了するように |
-| `NON_PIXEL_SHADER_RESOURCE` | コンピュート／頂点シェーダーが読む状態。ピクセル シェーダーも読むなら `PIXEL_SHADER_RESOURCE` を OR する |
+- 全体コピー: 全インスタンスをコピーする単純な形。動く物が少ないなら、動いた範囲だけコピー（ダーティ範囲）
+- バリアで挟む: SRV 状態 → コピー先 → SRV 状態。カリング CS が読む前にコピーが完了するように
+- `NON_PIXEL_SHADER_RESOURCE`: コンピュート／頂点シェーダーが読む状態。ピクセル シェーダーも読むなら `PIXEL_SHADER_RESOURCE` を OR する
 
 動く物体が少ないなら、変更された要素だけを CS で書き換える（スキャッター更新）方法もあります。大規模ではこれが効きます。
 
@@ -300,12 +288,10 @@ ComPtr<ID3D12RootSignature> Renderer::CreateCullRootSignature() {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| ルート CBV/SRV/UAV | 記述子ではなく、GPU 仮想アドレスを直接渡せる（`SetComputeRootShaderResourceView(index, address)`）。記述子テーブル・ヒープの管理が不要 |
-| ルート SRV/UAV の制限 | バッファのみ（テクスチャは不可）。`StructuredBuffer`・`ByteAddressBuffer` は使える（型付きバッファは不可） |
-| ルート パラメータのコスト | ルート シグネチャは 64 ワードまで。CBV/SRV/UAV の GPU アドレスは 2 ワード。今回は 10 ワード程度で余裕 |
-| `kCullRootCount` の列挙 | インデックスを名前付き定数で管理（番号の取り違えを防ぐ） |
+- ルート CBV/SRV/UAV: 記述子ではなく、GPU 仮想アドレスを直接渡せる（`SetComputeRootShaderResourceView(index, address)`）。記述子テーブル・ヒープの管理が不要
+- ルート SRV/UAV の制限: バッファのみ（テクスチャは不可）。`StructuredBuffer`・`ByteAddressBuffer` は使える（型付きバッファは不可）
+- ルート パラメータのコスト: ルート シグネチャは 64 ワードまで。CBV/SRV/UAV の GPU アドレスは 2 ワード。今回は 10 ワード程度で余裕
+- `kCullRootCount` の列挙: インデックスを名前付き定数で管理（番号の取り違えを防ぐ）
 
 カリング パスでルート引数を設定するコードは、[カリング](culling.md)で示します。
 
@@ -317,11 +303,9 @@ ComPtr<ID3D12RootSignature> Renderer::CreateCullRootSignature() {
 
 **GPU Driven では、バッファのサイズを事前に決める**必要があります（GPU が書く量が CPU には分からないため）。
 
-| 項目 | 決め方 |
-| --- | --- |
-| 最大インスタンス数 | シーンの最大の物体数＋余裕 |
-| コマンド バッファの大きさ | 最大インスタンス数 × `sizeof(IndirectCommand)`（最悪、全物体が見える場合に備える） |
-| PSO バケットごとの最大数 | バケット数 × バケットあたりの最大。超えた分は破棄（描かれない） |
+- 最大インスタンス数: シーンの最大の物体数＋余裕
+- コマンド バッファの大きさ: 最大インスタンス数 × `sizeof(IndirectCommand)`（最悪、全物体が見える場合に備える）
+- PSO バケットごとの最大数: バケット数 × バケットあたりの最大。超えた分は破棄（描かれない）
 
 メモリ：262,144 インスタンス × 24 バイト ≒ 6 MB。GPU Driven としては、軽いです。
 

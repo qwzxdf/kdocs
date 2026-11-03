@@ -26,11 +26,9 @@ tags:
 
 草や木の葉は <strong>輪郭が細かい</strong>ので、テクスチャのアルファ（透明度）で、形を切り抜きます。ここで半透明のブレンドを使うと、次の問題が起きます。
 
-| 問題 | 内容 |
-| --- | --- |
-| ソートが要る | 半透明は、奥から手前の順に描かないと正しく、混ざらない。数百万本をソートできない |
-| 深度を書かない | 半透明は、深度バッファに書かない。隣の草との前後関係がおかしくなる |
-| 重い | 画素ごとのブレンドは、メモリ帯域を使う。草は画面全体に重なる |
+- ソートが要る: 半透明は、奥から手前の順に描かないと正しく、混ざらない。数百万本をソートできない
+- 深度を書かない: 半透明は、深度バッファに書かない。隣の草との前後関係がおかしくなる
+- 重い: 画素ごとのブレンドは、メモリ帯域を使う。草は画面全体に重なる
 
 そこで、アルファ テスト（切り抜き）を使います。アルファがしきい値より小さい画素は、捨てるだけで深度も書けてソートも要りません。
 
@@ -45,11 +43,9 @@ clip(alpha - 0.5);                // アルファが 0.5 未満の画素は、�
 
 アルファ テストは <strong>画素ごとに、残すか捨てるかを決める</strong>ので縁がジャギーになります。MSAA の効果も出ません（シェーダー内の `clip` は、1 画素ごとの結果でサブサンプルごとには、決まらない）。
 
-| 対策 | 内容 |
-| --- | --- |
-| Alpha to Coverage | アルファの値を MSAA のカバレッジ（サブサンプルの何個を描くか）に変換する。縁がなめらか（[Alpha to Coverage](../../translucency/alpha-test/alpha-to-coverage.md)） |
-| TAA | 時間方向に平均する。ジャギーがならされる（[TAA](../../postprocess/antialiasing/taa.md)） |
-| ハッシュ アルファ | 画素ごとに、ランダムなしきい値で判定する。時間方向に平均すると半透明に見える（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)、Wyman と McGuire、2017） |
+- Alpha to Coverage: アルファの値を MSAA のカバレッジ（サブサンプルの何個を描くか）に変換する。縁がなめらか（[Alpha to Coverage](../../translucency/alpha-test/alpha-to-coverage.md)）
+- TAA: 時間方向に平均する。ジャギーがならされる（[TAA](../../postprocess/antialiasing/taa.md)）
+- ハッシュ アルファ: 画素ごとに、ランダムなしきい値で判定する。時間方向に平均すると半透明に見える（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)、Wyman と McGuire、2017）
 
 ### ② 遠くで葉が痩せて見える
 
@@ -126,12 +122,10 @@ clip(alpha - threshold);
 
 木の葉は <strong>カード（板に葉の絵）</strong>で、表現します。アルファ テストで 葉の形を切り抜きます。
 
-| 項目 | 内容 |
-| --- | --- |
-| 葉の描画 | アルファ テスト ＋ Alpha to Coverage |
-| 影 | アルファ テストで影も、切り抜く（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)） |
-| 遠景（インポスター） | 木全体を 1 枚の絵（板）に。アルファ テスト、またはディザでフェード（[Trees](trees.md)） |
-| LOD の切り替え | ディザ フェード（市松の、ディザ パターンで 2 つの LOD を混ぜる） |
+- 葉の描画: アルファ テスト ＋ Alpha to Coverage
+- 影: アルファ テストで影も、切り抜く（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)）
+- 遠景（インポスター）: 木全体を 1 枚の絵（板）に。アルファ テスト、またはディザでフェード（[Trees](trees.md)）
+- LOD の切り替え: ディザ フェード（市松の、ディザ パターンで 2 つの LOD を混ぜる）
 
 ## よくあるミス
 

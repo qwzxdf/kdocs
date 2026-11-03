@@ -175,12 +175,10 @@ desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 device->CreateBlendState(&desc, &alpha_to_coverage_state);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `AlphaToCoverageEnable` | ピクセル シェーダーの出力アルファをカバレッジ マスクに変換 |
-| MSAA が必要 | MSAA の描画先（`SampleDesc.Count` が 2 以上）でのみ有効 |
-| ブレンドは不要 | アルファ ブレンドとは別の機構。深度も書ける |
-| 効果 | 縁が MSAA のサンプル数ぶんの段階で滑らかに |
+- `AlphaToCoverageEnable`: ピクセル シェーダーの出力アルファをカバレッジ マスクに変換
+- MSAA が必要: MSAA の描画先（`SampleDesc.Count` が 2 以上）でのみ有効
+- ブレンドは不要: アルファ ブレンドとは別の機構。深度も書ける
+- 効果: 縁が MSAA のサンプル数ぶんの段階で滑らかに
 
 4x MSAA では 5 段階（0/4〜4/4）の透明度しか表せません。ディザリングのようなパターンが見えることがあります。
 
@@ -240,11 +238,9 @@ const float factor[4] = {0, 0, 0, 0};
 context->OMSetBlendState(a2c_blend_state.Get(), factor, 0xffffffff);
 ```
 
-| 設定 | 内容 |
-| --- | --- |
-| `AlphaToCoverageEnable` | `TRUE`。ピクセル シェーダーの SV_Target の、アルファをカバレッジに変換する |
-| `BlendEnable` | `FALSE`。A2C はブレンドではなくサンプルの、描く・描かないで動く |
-| MSAA | 必須。MSAA が無い（サンプル 1 つ）と、A2C はアルファ テストと、ほぼ同じで意味がない |
+- `AlphaToCoverageEnable`: `TRUE`。ピクセル シェーダーの SV_Target の、アルファをカバレッジに変換する
+- `BlendEnable`: `FALSE`。A2C はブレンドではなくサンプルの、描く・描かないで動く
+- MSAA: 必須。MSAA が無い（サンプル 1 つ）と、A2C はアルファ テストと、ほぼ同じで意味がない
 
 ```hlsl
 // ピクセル シェーダー: アルファをそのまま出力する。clip は、使わない。
@@ -298,23 +294,19 @@ float InterleavedGradientNoise(float2 screen_pos) {
 
 ## A2C の注意点
 
-| 項目 | 内容 |
-| --- | --- |
-| MSAA が必要 | ディファード レンダリングでは、MSAA が重いので使いにくい。フォワード向き |
-| 他のアルファ | A2C を使うと、ブレンド ステートが占有される。通常のアルファ ブレンドと併用できない |
-| 色 | アルファ以外の出力（色）は、通常どおり。カバレッジが決まるだけ |
-| ミップ | 遠くでアルファが薄くなる問題は残る（[Foliage Translucency](../../terrain/vegetation/translucency.md)） |
-| 重なり | 複数の A2C の面が同じ画素に重なると同じサンプルが取り合いになる。重なりに強くない（アルファの合計が 1 を超えるともう描けない） |
-| 動き | TAAを使うなら、A2C なしでもハッシュ アルファ（時間方向に平均）で同等のことができる（[Hashed Alpha](hashed-alpha.md)） |
+- MSAA が必要: ディファード レンダリングでは、MSAA が重いので使いにくい。フォワード向き
+- 他のアルファ: A2C を使うと、ブレンド ステートが占有される。通常のアルファ ブレンドと併用できない
+- 色: アルファ以外の出力（色）は、通常どおり。カバレッジが決まるだけ
+- ミップ: 遠くでアルファが薄くなる問題は残る（[Foliage Translucency](../../terrain/vegetation/translucency.md)）
+- 重なり: 複数の A2C の面が同じ画素に重なると同じサンプルが取り合いになる。重なりに強くない（アルファの合計が 1 を超えるともう描けない）
+- 動き: TAAを使うなら、A2C なしでもハッシュ アルファ（時間方向に平均）で同等のことができる（[Hashed Alpha](hashed-alpha.md)）
 
 ## 使いどころ
 
-| 対象 | A2C |
-| --- | --- |
-| 木の葉、草（フォワード + MSAA） | 最も、有効（縁がなめらかソート不要、深度書き込み可） |
-| フェンス、金網 | 有効 |
-| 髪の毛 | 有効（ただし、重なりが多い。[Hair Transparency](../../skin-hair/hair/transparency.md)） |
-| ガラス、水など本当の半透明 | 不向き（アルファを段階的なサンプルに変換するだけで、混ざらない） |
+- 木の葉、草（フォワード + MSAA）: 最も、有効（縁がなめらかソート不要、深度書き込み可）
+- フェンス、金網: 有効
+- 髪の毛: 有効（ただし、重なりが多い。[Hair Transparency](../../skin-hair/hair/transparency.md)）
+- ガラス、水など本当の半透明: 不向き（アルファを段階的なサンプルに変換するだけで、混ざらない）
 
 ## よくあるミス
 

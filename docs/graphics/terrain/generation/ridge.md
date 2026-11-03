@@ -38,12 +38,10 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `1 − abs(noise)` | 0 付近の線が尾根になる |
-| `n *= n` | 尾根を鋭くする |
-| `weight` | 低い所では細かい起伏を弱める（谷を滑らかに尾根をごつごつ） |
-| 使い分け | 山地はリッジ、平原は通常の fBm。ノイズでブレンド |
+- `1 − abs(noise)`: 0 付近の線が尾根になる
+- `n *= n`: 尾根を鋭くする
+- `weight`: 低い所では細かい起伏を弱める（谷を滑らかに尾根をごつごつ）
+- 使い分け: 山地はリッジ、平原は通常の fBm。ノイズでブレンド
 
 <!-- fig:ridge-steps:begin -->
 

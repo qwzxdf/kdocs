@@ -1449,12 +1449,10 @@ if (neighbor_length < kMinVelocityPixels) {
 }
 ```
 
-| 用途 | 内容 |
-| --- | --- |
-| ぼかしの方向 | NeighborMax の向きにサンプルを配置 |
-| ぼかしの長さ | NeighborMax の長さ（最大ブラー長で制限） |
-| スキップ判定 | 長さが小さいタイル（< 0.5 画素）は、ぼかしを省略 |
-| 自分の速度との組み合わせ | サンプルの重み付けに自分の速度も使う（[Blur Pass Implementation](blur-pass.md)） |
+- ぼかしの方向: NeighborMax の向きにサンプルを配置
+- ぼかしの長さ: NeighborMax の長さ（最大ブラー長で制限）
+- スキップ判定: 長さが小さいタイル（< 0.5 画素）は、ぼかしを省略
+- 自分の速度との組み合わせ: サンプルの重み付けに自分の速度も使う（[Blur Pass Implementation](blur-pass.md)）
 
 ## コスト
 
@@ -1462,12 +1460,10 @@ if (neighbor_length < kMinVelocityPixels) {
 
 ## より良いやり方
 
-| 工夫 | 内容 |
-| --- | --- |
-| タイル サイズ ＝ 最大ブラー長 | 16〜20 画素が一般的 |
-| NeighborMax に向きを考慮 | 精度が上がる |
-| スキップ判定で分岐の一貫性 | タイル単位で同じ分岐になり、GPU が無駄なく動く |
-| DOF のタイルと共用 | 同じ 16×16 のタイルで、DOF の最大 CoC も計算（[Foreground and Background](../dof/near-far.md)） |
+- タイル サイズ ＝ 最大ブラー長: 16〜20 画素が一般的
+- NeighborMax に向きを考慮: 精度が上がる
+- スキップ判定で分岐の一貫性: タイル単位で同じ分岐になり、GPU が無駄なく動く
+- DOF のタイルと共用: 同じ 16×16 のタイルで、DOF の最大 CoC も計算（[Foreground and Background](../dof/near-far.md)）
 
 ## よくあるミス
 

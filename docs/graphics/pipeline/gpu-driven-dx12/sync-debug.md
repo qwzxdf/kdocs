@@ -25,15 +25,13 @@ GPU Driven は、<strong>「GPU が書いたものを GPU が読む」</strong>�
 
 **GPU Driven の 1 フレーム**で、各リソースがどの状態を行き来するかを表にします。
 
-| リソース | 状態の遷移 |
-| --- | --- |
-| インスタンス バッファ | `SRV` → `COPY_DEST`（更新）→ `SRV` |
-| カウント バッファ | `INDIRECT_ARGUMENT` → `COPY_DEST`（ゼロ コピー）→ `UNORDERED_ACCESS`（カリング）→ `INDIRECT_ARGUMENT`（描画） |
-| コマンド バッファ | `INDIRECT_ARGUMENT` → `UNORDERED_ACCESS`（カリング）→ `INDIRECT_ARGUMENT`（描画） |
-| 可視フラグ バッファ | 常に `UNORDERED_ACCESS`（CS だけが読み書き）。同じバッファを連続する 2 つのディスパッチが触る間は、UAV バリア |
-| 深度バッファ | `DEPTH_WRITE`（描画）→ `NON_PIXEL_SHADER_RESOURCE`（Hi-Z 構築）→ `DEPTH_WRITE`（2 パス目の描画） |
-| Hi-Z テクスチャ | `NON_PIXEL_SHADER_RESOURCE` → `UNORDERED_ACCESS`（構築。ミップ間は UAV バリア）→ `NON_PIXEL_SHADER_RESOURCE`（判定） |
-| レンダー ターゲット | 通常どおり（`RENDER_TARGET` ↔ `PRESENT` など） |
+- インスタンス バッファ: `SRV` → `COPY_DEST`（更新）→ `SRV`
+- カウント バッファ: `INDIRECT_ARGUMENT` → `COPY_DEST`（ゼロ コピー）→ `UNORDERED_ACCESS`（カリング）→ `INDIRECT_ARGUMENT`（描画）
+- コマンド バッファ: `INDIRECT_ARGUMENT` → `UNORDERED_ACCESS`（カリング）→ `INDIRECT_ARGUMENT`（描画）
+- 可視フラグ バッファ: 常に `UNORDERED_ACCESS`（CS だけが読み書き）。同じバッファを連続する 2 つのディスパッチが触る間は、UAV バリア
+- 深度バッファ: `DEPTH_WRITE`（描画）→ `NON_PIXEL_SHADER_RESOURCE`（Hi-Z 構築）→ `DEPTH_WRITE`（2 パス目の描画）
+- Hi-Z テクスチャ: `NON_PIXEL_SHADER_RESOURCE` → `UNORDERED_ACCESS`（構築。ミップ間は UAV バリア）→ `NON_PIXEL_SHADER_RESOURCE`（判定）
+- レンダー ターゲット: 通常どおり（`RENDER_TARGET` ↔ `PRESENT` など）
 
 ### 状態の追跡
 
@@ -62,11 +60,9 @@ class TrackedResource {
 };
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `state_` の保持 | 「今、どの状態か」をソフトウェアで管理。遷移の元の状態を書き間違えない |
-| 同じ状態なら、バリアを出さない | 無駄なバリアを避ける |
-| 注意 | コマンド リストの記録順 ＝ 実行順を前提にした単純な追跡。複数のコマンド リストを並列に記録する場合は、状態の追跡を別途設計する（遷移の「最初の状態」を実行時に解決する方式） |
+- `state_` の保持: 「今、どの状態か」をソフトウェアで管理。遷移の元の状態を書き間違えない
+- 同じ状態なら、バリアを出さない: 無駄なバリアを避ける
+- 注意: コマンド リストの記録順 ＝ 実行順を前提にした単純な追跡。複数のコマンド リストを並列に記録する場合は、状態の追跡を別途設計する（遷移の「最初の状態」を実行時に解決する方式）
 
 ### バリアをまとめる
 
@@ -82,10 +78,8 @@ list->ResourceBarrier(_countof(barriers), barriers);
 
 ## UAV バリアと状態遷移の違い
 
-| 種類 | 用途 |
-| --- | --- |
-| <strong>状態遷移バリア（Transition）</strong> | リソースの「使い方」が変わるとき（UAV → INDIRECT_ARGUMENT など） |
-| UAV バリア | 同じ UAV 状態のまま、前の書き込みを次の読み書きの前に完了させる（ディスパッチ同士の順序保証） |
+- <strong>状態遷移バリア（Transition）</strong>: リソースの「使い方」が変わるとき（UAV → INDIRECT_ARGUMENT など）
+- UAV バリア: 同じ UAV 状態のまま、前の書き込みを次の読み書きの前に完了させる（ディスパッチ同士の順序保証）
 
 UAV で書いたバッファを別のディスパッチが UAV で読む場合は、UAV バリアです。UAV で書いたバッファを ExecuteIndirect が読む場合は、状態遷移（UAV → INDIRECT_ARGUMENT）です。
 
@@ -117,13 +111,11 @@ void Renderer::EndFrame() {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `fence_value` | そのフレームのコマンドが完了したときの値 |
-| `WaitForFrame` | これから使うフレームの、前回のコマンドが完了するまで待つ |
-| `SetEventOnCompletion` | 指定の値に達したら、イベントを立てる。`WaitForSingleObject` で待つ |
-| `CollectGarbage` | 遅延解放した記述子を完了済みのフェンス値で回収（[バインドレス](bindless.md)） |
-| フレーム数 `kFrameCount` | 2〜3。多いほど CPU/GPU が並列に動くが、入力の遅延が増える |
+- `fence_value`: そのフレームのコマンドが完了したときの値
+- `WaitForFrame`: これから使うフレームの、前回のコマンドが完了するまで待つ
+- `SetEventOnCompletion`: 指定の値に達したら、イベントを立てる。`WaitForSingleObject` で待つ
+- `CollectGarbage`: 遅延解放した記述子を完了済みのフェンス値で回収（[バインドレス](bindless.md)）
+- フレーム数 `kFrameCount`: 2〜3。多いほど CPU/GPU が並列に動くが、入力の遅延が増える
 
 ### コマンド アロケータ
 
@@ -154,11 +146,9 @@ if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller)))) {
 #endif
 ```
 
-| 機能 | 内容 |
-| --- | --- |
-| デバッグ レイヤー | API の使い方の誤り（状態の食い違い・解放済みリソース・不正なパラメータ）を検出 |
-| GPU ベース検証（GBV） | シェーダー実行中のリソース アクセスを検証（未初期化の記述子・状態の誤り・範囲外）。遅いので問題が出たときに有効化する |
-| `ID3D12InfoQueue` | エラーでブレークポイントをかける設定ができる |
+- デバッグ レイヤー: API の使い方の誤り（状態の食い違い・解放済みリソース・不正なパラメータ）を検出
+- GPU ベース検証（GBV）: シェーダー実行中のリソース アクセスを検証（未初期化の記述子・状態の誤り・範囲外）。遅いので問題が出たときに有効化する
+- `ID3D12InfoQueue`: エラーでブレークポイントをかける設定ができる
 
 ```cpp
 ComPtr<ID3D12InfoQueue> info_queue;
@@ -188,14 +178,12 @@ GPU Driven は、シェーダーが GPU メモリを自由に読み書きする�
 
 **PIX for Windows**で、フレームをキャプチャし、各ディスパッチ・ドローの前後のバッファの中身を確認できます。
 
-| 見るもの | 確認すること |
-| --- | --- |
-| カウント バッファ | カリング後の個数が想定どおりか（0 ばかり・上限に張り付く） |
-| コマンド バッファ | `IndirectCommand` の中身（`instance_index`・`index_count`・`start_index`）が妥当か |
-| インスタンス バッファ | アップロードしたデータが化けていないか |
-| Hi-Z | ミップが正しく縮小されているか（画像として見る） |
-| ExecuteIndirect | PIX は間接描画の個々のコマンドに展開して、表示する |
-| GPU タイミング | カリング・Hi-Z・描画の各パスの時間 |
+- カウント バッファ: カリング後の個数が想定どおりか（0 ばかり・上限に張り付く）
+- コマンド バッファ: `IndirectCommand` の中身（`instance_index`・`index_count`・`start_index`）が妥当か
+- インスタンス バッファ: アップロードしたデータが化けていないか
+- Hi-Z: ミップが正しく縮小されているか（画像として見る）
+- ExecuteIndirect: PIX は間接描画の個々のコマンドに展開して、表示する
+- GPU タイミング: カリング・Hi-Z・描画の各パスの時間
 
 デバッグ用のマーカーを付けると、PIX のタイムラインが読みやすくなります。
 
@@ -233,12 +221,10 @@ std::array<uint32_t, kBucketCount> Renderer::ReadCounts(uint32_t frame_index) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| リードバック ヒープ | GPU が書き、CPU が読むヒープ。初期状態は `COPY_DEST` |
-| フレームごとに持つ | フェンス完了後に読むので、フレームごとに別バッファ |
-| `Map` の範囲 | 読む範囲を指定。`Unmap` では、書いていない（空の範囲） |
-| 読むタイミング | `WaitForFrame` の後（そのフレームが完了した後）。`kFrameCount - 1` フレーム前の結果 |
+- リードバック ヒープ: GPU が書き、CPU が読むヒープ。初期状態は `COPY_DEST`
+- フレームごとに持つ: フェンス完了後に読むので、フレームごとに別バッファ
+- `Map` の範囲: 読む範囲を指定。`Unmap` では、書いていない（空の範囲）
+- 読むタイミング: `WaitForFrame` の後（そのフレームが完了した後）。`kFrameCount - 1` フレーム前の結果
 
 ## 典型的な事故
 
@@ -256,32 +242,28 @@ std::array<uint32_t, kBucketCount> Renderer::ReadCounts(uint32_t frame_index) {
 
 ## 開発の進め方
 
-| 順序 | 内容 |
-| --- | --- |
-| **① まずカリング無しで** | 全インスタンスを ExecuteIndirect で描く（コマンド生成だけ確認） |
-| ② 視錐台カリングを追加 | PIX でカウントを確認。意図的にカメラを動かして検証 |
-| ③ バインドレス | テクスチャが正しく引かれるか |
-| ④ バケット | PSO ごとに分けて、描画 |
-| ⑤ Hi-Z・2 パス | Hi-Z の画像をデバッグ表示。カリングされた数を統計表示 |
-| ⑥ メッシュレット | 対応 GPU で。フォールバック経路を残す |
-| 常時 | デバッグ レイヤーを ON。PIX でフレームを時々キャプチャ |
+1. **① まずカリング無しで**: 全インスタンスを ExecuteIndirect で描く（コマンド生成だけ確認）
+2. ② 視錐台カリングを追加: PIX でカウントを確認。意図的にカメラを動かして検証
+3. ③ バインドレス: テクスチャが正しく引かれるか
+4. ④ バケット: PSO ごとに分けて、描画
+5. ⑤ Hi-Z・2 パス: Hi-Z の画像をデバッグ表示。カリングされた数を統計表示
+6. ⑥ メッシュレット: 対応 GPU で。フォールバック経路を残す
+7. 常時: デバッグ レイヤーを ON。PIX でフレームを時々キャプチャ
 
 最初から全部を作ると不具合の原因を特定できません。段階的に毎回「描けている」ことを確認します。
 
 ## チェックリスト
 
-| 確認 | 内容 |
-| --- | --- |
-| ☐ | **`IndirectCommand` のサイズが `ByteStride` と一致**し、HLSL の構造体と並びが同じ |
-| ☐ | カウンタを毎フレームリセットしている |
-| ☐ | カリング書き込み後、UAV → INDIRECT_ARGUMENT の遷移がある |
-| ☐ | バケットごとの領域・カウンタが重ならない。上限超えは書かない |
-| ☐ | ExecuteIndirect の後、必要なルート引数を再設定している |
-| ☐ | バインドレスで、`NonUniformResourceIndex` を付けている |
-| ☐ | 記述子・リソースの解放は、フェンス完了後 |
-| ☐ | アップロード バッファは、フレーム数ぶんある |
-| ☐ | デバッグ レイヤーでエラー・警告が 0 |
-| ☐ | メッシュ シェーダー非対応 GPU へのフォールバックがある |
+- ☐: **`IndirectCommand` のサイズが `ByteStride` と一致**し、HLSL の構造体と並びが同じ
+- ☐: カウンタを毎フレームリセットしている
+- ☐: カリング書き込み後、UAV → INDIRECT_ARGUMENT の遷移がある
+- ☐: バケットごとの領域・カウンタが重ならない。上限超えは書かない
+- ☐: ExecuteIndirect の後、必要なルート引数を再設定している
+- ☐: バインドレスで、`NonUniformResourceIndex` を付けている
+- ☐: 記述子・リソースの解放は、フェンス完了後
+- ☐: アップロード バッファは、フレーム数ぶんある
+- ☐: デバッグ レイヤーでエラー・警告が 0
+- ☐: メッシュ シェーダー非対応 GPU へのフォールバックがある
 
 ## これだけ覚える
 

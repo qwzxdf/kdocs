@@ -44,13 +44,11 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `ACCEPT_FIRST_HIT_AND_END_SEARCH` | 最初に当たった時点で探索を終了（最も近いヒットを探す必要はない）。大幅に速い |
-| `SKIP_CLOSEST_HIT_SHADER` | シェーダーを呼ばない（当たったかだけ分かればよい） |
-| `TMin` | 自己交差（自分の面に当たる）を避ける、小さなオフセット |
-| `TMax` | 光源までの距離（点光源）。それより先は見ない |
-| RayQuery（インライン） | ピクセル/コンピュート シェーダーの中から、直接レイを飛ばす（DXR 1.1） |
+- `ACCEPT_FIRST_HIT_AND_END_SEARCH`: 最初に当たった時点で探索を終了（最も近いヒットを探す必要はない）。大幅に速い
+- `SKIP_CLOSEST_HIT_SHADER`: シェーダーを呼ばない（当たったかだけ分かればよい）
+- `TMin`: 自己交差（自分の面に当たる）を避ける、小さなオフセット
+- `TMax`: 光源までの距離（点光源）。それより先は見ない
+- RayQuery（インライン）: ピクセル/コンピュート シェーダーの中から、直接レイを飛ばす（DXR 1.1）
 
 <!-- fig:rt-shadow-samples:begin -->
 
@@ -227,12 +225,10 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 <strong>1 画素 1 本</strong>のノイズの多い影を滑らかにするには、デノイズします。
 
-| 方法 | 内容 |
-| --- | --- |
-| 時間蓄積（TAA 的） | 前のフレームの結果を再投影して、混ぜる（カメラ・物の動きに注意） |
-| 空間フィルタ | バイラテラル／À-trous ウェーブレットで、法線・深度を手がかりにエッジを保ってぼかす |
-| 分散ガイド | 画素の分散を見て、ノイズの多い所ほど強くフィルタ |
-| 専用デノイザ | NVIDIA NRD（ReBLUR・SIGMA）、AMD FidelityFX Denoiser など。影専用（SIGMA）は、半影に最適化 |
+- 時間蓄積（TAA 的）: 前のフレームの結果を再投影して、混ぜる（カメラ・物の動きに注意）
+- 空間フィルタ: バイラテラル／À-trous ウェーブレットで、法線・深度を手がかりにエッジを保ってぼかす
+- 分散ガイド: 画素の分散を見て、ノイズの多い所ほど強くフィルタ
+- 専用デノイザ: NVIDIA NRD（ReBLUR・SIGMA）、AMD FidelityFX Denoiser など。影専用（SIGMA）は、半影に最適化
 
 影専用のデノイザは、可視性（0〜1）を距離（遮蔽物までの距離）とともに受け取り、半影の幅に応じて、フィルタの強さを変えます。
 
@@ -248,23 +244,19 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 <strong>全画素をレイトレース</strong>すると重いので、シャドウ マップと併用します。
 
-| 構成 | 内容 |
-| --- | --- |
-| 主ライトだけ RT | 太陽の影だけ、レイトレース（柔らかい影・正確な接触） |
-| シャドウ マップ ＋ RT | シャドウ マップで完全な影・完全な日向を判断し、半影の領域だけ RTで精密に |
-| 遠景はシャドウ マップ | 近くだけ RT |
-| 品質設定で切り替え | RT 非対応 GPU は、シャドウ マップに |
+- 主ライトだけ RT: 太陽の影だけ、レイトレース（柔らかい影・正確な接触）
+- シャドウ マップ ＋ RT: シャドウ マップで完全な影・完全な日向を判断し、半影の領域だけ RTで精密に
+- 遠景はシャドウ マップ: 近くだけ RT
+- 品質設定で切り替え: RT 非対応 GPU は、シャドウ マップに
 
 画面空間のマスク（半影のありそうな画素）を作り、その画素だけレイを飛ばすと、大幅に安くなります。
 
 ## コスト
 
-| 項目 | 内容 |
-| --- | --- |
-| レイ数 | 画素 × ライト数 × 1〜数本 |
-| 加速構造のコスト | 構築・更新・メモリ |
-| デノイズ | 追加パス |
-| ライトが多い | ライトごとにレイが必要。重要なライトに限る |
+- レイ数: 画素 × ライト数 × 1〜数本
+- 加速構造のコスト: 構築・更新・メモリ
+- デノイズ: 追加パス
+- ライトが多い: ライトごとにレイが必要。重要なライトに限る
 
 <strong>ライトが多数</strong>ある場合は、ライトの重要度でサンプルするライトを 1 つ選ぶ（ReSTIR・重要度サンプリング）手法があります。
 
@@ -293,11 +285,9 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 <strong>DXR（DirectX Raytracing）は、DirectX 12 の機能です。DirectX 11 には、ありません。</strong>このページの `TraceRay`・`RayQuery` を使うコードは、D3D12 のレンダラーで動かします。D3D11 だけで、同じ効果を狙うときは、次のように、置き換えます。
 
-| やりたいこと | D3D11 での代用 |
-| --- | --- |
-| レイと三角形の、交差 | 距離場（SDF）・ボクセル、またはスクリーン空間のレイマーチ（[Linear Marching](../reflections/ssr-basics/linear-march.md)） |
-| 影 | シャドウ マップ（[Shadow Map Basics](shadow-map-basics/index.md)） |
-| 間接光 | ライトマップ・プローブ・SSGI・ボクセル GI（[Global Illumination (GI)](../gi/index.md)） |
+- レイと三角形の、交差: 距離場（SDF）・ボクセル、またはスクリーン空間のレイマーチ（[Linear Marching](../reflections/ssr-basics/linear-march.md)）
+- 影: シャドウ マップ（[Shadow Map Basics](shadow-map-basics/index.md)）
+- 間接光: ライトマップ・プローブ・SSGI・ボクセル GI（[Global Illumination (GI)](../gi/index.md)）
 
 D3D12 側の、初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../../directx/dx12/dxr-host.md) に、まとめています。
 

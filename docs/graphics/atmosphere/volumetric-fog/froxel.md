@@ -76,12 +76,10 @@ tags:
 </g>
 </svg>
 
-| 項目 | 内容 |
-| --- | --- |
-| 解像度 | 160×90×64 程度（画面の 1/8 の解像度）。ピクセルを 1 つずつでなく、まとめて計算 |
-| 形式 | 3D テクスチャ（`RGBA16F`：散乱光 RGB ＋ 密度） |
-| 奥行きの割り当て | 近くを細かく（指数的）。`z = near * pow(far/near, slice/N)` |
-| カメラに追従 | 視錐台と一緒に動く。画面の解像度に依存しない |
+- 解像度: 160×90×64 程度（画面の 1/8 の解像度）。ピクセルを 1 つずつでなく、まとめて計算
+- 形式: 3D テクスチャ（`RGBA16F`：散乱光 RGB ＋ 密度）
+- 奥行きの割り当て: 近くを細かく（指数的）。`z = near * pow(far/near, slice/N)`
+- カメラに追従: 視錐台と一緒に動く。画面の解像度に依存しない
 
 ```hlsl
 float SliceToDepth(float slice, float near_z, float far_z, float slice_count) {
@@ -179,10 +177,8 @@ float ViewDepthToSlice(float view_depth) {
 
 <strong>froxel</strong> は カメラの、近くから一定の距離（数十〜数百メートル）までを覆います。それより遠くの霧は別の方法（高さフォグ、空気遠近法）で補います。
 
-| 範囲 | 方式 |
-| --- | --- |
-| 〜 64 m 〜 200 m（froxel の、範囲） | ボリューム フォグ |
-| それより遠く | 空気遠近法（[Physically Based Aerial Perspective](../aerial-fog/physical.md)）、高さフォグ |
+- 〜 64 m 〜 200 m（froxel の、範囲）: ボリューム フォグ
+- それより遠く: 空気遠近法（[Physically Based Aerial Perspective](../aerial-fog/physical.md)）、高さフォグ
 
 境目では froxel の、最後のスライスの値を遠景の霧へフェードしてつなぎます。
 

@@ -494,12 +494,10 @@ float threshold = Hash(input.position.xy);
 clip(alpha - threshold);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `threshold`（ランダム） | 画素ごとに違う閾値。アルファが 0.3 なら約 30% の画素が残る |
-| TAA と併用 | 毎フレーム、違うノイズにすると時間平均で滑らかな半透明 |
-| ミップにも強い | アルファが薄くなっても、確率的に残るのでスカスカにならない |
-| 欠点 | TAA がないと、ノイズが見える |
+- `threshold`（ランダム）: 画素ごとに違う閾値。アルファが 0.3 なら約 30% の画素が残る
+- TAA と併用: 毎フレーム、違うノイズにすると時間平均で滑らかな半透明
+- ミップにも強い: アルファが薄くなっても、確率的に残るのでスカスカにならない
+- 欠点: TAA がないと、ノイズが見える
 
 ハッシュ（ノイズ）をワールド座標・オブジェクト座標から作る（Wyman と McGuire の Hashed Alpha Testing）と、動いてもノイズが物体に貼りつくので安定します。
 
@@ -588,12 +586,10 @@ float threshold = HashedAlphaThreshold(input.object_pos, 1.0);
 clip(alpha - threshold);
 ```
 
-| 項目 | 内容 |
-| --- | --- |
-| 組み合わせる | TAA と一緒に使うと、ノイズが平均されて半透明のように、見える |
-| MSAA との併用 | A2C と併用すると縁がさらに、なめらか（ただし重い） |
-| 影 | 影のパスでも同じハッシュで描く。影も確率的に薄くなる（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)） |
-| ノイズ | TAA がなければ、ノイズが目立つ。静止画でざらつく |
+- 組み合わせる: TAA と一緒に使うと、ノイズが平均されて半透明のように、見える
+- MSAA との併用: A2C と併用すると縁がさらに、なめらか（ただし重い）
+- 影: 影のパスでも同じハッシュで描く。影も確率的に薄くなる（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)）
+- ノイズ: TAA がなければ、ノイズが目立つ。静止画でざらつく
 
 ## 使い分け
 

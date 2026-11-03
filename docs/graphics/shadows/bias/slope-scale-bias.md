@@ -167,11 +167,9 @@ float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z 
 
 傾き依存バイアスは <strong>ほとんどの場面で、有効</strong>ですが次の問題が残ります。
 
-| 問題 | 内容 |
-| --- | --- |
-| 斜めの面 | バイアスが大きくなりピーター パンニング |
-| PCF を広く取る | PCF の、範囲の中で面の深度はさらに変化する。傾き依存だけでは足りない（[Receiver Plane Bias](receiver-plane-bias.md)） |
-| 曲面 | 1 つの三角形内で傾きが、一定とは限らない |
+- 斜めの面: バイアスが大きくなりピーター パンニング
+- PCF を広く取る: PCF の、範囲の中で面の深度はさらに変化する。傾き依存だけでは足りない（[Receiver Plane Bias](receiver-plane-bias.md)）
+- 曲面: 1 つの三角形内で傾きが、一定とは限らない
 
 法線オフセット（[Normal Offset](normal-offset.md)）と、併用するとバイアスを小さく、保ったまま自己影を抑えられます。
 

@@ -39,11 +39,9 @@ ASSAO（Adaptive SSAO）は Intel が公開したもの、CACAO（Combined Adapt
 
 CACAO には、Lowest から Highest までの 5 段階の品質があり、サンプル数と、ブラーの回数が変わります。最も低い設定は、デインターリーブの枚数も減らして、さらに軽くします。ゲームでは、ターゲットの GPU の性能に合わせて決めます。
 
-| 品質 | 目安 |
-| --- | --- |
-| Lowest / Low | 低スペックの GPU、携帯機。粗いが速い |
-| Medium | 標準。多くの PC |
-| High / Highest | 高品質。Highest は適応的なサンプルを使う |
+- Lowest / Low: 低スペックの GPU、携帯機。粗いが速い
+- Medium: 標準。多くの PC
+- High / Highest: 高品質。Highest は適応的なサンプルを使う
 
 実際の数値は実装のバージョンで違います。最終的には、自分のシーンで測って決めます。
 
