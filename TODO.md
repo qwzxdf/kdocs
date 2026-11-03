@@ -115,11 +115,11 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 - [ ] 2-9-1. 薄いページを見つける指標を作る（`tools/survey_depth.py` と `tools/survey_graphics.py` を統合）。完了の条件に対応させる: 図の数、コードの行数とコメント率、表の割合、1 文あたりの読点、文の数、参考文献の中身（著者・URL・ページ）。点数で並べる
 - [ ] 2-9-2. `check_docs.py` に警告を足す: 1 文あたりの読点が 1 を超える、図が 0 枚の解説ページ、コードがあるのにコメントが少ない、参考文献に著者・URL・ページがない、同じ段落が 1 ページに 2 回ある、同じ節に並ぶページで同じ見出しが繰り返される
 - [ ] 2-9-3. `graphics/`（約 320 ページ）を、指標の点数が低いものから 1 ページずつ、完了の条件を満たすまで直す。資料は実際に読む（PDF は pypdf で本文を取り出す）。必要なら、ページを増やしてよい
-    - 手直しが要る（資料は読んだが、完了の条件を満たしていない）: `postprocess/upscaling/xess.md`、`fsr.md`、`dlss.md`、`ao/mssao.md`
-        - アップスケーラ 3 つは、図（ジッターの位相が画素を埋める様子、フレームの中での呼び出しの位置）を足す。FSR にジッターと初期化の流れのコードを足す。共通部分（ジッター・ミップ バイアス・入力・露出）を `upscaling/index.md` に集めて、3 社の値を比べる「Upscaler Comparison」ページを作る。DLSS のジッターのコードに、単位の換算がガイドにない旨を注記する。DLSS の 5 章以降、FSR 2 の README の後半を読む
-        - MSSAO は、図（入れ子の半球、層の合成の流れ）と、丁寧なコメントつきの HLSL（AOnear、バイラテラル アップサンプル、最大値と平均の合成）を足す。実行時間の文を論文の表 8 に合わせる（8600M GT は Sibenik・Conference で同程度、Sponza で MSSAO が速い）。「使いどころ」は、SAO・XeGTAO の資料を読んで確かめるか削る
-        - 4 ページとも、読点を 0.7 以下にする
-    - 次の候補（点数の低い順）: `shadows/vsm/comparison.md`、`translucency/alpha-test/comparison.md`、`gi/probes/compare.md`、`reflections/ssr-basics/artifacts.md`、`postprocess/upscaling/index.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md`
+    - 手直し済み（2026-11-04）: `postprocess/upscaling/` の index・comparison（新規）・xess・fsr・dlss、`ao/mssao.md`。図・コード・コメント・読点（1 文あたり 0.7 前後）・重複の整理・数字の照合は済み。**完了の条件に、まだ届いていない点**
+        - 文章量: xess 128 文、fsr 123 文、dlss 190 文（目安 200）。図は xess・fsr・dlss が 1 枚ずつ（目安 2 枚以上）
+        - 読んでいない資料: DLSS の 5 章以降、FSR 2 の README の後半（約 2.6 万字）、MSSAO の CGI 2011 版と VRST 版。読んで、足りない点（なぜ・数字・失敗の症状・境界）を足す
+        - コードはどれもコンパイルしていない（MSSAO の HLSL、DLSS・FSR・XeSS の呼び出しの断片）。HLSL は `fxc` / `dxc` で通るかを確かめられる
+    - 次の候補（点数の低い順）: `shadows/vsm/comparison.md`、`translucency/alpha-test/comparison.md`、`gi/probes/compare.md`、`reflections/ssr-basics/artifacts.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md`
 - [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
 - [ ] 2-9-6. `graphics/` が進んだら、`libs/`・`engine/`・`3d/`・`directx/`・`optimize/` などを、同じ指標・同じ完了の条件で順に直す
