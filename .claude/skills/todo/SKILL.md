@@ -25,8 +25,7 @@ description: kdocs の TODO.md の未完了の項目を実行する。引数な�
     - 出力のあるサンプルは `int main` まで書き、直後に「実行結果」を置く
 3. 検証する
     - サンプルを書いたら `python tools/verify_samples.py <変えたファイル>` を実行する。不一致は、ページの間違いか、環境の差かを見分けて直す（環境差は、本文で説明する）
-    - `mkdocs build --strict` を通す（`.venv/Scripts/mkdocs.exe build --strict`。数分かかる）
-    - 検査スクリプト（`tools/` の `check_anchors.py` など。作成済みなら）を実行する
+    - `python tools/check_docs.py docs` を通す（strict ビルドと `check_anchors.py` は、ユーザーの指示があったときだけ）
 4. 新しいページ・図を足したなら、`ratings.yml`（描画のみ）、`autolinks.yml`、`.pages`、関係する `index.md` を更新する
 5. `TODO.md` を更新する: 終えた項目を `- [x]` にして日付を書く。見つけたやり残しは、該当する節に `- [ ]` で足す。「4. 完了したこと」にも 1 行足す
 6. 変えたファイルだけを `git add` して commit し、`main` に push する（`git add -A` は使わない。無関係の変更が入る）。コミット メッセージの最後に、そのとき渡される attribution の指示を付ける
