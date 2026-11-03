@@ -7,8 +7,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - サンプルコードの検証（Compiler Explorer で実行して実行結果と照合）は、ユーザーが指示したときだけ行う
 - **作業が一区切りつくたびに、ユーザーの指示を待たず commit して `main` に push する。** 一区切りとは、1 ページの追加・分割・深掘りや、動く図 1 グループの追加など、まとまった単位が終わったとき
   - push の前に実行するのは `python tools/check_docs.py docs` だけ。エラーが 0 件であることを確かめてから push する
-  - `mkdocs build --strict` と `python tools/check_anchors.py <site>` は、ビルドに数分かかるので、push を待たせない。push したあと、バックグラウンドで実行する
-    - 失敗したら、直して追加で commit・push する。結果は、次のユーザーへの報告で伝える
+  - `mkdocs build --strict` と `check_anchors.py` は、実行しない（ユーザーの指示があったときだけ）
   - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する（描画の項目は、重さ `perf`・品質 `quality`・難易度 `diff` の 5 段階。基準は `ratings.yml` の冒頭に書いてある）
   - `Co-Authored-By` などの attribution は、そのとき渡される指示に従う
   - 途中で確認は取らない。作業が全部終わるまで続ける
@@ -87,7 +86,7 @@ grep -n "vsix" docs/khlsl/index.md
 7. **書き方を整える。** 「ポイント」は文で書く（体言止めを続けない）。「よくあるミス」は、原因（何が起きるか）と対処を書く。冒頭は、動機から入る
 8. **参考文献を正す。** 著者の名前（姓だけにしない）、題名、掲載誌・巻号・ページ、年、URL を書く。どの節を参照したかも書く
 9. **読点を減らす。** `tools/fix_commas.py` の処理を、そのページに使ってから、意味が読み取りにくくなった所（並べた語、文の切れ目）は、手で読点を戻す。コードのコメントも同じ
-10. **自分でレビューしてから push する。** ①コードの抜け（境界・定数）②重複 ③この CLAUDE.md の規則違反 ④出典と主張の区別、の 4 つを確かめる。そのあとで、`check_docs.py`、プレビュー（`kdocs-changed` で実際に見る）、strict ビルド、`check_anchors.py` を通す
+10. **自分でレビューしてから push する。** ①コードの抜け（境界・定数）②重複 ③この CLAUDE.md の規則違反 ④出典と主張の区別、の 4 つを確かめる。そのあとで、`check_docs.py`、プレビュー（`kdocs-changed` で実際に見る）を通す
 
 ## ページの構成
 
@@ -189,7 +188,7 @@ grep -n "vsix" docs/khlsl/index.md
     - 表示名とラベルの空白は `_` で書く。列・行は小数も可（`0.5`）。コマごとに同じ id のノードは、位置が動いてクラスが変わる。そのコマに無い id は消える
     - クラス: `new`（追加）/ `gone`（消える・壊れる）/ `hit`（注目）/ `dim`（薄く）/ `move`
 - **凝った動く図（SMIL）**は `tools/anim/` の**台本ライブラリ**（`storyboard.py`）で作る。座標列を手で書かない。**手順・落とし穴・API は `tools/anim/README.md` を先に読む**（`make-anim` スキルも使える）。見本は `tools/anim/fig_forward_deferred.py`
-    - 流れ: ユーザーが日本語で台本 → Python のデータに直す → 生成 → `.report.txt` のタイミング表で確認 → 静止画（ヘッドレス Edge）→ 実 Chrome で SMIL を確認 → md に差し込み → strict ビルド → 検証スクリプト → 区切りごとに push
+    - 流れ: ユーザーが日本語で台本 → Python のデータに直す → 生成 → `.report.txt` のタイミング表で確認 → 静止画（ヘッドレス Edge）→ 実 Chrome で SMIL を確認 → md に差し込み → 区切りごとに push
     - `fill` を `none` ⇔ 色で離散アニメしない（Chrome で色が出ない）。出し入れは親グループの `opacity`、色の切り替えは色だけの離散アニメ
     - 計算回数などの数字は、台本の中で数えて `assert` で確かめ、表示にも同じ値を使う
 - **静止した図**（構造・流れ）は、`<svg class="fig flow">` を md に直接書く。見本は `dx12/factory-device.md` の 3 枚。矢印は `marker`、色は青 `rgba(76,139,245,0.22)` と注目の黄 `rgba(229,170,40,0.28)`、文字色はサイトの CSS に任せる
