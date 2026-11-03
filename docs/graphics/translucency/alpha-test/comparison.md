@@ -41,24 +41,20 @@ tags:
 
 ## 選び方
 
-| 状況 | おすすめ |
-| --- | --- |
-| まず、動かしたい | アルファ テスト |
-| フォワード + MSAA の植生 | Alpha to Coverage |
-| ディファード + TAA の植生 | ハッシュ アルファ（または、IGN / ブルー ノイズのディザ） |
-| LOD の切り替え近接フェード | ディザ（ブルー ノイズ） |
-| 本当の半透明（ガラス、煙） | アルファ ブレンド（[Alpha Blending and Sorting](../blending-sorting/index.md)）、OIT |
+- まず、動かしたい: アルファ テスト
+- フォワード + MSAA の植生: Alpha to Coverage
+- ディファード + TAA の植生: ハッシュ アルファ（または、IGN / ブルー ノイズのディザ）
+- LOD の切り替え近接フェード: ディザ（ブルー ノイズ）
+- 本当の半透明（ガラス、煙）: アルファ ブレンド（[Alpha Blending and Sorting](../blending-sorting/index.md)）、OIT
 
 ## 組み合わせる
 
 1 つだけでなく <strong>組み合わせる</strong>のが、普通です。
 
-| 組み合わせ | 内容 |
-| --- | --- |
-| A2C + アルファのシャープ化 | 縁を 1 画素幅に保つ（[Alpha to Coverage](alpha-to-coverage.md)） |
-| ハッシュ アルファ + TAA | ノイズを時間方向に平均して、なめらかに |
-| ディザ + LOD | 2 つの LOD を補い合うパターンで、切り替える |
-| Z プリパス + 上のどれか | 隠れた画素の重いシェーダーを省く（[Performance and Shadow Passes](performance.md)） |
+- A2C + アルファのシャープ化: 縁を 1 画素幅に保つ（[Alpha to Coverage](alpha-to-coverage.md)）
+- ハッシュ アルファ + TAA: ノイズを時間方向に平均して、なめらかに
+- ディザ + LOD: 2 つの LOD を補い合うパターンで、切り替える
+- Z プリパス + 上のどれか: 隠れた画素の重いシェーダーを省く（[Performance and Shadow Passes](performance.md)）
 
 ## よくあるミス
 

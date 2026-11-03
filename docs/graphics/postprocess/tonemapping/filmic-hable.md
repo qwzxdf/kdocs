@@ -244,13 +244,11 @@ float3 HableTonemap(float3 color) {
 
 ## より良いやり方
 
-| 工夫 | 内容 |
-| --- | --- |
-| 係数をパラメータで出す | A〜F をアーティストが調整できるようにする（肩・つま先・白点をスライダーで） |
-| 形を「見た目の言葉」で設定 | <strong>「つま先の強さ」「肩の長さ」「白点」</strong> の3 つだけを出し、内部で A〜F に変換 |
-| 3D LUT に焼く | 計算の重い曲線を LUT に焼いて、1 回の表引きにする（[Color Grading](../color-grading/index.md)） |
-| ACES・AgX と比べる | 同じシーンで比べ、色の出方で選ぶ（[ACES](aces.md)・[AgX](agx.md)） |
-| HDR 出力と分ける | HDR ディスプレイでは、別の曲線（[Gamma and HDR Output](gamma-srgb.md)） |
+- 係数をパラメータで出す: A〜F をアーティストが調整できるようにする（肩・つま先・白点をスライダーで）
+- 形を「見た目の言葉」で設定: <strong>「つま先の強さ」「肩の長さ」「白点」</strong> の3 つだけを出し、内部で A〜F に変換
+- 3D LUT に焼く: 計算の重い曲線を LUT に焼いて、1 回の表引きにする（[Color Grading](../color-grading/index.md)）
+- ACES・AgX と比べる: 同じシーンで比べ、色の出方で選ぶ（[ACES](aces.md)・[AgX](agx.md)）
+- HDR 出力と分ける: HDR ディスプレイでは、別の曲線（[Gamma and HDR Output](gamma-srgb.md)）
 
 ## よくあるミス
 

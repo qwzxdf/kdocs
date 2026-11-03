@@ -26,12 +26,10 @@ float n_dot_h = saturate(dot(normal, half_vector));
 float specular = pow(n_dot_h, shininess) * sun_intensity;
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 高い `shininess` | 水面は滑らかなので鋭いハイライト（例：256 以上） |
-| GGX を使う | PBR の規約と揃える（[PBR](../../../3d/pbr.md)）。粗さ（roughness）を小さく |
-| HDR で出す | 太陽の反射は明るい。ブルームで光る（[Post-Processing](../../postprocess/index.md)） |
-| ちらつき対策 | 細かい法線は距離でぼかす（粗さを距離で上げる）。さもないと遠くがチカチカする |
+- 高い `shininess`: 水面は滑らかなので鋭いハイライト（例：256 以上）
+- GGX を使う: PBR の規約と揃える（[PBR](../../../3d/pbr.md)）。粗さ（roughness）を小さく
+- HDR で出す: 太陽の反射は明るい。ブルームで光る（[Post-Processing](../../postprocess/index.md)）
+- ちらつき対策: 細かい法線は距離でぼかす（粗さを距離で上げる）。さもないと遠くがチカチカする
 
 <!-- fig:ggx-lobe:begin -->
 
@@ -159,10 +157,8 @@ float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float
 
 遠くの水面では 1 画素に多数の波が入り、法線が画素ごとにばらついて光がちらつきます。対策は 2 つです。
 
-| 対策 | 内容 |
-| --- | --- |
-| 距離で粗さを上げる | 遠くほど、`roughness` を大きくして光を広げてならす |
-| 法線の分散を粗さに足す | 法線マップの、ミップで失われるばらつきを粗さに足す（LEAN マッピング、Olano と Baker、2010） |
+- 距離で粗さを上げる: 遠くほど、`roughness` を大きくして光を広げてならす
+- 法線の分散を粗さに足す: 法線マップの、ミップで失われるばらつきを粗さに足す（LEAN マッピング、Olano と Baker、2010）
 
 ```hlsl
 // 距離で、粗さを上げる。
@@ -171,12 +167,10 @@ float roughness = lerp(base_roughness, base_roughness + 0.25, saturate(dist / 30
 
 ## 太陽以外の光源
 
-| 光源 | 扱い |
-| --- | --- |
-| 太陽 | 上の式（方向光） |
-| 月 | 同じ式で強さだけ、下げる |
-| 点光源（街灯、船のランプ） | 同じ式で点光源の方向・減衰を使う。水面に縦に伸びた光の帯が出る（波で、光源の反射が縦に散る） |
-| 空（環境光） | 反射は、別（[Water Reflection](reflection.md)） |
+- 太陽: 上の式（方向光）
+- 月: 同じ式で強さだけ、下げる
+- 点光源（街灯、船のランプ）: 同じ式で点光源の方向・減衰を使う。水面に縦に伸びた光の帯が出る（波で、光源の反射が縦に散る）
+- 空（環境光）: 反射は、別（[Water Reflection](reflection.md)）
 
 ## よくあるミス
 

@@ -20,13 +20,11 @@ tags:
 ## ① 密度
 <strong>霧の濃さを各 froxel に書きます</strong>。複数の要素を足し合わせます。
 
-| 要素 | 内容 |
-| --- | --- |
-| 全体の霧 | 一様な基準の密度（`global_density`） |
-| 高さフォグ | 高さで指数的に減る（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
-| ノイズ | 3D ノイズで濃淡を付け、風で流す |
-| ローカルな霧のボリューム | 箱・球で局所的に濃くする（部屋の煙、洞窟） |
-| パーティクル | 煙のパーティクルが密度を足す |
+- 全体の霧: 一様な基準の密度（`global_density`）
+- 高さフォグ: 高さで指数的に減る（[Aerial Perspective and Fog](../aerial-fog/index.md)）
+- ノイズ: 3D ノイズで濃淡を付け、風で流す
+- ローカルな霧のボリューム: 箱・球で局所的に濃くする（部屋の煙、洞窟）
+- パーティクル: 煙のパーティクルが密度を足す
 
 ```hlsl
 float3 world_position = FroxelToWorld(id, slice_count);

@@ -198,10 +198,8 @@ ds.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 device->CreateDepthStencilState(&ds, &transparent_depth_state);
 ```
 
-| 設定 | 理由 |
-| --- | --- |
-| テスト：有効 | 不透明な物の、後ろにある半透明は描かない |
-| 書き込み：無効 | 半透明が深度を書くとその後ろの半透明が隠れてしまう |
+- テスト：有効: 不透明な物の、後ろにある半透明は描かない
+- 書き込み：無効: 半透明が深度を書くとその後ろの半透明が隠れてしまう
 
 ## 描画の順番
 

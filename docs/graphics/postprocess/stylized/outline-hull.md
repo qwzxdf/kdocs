@@ -69,12 +69,10 @@ desc.CullMode = D3D11_CULL_FRONT;
 device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `position + normal × width` | 法線方向に頂点を膨らませる |
-| `CULL_FRONT` | 前面を描かず、裏面だけ描く |
-| 色 | <strong>黒（または暗い色・物体の色の暗い版）</strong> |
-| 深度 | 通常の深度テスト。元のモデルが手前にあるので、膨らんだ裏面は、縁だけ見える |
+- `position + normal × width`: 法線方向に頂点を膨らませる
+- `CULL_FRONT`: 前面を描かず、裏面だけ描く
+- 色: <strong>黒（または暗い色・物体の色の暗い版）</strong>
+- 深度: 通常の深度テスト。元のモデルが手前にあるので、膨らんだ裏面は、縁だけ見える
 
 <!-- fig:outline-hull-width:begin -->
 
@@ -203,14 +201,12 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 
 ## より良いやり方
 
-| 工夫 | 内容 |
-| --- | --- |
-| スムーズ法線を事前に焼く | 角で途切れない |
-| クリップ空間で太さを一定 | 画面上の太さがそろう |
-| 頂点カラーで太さを制御 | 部位ごとの調整 |
-| 画面空間エッジを併用 | 内側の線を足す（[Screen-Space Edge Detection](outline-edge.md)） |
-| 色は元の色の暗い版 | 黒より柔らかい絵に |
-| 距離で線を細く・消す | 遠くでうるさくならない |
+- スムーズ法線を事前に焼く: 角で途切れない
+- クリップ空間で太さを一定: 画面上の太さがそろう
+- 頂点カラーで太さを制御: 部位ごとの調整
+- 画面空間エッジを併用: 内側の線を足す（[Screen-Space Edge Detection](outline-edge.md)）
+- 色は元の色の暗い版: 黒より柔らかい絵に
+- 距離で線を細く・消す: 遠くでうるさくならない
 
 ## よくあるミス
 

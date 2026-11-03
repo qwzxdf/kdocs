@@ -31,12 +31,10 @@ float3 transmittance = exp(-absorption * water_depth);
 float3 refracted_color = scene_color * transmittance + deep_color * (1.0 - transmittance);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `scene_color * transmittance` | 底の色が水を通って減った分 |
-| `deep_color * (1 − T)` | 減った分を水自身の色で置き換える（散乱で光る水の色） |
-| 浅い所 | T ≈ 1。底がはっきり見える |
-| 深い所 | T ≈ 0。水自身の色（深い青）だけ |
+- `scene_color * transmittance`: 底の色が水を通って減った分
+- `deep_color * (1 − T)`: 減った分を水自身の色で置き換える（散乱で光る水の色）
+- 浅い所: T ≈ 1。底がはっきり見える
+- 深い所: T ≈ 0。水自身の色（深い青）だけ
 
 ### 水深の求め方
 
@@ -128,10 +126,8 @@ float3 transmittance = exp(-absorption * water_depth);
 見える色 = 底の色 × T  +  水の色 × (1 − T)
 ```
 
-| 項 | 内容 |
-| --- | --- |
-| `底の色 × T` | 底（砂、岩）で反射した光が水を通ってくる間に吸収されて減った分 |
-| `水の色 × (1 − T)` | 水の中で散乱されて、目に届く光。深くなるほど増える |
+- `底の色 × T`: 底（砂、岩）で反射した光が水を通ってくる間に吸収されて減った分
+- `水の色 × (1 − T)`: 水の中で散乱されて、目に届く光。深くなるほど増える
 
 ```hlsl
 float3 refracted = scene_color * transmittance + deep_color * (1.0 - transmittance);

@@ -45,23 +45,19 @@ tags:
 <text x="20" y="226" style="font-size:12px">※ 深度の向き（0 が手前・1 が奥）で、最大・最小は、逆になる（リバース Z では、最小を取る）</text>
 </svg>
 
-| 点 | 説明 |
-| --- | --- |
-| 最大（最も奥）を取る | 「隠れている」判定を保守的（安全）にするため |
-| リバース Z の場合 | 深度の向きが逆なので最小を取る |
-| 作成コスト | 全ミップで約 0.1〜0.3 ms（1080p・目安） |
-| 非 2 のべき乗 | 奇数サイズの端に注意（縁の画素を取りこぼさない） |
+- 最大（最も奥）を取る: 「隠れている」判定を保守的（安全）にするため
+- リバース Z の場合: 深度の向きが逆なので最小を取る
+- 作成コスト: 全ミップで約 0.1〜0.3 ms（1080p・目安）
+- 非 2 のべき乗: 奇数サイズの端に注意（縁の画素を取りこぼさない）
 
 ## オクルージョン カリングでの使い方
 
 **物体の境界（球・箱）を画面に投影**し、画面上の大きさを求め、それに見合うミップを読みます。
 
-| 手順 | 内容 |
-| --- | --- |
-| ① 投影 | 境界箱の 8 頂点を画面に投影し、画面上の矩形と最も手前の深度を得る |
-| ② ミップを選ぶ | 矩形が 1〜2 画素に収まるミップを選ぶ（`log2(矩形の大きさ)`） |
-| ③ 読む | 矩形の、4 隅（最大 4 回）のサンプルの最大深度を得る |
-| ④ 比較 | 物体の最も手前の深度 ＞ Hi-Z の最大深度 なら、完全に隠れている → 除外 |
+1. ① 投影: 境界箱の 8 頂点を画面に投影し、画面上の矩形と最も手前の深度を得る
+2. ② ミップを選ぶ: 矩形が 1〜2 画素に収まるミップを選ぶ（`log2(矩形の大きさ)`）
+3. ③ 読む: 矩形の、4 隅（最大 4 回）のサンプルの最大深度を得る
+4. ④ 比較: 物体の最も手前の深度 ＞ Hi-Z の最大深度 なら、完全に隠れている → 除外
 
 境界箱 1 つの判定が数回のテクスチャ読み込みで済みます。GPU Driven で、数万個を並列に判定できます（[GPU Driven](gpu-driven.md)・[Culling](culling.md)）。
 
@@ -71,26 +67,20 @@ tags:
 
 **SSR（画面内の反射）・SSAO・SSGI・コンタクト シャドウ**などは、画面の深度バッファの上で、光線を進めて、当たりを探します。
 
-| 方法 | 説明 |
-| --- | --- |
-| リニア マーチ | 一定の歩幅で少しずつ進める。歩幅が大きいと薄い物をすり抜ける。小さいとサンプル数が爆発 |
-| Hi-Z トレース | 大きなミップで大股に進み、障害物に近づいたら、細かいミップに降りる |
+- リニア マーチ: 一定の歩幅で少しずつ進める。歩幅が大きいと薄い物をすり抜ける。小さいとサンプル数が爆発
+- Hi-Z トレース: 大きなミップで大股に進み、障害物に近づいたら、細かいミップに降りる
 
 <svg class="fig flow" viewBox="0 0 960 112" role="img" aria-label="Hi-Z トレースの流れ"><defs><marker id="fl13796" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Hi-Z トレースの流れ</text><line x1="127.0" y1="64.0" x2="185.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl13796)"/><line x1="343.0" y1="64.0" x2="401.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl13796)"/><text x="372.0" y="58.0" text-anchor="middle" style="font-size:12px">空いた範囲を飛ばす</text><line x1="545.0" y1="64.0" x2="603.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl13796)"/><line x1="775.0" y1="64.0" x2="833.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl13796)"/><rect x="28.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">光線を開始</text><rect x="188.0" y="44.0" width="152" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="264.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">大きなミップで大股</text><rect x="404.0" y="44.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="473.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">当たる可能性あり</text><rect x="606.0" y="44.0" width="166" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="689.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">細かいミップへ降りる</text><rect x="836.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="884.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">交点を確定</text></svg>
 
-| 点 | 説明 |
-| --- | --- |
-| 空いた空間は飛ばす | 「この範囲に障害物はない」と、1 回で分かる |
-| 障害物の近くだけ、細かく | サンプル数が画面の複雑さに比例（距離に比例しない） |
-| 効果 | SSR の光線あたりの、サンプル数が数十 → 数回 |
+- 空いた空間は飛ばす: 「この範囲に障害物はない」と、1 回で分かる
+- 障害物の近くだけ、細かく: サンプル数が画面の複雑さに比例（距離に比例しない）
+- 効果: SSR の光線あたりの、サンプル数が数十 → 数回
 
 ### スクリーン空間の限界
 
-| 限界 | 説明 |
-| --- | --- |
-| 画面外の情報は、ない | 画面の端で反射・AO が消える |
-| 隠れた物の情報はない | 柱の裏側など、見えない面は分からない（厚みの仮定が必要） |
-| 深度の薄い物 | すり抜けやすい |
+- 画面外の情報は、ない: 画面の端で反射・AO が消える
+- 隠れた物の情報はない: 柱の裏側など、見えない面は分からない（厚みの仮定が必要）
+- 深度の薄い物: すり抜けやすい
 
 足りない部分は、環境マップ（キューブマップ）・レイトレーシングで補います。
 

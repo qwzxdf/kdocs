@@ -120,15 +120,13 @@ float3 ApplyVolumetric(float3 scene_color, float2 screen_uv, float distance_m) {
 
 ## 長所と短所
 
-| | 内容 |
-| --- | --- |
-| 長所 | 画素ごとのレイマーチより軽い（セルごとに 1 回） |
-| 長所 | 霧の密度（場所で、変わる）、局所光（ランプ、ライトの散乱）も同じ仕組みで、扱える（[Light Injection](../volumetric-fog/injection.md)） |
-| 長所 | 半透明の物にも同じ、ボリュームを引くだけで適用できる |
-| 長所 | 時間方向のフィルタ（TAA）で品質を上げられる（[Temporal Accumulation](../volumetric-fog/temporal.md)） |
-| 短所 | 解像度が低い（画面の 1/8 程度）。細かい光の筋はぼやける |
-| 短所 | 奥行き方向の分割による、縞（[Quality and Performance](../volumetric-fog/quality.md)） |
-| 短所 | メモリ（3D テクスチャ数枚） |
+- 長所: 画素ごとのレイマーチより軽い（セルごとに 1 回）
+- 長所: 霧の密度（場所で、変わる）、局所光（ランプ、ライトの散乱）も同じ仕組みで、扱える（[Light Injection](../volumetric-fog/injection.md)）
+- 長所: 半透明の物にも同じ、ボリュームを引くだけで適用できる
+- 長所: 時間方向のフィルタ（TAA）で品質を上げられる（[Temporal Accumulation](../volumetric-fog/temporal.md)）
+- 短所: 解像度が低い（画面の 1/8 程度）。細かい光の筋はぼやける
+- 短所: 奥行き方向の分割による、縞（[Quality and Performance](../volumetric-fog/quality.md)）
+- 短所: メモリ（3D テクスチャ数枚）
 
 ## よくあるミス
 

@@ -25,22 +25,18 @@ GPU Driven の心臓部です。**コンピュート シェーダーが全イン
 
 **ビュー射影行列 `VP`**（行ベクトル規約：`clip = p * VP`）から、6 平面を作ります。クリップ空間の条件は、D3D では次のとおりです。
 
-| 条件 | 内容 |
-| --- | --- |
-| x | `-w ≤ x ≤ w` |
-| y | `-w ≤ y ≤ w` |
-| z | `0 ≤ z ≤ w`（OpenGL の `-w ≤ z` ではない） |
+- x: `-w ≤ x ≤ w`
+- y: `-w ≤ y ≤ w`
+- z: `0 ≤ z ≤ w`（OpenGL の `-w ≤ z` ではない）
 
 `clip.x = dot(p, 列0)`、`clip.y = dot(p, 列1)`、`clip.z = dot(p, 列2)`、`clip.w = dot(p, 列3)` なので平面（`n·p + d ≥ 0` で内側）は、列の和・差で得られます。
 
-| 平面 | 式（列は、`VP` の列ベクトル） |
-| --- | --- |
-| 左 | `列3 + 列0` |
-| 右 | `列3 − 列0` |
-| 下 | `列3 + 列1` |
-| 上 | `列3 − 列1` |
-| 近 | `列2`（`z ≥ 0`） |
-| 遠 | `列3 − 列2`（`w − z ≥ 0`） |
+- 左: `列3 + 列0`
+- 右: `列3 − 列0`
+- 下: `列3 + 列1`
+- 上: `列3 − 列1`
+- 近: `列2`（`z ≥ 0`）
+- 遠: `列3 − 列2`（`w − z ≥ 0`）
 
 ```cpp
 std::array<DirectX::XMFLOAT4, 6> ExtractFrustumPlanes(DirectX::FXMMATRIX view_projection) {
@@ -69,12 +65,10 @@ std::array<DirectX::XMFLOAT4, 6> ExtractFrustumPlanes(DirectX::FXMMATRIX view_pr
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 列を取り出す | `m.m[行][列]`。列ベクトルは各行の同じ列を集める |
-| 正規化 | 法線 `(x, y, z)` の長さで、4 成分全部を割る。符号付き距離がワールド単位になる（球の半径と比べるため） |
-| 内側が正 | `dot(plane.xyz, p) + plane.w ≥ 0` が内側 |
-| 近平面が `c2` | D3D の `z ≥ 0`。OpenGL 用の `c3 + c2` と違うので注意 |
+- 列を取り出す: `m.m[行][列]`。列ベクトルは各行の同じ列を集める
+- 正規化: 法線 `(x, y, z)` の長さで、4 成分全部を割る。符号付き距離がワールド単位になる（球の半径と比べるため）
+- 内側が正: `dot(plane.xyz, p) + plane.w ≥ 0` が内側
+- 近平面が `c2`: D3D の `z ≥ 0`。OpenGL 用の `c3 + c2` と違うので注意
 
 ## 定数バッファ
 
@@ -151,16 +145,14 @@ void CullMain(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`SV_DispatchThreadID`** | グループ番号 × 64 ＋ グループ内番号。インスタンス番号にそのまま使える |
-| `mul(float4(p, 1), world)` | 行ベクトル規約（`p * W`）。このサイトの標準 |
-| `MaxScale` | ワールド行列の 3 軸の長さの最大値。境界球の半径に掛ける（非一様スケールでも安全側） |
-| `distance < -radius` | 球が平面の外側に完全にはみ出すなら、不可視 |
-| `InterlockedAdd(..., 1, slot)` | カウンタを 1 増やし、増やす前の値を `slot` に受け取る。スレッド間で衝突しない出力位置が得られる |
-| **`mesh.pso_bucket * 4` | バケットごとの 4 バイトのカウンタ**（`ByteAddressBuffer` のバイト オフセット） |
-| `slot >= MAX` | 領域を超えた分は、書かない（バッファ オーバーランを防ぐ）。カウンタは超えた値のままだが、ExecuteIndirect の最大数で切り詰められる |
-| `instance_count = 1` | 1 コマンド ＝ 1 インスタンス。同じメッシュを束ねる最適化は、後述 |
+- **`SV_DispatchThreadID`**: グループ番号 × 64 ＋ グループ内番号。インスタンス番号にそのまま使える
+- `mul(float4(p, 1), world)`: 行ベクトル規約（`p * W`）。このサイトの標準
+- `MaxScale`: ワールド行列の 3 軸の長さの最大値。境界球の半径に掛ける（非一様スケールでも安全側）
+- `distance < -radius`: 球が平面の外側に完全にはみ出すなら、不可視
+- `InterlockedAdd(..., 1, slot)`: カウンタを 1 増やし、増やす前の値を `slot` に受け取る。スレッド間で衝突しない出力位置が得られる
+- **`mesh.pso_bucket * 4`: バケットごとの 4 バイトのカウンタ**（`ByteAddressBuffer` のバイト オフセット）
+- `slot >= MAX`: 領域を超えた分は、書かない（バッファ オーバーランを防ぐ）。カウンタは超えた値のままだが、ExecuteIndirect の最大数で切り詰められる
+- `instance_count = 1`: 1 コマンド ＝ 1 インスタンス。同じメッシュを束ねる最適化は、後述
 
 ### スレッドの順序は不定
 
@@ -248,26 +240,22 @@ void Renderer::RecordCull(ID3D12GraphicsCommandList* list, const CullConstants& 
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 初期状態 `INDIRECT_ARGUMENT` | 毎フレームの最後が `INDIRECT_ARGUMENT`なので、最初もそれに揃える（遷移の連鎖が簡単） |
-| コマンド バッファは、クリア不要 | カウンタ以降の領域は読まれない（ExecuteIndirect は、カウント分だけ読む） |
-| カウンタ バッファのコピー | `COPY_DEST` に遷移 → ゼロをコピー → `UNORDERED_ACCESS` に遷移 |
-| `SetComputeRootConstantBufferView` | GPU 仮想アドレスをそのまま渡す。ヒープ設定が不要 |
-| `(count + 63) / 64` | 切り上げ除算。範囲外のスレッドは、シェーダー先頭で `return` |
-| 終了時の遷移 | UAV → `INDIRECT_ARGUMENT`。これを忘れると、ExecuteIndirect が、書き込み途中の値を読む |
+- 初期状態 `INDIRECT_ARGUMENT`: 毎フレームの最後が `INDIRECT_ARGUMENT`なので、最初もそれに揃える（遷移の連鎖が簡単）
+- コマンド バッファは、クリア不要: カウンタ以降の領域は読まれない（ExecuteIndirect は、カウント分だけ読む）
+- カウンタ バッファのコピー: `COPY_DEST` に遷移 → ゼロをコピー → `UNORDERED_ACCESS` に遷移
+- `SetComputeRootConstantBufferView`: GPU 仮想アドレスをそのまま渡す。ヒープ設定が不要
+- `(count + 63) / 64`: 切り上げ除算。範囲外のスレッドは、シェーダー先頭で `return`
+- 終了時の遷移: UAV → `INDIRECT_ARGUMENT`。これを忘れると、ExecuteIndirect が、書き込み途中の値を読む
 
 !!! note "ClearUnorderedAccessViewUint という手もある"
     `ClearUnorderedAccessViewUint` でも0 を書けますが、シェーダー可視ヒープ上の GPU ハンドルと、CPU ハンドル（非シェーダー可視でもよい）の両方が必要です。今回のようにルート UAV（記述子なし）で扱う構成では、コピー方式が簡単です。
 
 ## 負荷の見積もり
 
-| 項目 | 内容 |
-| --- | --- |
-| **スレッド数** | インスタンス数（10 万個で約 1,600 グループ） |
-| メモリ読み出し | 1 インスタンス 80 バイト ＋ メッシュ情報 32 バイト。10 万個で約 11 MB |
-| GPU 時間の目安 | 数十〜百数十マイクロ秒（10 万インスタンス・現代の GPU） |
-| 原子操作の競合 | 全スレッドが同じカウンタを叩く。バケットを分けると緩和。ウェーブ単位で集約する最適化もある（`WaveActiveCountBits` ＋ 代表レーンの 1 回の `InterlockedAdd`） |
+- **スレッド数**: インスタンス数（10 万個で約 1,600 グループ）
+- メモリ読み出し: 1 インスタンス 80 バイト ＋ メッシュ情報 32 バイト。10 万個で約 11 MB
+- GPU 時間の目安: 数十〜百数十マイクロ秒（10 万インスタンス・現代の GPU）
+- 原子操作の競合: 全スレッドが同じカウンタを叩く。バケットを分けると緩和。ウェーブ単位で集約する最適化もある（`WaveActiveCountBits` ＋ 代表レーンの 1 回の `InterlockedAdd`）
 
 ### ウェーブ単位の集約
 

@@ -86,11 +86,9 @@ float3 ApplyFogWithSun(float3 scene_color, float3 view_dir, float distance) {
 
 <strong>霧の中</strong>では 太陽の光が遮られた、場所（建物、木の影）は霧も暗くなります。影を考慮しない霧は影の中でも一様に明るいので光の筋（ゴッド レイ）が出ません（[God Rays](../god-rays/index.md)）。
 
-| 方式 | 影の扱い |
-| --- | --- |
-| この方式（霧の色に太陽を足す） | 影を無視（全体が一様） |
-| ボリューム フォグ（froxel） | シャドウ マップを引いて、影の中は暗い（[Volumetric Fog](../volumetric-fog/index.md)） |
-| ゴッド レイ（放射状ブラー、レイマーチ） | 影の有無で筋を作る（[God Rays](../god-rays/index.md)） |
+- この方式（霧の色に太陽を足す）: 影を無視（全体が一様）
+- ボリューム フォグ（froxel）: シャドウ マップを引いて、影の中は暗い（[Volumetric Fog](../volumetric-fog/index.md)）
+- ゴッド レイ（放射状ブラー、レイマーチ）: 影の有無で筋を作る（[God Rays](../god-rays/index.md)）
 
 簡単な霧に太陽を足す方法は 影を無視する代わりに軽いので遠景の霞に向いています。近景の影つきの霧はボリュームで、作ります。
 

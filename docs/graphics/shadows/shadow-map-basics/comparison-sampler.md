@@ -35,12 +35,10 @@ float ShadowFactor(float3 world_pos) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `ndc.xy * (0.5, −0.5) + 0.5` | NDC（−1〜1、y は上向き）をテクスチャ座標（0〜1、v は下向き）に |
-| `depth = ndc.z − bias` | バイアスで自己影を防ぐ（[Shadow Bias](../bias/index.md)） |
-| 範囲外 | シャドウ マップの外は、影なし（1）として扱う（または別の扱い） |
-| `SampleCmpLevelZero` | 比較サンプラー。比較して結果（0〜1）を 2×2 でバイリニア補間 |
+- `ndc.xy * (0.5, −0.5) + 0.5`: NDC（−1〜1、y は上向き）をテクスチャ座標（0〜1、v は下向き）に
+- `depth = ndc.z − bias`: バイアスで自己影を防ぐ（[Shadow Bias](../bias/index.md)）
+- 範囲外: シャドウ マップの外は、影なし（1）として扱う（または別の扱い）
+- `SampleCmpLevelZero`: 比較サンプラー。比較して結果（0〜1）を 2×2 でバイリニア補間
 
 ### 比較サンプラー
 
@@ -81,11 +79,9 @@ desc.MaxLOD = D3D11_FLOAT32_MAX;
 device->CreateSamplerState(&desc, &shadow_sampler);
 ```
 
-| 設定 | 内容 |
-| --- | --- |
-| `Filter` | `COMPARISON_` で始まるものを選ぶ。`MIN_MAG_LINEAR_MIP_POINT` なら比較した結果をバイリニアで、補間（影の縁がなめらか）。`MIN_MAG_MIP_POINT` なら補間なし（硬い縁） |
-| `ComparisonFunc` | `LESS_EQUAL`：参照値（画素の深度）がテクスチャの値以下なら 1（光が当たる）。通常の、深度（小さいほど近い）で使う |
-| `AddressU/V` | `BORDER`：範囲外は `BorderColor`。1.0にすると範囲外は影にならない |
+- `Filter`: `COMPARISON_` で始まるものを選ぶ。`MIN_MAG_LINEAR_MIP_POINT` なら比較した結果をバイリニアで、補間（影の縁がなめらか）。`MIN_MAG_MIP_POINT` なら補間なし（硬い縁）
+- `ComparisonFunc`: `LESS_EQUAL`：参照値（画素の深度）がテクスチャの値以下なら 1（光が当たる）。通常の、深度（小さいほど近い）で使う
+- `AddressU/V`: `BORDER`：範囲外は `BorderColor`。1.0にすると範囲外は影にならない
 
 ## シェーダーでの使い方
 
@@ -135,12 +131,10 @@ float lit = (shadow_depth <= stored) ? 1.0 : 0.0;
 
 ## 注意点
 
-| 項目 | 内容 |
-| --- | --- |
-| 深度の向き | reversed-Z（遠いほど、小さい）を使っているなら `ComparisonFunc` を `GREATER_EQUAL` にする |
-| 形式 | シャドウ マップの、SRV は `R32_FLOAT`（または `R24_UNORM_X8_TYPELESS`）。比較サンプラーで読める |
-| ミップ | シャドウ マップは、ミップを作らない（深度の平均は、意味がない） |
-| テクスチャ配列 | カスケードを配列にするなら `Texture2DArray` と `float3(uv, slice)` で読む |
+- 深度の向き: reversed-Z（遠いほど、小さい）を使っているなら `ComparisonFunc` を `GREATER_EQUAL` にする
+- 形式: シャドウ マップの、SRV は `R32_FLOAT`（または `R24_UNORM_X8_TYPELESS`）。比較サンプラーで読める
+- ミップ: シャドウ マップは、ミップを作らない（深度の平均は、意味がない）
+- テクスチャ配列: カスケードを配列にするなら `Texture2DArray` と `float3(uv, slice)` で読む
 
 ## よくあるミス
 

@@ -87,12 +87,10 @@ float3 ACESFitted(float3 color) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 入力・出力の行列 | sRGB ↔ ACES の色空間を 3×3 行列で変換 |
-| `RRTAndODTFit` | 曲線の部分（有理関数） |
-| 行列を掛ける向き | 列ベクトル規約で書かれている（`mul(行列, ベクトル)`）。行ベクトル規約の C++・HLSL では、転置に注意 |
-| Narkowicz との違い | 色空間の変換が入るので、彩度や色相の変化が本物に近い |
+- 入力・出力の行列: sRGB ↔ ACES の色空間を 3×3 行列で変換
+- `RRTAndODTFit`: 曲線の部分（有理関数）
+- 行列を掛ける向き: 列ベクトル規約で書かれている（`mul(行列, ベクトル)`）。行ベクトル規約の C++・HLSL では、転置に注意
+- Narkowicz との違い: 色空間の変換が入るので、彩度や色相の変化が本物に近い
 
 
 原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）がこの変換をゲーム向けの軽い式にフィットしました。
@@ -109,13 +107,11 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 
 ## より良いやり方
 
-| 工夫 | 内容 |
-| --- | --- |
-| Hill のフィットを使う | 色空間変換つきで色の偏りが本物に近く、制御しやすい |
-| エフェクトの色を事前に調整 | ACES を通った後の見た目で、エフェクトの色を決める |
-| ハイライトの色を保つ補正 | 彩度の高い明部で輝度ベースの補正をブレンド（[Preserving Hue](hue-preservation.md)） |
-| AgX に替える | <strong>色相の安定を重視するなら、[AgX](agx.md)</strong> |
-| LUT に焼く | ACES を 3D LUT にして、グレーディングと統合（[3D LUT](../color-grading/lut-3d.md)） |
+- Hill のフィットを使う: 色空間変換つきで色の偏りが本物に近く、制御しやすい
+- エフェクトの色を事前に調整: ACES を通った後の見た目で、エフェクトの色を決める
+- ハイライトの色を保つ補正: 彩度の高い明部で輝度ベースの補正をブレンド（[Preserving Hue](hue-preservation.md)）
+- AgX に替える: <strong>色相の安定を重視するなら、[AgX](agx.md)</strong>
+- LUT に焼く: ACES を 3D LUT にして、グレーディングと統合（[3D LUT](../color-grading/lut-3d.md)）
 
 <!-- fig:tonemap-aces-curves:begin -->
 
