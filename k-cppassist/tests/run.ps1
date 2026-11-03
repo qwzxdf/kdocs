@@ -7,8 +7,8 @@ $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer
 $vs = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
 $csc = Join-Path $vs 'MSBuild\Current\Bin\Roslyn\csc.exe'
 $out = Join-Path $env:TEMP 'kcppassist-tests.exe'
-$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan') | ForEach-Object { Join-Path $src "$_.cs" }
-& $csc -nologo "-out:$out" -langversion:latest (Join-Path $PSScriptRoot 'Tests.cs') (Join-Path $PSScriptRoot 'SyncTests.cs') @files
+$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan', 'DefinitionGen') | ForEach-Object { Join-Path $src "$_.cs" }
+& $csc -nologo "-out:$out" -langversion:latest (Join-Path $PSScriptRoot 'Tests.cs') (Join-Path $PSScriptRoot 'SyncTests.cs') (Join-Path $PSScriptRoot 'DefTests.cs') @files
 if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
 & $out
 exit $LASTEXITCODE

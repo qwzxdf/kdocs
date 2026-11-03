@@ -151,6 +151,20 @@ namespace KCppAssist
             }
         }
 
+        /// <summary>text を position に挿入する。1 回の Undo。自動合わせが書き戻さないよう、同じ目印を付ける。</summary>
+        public static void Insert(ITextBuffer buffer, int position, string text, ITextUndoHistoryRegistry undo, string description)
+        {
+            ITextUndoHistory history = null;
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            using (var tx = history == null ? null : history.CreateTransaction(description))
+            {
+                var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
+                edit.Insert(position, text);
+                edit.Apply();
+                if (tx != null) tx.Complete();
+            }
+        }
+
         /// <summary>補完リストが出ている、ビルド中、エディターにフォーカスがない、のどれか。</summary>
         public static bool IsBusy(IWpfTextView view, IAsyncCompletionBroker completion)
         {

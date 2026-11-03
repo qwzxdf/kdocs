@@ -179,9 +179,11 @@ namespace KCppAssist
 
         private async Task SyncOneAsync(Item b, string curInner)
         {
-            var oldList = SignatureSync.SplitParams(b.Text);
-            var newList = SignatureSync.SplitParams(curInner);
-            if (oldList == null || newList == null) return;          // 書きかけ
+            // 引数の途中に #if があるものは、枝の選び方ごとの型の並びで相手を探す(書き換えはしない)
+            var oldKeys = SignatureSync.KeyVariants(b.Text);
+            var newKeys = SignatureSync.KeyVariants(curInner);
+            if (oldKeys.Count == 0 || newKeys.Count == 0) return;    // 書きかけ
+            bool editedHasIf = SignatureSync.HasDirectives(b.Text) || SignatureSync.HasDirectives(curInner);
 
             var opt = SyncService.Options;
             bool wantDef = !b.HasBody;                               // 宣言を変えたなら定義を、定義を変えたなら宣言を探す
@@ -196,20 +198,25 @@ namespace KCppAssist
 
             string label = (b.Class == null ? "" : b.Class + "::") + b.Name;
             var targets = SyncService.FindTargets(files, wantDef, b.Sig, owner.Adapters);
-            var oldKeys = SignatureSync.TypeKeys(oldList);
-            var newKeys = SignatureSync.TypeKeys(newList);
-            Func<SyncService.Target, List<string>> keysOf = t => { var l = SignatureSync.SplitParams(t.Inner); return l == null ? null : SignatureSync.TypeKeys(l); };
+            Func<SyncService.Target, List<List<string>>> keysOf = t => SignatureSync.KeyVariants(t.Inner);
 
-            var matches = SyncPlan.Matches(targets, t => t.Score, keysOf, oldKeys);
+            var matches = SyncPlan.MatchesAny(targets, t => t.Score, keysOf, oldKeys);
             if (matches.Count == 0)
             {
-                if (targets.Any(t => SyncService.SameKeys(keysOf(t), newKeys))) return;       // もう合っている
+                if (targets.Any(t => SyncPlan.SameKeysAny(keysOf(t), newKeys))) return;       // もう合っている
                 IncludeService.Status(label + " の" + (wantDef ? "定義" : "宣言") + "が見つからないので、引数を写せませんでした");
                 return;
             }
             if (matches.Count > 1) { IncludeService.Status(label + " の" + (wantDef ? "定義" : "宣言") + "が複数あるので、引数を写せませんでした (Alt+G で選べます)"); return; }
 
             var t0 = matches[0];
+            if (editedHasIf || SignatureSync.HasDirectives(t0.Inner))
+            {
+                IncludeService.Status(label + " の引数の途中に #if があるので、自動では書き換えません。" + Path.GetFileName(t0.File) + " は手で合わせてください");
+                return;
+            }
+            var oldList = SignatureSync.SplitParams(b.Text);
+            var newList = SignatureSync.SplitParams(curInner);
             ITextBuffer buf = t0.Buffer;
             bool opened = false;
             if (buf == null)

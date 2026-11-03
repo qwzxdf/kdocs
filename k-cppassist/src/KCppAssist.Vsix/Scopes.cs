@@ -68,6 +68,9 @@ namespace KCppAssist
             return list;
         }
 
+        /// <summary>m(Mask 済み)の open の「{」に対応する「}」の位置。なければ -1。</summary>
+        public static int MatchBrace(string m, int open) { return Close(m, open); }
+
         private static int Close(string m, int open)
         {
             int depth = 0;

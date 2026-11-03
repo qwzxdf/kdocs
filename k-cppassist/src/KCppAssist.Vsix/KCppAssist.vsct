@@ -39,6 +39,11 @@
           <ButtonText>宣言と定義の引数を合わせる</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdCreate" priority="0x0106" type="Button">
+        <Strings>
+          <ButtonText>宣言・定義の相手を作る</ButtonText>
+        </Strings>
+      </Button>
       <!-- 拡張機能 メニューに出るのは、設定画面を開くこの 1 つだけ -->
       <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
@@ -55,6 +60,7 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidVSStd97" key1="E" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidVSStd97" key1="F" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidVSStd97" key1="G" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidVSStd97" key1="R" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -74,6 +80,7 @@
       <IDSymbol name="CmdSettings" value="0x0103" />
       <IDSymbol name="CmdInclude" value="0x0104" />
       <IDSymbol name="CmdSync" value="0x0105" />
+      <IDSymbol name="CmdCreate" value="0x0106" />
     </GuidSymbol>
   </Symbols>
 

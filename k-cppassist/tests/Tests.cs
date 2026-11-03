@@ -154,7 +154,7 @@ static class Tests
         Eq("not assignment", a, null);
 
         Console.WriteLine("pass=" + pass + " fail=" + fail);
-        int f2 = SyncTests.Run();
+        int f2 = SyncTests.Run() + DefTests.Run();
         Environment.Exit(fail == 0 && f2 == 0 ? 0 : 1);
     }
 }

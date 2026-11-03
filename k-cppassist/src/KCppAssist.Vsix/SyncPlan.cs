@@ -43,6 +43,25 @@ namespace KCppAssist
             return ok.Where(t => score(t) == top).ToList();
         }
 
-        public static bool SameKeys(List<string> a, List<string> b) { return a != null && b != null && a.SequenceEqual(b); }
+        /// <summary>型のキーの並びが同じか。HANDLE と void* のような別名の違いは同じとみなす。</summary>
+        public static bool SameKeys(List<string> a, List<string> b)
+        {
+            return a != null && b != null && a.Count == b.Count && a.Select(SignatureSync.AliasNorm).SequenceEqual(b.Select(SignatureSync.AliasNorm));
+        }
+
+        /// <summary>#if で引数が枝分かれするものは、どれかの組み合わせが同じなら同じとみなす。</summary>
+        public static bool SameKeysAny(List<List<string>> a, List<List<string>> b)
+        {
+            return a != null && b != null && a.Any(x => b.Any(y => SameKeys(x, y)));
+        }
+
+        /// <summary>Matches の、#if で枝分かれする引数に対応したもの。</summary>
+        public static List<T> MatchesAny<T>(IEnumerable<T> targets, Func<T, int> score, Func<T, List<List<string>>> keys, List<List<string>> oldKeys)
+        {
+            var ok = targets.Where(t => score(t) > 0 && SameKeysAny(keys(t), oldKeys)).ToList();
+            if (ok.Count == 0) return ok;
+            int top = ok.Max(score);
+            return ok.Where(t => score(t) == top).ToList();
+        }
     }
 }

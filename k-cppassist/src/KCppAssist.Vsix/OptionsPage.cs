@@ -80,6 +80,16 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string SyncKey { get; set; } = "Alt+G";
 
+        [Category("キー")]
+        [DisplayName("宣言・定義の相手を作る")]
+        [Description(KeyHelp)]
+        public string CreateKey { get; set; } = "Alt+R";
+
+        [Category("Quick Fix")]
+        [DisplayName("電球(Quick Fix)に出す")]
+        [Description("true: Ctrl+. の電球に、宣言・定義の相手を作る、引数を合わせる、変数に型を付ける、を出す。")]
+        public bool ShowQuickFix { get; set; } = true;
+
         /// <summary>設定画面を開いたとき、Visual Studio に今割り当てられているキーを表示する。</summary>
         protected override void OnActivate(CancelEventArgs e)
         {
@@ -92,6 +102,7 @@ namespace KCppAssist
                 AccessorKey = Current(KCppAssistPackage.CmdAccessor);
                 IncludeKey = Current(KCppAssistPackage.CmdInclude);
                 SyncKey = Current(KCppAssistPackage.CmdSync);
+                CreateKey = Current(KCppAssistPackage.CmdCreate);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -109,6 +120,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdAccessor, AccessorKey);
                 Assign(KCppAssistPackage.CmdInclude, IncludeKey);
                 Assign(KCppAssistPackage.CmdSync, SyncKey);
+                Assign(KCppAssistPackage.CmdCreate, CreateKey);
             }
             catch (Exception ex)
             {
