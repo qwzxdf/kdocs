@@ -461,6 +461,61 @@ McGuire と Mara の論文（参考）は、この問題を、2D の線を引く
 
 コンタクト シャドウでは、細い物の影も出したいので、`stride` を広げる余裕はあまりありません。そこで、レイを短くして、間隔を保ちます。視線に垂直なレイなら、世界での間隔は「レイの長さ ÷ ステップ数」です。1 m を 16 ステップで読めば、約 6 cm ごとに 1 回です。これより細い物は、飛び越える可能性があります。0.5 m に縮めれば約 3 cm になるので、細い物（柵の 1 本、草の 1 枚）まで拾えます。
 
+### DDA で書き直す
+
+上の `ContactShadow` を、画面上で 1 画素ずつ進める形に書き直します。レイを画素座標に直して、長い方の軸が 1 画素ずつ進むように、増分を決めます。
+
+```hlsl
+static const int kMaxPixelSteps = 32;   // 画面上で 1 画素ずつ読む回数の上限（一例）
+
+float ContactShadowDda(float3 view_pos, float3 light_dir_view,
+                         float2 screen_size, float jitter) {
+  // 終点を決めて near plane で切るところは、ContactShadow と同じ（省略）
+  float3 ray_end = ClippedRayEnd(view_pos, light_dir_view);
+  float2 p0 = ProjectToUV(view_pos) * screen_size;   // 始点の画素座標
+  float2 p1 = ProjectToUV(ray_end) * screen_size;    // 終点の画素座標
+  float k0 = 1.0 / view_pos.z;                       // 1/z は、画面上で線形に変わる
+  float k1 = 1.0 / ray_end.z;
+```
+
+`ClippedRayEnd` は、前のコードの `ray_end` の計算と near plane で切る処理をまとめた関数です。`k = 1/z` を、画面上の位置と一緒に、同じ割合で進めます。論文の `k` と同じ考え方です（後の「論文のコードを読む」）。
+
+```hlsl
+  float2 delta = p1 - p0;
+  float len = max(abs(delta.x), abs(delta.y));       // 画面上の長さ（画素）
+  int n = (int)ceil(min(len, (float)kMaxPixelSteps));
+  if (n == 0) return 1.0;                            // 1 画素にも満たない：影を調べるまでもない
+
+  float2 dp = delta / n;                             // 1 ステップで進む画素数
+  float dk = (k1 - k0) / n;
+  float2 p = p0 + dp * jitter;                       // jitter で、開始位置を 1 ステップ未満ずらす
+  float k = k0 + dk * jitter;
+```
+
+長い方の軸の長さ `len` が、画面上で何画素を横切るかです。`n` を `len` にそろえれば、1 ステップが、長い方の軸で 1 画素ぶんになります。上限 `kMaxPixelSteps` を超えるときは、`n` を上限で止めて、間隔を 1 画素より広げます（長いレイだけ、元の等分のやり方に戻ります）。
+
+```hlsl
+  float shadow = 1.0;
+  [loop] for (int i = 0; i < n; ++i) {
+    p += dp;
+    k += dk;
+    if (any(p < 0.0) || any(p >= screen_size)) break;         // 画面の外
+    float ray_z = 1.0 / k;
+    float scene_z = LinearDepth(depth_tex.Load(int3(p, 0)).r);  // 画素の座標で、直接読む
+    float diff = ray_z - scene_z;
+    if (diff > kBias && diff < kThickness) {
+      shadow = 0.0;
+      break;
+    }
+  }
+  return shadow;
+}
+```
+
+ループの中は、`ContactShadow` とほぼ同じです。違いは、`SampleLevel` ではなく `Load` で、画素の座標をそのまま読むことです。読む画素が、前の画素のすぐ隣になるので、飛ばしも重複もありません。
+
+このコードは、HLSL としてコンパイルも実行もしていません。論文のコードのように、分岐を減らす工夫（軸の入れ替えなど）も入れていません。考え方を示すための例です。
+
 ## 厚みの扱い：深度バッファの面は、板として扱う
 
 深度バッファは、各画素で、<strong>一番手前の面の深度</strong>しか持っていません。その面の裏側がどこまで続くか（厚み）は、分かりません。
@@ -504,6 +559,52 @@ McGuire と Mara の論文（参考）は、この問題を、2D の線を引く
 - 最初のサンプルの位置を、`jitter` で少しずらします（コードでは `t` の初期値）。毎回同じ位置から始めると、同じ縞が出ます。
 
 `kBias` は、大きすぎると、接触部の影が浮いて見えます。小さすぎると、自己遮蔽が出ます。シャドウ マップのバイアスと同じ、トレードオフです。
+
+## 論文のコードを読む
+
+McGuire と Mara の論文には、GLSL で書いた実装（Listing 2 と 3）が載っています。関数 `traceScreenSpaceRay` が、レイの始点と方向から、当たった画素を返します。ここでは、このページのコードと関係の深い所だけを、短く引いて読みます（以下の 4 つの抜粋は論文のまま。全体は、論文の 3 節にあります）。
+
+論文のコードは、反射用で、右手系のカメラ空間（+z が画面の手前）です。このページの HLSL は、左手系（+z が奥）なので、奥行きの向きが反対です。論文の `zThickness` は、z が小さい（奥の）側に、厚みを延ばしています。
+
+```glsl
+vec4 H0 = proj * vec4(csOrig, 1.0), H1 = proj * vec4(csEndPoint, 1.0);
+float k0 = 1.0 / H0.w, k1 = 1.0 / H1.w;
+point3 Q0 = csOrig * k0, Q1 = csEndPoint * k1;
+point2 P0 = H0.xy * k0, P1 = H1.xy * k1;
+```
+
+始点と終点を、投影行列で、同次座標（`H`）にします。`k = 1/H.w` と `Q * k`（3D の点に `k` を掛けたもの）は、画面上で線形に変わります。論文の式 (1) のとおり、画面の任意の画素の 3D の位置は、`Q` に `k` を掛けた値を `k` で割れば戻ります。このページの HLSL では、`k = 1/z` だけを補間しているのが、これにあたります。`P0`・`P1` は、画面上の始点と終点です。
+
+```glsl
+bool permute = false;
+if (abs(delta.x) < abs(delta.y)) {
+   permute = true;
+   delta = delta.yx; P0 = P0.yx; P1 = P1.yx;
+}
+```
+
+DDA をそのまま書くと、4 つの象限 × 2 つの進む軸（x か y）で、場合分けが 8 通りになります。GPU は、同じグループの画素が別の枝に進むと、両方の枝を実行するので、遅くなります。そこで、y のほうが長いときは、x と y を入れ替えて、常に x の軸で進むように統一しています。入れ替えたかどうかは `permute` に残して、画素の座標を使うときに、元に戻します。
+
+```glsl
+dP *= stride; dQ *= stride; dk *= stride;
+P0 += dP * jitter; Q0 += dQ * jitter; k0 += dk * jitter;
+```
+
+1 ステップの増分に `stride` を掛けて、間隔を広げます。そのあと、`jitter`（0〜1）に増分を掛けた量だけ、開始位置をずらします。`stride` と `jitter` の関係は、このページの「ステップの取り方」の説明のとおりです。
+
+```glsl
+float rayZMax = (dQ.z * 0.5 + Q.z) / (dk * 0.5 + k);
+...
+float4 sceneZMin = sceneZMax - zThickness;
+if (((rayZMax >= sceneZMin[L]) && (rayZMin <= sceneZMax[L])) ||
+    (sceneZMax[L] == 0)) {
+```
+
+当たりの判定です。論文は、レイを 1 点ではなく、1 画素の中でレイが通る奥行きの範囲 `[rayZMin, rayZMax]` として扱います。`rayZMax` は、半画素先の値で、`rayZMin` は前のステップの値です。この範囲が、深度バッファの面の範囲 `[sceneZMin, sceneZMax]`（面から `zThickness` だけ奥まで）と重なれば、当たりです。このページのコードは、サンプルの位置の 1 点だけで比べているので、論文の方法のほうが、細い面を取りこぼしにくくなります。
+
+最後の `sceneZMax[L] == 0` は、画面の外の扱いです。論文は、画面の外を `texelFetch` で読むと 0 が返ることを使って、ここで条件を真にして、ループを止めます。そのあと、戻り値の判定で、画素が画面の中に入っているかを確かめて、外なら当たりとしません。このページのコードの、`break` と同じ役割です。
+
+論文のコードは、反射用なので、当たった画素の座標を返します。影では、当たったかどうかだけが要ります。そのため、このページのコードは、`shadow = 0.0` を返す形にしました。
 
 ## 実装例：Days Gone
 
@@ -602,6 +703,7 @@ McGuire と Mara の論文には、1920 × 1080 の全画素で、25 ステッ�
     - [x] 世界での間隔は「レイの長さ ÷ ステップ数」。これより細い物は飛び越える
     - [x] 深度バッファの面は、`kThickness` の厚みをもつ板として扱う。`kBias` で自己遮蔽を避ける
     - [x] 画面の外に出たら打ち切り、終点は near plane で切る
+    - [x] 1 画素ずつ隣をたどる（DDA）と、飛ばしも重複もない。`k = 1/z` を一緒に進める
 
 ## 参考
 
