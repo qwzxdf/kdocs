@@ -357,6 +357,7 @@ graphics/ao/theory/integral-intuition.md: {diff: 1}
 
 # --- アップスケーリング ---
 graphics/postprocess/upscaling/index.md: {diff: 3}
+graphics/postprocess/upscaling/comparison.md: {diff: 3}
 graphics/postprocess/upscaling/fsr.md: {perf: 2, quality: 3, diff: 3}
 graphics/postprocess/upscaling/dlss.md: {perf: 2, quality: 5, diff: 3}
 graphics/postprocess/upscaling/xess.md: {perf: 2, quality: 4, diff: 3}

@@ -74,7 +74,8 @@ void ApplyJitter(Matrix& proj, int frame, float scale, int input_width, int inpu
   float jitter_y = Halton(index, 3) - 0.5f;  // 範囲を出ると、3 社とも破綻の原因になる
 
   // 画素の単位から NDC（幅 2）の単位へ直す。2.0 / 幅 は XeSS のガイドの式。
-  // Y を引くのは、画面の下向きが +Y のため。
+  // DLSS と FSR 2 のガイドには、この換算式が書かれていない。
+  // Y を引く符号は、XeSS のガイドの式のまま。向きの理由は、資料に書かれていない。
   proj.m[2][0] += jitter_x * 2.0f / input_width;
   proj.m[2][1] -= jitter_y * 2.0f / input_height;
 
