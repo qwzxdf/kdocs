@@ -106,6 +106,13 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
     - 済み（2026-11-04）: `postprocess/upscaling/xess.md`、`fsr.md`、`dlss.md`、`ao/mssao.md`。表の機械変換は 2 列の説明表だけ済み
     - 次の候補（点数の低い順）: `shadows/vsm/comparison.md`、`translucency/alpha-test/comparison.md`、`gi/probes/compare.md`、`reflections/ssr-basics/artifacts.md`、`postprocess/upscaling/index.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md
 - [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
+- [ ] 2-9-7. 済みの 4 ページ（`upscaling/xess.md`、`fsr.md`、`dlss.md`、`ao/mssao.md`）を、見本の水準に直す（2026-11-04 のレビューより）
+    - 読点を減らす（1 文あたり 1.1〜1.7 → 0.7 以下）
+    - 図を足す。MSSAO は、入れ子の半球と層の合成の流れ。アップスケーラ 3 つは、ジッターの位相が画素を埋める様子と、フレームの中での呼び出しの位置
+    - コードを足す。MSSAO は、AOnear・バイラテラル アップサンプル・最大値と平均の合成を、丁寧なコメントつきの HLSL で。FSR はジッターと初期化の流れ。コンパイルしていないと明記する
+    - 重複を整理する。ジッター・ミップ バイアス・入力・露出の共通部分を `upscaling/index.md` に集め、3 社の値を比べる「Upscaler Comparison」ページを作る
+    - MSSAO の実行時間の文を、論文の表 8 に合わせる（8600M GT は Sibenik・Conference で同程度、Sponza で MSSAO が速い）。DLSS のジッターのコードに、単位の換算がガイドに書かれていない旨を注記する。MSSAO の「使いどころ」は、SAO・XeGTAO の資料を読んで確かめるか、削る
+    - DLSS の 5 章以降、FSR 2 の README の後半を読んで、足りない点を足す
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
 - [ ] 2-9-6. `graphics/` が進んだら、`libs/`・`engine/`・`3d/`・`directx/`・`optimize/` などを、同じ指標で順に直す
 
