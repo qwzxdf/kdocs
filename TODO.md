@@ -103,7 +103,7 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 完了の条件（1 ページごと）
 
 - 表が、「表の規則」の 3 つ以外にない
-- 解説するアルゴリズム・API に、動かせる形のコードがあり、全行に意味・単位・理由のコメントがある（式だけ、断片だけで終えていない）
+- 解説するアルゴリズム・API に、通して読める完成形のコードが 100 行以上あり、全行に意味・単位・理由のコメントがある（式だけ、数行の断片の寄せ集めで終えていない）。資料にない処理は「足した」と書いてある。手元で確かめられるもの（`dxc`・`fxc`・C++ のコンパイル）は確かめてあり、確かめたかどうかをページに書いてある
 - 図が 2 枚以上ある（配置・流れ・値の変化。文章と式だけで済ませていない）
 - 資料の主要な節を 1 つずつ並べて、ページにあるかを確かめた。読んでいない範囲は、参考資料の節に書いてある
 - 資料の数字・比較の言葉（「同程度」「速い」など）を、表の行ごとに照らした。単位の換算が資料にない所は、断定していない
@@ -118,7 +118,8 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
     - 手直し済み（2026-11-04）: `postprocess/upscaling/` の index・comparison（新規）・xess・fsr・dlss、`ao/mssao.md`。図・コード・コメント・読点（1 文あたり 0.7 前後）・重複の整理・数字の照合は済み。**完了の条件に、まだ届いていない点**
         - 文章量: xess 128 文、fsr 123 文、dlss 190 文（目安 200）。図は xess・fsr・dlss が 1 枚ずつ（目安 2 枚以上）
         - 読んでいない資料: DLSS の 5 章以降、FSR 2 の README の後半（約 2.6 万字）、MSSAO の CGI 2011 版と VRST 版。読んで、足りない点（なぜ・数字・失敗の症状・境界）を足す
-        - コードはどれもコンパイルしていない（MSSAO の HLSL、DLSS・FSR・XeSS の呼び出しの断片）。HLSL は `fxc` / `dxc` で通るかを確かめられる
+        - コードを豊富にする（完成形を 100 行以上）。FSR は、初期化 → 毎フレームのジッター・ディスパッチ → 終了まで通して書く。XeSS と DLSS も、コンテキスト作成から評価までを通して書く（API の引数は、資料で確かめられる範囲だけ。確かめられない所はダミーの名前にして注記する）。MSSAO の HLSL は、フィルター・16 点のポアソン ディスク・層を回す全体の流れ（Table 1）まで書き、`dxc` / `fxc` で通るかを確かめる
+        - コンパイル確認: MSSAO の HLSL、DLSS・FSR・XeSS の呼び出し（HLSL は `dxc` / `fxc`、C++ は SDK のヘッダーがあるときだけ）
     - 次の候補（点数の低い順）: `shadows/vsm/comparison.md`、`translucency/alpha-test/comparison.md`、`gi/probes/compare.md`、`reflections/ssr-basics/artifacts.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md`
 - [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
