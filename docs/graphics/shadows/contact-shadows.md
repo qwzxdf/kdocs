@@ -293,13 +293,210 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
 
 `jitter` は、画素ごとにステップの位置をずらす値です（IGN など）。ステップ数を少なくしても、縞がノイズに変わるので、TAA で消せます。1/z で補間するやり方は、[SSR](../reflections/ssr-basics/index.md) と同じです。
 
-## 厚みの問題
+## ステップの取り方：間隔が粗いと、細い物を飛び越える
 
-<strong>深度バッファは、「一番手前の面」の深度しか持たない</strong>ので、その面の厚み（裏側までの奥行き）が分かりません。
+上のコードは、レイを `kContactSteps` 個に等分して、1 ステップにつき深度を 1 回だけ読みます。ところが、レイが画面上で何画素を横切るかは、カメラとの距離やレイの向きで変わります。サンプル数が固定だと、次の 2 つが起きます。
 
-厚みの設定による結果です。薄すぎると、細い物（柵・草）をすり抜けることがあります。厚すぎると、遠くの面の手前を通っただけでも遮蔽扱いになり、誤った影が出ます。適度な値は、シーンに合わせて調整し、距離や物のスケールで変えます。
+- レイが 100 画素を横切るのに 16 サンプルだけなら、6 画素に 1 回しか読みません。間にある画素は、見ていません。
+- レイが 5 画素しか横切らないのに 16 サンプルなら、同じ画素を何度も読みます。読み込みの無駄です。
 
-完全な解決はなく、パラメータの調整で妥当な見た目に寄せます。
+<svg class="fig flow" viewBox="0 0 640 436" role="img" aria-label="固定個数のサンプルと、隣り合う画素をたどる方法の比較">
+<text x="48" y="42" style="font-size:14px;font-weight:700">サンプルが 6 個だけ：レイが通る 16 画素のうち、6 画素しか読まれない</text>
+<rect x="48" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="56" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="56" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="90" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="90" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="90" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="124" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="124" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="124" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="158" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="158" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<line x1="65.0" y1="175.0" x2="575.0" y2="73.0" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<circle cx="65.0" cy="175.0" r="5" fill="#e5484d"/>
+<circle cx="167.0" cy="154.6" r="5" fill="#e5484d"/>
+<circle cx="269.0" cy="134.2" r="5" fill="#e5484d"/>
+<circle cx="371.0" cy="113.8" r="5" fill="#e5484d"/>
+<circle cx="473.0" cy="93.4" r="5" fill="#e5484d"/>
+<circle cx="575.0" cy="73.0" r="5" fill="#e5484d"/>
+<text x="48" y="248" style="font-size:14px;font-weight:700">隣り合う画素を 1 つずつたどる：通る画素を全部読む</text>
+<rect x="48" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="262" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="262" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="262" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="262" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="296" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="296" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="296" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="296" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="296" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="296" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="330" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="330" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="330" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="330" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="330" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="330" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="48" y="364" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="82" y="364" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="116" y="364" width="34" height="34" fill="rgba(76,139,245,0.30)" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="150" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="184" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="218" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="252" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="286" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="320" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="354" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="388" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="422" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="456" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="490" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="524" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<rect x="558" y="364" width="34" height="34" fill="none" stroke="currentColor" stroke-opacity="0.35"/>
+<line x1="65.0" y1="381.0" x2="575.0" y2="279.0" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="48" y="428" style="font-size:12px">点線がレイ、青い画素が深度を読む画素、赤い点が固定個数のサンプル位置</text>
+</svg>
+
+McGuire と Mara の論文（参考）は、この問題を、2D の線を引くのと同じ要領でレイをたどって解決しています（DDA）。サンプルは、直前の画素のすぐ隣（斜めも含む）にあり、1 画素は多くて 1 回しか読みません。レイがカメラの近くの面（near plane）より手前に出る部分は切り、画面の外に出たら止めます。論文は、これを GPU で速く動かすための書き方（分岐を減らす、除算を掛け算に直すなど）も説明しています。
+
+間隔を広げたいときのために、論文は `stride` を用意しています。`stride = 1` なら、全部の画素を読みます。大きくすると、読む画素が減って速くなりますが、画質が落ちて、縞（バンディング）が出ます。その縞を、画素ごとに開始位置を少しずらす `jitter` で、ノイズに変えて目立たなくします。論文は、`stride` を 1 より大きくするのは、細部が目立たない荒い面の反射だけにするよう勧めています。
+
+コンタクト シャドウでは、細い物の影も出したいので、`stride` を広げる余裕はあまりありません。そこで、レイを短くして、間隔を保ちます。視線に垂直なレイなら、世界での間隔は「レイの長さ ÷ ステップ数」です。1 m を 16 ステップで読めば、約 6 cm ごとに 1 回です。これより細い物は、飛び越える可能性があります。0.5 m に縮めれば約 3 cm になるので、細い物（柵の 1 本、草の 1 枚）まで拾えます。
+
+## 厚みの扱い：深度バッファの面は、板として扱う
+
+深度バッファは、各画素で、<strong>一番手前の面の深度</strong>しか持っていません。その面の裏側がどこまで続くか（厚み）は、分かりません。
+
+そのため、サンプルの深度が、深度バッファの面より奥にあったとき、2 つの場合を区別できません。1 つは、レイが本当に物の中に入った（遮蔽されている）場合です。もう 1 つは、レイが、手前にある物の裏を通り過ぎた（柱の後ろを抜けた）だけの場合です。
+
+そこで、深度バッファの面を、「手前の面から、`kThickness` だけ奥まである、厚みをもつ板」とみなします。レイがその板の中に入れば遮蔽、板より奥を通っていれば、遮蔽ではありません。論文も、各画素の深度に厚み（`zThickness`）を持たせて、レイがその範囲と重なったら当たりと判定しています。コードの `diff > kBias && diff < kThickness` が、この判定です。
+
+<svg class="fig flow" viewBox="0 0 700 310" role="img" aria-label="厚みの内側と外側">
+<defs><marker id="th-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<text x="20" y="26" style="font-size:14px;font-weight:700">深度バッファの面は、厚みをもつ板として扱う（横が奥行き、縦が画面上の位置）</text>
+<line x1="40" y1="276" x2="660" y2="276" stroke="currentColor" stroke-width="1.5" marker-end="url(#th-ar)"/>
+<text x="560" y="298" style="font-size:12px">奥行き（カメラから遠い）</text><text x="40" y="298" style="font-size:12px">カメラ側</text>
+<rect x="300" y="70" width="140" height="190" fill="rgba(229,170,40,0.28)" stroke="currentColor" stroke-opacity="0.5"/>
+<line x1="300" y1="70" x2="300" y2="260" stroke="currentColor" stroke-width="3"/>
+<text x="296" y="64" text-anchor="end" style="font-size:12px">深度バッファの面（scene_z）</text>
+<text x="370" y="64" text-anchor="middle" style="font-size:12px">kThickness</text>
+<line x1="150" y1="240" x2="400" y2="120" stroke="#e5484d" stroke-width="2.5"/><circle cx="400" cy="120" r="5" fill="#e5484d"/>
+<text x="40" y="264" style="font-size:12px;fill:#e5484d;font-weight:700">A：面の裏に入り、厚みの内側 → 遮蔽</text>
+<line x1="500" y1="250" x2="610" y2="90" stroke="#2ea043" stroke-width="2.5"/><circle cx="610" cy="90" r="5" fill="#2ea043"/>
+<text x="470" y="236" style="font-size:12px;fill:#2ea043;font-weight:700">B：厚みよりも奥 → 遮蔽ではない</text>
+</svg>
+
+厚みの値で、結果が大きく変わります。
+
+- 薄すぎると、細い物（柵・草）は、板がレイの間隔より薄くて、すり抜けます。
+- 厚すぎると、離れた壁の前に立つキャラクターのような場合に、壁の画素のレイが、キャラクターの後ろを通っただけで、遮蔽と判定されます。キャラクターの輪郭に沿って、壁に暗い縁が出ます。
+
+論文は、1 枚の深度バッファだけで足りるとき（反射）には、ほぼ無限の厚みでも許容できると書いています。影は、反射よりも、誤った遮蔽が目立ちます。厚みは、扱う物の太さに合わせて、小さめに決めます。遠くでは 1 画素が世界で大きくなり、深度の誤差も大きくなるので、厚みを距離に比例させる実装もあります。
+
+完全な解決はなく、シーンごとの調整になります。論文は、深度を複数の層で持って、厚みを正しく扱う方法（最大 4 層）も説明していますが、その層を作るための描画が増えます。
+
+## 自己遮蔽とバイアス：面自身で影にならないようにする
+
+レイは、影を調べたい画素の面から出発します。つまり、最初のサンプルは、ほぼ面の上にあります。そこで、深度バッファの精度（16 ビットや 24 ビットの量子化と、ビュー空間の z への変換の誤差）で、レイの z が面より少し奥に見えると、面自身を遮蔽物と判定して、面全体が暗くなります（自己遮蔽）。
+
+対策は、次の 3 つです。
+
+- 判定に下限 `kBias` を設けます。`diff` が `kBias` 以下なら、面そのものとみなして、遮蔽にしません。
+- 光が面とほぼ平行になる向き（斜めに差し込む光）は、レイが面に沿って進み、`diff` が小さいまま続きます。この向きでは、自己遮蔽が出やすくなります。`kBias` を大きめにするか、レイの開始位置を、法線の方向に少しずらします。
+- 最初のサンプルの位置を、`jitter` で少しずらします（コードでは `t` の初期値）。毎回同じ位置から始めると、同じ縞が出ます。
+
+`kBias` は、大きすぎると、接触部の影が浮いて見えます。小さすぎると、自己遮蔽が出ます。シャドウ マップのバイアスと同じ、トレードオフです。
+
+## 実装例：Days Gone
+
+Bend Studio は、PS4 の Days Gone（2019 年）で、太陽光の影にスクリーン スペース シャドウを使いました（同社の説明では、太陽光の影に使った最初のタイトル）。シャドウ マップでは取れない小さな細部を補って、遠景の素材が平らに見えるのを和らげた、と説明しています。
+
+同社は、SIGGRAPH 2023（Sony Creators Conference）で発表資料を公開し、Days Gone など Sony の複数のタイトルに入れたコードも公開しています（参考）。ここまでに書いた、ステップの取り方・厚み・バイアスが、実際のコードでどう決められているかを読むと、パラメータの決め方の参考になります。このページでは、公開されたコードの中身までは、解説していません。
 
 ## シャドウ マップとの合成
 
@@ -308,6 +505,8 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
 ## コストと工夫
 
 コンタクト シャドウの重さは、ほぼ「画素数 × ステップ数」です。1 ステップごとに深度バッファを 1 回読むので、ステップを減らすか、計算する画素を減らすのが基本になります。
+
+McGuire と Mara の論文には、1920 × 1080 の全画素で、25 ステップの斜めのレイを 1 本ずつ追った時間が出ています。2014 年のデスクトップ GPU（GeForce Titan）で 1.2 ms、ノート PC の GPU（GeForce 650M）で 6.4 ms です。反射用のレイなので、そのままコンタクト シャドウの時間にはなりませんが、「全画素 × 数十ステップ」が、数 ms の単位になる目安になります。今の GPU なら、もっと速くなります。
 
 ### ステップ数
 
@@ -323,7 +522,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
 
 ### 画面中心・近景に限定する
 
-コンタクト シャドウが効くのは、カメラの近くで、接触部が見えている範囲だけです。遠くでは、接触部が数画素の大きさになって、効果が見えません。距離でフェードアウトさせて、遠くの画素は計算そのものを省きます。
+コンタクト シャドウは、カメラの近くの、接触部がはっきり見える範囲に効きます。遠くでは、接触部が数画素の大きさになるので、距離でフェードアウトさせて、遠くの画素は計算そのものを省くのが、よくある使い方です。一方、Days Gone のように、遠景の影の細部を補うために使う例もあります。どちらを選ぶかは、シーンの広さと、遠景の影のシャドウ マップの解像度で決まります。
 
 ### ライトごとの計算
 
@@ -364,6 +563,12 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
 ??? failure "非線形の深度のまま比べて、距離でおかしくなる"
     線形な深度（ビュー空間の z）で、比べます。
 
+??? failure "ステップ数を減らしたら、細い物の影が抜けた"
+    世界での間隔は、「レイの長さ ÷ ステップ数」です。1 m を 16 ステップで読むと約 6 cm なので、それより細い物は飛び越えます。ステップ数を減らすときは、レイも短くして、間隔を保ちます。
+
+??? failure "厚みを大きくしすぎて、輪郭に暗い縁が出る"
+    離れた壁の前にいるキャラクターのように、レイが手前の物の後ろを通るだけで、遮蔽と判定されます。厚みは、扱う物の太さに合わせて、小さめにします。
+
 ??? failure "全画面・長い距離で計算して、重い"
     近景だけ・短い距離にします。
 
@@ -375,11 +580,13 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float jitter) {
     - [x] 厚みの仮定が必要（薄すぎ → すり抜け、厚すぎ → 誤った影）
     - [x] 画面にある物しか見えない（補助として使う）
     - [x] ジッター ＋ 時間蓄積で、ステップ数を減らす
+    - [x] 世界での間隔は「レイの長さ ÷ ステップ数」。これより細い物は飛び越える
+    - [x] 深度バッファの面は、`kThickness` の厚みをもつ板として扱う。`kBias` で自己遮蔽を避ける
 
 ## 参考
 
-- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
-- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
+- Morgan McGuire, Michael Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, pp. 73–85, 2014（[JCGT](https://jcgt.org/published/0003/04/04/)）。「ステップの取り方」と「厚みの扱い」は、1.2 節（2D の線形な反復）、3 節（DDA の実装）、4 節（パラメータ）を参照
+- Graham Aldridge, "Screen Space Shadows", SIGGRAPH 2023, Sony Creators Conference と、サンプル コード（Bend Studio の [SIGGRAPH のページ](https://www.bendstudio.com/siggraph)、解説は [Inside Bend Screen Space Shadows](https://www.bendstudio.com/blog/inside-bend-screen-space-shadows/)）
 
 ## 関連ページ
 
