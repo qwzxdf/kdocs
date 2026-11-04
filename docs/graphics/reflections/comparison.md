@@ -203,7 +203,7 @@ float3 BoxProjectedDir(float3 position, float3 dir) {
 
 // スペキュラ遮蔽（Lagarde and de Rousiers 2014）。隅でプローブ由来の反射を弱める。
 float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
-  return saturate(pow(n_dot_v + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao);
+  return saturate(pow(max(n_dot_v + ao, 0.0), exp2(-16.0 * roughness - 1.0)) - 1.0 + ao);
 }
 
 // SSR の信頼度を、画面端で減らす（足した処理。SSR のパスが先に掛けている場合は不要）。
