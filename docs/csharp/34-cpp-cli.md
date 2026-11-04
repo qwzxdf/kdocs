@@ -6,11 +6,11 @@ tags:
 
 # 第 34 章 C++/CLI で橋を作る
 
-この章では、第 33 章と同じ `IEngineService` を C++/CLI で実装します。P/Invoke 版は C の API（`EngineApi`）を通りましたが、こちらは C++ の `Engine` クラスを直接包みます。作り終えたら、2 つの方式を手間と書き味の両面から比べます。
+この章では第 33 章と同じ `IEngineService` を C++/CLI で実装します。P/Invoke 版は C の API（`EngineApi`）を通りましたが、こちらは C++ の `Engine` クラスを直接包みます。作り終えたら 2 つの方式を手間と書き味の両面から比べます。
 
 !!! info "このページを読む前に"
     - [第 33 章 P/Invoke で C# から呼ぶ](33-pinvoke.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
@@ -23,7 +23,7 @@ tags:
 
 ## C++/CLI とは
 
-C++/CLI は、普通の C++ に、.NET の型（`ref class`）を書ける拡張を足した言語です。1 つの `.cpp` の中にネイティブの C++ と、C# から見える .NET のクラスを同居させられます。
+C++/CLI は普通の C++ に.NET の型（`ref class`）を書ける拡張を足した言語です。1 つの `.cpp` の中にネイティブの C++ と C# から見える .NET のクラスを同居させられます。
 
 ```cpp
 public ref class EngineBridge {      // C# からは普通の .NET クラスに見える
@@ -36,7 +36,7 @@ public ref class EngineBridge {      // C# からは普通の .NET クラスに�
 };
 ```
 
-C# は、この `EngineBridge` を `new EngineBridge(...)` で作って、メソッドを呼ぶだけです。P/Invoke のように宣言を二重に書く必要はなく、C# のコンパイラーは `EngineBridge.dll` の型情報（メタデータ）を読めるので、引数の型が違えばビルドで見つかります。
+C# はこの `EngineBridge` を `new EngineBridge(...)` で作って、メソッドを呼ぶだけです。P/Invoke のように宣言を二重に書く必要はなく、C# のコンパイラーは `EngineBridge.dll` の型情報（メタデータ）を読めるので、引数の型が違えばビルドで見つかります。
 
 ただし、C++/CLI の役目は橋渡しだけです。エンジンの中核やゲームのコードを C++/CLI で書くことはしません。
 
@@ -46,7 +46,7 @@ C# は、この `EngineBridge` を `new EngineBridge(...)` で作って、メソ
 2. 言語を C++ にして、「CLR クラス ライブラリ (.NET)」を探します。名前は `EngineBridge` にします。
 
 !!! warning "テンプレートの名前に注意"
-    似た名前で「CLR クラス ライブラリ (.NET Framework)」という古いテンプレートもあります。必ず `(.NET)` のほうを選びます。見つからないときは、第 0 章で触れた「C++/CLI サポート」のコンポーネントが入っているかを確かめてください。
+    似た名前で「CLR クラス ライブラリ (.NET Framework)」という古いテンプレートもあります。必ず `(.NET)` のほうを選びます。見つからないときは第 0 章で触れた「C++/CLI サポート」のコンポーネントが入っているかを確かめてください。
 
 3. 作られた `Class1.h`、`Class1.cpp`、`pch.h`、`pch.cpp` は削除します。プリコンパイル済みヘッダーは使わないので、プロパティで「使用しない」にします。
 
@@ -63,9 +63,9 @@ C# は、この `EngineBridge` を `new EngineBridge(...)` で作って、メソ
 | C/C++ → コード生成 | C++ 例外を有効にする | はい（`/EHa`。C++/CLI の既定） |
 | ビルド依存 | プロジェクト参照 | `Engine` |
 
-`/clr:netcore` は、.NET（旧 .NET Core）向けにマネージド コードを書けるようにするオプションです。古い .NET Framework 向けの `/clr` とは別物です。できあがる `EngineBridge.dll` は、マネージドとネイティブのコードが 1 つに混ざった混在アセンブリになります。
+`/clr:netcore` は.NET（旧 .NET Core）向けにマネージド コードを書けるようにするオプションです。古い .NET Framework 向けの `/clr` とは別物です。できあがる `EngineBridge.dll` はマネージドとネイティブのコードが 1 つに混ざった混在アセンブリになります。
 
-C++ の標準を `/std:c++20` にしているのは、C++/CLI が最新のプレビュー標準に対応しないことがあるからです。`Engine` の公開ヘッダーを C++23 専用の機能に頼らず書いておくと、橋が作りやすくなります。
+C++ の標準を `/std:c++20` にしているのは、C++/CLI が最新のプレビュー標準に対応しないことがあるからです。`Engine` の公開ヘッダーを C++23 専用の機能に頼らず書いておくと橋が作りやすくなります。
 
 ## EngineBridge クラスを書く
 
@@ -103,18 +103,18 @@ public ref class EngineBridge sealed : public System::IDisposable {
 
 見慣れない書き方を拾っていきます。
 
-- `public ref class` は、マネージドの参照型の宣言です。`public` を付けると C# から見えます。C# の `public class` にあたります。
+- `public ref class` はマネージドの参照型の宣言です。`public` を付けると C# から見えます。C# の `public class` にあたります。
 - `System::IntPtr` が C# の `nint`、`System::UInt32` / `UInt64` が `uint` / `ulong` です。
 - `property T Name { T get(); }` は .NET のプロパティを宣言する書き方で、C# からは `bridge.FrameCount` と読めます。
-- `mini::Engine* engine_` のように、マネージドのクラスがネイティブのポインターを持てます。ただし、GC の管理外なので、解放は自分でしなければなりません。
+- `mini::Engine* engine_` のようにマネージドのクラスがネイティブのポインターを持てます。ただし、GC の管理外なので解放は自分でしなければなりません。
 
 ### デストラクターとファイナライザー
 
-C++/CLI のクラスの後始末は、2 段構えです。
+C++/CLI のクラスの後始末は 2 段構えです。
 
-`~EngineBridge()`（デストラクター）は、C# から見ると `Dispose()` になります。C# の `using` や `Dispose()` で呼ばれる、普通の後始末の入口です。`!EngineBridge()`（ファイナライザー）は、`Dispose` が呼ばれなかったときに、GC が回収する際に呼ばれる、最後の砦です。
+`~EngineBridge()`（デストラクター）は C# から見ると `Dispose()` になります。C# の `using` や `Dispose()` で呼ばれる、普通の後始末の入口です。`!EngineBridge()`（ファイナライザー）は `Dispose` が呼ばれなかったときに GC が回収する際に呼ばれる、最後の砦です。
 
-実装は、デストラクターからファイナライザーを呼ぶだけにして、実際の解放をファイナライザーに書きます。
+実装はデストラクターからファイナライザーを呼ぶだけにして、実際の解放をファイナライザーに書きます。
 
 ```cpp
 EngineBridge::~EngineBridge() {
@@ -209,12 +209,12 @@ UInt64 EngineBridge::FrameCount::get() {
 
 ここでも見慣れない記号が出てきます。
 
-- `String^` は、マネージドの文字列へのハンドルです。`^` は「GC が管理するオブジェクトへの参照」を表す記号で、ネイティブの `*` と区別します。
-- `gcnew` は、GC のヒープにオブジェクトを作る演算子で、C++ の `new` にあたりますが、解放は GC がやってくれます。
-- `FrameCount::get()` は、プロパティの getter の実装です。
-- 例外は、`std::exception` を `catch` して .NET の例外に変えて投げ直しています。P/Invoke 版では、エラー コードと `me_get_last_error` で行っていたことを C++/CLI では `try/catch` で直接書けます。
+- `String^` はマネージドの文字列へのハンドルです。`^` は「GC が管理するオブジェクトへの参照」を表す記号で、ネイティブの `*` と区別します。
+- `gcnew` は GC のヒープにオブジェクトを作る演算子で、C++ の `new` にあたりますが、解放は GC がやってくれます。
+- `FrameCount::get()` はプロパティの getter の実装です。
+- 例外は `std::exception` を `catch` して .NET の例外に変えて投げ直しています。P/Invoke 版ではエラー コードと `me_get_last_error` で行っていたことを C++/CLI では `try/catch` で直接書けます。
 
-`std::string` と `String^` の変換には、`marshal_as` も使えます。
+`std::string` と `String^` の変換には `marshal_as` も使えます。
 
 ```cpp
 #include <msclr/marshal_cppstd.h>
@@ -223,7 +223,7 @@ std::string native = msclr::interop::marshal_as<std::string>(managed_string);
 String^ managed = msclr::interop::marshal_as<String^>(native);
 ```
 
-ただし、`marshal_as` で `std::string` を作ると、システムのコード ページ（ANSI）で変換されます。UTF-8 でやり取りしたいなら、上の `ToManaged` のように、エンコーディングを指定して変換します。
+ただし、`marshal_as` で `std::string` を作るとシステムのコード ページ（ANSI）で変換されます。UTF-8 でやり取りしたいなら上の `ToManaged` のようにエンコーディングを指定して変換します。
 
 ## ログのコールバックを受ける
 
@@ -271,14 +271,14 @@ void EngineLog::Uninstall() {
 }
 ```
 
-`abstract sealed` を付けた `ref class` は、C# の `static class` にあたります。`msclr::gcroot<T>` は、マネージドのオブジェクトへの参照をネイティブのメモリの中に安全に持つための道具です。GC がその参照を追い続けてくれるので、回収されたり動かされたりしても大丈夫です。`NativeLogThunk` は、ただのネイティブの関数で、P/Invoke 版の `[UnmanagedCallersOnly]` のメソッドと同じ役目をしています。マネージドとネイティブの橋渡しを `gcroot` が担います。
+`abstract sealed` を付けた `ref class` は C# の `static class` にあたります。`msclr::gcroot<T>` はマネージドのオブジェクトへの参照をネイティブのメモリの中に安全に持つための道具です。GC がその参照を追い続けてくれるので、回収されたり動かされたりしても大丈夫です。`NativeLogThunk` はただのネイティブの関数で、P/Invoke 版の `[UnmanagedCallersOnly]` のメソッドと同じ役目をしています。マネージドとネイティブの橋渡しを `gcroot` が担います。
 
 ## C# から使う
 
-`Editor` から `EngineBridge` を参照します。`Editor` を右クリックして「追加 → プロジェクト参照」を開き、`EngineBridge` にチェックを入れます。
+`Editor` から `EngineBridge` を参照します。`Editor` を右クリックして「追加 → プロジェクト参照」を開き `EngineBridge` にチェックを入れます。
 
 !!! warning "C++/CLI の参照は、少し癖がある"
-    C# の SDK 形式のプロジェクトから、`/clr:netcore` の C++/CLI を参照するときは、ビルドの順番とターゲット フレームワークの一致（`net8.0` と `net8.0-windows`）に気をつけてください。うまく参照できないときは、`Editor.csproj` の `<ProjectReference>` に `<SetPlatform>Platform=x64</SetPlatform>` を足したり、`EngineBridge` の .NET ターゲットを `net8.0` にそろえたりして試します。
+    C# の SDK 形式のプロジェクトから、`/clr:netcore` の C++/CLI を参照するときは、ビルドの順番とターゲット フレームワークの一致（`net8.0` と `net8.0-windows`）に気をつけてください。うまく参照できないときは `Editor.csproj` の `<ProjectReference>` に `<SetPlatform>Platform=x64</SetPlatform>` を足したり `EngineBridge` の .NET ターゲットを `net8.0` にそろえたりして試します。
 
 ```csharp title="Engine/ClrEngineService.cs（新規）"
 using MiniEngine.Bridge;
@@ -312,11 +312,11 @@ public sealed class ClrEngineService : IEngineService
 }
 ```
 
-`PInvokeEngineService` と見比べてください。エラー コードも、`SafeHandle` も、宣言の二重書きもなくて、ずっと短くなっています。
+`PInvokeEngineService` と見比べてください。エラー コードも `SafeHandle` も宣言の二重書きもなくて、ずっと短くなっています。
 
 ### 実装を切り替える
 
-どちらを使うかは、条件付きコンパイルで切り替えます。`Editor.csproj` に、次を足します。
+どちらを使うかは条件付きコンパイルで切り替えます。`Editor.csproj` に次を足します。
 
 ```xml
 <PropertyGroup Condition="'$(UseCppCli)' == 'true'">
@@ -324,7 +324,7 @@ public sealed class ClrEngineService : IEngineService
 </PropertyGroup>
 ```
 
-`App.xaml.cs` の `RegisterTypes` は、こう書きます。
+`App.xaml.cs` の `RegisterTypes` はこう書きます。
 
 ```csharp
 #if USE_CPPCLI
@@ -334,11 +334,11 @@ containerRegistry.RegisterSingleton<IEngineService, PInvokeEngineService>();
 #endif
 ```
 
-`#if` は C++ と同じ条件付きコンパイルです。`msbuild -p:UseCppCli=true` でビルドすると、`USE_CPPCLI` が定義されて、C++/CLI 版が使われます。ビューモデルは `IEngineService` しか知らないので、どちらの実装でも同じコードのまま動きます。
+`#if` は C++ と同じ条件付きコンパイルです。`msbuild -p:UseCppCli=true` でビルドすると `USE_CPPCLI` が定義されて、C++/CLI 版が使われます。ビューモデルは `IEngineService` しか知らないので、どちらの実装でも同じコードのまま動きます。
 
 ## 2 つを比べる
 
-実際に両方を作ってみると、違いが見えてきます。
+実際に両方を作ってみると違いが見えてきます。
 
 | 観点 | P/Invoke + C API | C++/CLI |
 | --- | --- | --- |
@@ -353,22 +353,22 @@ containerRegistry.RegisterSingleton<IEngineService, PInvokeEngineService>();
 | 他の OS | C API は使い回せる | 使えない |
 | C++ のクラス | ハンドルと関数に分解する | クラスのまま包める |
 
-書く量や宣言のずれの検出では、C++/CLI のほうが明らかに楽です。一方、設定の癖、ビルドの遅さ、Windows 専用という点では、P/Invoke が有利です。
+書く量や宣言のずれの検出では C++/CLI のほうが明らかに楽です。一方、設定の癖、ビルドの遅さ Windows 専用という点では、P/Invoke が有利です。
 
 選ぶときの目安はこうです。
 
-- 関数が増えても構造が単純で、将来、他の OS や他の言語からも使いたいなら、P/Invoke + C API。
-- すでにある C++ の API をクラスの形のまま見せたいなら、C++/CLI。
-- C# 側の型のずれをビルドで見つけたいなら、C++/CLI。
-- 設定の手間を減らしたい小さなチームなら、P/Invoke + C API。
+- 関数が増えても構造が単純で将来、他の OS や他の言語からも使いたいなら P/Invoke + C API。
+- すでにある C++ の API をクラスの形のまま見せたいなら C++/CLI。
+- C# 側の型のずれをビルドで見つけたいなら C++/CLI。
+- 設定の手間を減らしたい小さなチームなら P/Invoke + C API。
 
-この教材では、以降は P/Invoke + C API を使います。C のインターフェースを整理する作業がエンジンの設計の練習になり、ビルドも速いからです。ただ、`IEngineService` で分けてあるので、あとから C++/CLI 版に差し替えても、ビューモデルは変わりません。
+この教材では以降は P/Invoke + C API を使います。C のインターフェースを整理する作業がエンジンの設計の練習になりビルドも速いからです。ただ、`IEngineService` で分けてあるのであとから C++/CLI 版に差し替えても、ビューモデルは変わりません。
 
 ## 動かして確かめる
 
-- `EngineBridge` がエラーも警告もなくビルドでき、`bin\x64\Debug\EngineBridge.dll` ができる。
-- `Editor` のビルドで、`EngineBridge` への参照が解決される。
-- `-p:UseCppCli=true` を付けてビルドしたときに、`ClrEngineService` が使われる。
+- `EngineBridge` がエラーも警告もなくビルドでき `bin\x64\Debug\EngineBridge.dll` ができる。
+- `Editor` のビルドで `EngineBridge` への参照が解決される。
+- `-p:UseCppCli=true` を付けてビルドしたときに `ClrEngineService` が使われる。
 
 ??? failure "`C1190: マネージド ターゲット コードには '/clr' または '/clr:pure' コンパイラ オプションが必要です`"
     プロジェクトの「共通言語ランタイム サポート」が `/clr:netcore` になっていません。
@@ -383,8 +383,8 @@ containerRegistry.RegisterSingleton<IEngineService, PInvokeEngineService>();
     ビット数が違います（`EngineBridge` を `x64` でビルドしていない）。または、`net8.0` と `net8.0-windows` が食い違っています。
 
 ??? failure "`std::string` を返す関数を公開したらビルドが通らない"
-    `public ref class` のメンバーには、ネイティブの型（`std::string`、`std::vector`）を公開できません。`String^` や `array<T>^` に変換して返してください。
+    `public ref class` のメンバーにはネイティブの型（`std::string`、`std::vector`）を公開できません。`String^` や `array<T>^` に変換して返してください。
 
-次の章では、連携が動かないときの原因の探し方をまとめます。
+次の章では連携が動かないときの原因の探し方をまとめます。
 
-[第 35 章 DLL の読み込み、x64、デバッグ](35-dll-loading.md) へ進みます。
+[第 35 章 DLL の読み込み x64、デバッグ](35-dll-loading.md) へ進みます。

@@ -11,10 +11,10 @@ tags:
 !!! tip "ポイント"
     - <strong>変換は境界でだけ</strong>。Windows API を呼ぶ直前に UTF-8 → UTF-16、返ってきたら UTF-16 → UTF-8。
     - Windows では<strong>`MultiByteToWideChar` / `WideCharToMultiByte`</strong>（コード ページを指定）。2 回呼ぶ（まず大きさを聞く → 変換）。
-    - 標準の `std::codecvt` / `std::wstring_convert` は、非推奨。使わない。
+    - 標準の `std::codecvt` / `std::wstring_convert` は非推奨。使わない。
     - 移植性が必要ならライブラリ（utfcpp、simdutf、ICU）。
     - 失敗を検出する。不正な入力は エラーにするか `U+FFFD`（�）に置き換えるかを決める。
-    - Shift_JIS などの古いファイルを読むときだけ、CP932 から UTF-8 に変換して、以降は UTF-8 で扱う。
+    - Shift_JIS などの古いファイルを読むときだけ CP932 から UTF-8 に変換して、以降は UTF-8 で扱う。
 
 !!! info "このページを読む前に"
     - [encoding/index.md](index.md)（このセクション全体の地図と、読む順番）
@@ -24,12 +24,10 @@ tags:
 
 <svg class="fig flow" viewBox="0 0 560 280" role="img" aria-label="変換が必要なのは、境界だけ"><defs><marker id="fl23855" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">変換が必要なのは、境界だけ</text><line x1="243.5" y1="56.0" x2="329.0" y2="56.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="286.2" y="76.0" text-anchor="middle" style="font-size:12px">Windows API との境界</text><line x1="329.0" y1="56.0" x2="243.5" y2="56.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="286.2" y="42.0" text-anchor="middle" style="font-size:12px">戻す</text><line x1="148.0" y1="209.0" x2="148.0" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="148.0" y="142.0" text-anchor="middle" style="font-size:12px">古いファイルを読むときだけ</text><rect x="55.5" y="44.0" width="185" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="148.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::string （UTF-8）</text><rect x="332.0" y="44.0" width="200" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="432.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::wstring （UTF-16）</text><rect x="28.0" y="212.0" width="240" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="148.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Shift JIS （CP932）のバイト列</text></svg>
 
-| 変換 | 場面 |
-| --- | --- |
-| **UTF-8 → UTF-16** | Windows API（`CreateFileW`、`MessageBoxW`）、DirectX のファイル名に渡す |
-| UTF-16 → UTF-8 | Windows API から受け取った文字列（ファイル ダイアログ、コマンド ライン）をゲームの文字列に |
-| Shift_JIS（CP932）→ UTF-8 | 古いテキスト ファイル、昔のツールの出力、別の PC のファイル名 |
-| UTF-8 → Shift_JIS | 古いツールに渡す（できるだけ避ける。表せない文字がある） |
+- **UTF-8 → UTF-16**: Windows API（`CreateFileW`、`MessageBoxW`）、DirectX のファイル名に渡す
+- UTF-16 → UTF-8: Windows API から受け取った文字列（ファイル ダイアログ、コマンド ライン）をゲームの文字列に
+- Shift_JIS（CP932）→ UTF-8: 古いテキスト ファイル、昔のツールの出力、別の PC のファイル名
+- UTF-8 → Shift_JIS: 古いツールに渡す（できるだけ避ける。表せない文字がある）
 
 ## Windows API で変換する（おすすめ）
 
@@ -77,13 +75,11 @@ std::string WideToUtf8(std::wstring_view wide) {
 }
 ```
 
-| 部分 | 意味 |
-| --- | --- |
-| `CP_UTF8` | 変換元（または先）のコード ページを UTF-8 に |
-| `MB_ERR_INVALID_CHARS` / `WC_ERR_INVALID_CHARS` | <strong>不正な入力があれば、失敗（0 を返す）</strong>。付けないと黙って `U+FFFD`（�）に置き換える |
-| 第 3、4 引数 | 変換元の文字列と長さ（`-1` にすると、終端の `\0` まで。`std::string` の `size()` を渡すほうが安全） |
-| 第 5、6 引数 | 出力先とその大きさ。`nullptr`, 0 を渡すと必要な大きさだけを返す |
-| 戻り値 | 書いた（または必要な）文字数。0 は失敗（`GetLastError()` で原因） |
+- `CP_UTF8`: 変換元（または先）のコード ページを UTF-8 に
+- `MB_ERR_INVALID_CHARS` / `WC_ERR_INVALID_CHARS`: <strong>不正な入力があれば、失敗（0 を返す）</strong>。付けないと黙って `U+FFFD`（�）に置き換える
+- 第 3、4 引数: 変換元の文字列と長さ（`-1` にすると、終端の `\0` まで。`std::string` の `size()` を渡すほうが安全）
+- 第 5、6 引数: 出力先とその大きさ。`nullptr`, 0 を渡すと必要な大きさだけを返す
+- 戻り値: 書いた（または必要な）文字数。0 は失敗（`GetLastError()` で原因）
 
 2 回呼ぶ（まず大きさを聞き確保してから変換）のが、Windows の変換 API の定番の使い方です。
 
@@ -106,14 +102,12 @@ std::string Cp932ToUtf8(std::string_view cp932) {
 }
 ```
 
-| コード ページ | 値 |
-| --- | --- |
-| UTF-8 | `CP_UTF8`（65001） |
-| Shift_JIS（CP932） | `932` |
-| ANSI（今の PC の既定） | `CP_ACP`（0）。日本語版は 932。PC ごとに変わるのでデータには使わない |
-| EUC-JP | `51932` |
-| ISO-2022-JP | `50220` |
-| UTF-16 | `wchar_t` の並びそのもの（変換不要） |
+- UTF-8: `CP_UTF8`（65001）
+- Shift_JIS（CP932）: `932`
+- ANSI（今の PC の既定）: `CP_ACP`（0）。日本語版は 932。PC ごとに変わるのでデータには使わない
+- EUC-JP: `51932`
+- ISO-2022-JP: `50220`
+- UTF-16: `wchar_t` の並びそのもの（変換不要）
 
 !!! warning "CP_ACP は、データに使わない"
     `CP_ACP` は実行する PC の設定に依存します。同じプログラムでも日本の PC と韓国の PC で、結果が変わります。データの変換には明示的なコード ページ（932、`CP_UTF8`）を使います。
@@ -177,26 +171,22 @@ Win32 では `MB_ERR_INVALID_CHARS` を付けると失敗、付けないと置�
 
 ## 変換の注意点
 
-| 注意 | 説明 |
-| --- | --- |
-| **長さ（`-1`）に注意** | `-1` は、終端（`\0`）までを意味し戻り値に終端ぶんが含まれる。`size()` を渡すと含まれない |
-| 変換後の大きさは元と違う | UTF-8 の日本語は 3 バイト、UTF-16 は 2 バイト、Shift_JIS は 2 バイト。余裕を持って確保する（2 回呼ぶなら不要） |
-| サロゲート ペアの途中で、切らない | UTF-16 の絵文字（2 単位）を途中で切ると壊れる |
-| 変換の回数を減らす | 毎フレーム変換すると遅い。境界で 1 回だけ。結果をキャッシュ |
-| `wchar_t` の大きさ | Windows 専用のコードなら UTF-16 と決めてよい。移植するなら `char16_t` やライブラリ |
-| 終端の `\0` を含めない | `std::string` の `size()` に `\0` は含まれない |
-| 往復変換で元に戻るか | UTF-8 ⇔ UTF-16 は、正しい入力なら完全に戻る。Shift_JIS は表せない文字で戻らない |
+- **長さ（`-1`）に注意**: `-1` は、終端（`\0`）までを意味し戻り値に終端ぶんが含まれる。`size()` を渡すと含まれない
+- 変換後の大きさは元と違う: UTF-8 の日本語は 3 バイト、UTF-16 は 2 バイト、Shift_JIS は 2 バイト。余裕を持って確保する（2 回呼ぶなら不要）
+- サロゲート ペアの途中で、切らない: UTF-16 の絵文字（2 単位）を途中で切ると壊れる
+- 変換の回数を減らす: 毎フレーム変換すると遅い。境界で 1 回だけ。結果をキャッシュ
+- `wchar_t` の大きさ: Windows 専用のコードなら UTF-16 と決めてよい。移植するなら `char16_t` やライブラリ
+- 終端の `\0` を含めない: `std::string` の `size()` に `\0` は含まれない
+- 往復変換で元に戻るか: UTF-8 ⇔ UTF-16 は、正しい入力なら完全に戻る。Shift_JIS は表せない文字で戻らない
 
 ## ゲームでの使いどころ
 
-| 場面 | 変換 |
-| --- | --- |
-| ファイルの読み書き（`CreateFileW`、`_wfopen`） | UTF-8 のパス → UTF-16（`Utf8ToWide`） |
-| ウィンドウのタイトル・メッセージ ボックス | UTF-8 → UTF-16（`SetWindowTextW`、`MessageBoxW`） |
-| ファイル ダイアログで選んだパス | UTF-16 → UTF-8 で、ゲームに渡す |
-| 古いシナリオ・CSV の読み込み | CP932 → UTF-8（読み込み時に 1 回） |
-| コマンド ライン引数 | `wmain` / `GetCommandLineW` の UTF-16 → UTF-8 |
-| ネットワーク | 常に UTF-8（JSON など）。変換は不要 |
+- ファイルの読み書き（`CreateFileW`、`_wfopen`）: UTF-8 のパス → UTF-16（`Utf8ToWide`）
+- ウィンドウのタイトル・メッセージ ボックス: UTF-8 → UTF-16（`SetWindowTextW`、`MessageBoxW`）
+- ファイル ダイアログで選んだパス: UTF-16 → UTF-8 で、ゲームに渡す
+- 古いシナリオ・CSV の読み込み: CP932 → UTF-8（読み込み時に 1 回）
+- コマンド ライン引数: `wmain` / `GetCommandLineW` の UTF-16 → UTF-8
+- ネットワーク: 常に UTF-8（JSON など）。変換は不要
 
 <!-- fig:utf8-pack:begin -->
 
@@ -342,7 +332,7 @@ Win32 では `MB_ERR_INVALID_CHARS` を付けると失敗、付けないと置�
 
 !!! abstract "まとめ"
     - [x] 変換は<strong>境界でだけ</strong>。内部は UTF-8
-    - [x] Windows は`MultiByteToWideChar` / `WideCharToMultiByte`。2 回呼ぶ、戻り値を確認
+    - [x] Windows は`MultiByteToWideChar` / `WideCharToMultiByte`。2 回呼ぶ戻り値を確認
     - [x] `CP_ACP` はデータに使わない。`CP_UTF8` と 932 を明示
     - [x] 標準の `codecvt` / `wstring_convert` は使わない（非推奨）。移植するなら utfcpp / simdutf / ICU
     - [x] 不正な入力はエラーにするか�に置き換えるかを決める

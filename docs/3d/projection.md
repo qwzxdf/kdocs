@@ -6,28 +6,28 @@ tags:
 
 # 投影（プロジェクション）
 
-<strong>投影（プロジェクション）</strong>は、3D の世界を 2D の画面に映す変換です。人間の目やカメラは、遠くのものが小さく見える（遠近感）ので、3D ゲームでもそれを計算で再現します。これが透視投影です。一方、遠くても大きさが変わらない正射投影もあり、2D ゲームや UI、設計図のような絵で使います。プロジェクション行列は、見える範囲（視錐台）を標準の箱（クリップ空間）に変換する行列でさらに「w に距離を入れる」という仕組みで遠近感を作り出します。このページは投影の考え方、各パラメータ（視野角、アスペクト比、near / far）の意味、深度が非線形になる理由、DirectX 11 での扱いを説明します。
+<strong>投影（プロジェクション）</strong>は 3D の世界を 2D の画面に映す変換です。人間の目やカメラは遠くのものが小さく見える（遠近感）ので、3D ゲームでもそれを計算で再現します。これが透視投影です。一方、遠くても大きさが変わらない正射投影もあり 2D ゲームや UI、設計図のような絵で使います。プロジェクション行列は見える範囲（視錐台）を標準の箱（クリップ空間）に変換する行列でさらに「w に距離を入れる」という仕組みで遠近感を作り出します。このページは投影の考え方、各パラメータ（視野角、アスペクト比、near / far）の意味、深度が非線形になる理由、DirectX 11 での扱いを説明します。
 
 !!! tip "ポイント"
     - <strong>透視投影</strong> ＝ 遠いものが小さい（3D ゲームの普通のカメラ）。<strong>正射投影</strong> ＝ 遠近感なし（2D、UI、設計図）。
-    - 透視投影のパラメータは、視野角（FOV）、アスペクト比、near、far の 4 つ。
-    - 遠近感は、「w に距離を入れて、あとで w で割る」ことで生まれる（透視除算）。
-    - near は、できるだけ大きく（0.1 以上）。near が小さい、far が大きいと深度の精度が落ちて、z-fighting が起きる。
+    - 透視投影のパラメータは視野角（FOV）、アスペクト比、near、far の 4 つ。
+    - 遠近感は「w に距離を入れて、あとで w で割る」ことで生まれる（透視除算）。
+    - near はできるだけ大きく（0.1 以上）。near が小さい far が大きいと深度の精度が落ちて、z-fighting が起きる。
     - 深度は非線形（near の近くに精度が集中する）。reverse-Z（near と far を入れ替える）で、精度を改善できる。
-    - `proj` は、画面サイズやズームが変わったときだけ作り直す。
+    - `proj` は画面サイズやズームが変わったときだけ作り直す。
 
 !!! info "このページを読む前に"
-    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [3d/index.md](index.md)（このセクション全体の地図と読む順番）
     - [行列](../gamemath/matrices.md)（行列の基礎）
     - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
 
 ## 視錐台（見える範囲）
 
-カメラから見える 3D の範囲は、<strong>四角錐を near と far で切り取った形（視錐台：frustum）</strong>です。
+カメラから見える 3D の範囲は <strong>四角錐を near と far で切り取った形（視錐台：frustum）</strong>です。
 
 <svg class="fig" viewBox="0 0 544 250" role="img" aria-label="視錐台"><circle cx="260" cy="26" r="7" fill="currentColor"/><text x="272" y="22">カメラ（目）</text><line x1="260" y1="26" x2="110" y2="215" stroke="currentColor" stroke-width="2"/><line x1="260" y1="26" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><line x1="215" y1="83" x2="305" y2="83" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="315" y="87">near 面（これより手前は映らない）</text><line x1="110" y1="215" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><text x="150" y="238">far 面（これより奥は映らない）</text><text x="100" y="110">視野角</text><text x="100" y="128">（FOV）</text><path d="M 232 63 A 45 45 0 0 0 288 63" fill="none" stroke="currentColor"/></svg>
 
-視錐台の中にあるものだけが、画面に映ります。外にあるものは、クリップ（切り捨て）されます。
+視錐台の中にあるものだけが画面に映ります。外にあるものはクリップ（切り捨て）されます。
 
 ## 透視投影のパラメータ
 
@@ -46,17 +46,15 @@ Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, near_plane, far_plane);
 
 <svg class="fig" viewBox="0 0 620 220" role="img" aria-label="視野角の違い"><defs><marker id="f1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視野角（FOV）が小さい：望遠</text><circle cx="80" cy="120" r="6" fill="currentColor"/><line x1="80" y1="120" x2="270" y2="85" stroke="currentColor"/><line x1="80" y1="120" x2="270" y2="155" stroke="currentColor"/><text x="100" y="190">見える範囲が狭く、拡大して見える</text><text x="330" y="20" class="fig-title">視野角が大きい：広角</text><circle cx="360" cy="120" r="6" fill="currentColor"/><line x1="360" y1="120" x2="580" y2="30" stroke="currentColor"/><line x1="360" y1="120" x2="580" y2="210" stroke="currentColor"/><text x="370" y="205">見える範囲が広いが、端が歪んで見える</text></svg>
 
-| FOV | 見え方 |
-| --- | --- |
-| 小さい（30〜45°） | 望遠レンズ。遠くが大きく見え、遠近感が弱い。ズーム |
-| 中くらい（60°） | 自然な見え方。三人称ゲーム |
-| 大きい（90〜110°） | 広角レンズ。広く見えるが画面の端が引き伸ばされる。FPS（速さの感覚が強い） |
+- 小さい（30〜45°）: 望遠レンズ。遠くが大きく見え遠近感が弱い。ズーム
+- 中くらい（60°）: 自然な見え方。三人称ゲーム
+- 大きい（90〜110°）: 広角レンズ。広く見えるが画面の端が引き伸ばされる。FPS（速さの感覚が強い）
 
-縦の FOVを指定するのが普通です。横の FOV は、アスペクト比で決まります（`横 = 2 × atan(tan(縦 / 2) × aspect)`）。FPS のゲームで「FOV 90」と言うとき、横の FOV のことが多いので、縦に直して使います。
+縦の FOVを指定するのが普通です。横の FOV はアスペクト比で決まります（`横 = 2 × atan(tan(縦 / 2) × aspect)`）。FPS のゲームで「FOV 90」と言うとき横の FOV のことが多いので、縦に直して使います。
 
 ### アスペクト比
 
-画面の縦横比に合わせないと、絵が横に伸びたり縮んだりします。ウィンドウのサイズが変わったら、`proj` を作り直します。
+画面の縦横比に合わせないと絵が横に伸びたり縮んだりします。ウィンドウのサイズが変わったら、`proj` を作り直します。
 
 ```cpp
 void OnResize(int width, int height) {
@@ -72,11 +70,11 @@ void OnResize(int width, int height) {
 
 <svg class="fig" viewBox="0 0 620 250" role="img" aria-label="遠近感"><defs><marker id="p1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">遠いものが小さく見えるのは、w（距離）で割るから</text><circle cx="60" cy="140" r="6" fill="currentColor"/><text x="40" y="165">カメラ</text><line x1="60" y1="140" x2="520" y2="60" stroke="currentColor" stroke-dasharray="4 4"/><line x1="60" y1="140" x2="520" y2="220" stroke="currentColor" stroke-dasharray="4 4"/><line x1="200" y1="115" x2="200" y2="165" stroke="currentColor" stroke-width="4"/><text x="190" y="105">近い（同じ高さ）</text><line x1="400" y1="85" x2="400" y2="195" stroke="currentColor" stroke-width="4"/><text x="390" y="78">遠い（同じ高さ）</text><line x1="130" y1="125" x2="130" y2="155" stroke="currentColor" stroke-width="2"/><text x="100" y="118">画面</text><text x="20" y="235">同じ高さでも、距離が 2 倍なら、画面の上では、約半分の大きさ（x ÷ w, y ÷ w）</text></svg>
 
-プロジェクション行列は、**ビュー空間の座標をクリップ空間（同次座標 `x, y, z, w`）に変換**します。このとき、`w` にカメラからの距離が入ります。
+プロジェクション行列は**ビュー空間の座標をクリップ空間（同次座標 `x, y, z, w`）に変換**します。このとき、`w` にカメラからの距離が入ります。
 
 <svg class="fig flow" viewBox="0 0 360 280" role="img" aria-label="透視投影：ビュー空間 → クリップ空間 → NDC"><defs><marker id="fl74520" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">透視投影：ビュー空間 → クリップ空間 → NDC</text><line x1="137.0" y1="87.0" x2="137.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74520)"/><text x="137.0" y="100.0" text-anchor="middle" style="font-size:12px">プロジェクション行列を掛ける</text><line x1="137.0" y1="171.0" x2="137.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74520)"/><text x="137.0" y="184.0" text-anchor="middle" style="font-size:12px">w'で割る（透視除算）</text><rect x="58.0" y="44.0" width="158" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="137.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 (x,y,z)</text><circle cx="60.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="60.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="218" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="137.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 (x',y',z',w')</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="35.5" y="212.0" width="203" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="137.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC (x'/w',y'/w',z'/w')</text><circle cx="37.5" cy="214.0" r="10" fill="#e5a828"/><text x="37.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
-遠いほど `w` が大きいので、`x / w`、`y / w` が小さくなり、画面の中央に寄ります。これが遠近感です。この割り算は、GPU が自動で行います（頂点シェーダーが `SV_POSITION` を返したあと）。
+遠いほど `w` が大きいので `x / w`、`y / w` が小さくなり画面の中央に寄ります。これが遠近感です。この割り算は GPU が自動で行います（頂点シェーダーが `SV_POSITION` を返したあと）。
 
 <div class="anim" data-label="同じ大きさの物体：近いと大きく、遠いと小さく（w で割る）">
 *A *A *A *A _ _ # 近い（w が小さい）：4 マスぶん大きく見える
@@ -89,16 +87,14 @@ _ _ *C _ _ _ # 遠い（w が大きい）：1 マスぶん
 DirectXMath の `XMMatrixPerspectiveFovLH`（左手系）は、次の行列です。
 
 <div class="formula">f = 1 / tan(fovY / 2)</div>
-<div class="mat-row"><table class="matrix"><tr><td>f/aspect</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>f</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>far/(far−near)</td><td class="hl">1</td></tr><tr><td>0</td><td>0</td><td>−near·far/(far−near)</td><td>0</td></tr></table><span class="mat-note">最後の列の 1 が、w に z を入れる（遠いほど w が大きくなる）</span></div>
+<div class="mat-row"><table class="matrix"><tr><td>f/aspect</td> 5<div class="mat-row">6  7<div class="mat-row">8  9<div class="mat-row">10 </tr><tr> 13<div class="mat-row">14 <td>f</td> 17<div class="mat-row">18  19<div class="mat-row">20 </tr><tr> 23<div class="mat-row">24  25<div class="mat-row">26 <td>far/(far−near)</td> 29<table class="matrix">30 </tr><tr> 33<div class="mat-row">34  35<div class="mat-row">36 <td>−near·far/(far−near)</td> 39<div class="mat-row">40 </tr></table><span class="mat-note">最後の列の 1 が、w に z を入れる（遠いほど w が大きくなる）</span></div>
 
-| 要素 | 意味 |
-| --- | --- |
-| `f = 1 / tan(fovY / 2)` | 視野角が小さいほど大きい（拡大率）。x, y をスケール |
-| `f / aspect` | 横はアスペクト比で割って、縦横比を合わせる |
-| 3 行目 4 列の `1` | `w' = z`（左手系で前が +Z なので、距離がそのまま w になる） |
-| `far / (far - near)` と `-near * far / (far - near)` | z を 0〜1 の深度に変換する式（Direct3D の深度範囲）。非線形（後述） |
+- `f = 1 / tan(fovY / 2)`: 視野角が小さいほど大きい（拡大率）。x, y をスケール
+- `f / aspect`: 横はアスペクト比で割って、縦横比を合わせる
+- 3 行目 4 列の `1`: `w' = z`（左手系で前が +Z なので、距離がそのまま w になる）
+- `far / (far - near)` と `-near * far / (far - near)`: z を 0〜1 の深度に変換する式（Direct3D の深度範囲）。非線形（後述）
 
-暗記する必要はありません。`w' = z`（ビュー空間の奥行き）が遠近感の元で、z の式が深度の元だ、と知っていれば十分です。
+暗記する必要はありません。`w' = z`（ビュー空間の奥行き）が遠近感の元で、z の式が深度の元だと知っていれば十分です。
 
 ### NDC（正規化デバイス座標）
 
@@ -110,15 +106,15 @@ DirectXMath の `XMMatrixPerspectiveFovLH`（左手系）は、次の行列で�
 | y | −1（下）〜 1（上） | −1 〜 1 |
 | z（深度） | 0（near）〜 1（far） | −1（near）〜 1（far） |
 
-この範囲の外にある三角形（の部分）は、画面に出ません。クリップされます。DirectX と OpenGL では、深度の範囲が違うので行列の式が少し違います。DirectXMath は、0〜1 の Direct3D 用です。
+この範囲の外にある三角形（の部分）は、画面に出ません。クリップされます。DirectX と OpenGL では、深度の範囲が違うので行列の式が少し違います。DirectXMath は 0〜1 の Direct3D 用です。
 
 <svg class="fig illust motion" data-fig="projection-fov" viewBox="0 0 780 300" role="img" aria-label="視野角を変える"><text x="20" y="24" class="fig-title">視野角（FOV）を広げると、見える範囲が広がり、物体が小さく、遠く見える</text><polygon fill="#4c8bf5" fill-opacity="0.12" stroke="#4c8bf5" stroke-width="2"><animate attributeName="points" dur="8s" repeatCount="indefinite" values="80,150 640,-0.1 640,300.1;80,150 640,-0.6 640,300.6;80,150 640,-2.3 640,302.3;80,150 640,-5.1 640,305.1;80,150 640,-9.1 640,309.1;80,150 640,-14.1 640,314.1;80,150 640,-20.2 640,320.2;80,150 640,-27.4 640,327.4;80,150 640,-35.7 640,335.7;80,150 640,-44.9 640,344.9;80,150 640,-55.2 640,355.2;80,150 640,-66.5 640,366.5;80,150 640,-78.7 640,378.7;80,150 640,-91.8 640,391.8;80,150 640,-105.9 640,405.9;80,150 640,-120.8 640,420.8;80,150 640,-136.5 640,436.5;80,150 640,-153.0 640,453.0;80,150 640,-170.2 640,470.2;80,150 640,-188.2 640,488.2;80,150 640,-206.8 640,506.8;80,150 640,-225.9 640,525.9;80,150 640,-245.6 640,545.6;80,150 640,-265.7 640,565.7;80,150 640,-286.1 640,586.1;80,150 640,-306.7 640,606.7;80,150 640,-327.4 640,627.4;80,150 640,-348.0 640,648.0;80,150 640,-368.3 640,668.3;80,150 640,-388.2 640,688.2;80,150 640,-407.5 640,707.5;80,150 640,-426.0 640,726.0;80,150 640,-443.4 640,743.4;80,150 640,-459.4 640,759.4;80,150 640,-474.0 640,774.0;80,150 640,-486.7 640,786.7;80,150 640,-497.5 640,797.5;80,150 640,-506.1 640,806.1;80,150 640,-512.3 640,812.3;80,150 640,-516.1 640,816.1;80,150 640,-517.4 640,817.4;80,150 640,-516.1 640,816.1;80,150 640,-512.3 640,812.3;80,150 640,-506.1 640,806.1;80,150 640,-497.5 640,797.5;80,150 640,-486.7 640,786.7;80,150 640,-474.0 640,774.0;80,150 640,-459.4 640,759.4;80,150 640,-443.4 640,743.4;80,150 640,-426.0 640,726.0;80,150 640,-407.5 640,707.5;80,150 640,-388.2 640,688.2;80,150 640,-368.3 640,668.3;80,150 640,-348.0 640,648.0;80,150 640,-327.4 640,627.4;80,150 640,-306.7 640,606.7;80,150 640,-286.1 640,586.1;80,150 640,-265.7 640,565.7;80,150 640,-245.6 640,545.6;80,150 640,-225.9 640,525.9;80,150 640,-206.8 640,506.8;80,150 640,-188.2 640,488.2;80,150 640,-170.2 640,470.2;80,150 640,-153.0 640,453.0;80,150 640,-136.5 640,436.5;80,150 640,-120.8 640,420.8;80,150 640,-105.9 640,405.9;80,150 640,-91.8 640,391.8;80,150 640,-78.7 640,378.7;80,150 640,-66.5 640,366.5;80,150 640,-55.2 640,355.2;80,150 640,-44.9 640,344.9;80,150 640,-35.7 640,335.7;80,150 640,-27.4 640,327.4;80,150 640,-20.2 640,320.2;80,150 640,-14.1 640,314.1;80,150 640,-9.1 640,309.1;80,150 640,-5.1 640,305.1;80,150 640,-2.3 640,302.3;80,150 640,-0.6 640,300.6;80,150 640,-0.1 640,300.1"/></polygon><circle cx="260" cy="120" r="14" stroke="currentColor" stroke-width="2" fill="#8b8b8b"><animate attributeName="fill" dur="8s" repeatCount="indefinite" calcMode="discrete" values="#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043"/></circle><circle cx="360" cy="190" r="16" stroke="currentColor" stroke-width="2" fill="#8b8b8b"><animate attributeName="fill" dur="8s" repeatCount="indefinite" calcMode="discrete" values="#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043"/></circle><circle cx="460" cy="90" r="18" stroke="currentColor" stroke-width="2" fill="#8b8b8b"><animate attributeName="fill" dur="8s" repeatCount="indefinite" calcMode="discrete" values="#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043"/></circle><circle cx="520" cy="210" r="15" stroke="currentColor" stroke-width="2" fill="#8b8b8b"><animate attributeName="fill" dur="8s" repeatCount="indefinite" calcMode="discrete" values="#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043"/></circle><circle cx="300" cy="60" r="12" stroke="currentColor" stroke-width="2" fill="#8b8b8b"><animate attributeName="fill" dur="8s" repeatCount="indefinite" calcMode="discrete" values="#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#2ea043;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b;#8b8b8b"/></circle><circle cx="80" cy="150" r="7" fill="currentColor"/><text x="58" y="176" style="font-size:12px;">カメラ</text><text x="20" y="290" style="font-size:12px;">緑：視野に入っている物体、灰色：視野の外。FOV を広げると、より多くが写る代わりに、1 つ 1 つは小さく写る</text></svg>
 
-視野角を広げるほど、見える範囲が広がる代わりに、1 つ 1 つの物体は小さく写ります。スピード感の演出（ダッシュ時に FOV を広げる）にも使われます。
+視野角を広げるほど見える範囲が広がる代わりに 1 つ 1 つの物体は小さく写ります。スピード感の演出（ダッシュ時に FOV を広げる）にも使われます。
 
 ## 深度が非線形になる理由
 
-NDC の深度 `z'`（0〜1）は、**距離 `z` に対して、非線形**です。
+NDC の深度 `z'`（0〜1）は**距離 `z` に対して、非線形**です。
 
 ```text
 左手系・Direct3D：   z_ndc = far * (d - near) / (d * (far - near)) の形（d = カメラからの距離）
@@ -134,17 +130,15 @@ NDC の深度 `z'`（0〜1）は、**距離 `z` に対して、非線形**です
 | 100 | 0.999 |
 | 1000（far） | 1.0 |
 
-near の近くで深度が急激に変わり、遠くはほとんど変わりません。つまり、深度の精度（細かさ）が手前にたくさん割り当てられ、遠くは粗いのです。そのため、遠くで 2 つの面が近いと、深度の差を区別できず、z-fighting（ちらつき）が起きます（[深度バッファとカリング](depth-culling.md)）。
+near の近くで深度が急激に変わり遠くはほとんど変わりません。つまり、深度の精度（細かさ）が手前にたくさん割り当てられ遠くは粗いのです。そのため、遠くで 2 つの面が近いと深度の差を区別できず z-fighting（ちらつき）が起きます（[深度バッファとカリング](depth-culling.md)）。
 
 ### 精度を保つ工夫
 
-| 方法 | 説明 |
-| --- | --- |
-| near をできるだけ大きく | 0.01 より 0.1、0.1 より 1。near を 10 倍にすると、精度が約 10 倍よくなる |
-| far を必要最小限に | 1000 で足りるなら、100000 にしない |
-| reverse-Z | near と far を入れ替える（深度を 1 → 0 にする）。浮動小数点の深度は、0 付近の精度が高いので、遠くの精度が大きく改善する（[深度バッファとカリング](depth-culling.md)） |
-| 32 ビット浮動小数点の深度バッファ（`DXGI_FORMAT_D32_FLOAT`） | 24 ビット整数より、reverse-Z と相性がよい |
-| 世界を分割して描く | 近景と遠景を別の near / far で描く |
+- near をできるだけ大きく: 0.01 より 0.1、0.1 より 1。near を 10 倍にすると、精度が約 10 倍よくなる
+- far を必要最小限に: 1000 で足りるなら 100000 にしない
+- reverse-Z: near と far を入れ替える（深度を 1 → 0 にする）。浮動小数点の深度は 0 付近の精度が高いので、遠くの精度が大きく改善する（[深度バッファとカリング](depth-culling.md)）
+- 32 ビット浮動小数点の深度バッファ（`DXGI_FORMAT_D32_FLOAT`）: 24 ビット整数より reverse-Z と相性がよい
+- 世界を分割して描く: 近景と遠景を別の near / far で描く
 
 ## 正射投影 {#orthographic}
 
@@ -166,7 +160,7 @@ Matrix ortho2 = XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.0f,
 | 設計図・エディターの側面図 | 大きさをそのまま測れる |
 | ミニマップ | 真上からの正射投影 |
 
-正射投影では、w が常に 1（遠近感なし）です。x, y が距離に関係なく、決まった比率で画面に出ます。
+正射投影では w が常に 1（遠近感なし）です。x, y が距離に関係なく決まった比率で画面に出ます。
 
 ## 透視投影と正射投影の比較
 
@@ -177,26 +171,24 @@ Matrix ortho2 = XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.0f,
 | w | 距離が入る（割る） | 常に 1 |
 | 平行な線 | 遠くで 1 点に集まる（消失点） | 平行のまま |
 | 用途 | 3D ゲームの普通のカメラ | 2D、UI、影、設計図 |
-| 主なパラメータ | 視野角、アスペクト比、near、far | 幅、高さ、near、far |
+| 主なパラメータ | 視野角、アスペクト比、near、far | 幅、高さ near、far |
 
 ## 視野角を変える演出
 
-| 演出 | 方法 |
-| --- | --- |
-| <strong>ズーム（スナイパー）</strong> | FOV を小さくする |
-| ダッシュの疾走感 | FOV を少し大きくする（70 → 80） |
-| 被ダメージの歪み | FOV を一瞬だけ変える |
-| ドリー ズーム（映画の演出） | カメラを動かしながら、FOV を逆に変える |
+- <strong>ズーム（スナイパー）</strong>: FOV を小さくする
+- ダッシュの疾走感: FOV を少し大きくする（70 → 80）
+- 被ダメージの歪み: FOV を一瞬だけ変える
+- ドリー ズーム（映画の演出）: カメラを動かしながら、FOV を逆に変える
 
-FOV を変えたら、`proj` を作り直します（毎フレームでも軽い計算です）。滑らかに変えるには、FOV を補間（`Lerp`）します。
+FOV を変えたら `proj` を作り直します（毎フレームでも軽い計算です）。滑らかに変えるには FOV を補間（`Lerp`）します。
 
 ## DirectX 11 での設定
 
-プロジェクション行列は、**CPU で作り、`mvp` に含めて、定数バッファで GPU に渡します**（[MVP 変換](transforms-mvp.md)）。深度に関連する、DX11 の設定は、次のとおりです。
+プロジェクション行列は**CPU で作り `mvp` に含めて、定数バッファで GPU に渡します**（[MVP 変換](transforms-mvp.md)）。深度に関連する DX11 の設定は次のとおりです。
 
 | 設定 | 場所 | 説明 |
 | --- | --- | --- |
-| ビューポートの深度範囲 | `D3D11_VIEWPORT::MinDepth / MaxDepth` | 0.0 〜 1.0（通常）。reverse-Z でも、このままでよい |
+| ビューポートの深度範囲 | `D3D11_VIEWPORT::MinDepth / MaxDepth` | 0.0 〜 1.0（通常）。reverse-Z でもこのままでよい |
 | 深度バッファのフォーマット | `DXGI_FORMAT_D32_FLOAT` / `D24_UNORM_S8_UINT` | 浮動小数点（D32）は、reverse-Z 向き |
 | 深度比較関数 | `D3D11_DEPTH_STENCIL_DESC::DepthFunc` | 通常は `LESS`。reverse-Z は `GREATER`（または `GREATER_EQUAL`） |
 | 深度バッファのクリア値 | `ClearDepthStencilView` | 通常は 1.0。reverse-Z は 0.0 |
@@ -205,46 +197,44 @@ FOV を変えたら、`proj` を作り直します（毎フレームでも軽い
 
 ## ゲームでの使いどころ
 
-| 場面 | 設定 |
-| --- | --- |
-| 三人称アクション | 透視投影。FOV 50〜60°、near 0.1〜0.3、far 500〜1000 |
-| FPS | 透視投影。FOV 80〜100°（横）。武器は別の FOV で描くこともある |
-| 2D ゲーム・UI | 正射投影（ピクセル座標） |
-| 広い世界（遠景が必要） | far を大きくする代わりに、reverse-Z と D32_FLOAT で、精度を保つ |
-| シャドウ マップ（太陽の影） | 正射投影で光の向きから描く |
-| スナイパー ライフル | FOV を小さくして、拡大 |
-| ウィンドウのリサイズ | アスペクト比を更新して、`proj` を作り直す |
+- 三人称アクション: 透視投影。FOV 50〜60°、near 0.1〜0.3、far 500〜1000
+- FPS: 透視投影。FOV 80〜100°（横）。武器は別の FOV で描くこともある
+- 2D ゲーム・UI: 正射投影（ピクセル座標）
+- 広い世界（遠景が必要）: far を大きくする代わりに reverse-Z と D32_FLOAT で、精度を保つ
+- シャドウ マップ（太陽の影）: 正射投影で光の向きから描く
+- スナイパー ライフル: FOV を小さくして拡大
+- ウィンドウのリサイズ: アスペクト比を更新して、`proj` を作り直す
 
 ## よくあるミス
 
-??? failure "near を 0 や、ごく小さい値にする"
-    near が 0 だと、プロジェクション行列が壊れます（0 で割る）。0.001 のように小さいと、深度の精度が悪くなって、z-fighting が出ます。0.1 以上にします。
+??? failure "near を 0 やごく小さい値にする"
+    near が 0 だとプロジェクション行列が壊れます（0 で割る）。0.001 のように小さいと深度の精度が悪くなって、z-fighting が出ます。0.1 以上にします。
 
 ??? failure "far をとても大きくする"
-    near と far の比が大きいほど、深度の精度が落ちます。必要な範囲だけにするか、reverse-Z を使います。
+    near と far の比が大きいほど深度の精度が落ちます。必要な範囲だけにするか reverse-Z を使います。
 
 ??? failure "FOV を度のまま渡す"
-    `XMMatrixPerspectiveFovLH(60.0f, ...)` は、60 ラジアンです。ラジアン（`XMConvertToRadians(60.0f)`）で渡します。
+    `XMMatrixPerspectiveFovLH(60.0f, ...)` は 60 ラジアンです。ラジアン（`XMConvertToRadians(60.0f)`）で渡します。
 
-??? failure "アスペクト比を固定のまま、ウィンドウをリサイズして、絵が伸びる"
-    ウィンドウのサイズが変わったら、`aspect` を更新して、`proj` を作り直します。
+??? failure "アスペクト比を固定のままウィンドウをリサイズして、絵が伸びる"
+    ウィンドウのサイズが変わったら、`aspect` を更新して `proj` を作り直します。
 
 ??? failure "縦の FOV と横の FOV を取り違える"
-    `XMMatrixPerspectiveFovLH` は、**縦**の FOV です。ゲームの設定画面の「FOV」が横なら、縦に変換します。
+    `XMMatrixPerspectiveFovLH` は**縦**の FOV です。ゲームの設定画面の「FOV」が横なら縦に変換します。
 
 ??? failure "手系の違うプロジェクション関数を混ぜる"
-    `XMMatrixPerspectiveFovRH`（右手系）と、`XMMatrixLookAtLH`（左手系）を混ぜると何も映りません。このサイトは `LH` にそろえます。
+    `XMMatrixPerspectiveFovRH`（右手系）と `XMMatrixLookAtLH`（左手系）を混ぜると何も映りません。このサイトは `LH` にそろえます。
 
 ??? failure "透視投影の後ろの点をそのまま使う"
-    `w <= 0` の点は、カメラの後ろです。`w` で割ると反転した位置になります。必ず `w` を確認します。
+    `w <= 0` の点はカメラの後ろです。`w` で割ると反転した位置になります。必ず `w` を確認します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 透視投影 ＝ 遠いものが小さい。`w` に距離を入れて、`w` で割るのが遠近感の元
+    - [x] 透視投影 ＝ 遠いものが小さい。`w` に距離を入れて `w` で割るのが遠近感の元
     - [x] パラメータは 視野角（縦・ラジアン）、アスペクト比、near、far。ウィンドウのサイズが変わったら作り直す
     - [x] NDC：x, y は −1〜1、z は 0〜1（Direct3D）。範囲外はクリップされる
-    - [x] 深度は非線形。near を大きく、far を小さく。reverse-Z で、精度を改善
+    - [x] 深度は非線形。near を大きく far を小さく。reverse-Z で精度を改善
     - [x] 正射投影 ＝ 遠近感なし。2D、UI、影、ミニマップ
 
 ## 関連ページ

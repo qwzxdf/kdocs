@@ -10,13 +10,13 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>計算シェーダー</strong>（Compute Shader、CS）は描画パイプライン（頂点 → ラスタライズ → ピクセル）とは<strong>別に</strong>、GPU の並列計算を <strong>自由に使う</strong>ための、シェーダーです。ぼかしヒストグラム、パーティクルの更新、カリング、プローブの更新など「画面の 1 ピクセル」や「三角形」に縛られない処理を書けます。ポスト プロセスの多くと GPU ドリブンな処理は、計算シェーダーが土台です。
+<strong>計算シェーダー</strong>（Compute Shader、CS）は描画パイプライン（頂点 → ラスタライズ → ピクセル）とは<strong>別に</strong>、GPU の並列計算を <strong>自由に使う</strong>ためのシェーダーです。ぼかしヒストグラム、パーティクルの更新、カリング、プローブの更新など「画面の 1 ピクセル」や「三角形」に縛られない処理を書けます。ポスト プロセスの多くと GPU ドリブンな処理は、計算シェーダーが土台です。
 
 !!! tip "ポイント"
-    - 計算シェーダーは、<strong>スレッド グループ</strong>（`numthreads`）を `Dispatch(x, y, z)` 個、起動する。合計のスレッド数 ＝ グループの数 × グループ内のスレッド数。
+    - 計算シェーダーは <strong>スレッド グループ</strong>（`numthreads`）を `Dispatch(x, y, z)` 個、起動する。合計のスレッド数 ＝ グループの数 × グループ内のスレッド数。
     - 入力は SRV、出力は UAV（書き込み）。`RWTexture2D`、`RWStructuredBuffer` など。
     - グループ内は `groupshared` メモリで、スレッド同士がデータを共有できる。
-    - 画面の大きさがグループの、倍数でないとき <strong>範囲チェック</strong>が必須。
+    - 画面の大きさがグループの倍数でないとき <strong>範囲チェック</strong>が必須。
     - 同じリソースを UAV で書きながら、SRV で読めない（束縛の衝突）。
 
 !!! info "このページを読む前に"
@@ -44,13 +44,11 @@ void GrayscaleCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-| 要素 | 内容 |
-| --- | --- |
-| `[numthreads(X, Y, Z)]` | 1 つのグループの、スレッド数。合計は 1024 以下（`cs_5_0`）。64 の倍数が効率がよい |
-| `SV_DispatchThreadID` | このスレッドの全体での、通し番号（`(グループ番号 × グループの大きさ) + グループ内の番号`） |
-| `SV_GroupID` | このスレッドが属する、グループの番号 |
-| `SV_GroupThreadID` | グループ内のスレッドの番号 |
-| `SV_GroupIndex` | グループ内の通し番号（1 次元） |
+- `[numthreads(X, Y, Z)]`: 1 つのグループのスレッド数。合計は 1024 以下（`cs_5_0`）。64 の倍数が効率がよい
+- `SV_DispatchThreadID`: このスレッドの全体での通し番号（`(グループ番号 × グループの大きさ) + グループ内の番号`）
+- `SV_GroupID`: このスレッドが属する、グループの番号
+- `SV_GroupThreadID`: グループ内のスレッドの番号
+- `SV_GroupIndex`: グループ内の通し番号（1 次元）
 
 ## ホスト側：作る・つなぐ・起動する
 
@@ -93,9 +91,9 @@ ID3D11ShaderResourceView* null_srv = nullptr;
 context->CSSetShaderResources(0, 1, &null_srv);
 ```
 
-<strong>グループの数</strong>は画面をグループの、大きさで割って <strong>切り上げ</strong>ます（`(width + 7) / 8`）。切り捨てると右端・下端が処理されません。
+<strong>グループの数</strong>は画面をグループの大きさで割って <strong>切り上げ</strong>ます（`(width + 7) / 8`）。切り捨てると右端・下端が処理されません。
 
-### Dispatch の、グループ数の計算
+### Dispatch のグループ数の計算
 
 | 処理 | `numthreads` | `Dispatch` |
 | --- | --- | --- |
@@ -106,9 +104,9 @@ context->CSSetShaderResources(0, 1, &null_srv);
 
 最大のグループ数は各次元で 65535 です。
 
-## groupshared：グループ内の、共有メモリ
+## groupshared：グループ内の共有メモリ
 
-1 つのグループのスレッド同士が <strong>高速な共有メモリ</strong>でデータをやり取りできます。ぼかし（隣のピクセルを何度も読む）や、リダクション（合計、最大）で <strong>メモリ アクセスを減らす</strong>ために使います。
+1 つのグループのスレッド同士が <strong>高速な共有メモリ</strong>でデータをやり取りできます。ぼかし（隣のピクセルを何度も読む）やリダクション（合計、最大）で <strong>メモリ アクセスを減らす</strong>ために使います。
 
 ```hlsl
 groupshared float4 s_tile[8 + 2][8 + 2];                    // 8×8 のグループと、その周り 1 ピクセルぶん
@@ -129,11 +127,11 @@ void BlurCS(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID) {
 }
 ```
 
-`GroupMemoryBarrierWithGroupSync()` は <strong>グループ内の全スレッドがここまで来るのを待ち</strong>、共有メモリへの書き込みを他のスレッドに見えるようにします。これを忘れると他のスレッドがまだ、書いていない値を読みます。共有メモリの大きさは 1 グループあたり 32 KB までです。
+`GroupMemoryBarrierWithGroupSync()` は <strong>グループ内の全スレッドがここまで来るのを待ち</strong>、共有メモリへの書き込みを他のスレッドに見えるようにします。これを忘れると他のスレッドがまだ書いていない値を読みます。共有メモリの大きさは 1 グループあたり 32 KB までです。
 
 ## アトミック操作
 
-複数のスレッドが同じ場所に同時に、書くときはアトミック関数を使います。
+複数のスレッドが同じ場所に同時に書くときはアトミック関数を使います。
 
 | 関数 | 内容 |
 | --- | --- |
@@ -162,13 +160,11 @@ InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グ
 
 ## 注意点
 
-| 注意 | 内容 |
-| --- | --- |
-| UAV のフォーマット | `_SRGB` は、UAV に指定できない。`R8G8B8A8_UNORM` で作り色空間は自分で変換する |
-| 型つき UAV の読み込み | 読み書きできるのは `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（それ以外は書き込みだけ。環境の `CheckFeatureSupport` で追加の型の対応を確認する） |
-| SRV と UAV の同時束縛 | 同じリソースを同時に、読み書きできない |
-| スレッド数 | 1 グループ 64 の倍数（NVIDIA は 32 の倍数、AMD は 64 の倍数だと無駄がない）。8×8 や 16×16 が無難 |
-| `cs_5_0` の制約 | 1 グループ、最大 1024 スレッド、`groupshared` は 32 KB |
+- UAV のフォーマット: `_SRGB` は、UAV に指定できない。`R8G8B8A8_UNORM` で作り色空間は自分で変換する
+- 型つき UAV の読み込み: 読み書きできるのは `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（それ以外は書き込みだけ。環境の `CheckFeatureSupport` で追加の型の対応を確認する）
+- SRV と UAV の同時束縛: 同じリソースを同時に読み書きできない
+- スレッド数: 1 グループ 64 の倍数（NVIDIA は 32 の倍数、AMD は 64 の倍数だと無駄がない）。8×8 や 16×16 が無難
+- `cs_5_0` の制約: 1 グループ、最大 1024 スレッド、`groupshared` は 32 KB
 
 ## よくあるミス
 
@@ -178,19 +174,19 @@ InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グ
 ??? failure "出力が真っ黒、または前の値のまま"
     UAV を `CSSetUnorderedAccessViews` で束ねていない。SRV と UAV に同じリソースを束ねている。`Dispatch` のグループ数が 0。
 
-??? failure "ぼかしの結果に、縞が出る（共有メモリ）"
-    `GroupMemoryBarrierWithGroupSync` を入れていない。または、バリアを条件分岐（`if`）の中に置いて一部の、スレッドが到達しない（デッドロック）。
+??? failure "ぼかしの結果に縞が出る（共有メモリ）"
+    `GroupMemoryBarrierWithGroupSync` を入れていない。または、バリアを条件分岐（`if`）の中に置いて一部のスレッドが到達しない（デッドロック）。
 
 ??? failure "`CreateUnorderedAccessView` が、失敗する"
     テクスチャの `BindFlags` に `UNORDERED_ACCESS` が無い。`_SRGB` や圧縮フォーマットを指定している。
 
-??? failure "別のパスで結果を読むと、古い値が見える"
+??? failure "別のパスで結果を読むと古い値が見える"
     UAV の束縛を外していない。次のパスで SRV として読む前に UAV を `nullptr` で外す。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 計算シェーダー ＝ 描画パイプラインと別の自由な、GPU 並列計算
+    - [x] 計算シェーダー ＝ 描画パイプラインと別の自由な GPU 並列計算
     - [x] `[numthreads]` と `Dispatch`。グループ数は切り上げ
     - [x] 入力は SRV、出力は UAV。範囲チェックを入れる
     - [x] グループ内の共有は、`groupshared` + `GroupMemoryBarrierWithGroupSync`

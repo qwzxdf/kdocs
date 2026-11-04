@@ -93,11 +93,9 @@ HRESULT ID3D12Device::CreateCommittedResource(
 
 戻り値は成功なら `S_OK` です。主な失敗は次のとおりです。
 
-| 戻り値 | 原因 |
-| --- | --- |
-| `E_OUTOFMEMORY` | VRAM か共有メモリが足りない |
-| `E_INVALIDARG` | `pDesc` と `InitialResourceState` や `HeapProperties` の組み合わせが合わない（`UPLOAD` に `COPY_DEST` など） |
-| `DXGI_ERROR_DEVICE_REMOVED` | デバイスがすでに消えている（[GetDeviceRemovedReason](#getdeviceremovedreason)） |
+- `E_OUTOFMEMORY`: VRAM か共有メモリが足りない
+- `E_INVALIDARG`: `pDesc` と `InitialResourceState` や `HeapProperties` の組み合わせが合わない（`UPLOAD` に `COPY_DEST` など）
+- `DXGI_ERROR_DEVICE_REMOVED`: デバイスがすでに消えている（[GetDeviceRemovedReason](#getdeviceremovedreason)）
 
 ```cpp
 // 頂点バッファ（UPLOAD に置く最小の例）。
@@ -463,12 +461,10 @@ GPU のハング、ドライバーの更新、GPU の取り外しなどでデバ
 
 戻り値と主な意味は次のとおりです。
 
-| 戻り値 | 意味 |
-| --- | --- |
-| `DXGI_ERROR_DEVICE_HUNG` | GPU が応答しなくなった。コマンドが無限に長いなど |
-| `DXGI_ERROR_DEVICE_RESET` | GPU がリセットされた（不正なコマンドが原因のことが多い） |
-| `DXGI_ERROR_DRIVER_INTERNAL_ERROR` | ドライバーの内部エラー |
-| `DXGI_ERROR_DEVICE_REMOVED` | GPU が取り外されたドライバーが更新された |
+- `DXGI_ERROR_DEVICE_HUNG`: GPU が応答しなくなった。コマンドが無限に長いなど
+- `DXGI_ERROR_DEVICE_RESET`: GPU がリセットされた（不正なコマンドが原因のことが多い）
+- `DXGI_ERROR_DRIVER_INTERNAL_ERROR`: ドライバーの内部エラー
+- `DXGI_ERROR_DEVICE_REMOVED`: GPU が取り外されたドライバーが更新された
 
 消えたデバイスは二度と使えません。ゲームを終了するかデバイスとそれから作った物のすべてを作り直します。原因を調べるにはデバッグ レイヤーと DRED（Device Removed Extended Data）を使います（[Debug Layer](../debug-layer.md)）。
 

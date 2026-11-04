@@ -36,11 +36,9 @@ tags:
 
 ## Player の役割
 
-| 役割 | 内容 |
-| --- | --- |
-| ウィンドウを持つ | OS のウィンドウは、Player（実行側）が作る。Engine は `HWND` を受け取るだけ |
-| ループを回す | 「入力 → 更新・描画 → 繰り返し」のループは、Player の `main` にある |
-| 時間を測る | 前のフレームからの経過秒（delta）を測って、`Tick` に渡す |
+- ウィンドウを持つ: OS のウィンドウは、Player（実行側）が作る。Engine は `HWND` を受け取るだけ
+- ループを回す: 「入力 → 更新・描画 → 繰り返し」のループは、Player の `main` にある
+- 時間を測る: 前のフレームからの経過秒（delta）を測って、`Tick` に渡す
 
 Engine がウィンドウを作らない点が重要です。エディタでは、WPF が作る子ウィンドウの `HWND` を同じ `Engine::Create` に渡します。Player は、その最も単純な利用者です。
 
@@ -92,18 +90,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lpara
 }  // namespace
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `HWND` | ウィンドウのハンドル（識別番号のような物）。ウィンドウに関する関数はすべて、これを受け取る |
-| ウィンドウ プロシージャ | ウィンドウに届くメッセージ（大きさが変わった、閉じられたキーが押された…）を受け取る関数。OS が呼ぶ |
-| `LRESULT CALLBACK` | 戻り値の型と呼び出し規約。`CALLBACK` は `__stdcall`。必ずこの形で書く |
-| `WM_SIZE` | 大きさが変わったときのメッセージ。`lparam` の下位 16 ビットが幅、上位 16 ビットが高さ |
-| `LOWORD` / `HIWORD` | 32 ビット値の下位 / 上位 16 ビットを取り出すマクロ |
-| `SIZE_MINIMIZED` | 最小化されたことを示す値。このとき、幅・高さは 0 なので `Resize` を呼ばない |
-| `WM_DESTROY` | ウィンドウが壊されるときのメッセージ |
-| `PostQuitMessage(0)` | メッセージ ループに「終了せよ」のメッセージ（`WM_QUIT`）を積む |
-| `DefWindowProcW` | 自分で処理しないメッセージを既定の動作に任せる。必ず最後に呼ぶ |
-| 名前空間の無名 `namespace { }` | このファイルの中だけで、使う名前（外部に見せない） |
+- `HWND`: ウィンドウのハンドル（識別番号のような物）。ウィンドウに関する関数はすべて、これを受け取る
+- ウィンドウ プロシージャ: ウィンドウに届くメッセージ（大きさが変わった、閉じられたキーが押された…）を受け取る関数。OS が呼ぶ
+- `LRESULT CALLBACK`: 戻り値の型と呼び出し規約。`CALLBACK` は `__stdcall`。必ずこの形で書く
+- `WM_SIZE`: 大きさが変わったときのメッセージ。`lparam` の下位 16 ビットが幅、上位 16 ビットが高さ
+- `LOWORD` / `HIWORD`: 32 ビット値の下位 / 上位 16 ビットを取り出すマクロ
+- `SIZE_MINIMIZED`: 最小化されたことを示す値。このとき、幅・高さは 0 なので `Resize` を呼ばない
+- `WM_DESTROY`: ウィンドウが壊されるときのメッセージ
+- `PostQuitMessage(0)`: メッセージ ループに「終了せよ」のメッセージ（`WM_QUIT`）を積む
+- `DefWindowProcW`: 自分で処理しないメッセージを既定の動作に任せる。必ず最後に呼ぶ
+- 名前空間の無名 `namespace { }`: このファイルの中だけで、使う名前（外部に見せない）
 
 ### ウィンドウの作成
 
@@ -128,14 +124,12 @@ HWND CreateMainWindow(HINSTANCE instance, int width, int height) {
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `WNDCLASSEXW` | ウィンドウの「種類」（クラス）の設定。末尾の `W` は Unicode（UTF-16）版 |
-| `wc.lpfnWndProc` | このクラスのウィンドウに届くメッセージを処理する関数 |
-| `RegisterClassExW` | 上の設定を OS に登録する |
-| `AdjustWindowRect` | 枠やタイトル バーを含めた外側の大きさを計算する（ウィンドウの大きさ ≠ 描ける領域） |
-| `WS_OVERLAPPEDWINDOW` | 普通のウィンドウの見た目（タイトル バー、枠、最大化ボタンなど） |
-| `CreateWindowExW` | ウィンドウを作る。戻り値が `HWND` |
+- `WNDCLASSEXW`: ウィンドウの「種類」（クラス）の設定。末尾の `W` は Unicode（UTF-16）版
+- `wc.lpfnWndProc`: このクラスのウィンドウに届くメッセージを処理する関数
+- `RegisterClassExW`: 上の設定を OS に登録する
+- `AdjustWindowRect`: 枠やタイトル バーを含めた外側の大きさを計算する（ウィンドウの大きさ ≠ 描ける領域）
+- `WS_OVERLAPPEDWINDOW`: 普通のウィンドウの見た目（タイトル バー、枠、最大化ボタンなど）
+- `CreateWindowExW`: ウィンドウを作る。戻り値が `HWND`
 
 !!! note "A と W"
     Windows API には、`〜A`（ANSI）と `〜W`（UTF-16）の 2 種類があります。常に W を使います（[文字コード](../encoding/index.md)）。
@@ -185,16 +179,14 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `wWinMain` | `/SUBSYSTEM:WINDOWS` の Unicode 版の入口。`instance` はこのプログラムの識別、`show` は最初の表示方法 |
-| `GetClientRect` | 描ける領域（枠を除く）の大きさを取る |
-| `PeekMessageW` | メッセージがあれば取り出し、無くても待たずに戻る（`GetMessage` は来るまで待つので、ゲーム ループには向かない） |
-| `PM_REMOVE` | 取り出したらキューから消す |
-| `TranslateMessage` / `DispatchMessageW` | キー入力の変換とウィンドウ プロシージャへの配送 |
-| `WM_QUIT` | `PostQuitMessage` が積む終了メッセージ。これが来たらループを抜ける |
-| `std::chrono::steady_clock` | 巻き戻らない時計。経過時間の測定に使う |
-| `std::chrono::duration<float>` | 秒を `float` で持つ時間の型。`.count()` で数値を取る |
+- `wWinMain`: `/SUBSYSTEM:WINDOWS` の Unicode 版の入口。`instance` はこのプログラムの識別、`show` は最初の表示方法
+- `GetClientRect`: 描ける領域（枠を除く）の大きさを取る
+- `PeekMessageW`: メッセージがあれば取り出し、無くても待たずに戻る（`GetMessage` は来るまで待つので、ゲーム ループには向かない）
+- `PM_REMOVE`: 取り出したらキューから消す
+- `TranslateMessage` / `DispatchMessageW`: キー入力の変換とウィンドウ プロシージャへの配送
+- `WM_QUIT`: `PostQuitMessage` が積む終了メッセージ。これが来たらループを抜ける
+- `std::chrono::steady_clock`: 巻き戻らない時計。経過時間の測定に使う
+- `std::chrono::duration<float>`: 秒を `float` で持つ時間の型。`.count()` で数値を取る
 
 ## 手順 3：動かす
 
@@ -205,13 +197,11 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 
 ## 動作確認のチェック
 
-| 見る所 | 期待する結果 |
-| --- | --- |
-| ウィンドウの色 | 赤・緑・青のなめらかな変化 |
-| 大きさを変える | 変えている間も色が出る。クラッシュしない |
-| 最小化 → 戻す | 戻したあとに描画が再開する |
-| 閉じる | プロセスが正常に終了する |
-| 出力ウィンドウ | 「Engine を作成しました（1280x720）」「Engine を破棄します（N フレーム）」 |
+- ウィンドウの色: 赤・緑・青のなめらかな変化
+- 大きさを変える: 変えている間も色が出る。クラッシュしない
+- 最小化 → 戻す: 戻したあとに描画が再開する
+- 閉じる: プロセスが正常に終了する
+- 出力ウィンドウ: 「Engine を作成しました（1280x720）」「Engine を破棄します（N フレーム）」
 
 ## よくあるミス
 

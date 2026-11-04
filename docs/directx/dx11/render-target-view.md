@@ -42,11 +42,9 @@ device->CreateRenderTargetView(back_buffer.Get(), &desc, &rtv);
 
 `desc` を `nullptr` にするとリソースと同じ形式の既定のビューができます。バック バッファは `UNORM` で作られているので `_SRGB` のビューにしたいときだけ記述子を書きます。
 
-| メンバー | 内容 |
-| --- | --- |
-| `Format` | ビューのフォーマット。`DXGI_FORMAT_UNKNOWN` でリソースと同じ |
-| `ViewDimension` | `TEXTURE2D`（普通）、`TEXTURE2DARRAY`（配列の一部の面）、`TEXTURE2DMS`（MSAA）、`TEXTURE3D` |
-| `Texture2D.MipSlice` | どのミップに書くか。ミップ チェーンの各段に描くときに使う |
+- `Format`: ビューのフォーマット。`DXGI_FORMAT_UNKNOWN` でリソースと同じ
+- `ViewDimension`: `TEXTURE2D`（普通）、`TEXTURE2DARRAY`（配列の一部の面）、`TEXTURE2DMS`（MSAA）、`TEXTURE3D`
+- `Texture2D.MipSlice`: どのミップに書くか。ミップ チェーンの各段に描くときに使う
 
 ## 自分で作るレンダー ターゲット
 

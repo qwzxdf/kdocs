@@ -83,14 +83,12 @@ class PhysicsWorld {
 
 ### 各ステップの意味
 
-| 手順 | 内容 |
-| --- | --- |
-| `RegisterDefaultAllocator()` | Jolt が使うメモリ確保関数を登録（既定は `malloc` / `free`）。自作のアロケータに替えたいときは、`Allocate` / `Free` の関数ポインタを設定（[アロケータ](../../optimize/allocators/index.md)） |
-| `Factory::sInstance = new Factory()` | 型の登録簿（`Factory`）を作る。形（Shape）などの型を名前から作る仕組み |
-| `RegisterTypes()` | 標準の型（BoxShape・SphereShape など）を `Factory` に登録 |
-| `TempAllocatorImpl` | 1 回の `Update` の間だけ使う一時メモリ |
-| `JobSystemThreadPool` | 物理の計算を複数スレッドに分ける |
-| `PhysicsSystem::Init` | 物理の世界を実際に作る |
+1. `RegisterDefaultAllocator()`: Jolt が使うメモリ確保関数を登録（既定は `malloc` / `free`）。自作のアロケータに替えたいときは、`Allocate` / `Free` の関数ポインタを設定（[アロケータ](../../optimize/allocators/index.md)）
+2. `Factory::sInstance = new Factory()`: 型の登録簿（`Factory`）を作る。形（Shape）などの型を名前から作る仕組み
+3. `RegisterTypes()`: 標準の型（BoxShape・SphereShape など）を `Factory` に登録
+4. `TempAllocatorImpl`: 1 回の `Update` の間だけ使う一時メモリ
+5. `JobSystemThreadPool`: 物理の計算を複数スレッドに分ける
+6. `PhysicsSystem::Init`: 物理の世界を実際に作る
 
 ## PhysicsSystem::Init の引数
 
@@ -122,13 +120,11 @@ settings.mAllowSleeping = true;
 system.SetPhysicsSettings(settings);
 ```
 
-| 設定 | 意味 |
-| --- | --- |
-| **`SetGravity`** | 重力（既定 `(0, -9.81, 0)`）。Y が上 |
-| `mNumVelocitySteps` | 速度の解決の反復回数（多いほど正確・重い） |
-| `mNumPositionSteps` | 位置の補正の反復回数 |
-| `mAllowSleeping` | 止まった物体を休止させる（軽くなる） |
-| `mPenetrationSlop` | 許容するめり込みの量 |
+- **`SetGravity`**: 重力（既定 `(0, -9.81, 0)`）。Y が上
+- `mNumVelocitySteps`: 速度の解決の反復回数（多いほど正確・重い）
+- `mNumPositionSteps`: 位置の補正の反復回数
+- `mAllowSleeping`: 止まった物体を休止させる（軽くなる）
+- `mPenetrationSlop`: 許容するめり込みの量
 
 重力の向きは Y 軸の負（Jolt は、右手系・Y 上）。このサイトの左手系とは Z の向きが逆なので、物理の世界と描画の世界の境界で、X を反転します（位置 `(-x, y, z)`、回転 `(x, -y, -z, w)`）。または、物理側の座標を左手系の値として扱います（[Jolt とゲームの連携](integration.md)）。ゲームの単位はメートル・キログラム・秒で、考えます。
 
@@ -166,11 +162,9 @@ void Frame(float frame_dt) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 蓄積（`accumulator`） | フレームの時間を溜めて、固定の刻みで消費 |
-| 上限（`0.25f`） | 長い停止のあとの更新の暴走（死のスパイラル）を防ぐ（[フレーム時間の設計](../../optimize/frame-budget.md)） |
-| 補間（`alpha`） | 描画は前回と今回の物理の位置の間を補間して、滑らかに（[統合](integration.md)） |
+- 蓄積（`accumulator`）: フレームの時間を溜めて、固定の刻みで消費
+- 上限（`0.25f`）: 長い停止のあとの更新の暴走（死のスパイラル）を防ぐ（[フレーム時間の設計](../../optimize/frame-budget.md)）
+- 補間（`alpha`）: 描画は前回と今回の物理の位置の間を補間して、滑らかに（[統合](integration.md)）
 
 !!! note "高速な物体と collision_steps"
     弾のように速い物体は、1 回の `Update` で壁を通り抜ける（トンネリング）ことがあります。`collision_steps` を 2 以上にして、1 ステップの移動量を小さくするか物体の `mMotionQuality = LinearCast`（連続衝突判定）を使います（[物体](bodies.md)）。
@@ -183,11 +177,9 @@ void Frame(float frame_dt) {
 TempAllocatorImpl temp_allocator(10 * 1024 * 1024);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 大きさ | 10MB が、よく使われる値。物体・接触が多いと足りないことがある |
-| 足りないと | `malloc` にフォールバックする（遅くなる）。Debug で警告が出ることがある |
-| `Update` ごとに使い回される | 毎フレーム確保しないので、速い |
+- 大きさ: 10MB が、よく使われる値。物体・接触が多いと足りないことがある
+- 足りないと: `malloc` にフォールバックする（遅くなる）。Debug で警告が出ることがある
+- `Update` ごとに使い回される: 毎フレーム確保しないので、速い
 
 ## ジョブ システム（スレッド）
 
@@ -216,12 +208,10 @@ system.OptimizeBroadPhase();
 
 ## 物理の更新をほかの処理と順番づける
 
-| 順番 | 内容 |
-| --- | --- |
-| **1. 入力・ゲームロジック** | 力・速度の設定（`AddForce`、`SetLinearVelocity`）、キネマティック物体の移動 |
-| 2. 物理の `Update` | 固定ステップで、何回か |
-| 3. 結果の読み取り | 物体の位置・向きをゲームのオブジェクトに反映（[統合](integration.md)） |
-| 4. 描画 | 補間した位置で描く |
+- **1. 入力・ゲームロジック**: 力・速度の設定（`AddForce`、`SetLinearVelocity`）、キネマティック物体の移動
+- 2. 物理の `Update`: 固定ステップで、何回か
+- 3. 結果の読み取り: 物体の位置・向きをゲームのオブジェクトに反映（[統合](integration.md)）
+- 4. 描画: 補間した位置で描く
 
 物理の `Update` の最中に物体を追加・削除・変更してはいけません（別スレッドで動いているため）。`Update` の外（前後）で行います。接触リスナーの中で直接、物体を消さない（通知して、あとで処理）。
 
@@ -236,12 +226,10 @@ delete Factory::sInstance;
 Factory::sInstance = nullptr;
 ```
 
-| 手順 | 内容 |
-| --- | --- |
-| **1. 物体・制約をすべて削除** | `RemoveBody` → `DestroyBody`（追加したものをすべて） |
-| 2. `PhysicsSystem` を破棄 | デストラクタで |
-| 3. `UnregisterTypes` | 型の登録を解除 |
-| 4. `Factory` を `delete` | `sInstance` を `nullptr` に |
+1. **1. 物体・制約をすべて削除**: `RemoveBody` → `DestroyBody`（追加したものをすべて）
+2. 2. `PhysicsSystem` を破棄: デストラクタで
+3. 3. `UnregisterTypes`: 型の登録を解除
+4. 4. `Factory` を `delete`: `sInstance` を `nullptr` に
 
 初期化の逆順で片付けます。
 

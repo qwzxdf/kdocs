@@ -227,15 +227,13 @@ if (ImGui::BeginDragDropTarget()) {
 
 ## 一目で分かる「閉じ方」表
 
-| 開く関数 | 閉じ方 |
-| --- | --- |
-| `Begin` | **戻り値に関係なく、必ず `End`** |
-| `BeginChild` | 戻り値に関係なく、必ず `EndChild` |
-| `BeginTable` / `BeginTabBar` / `BeginTabItem` / `BeginMenu` / `BeginMenuBar` / `BeginMainMenuBar` / `BeginCombo` / `BeginListBox` / `BeginPopup*` / `BeginTooltip` | true のときだけ `End…` |
-| `TreeNode` | true のときだけ `TreePop` |
-| `BeginDragDropSource` / `BeginDragDropTarget` | true のときだけ `End…` |
-| `BeginGroup` | 常に `EndGroup` |
-| `PushID` / `PushStyleColor` / `PushStyleVar` / `PushItemWidth` / `PushFont` | 常に対になる `Pop…` |
+- `Begin`: **戻り値に関係なく、必ず `End`**
+- `BeginChild`: 戻り値に関係なく、必ず `EndChild`
+- `BeginTable` / `BeginTabBar` / `BeginTabItem` / `BeginMenu` / `BeginMenuBar` / `BeginMainMenuBar` / `BeginCombo` / `BeginListBox` / `BeginPopup*` / `BeginTooltip`: true のときだけ `End…`
+- `TreeNode`: true のときだけ `TreePop`
+- `BeginDragDropSource` / `BeginDragDropTarget`: true のときだけ `End…`
+- `BeginGroup`: 常に `EndGroup`
+- `PushID` / `PushStyleColor` / `PushStyleVar` / `PushItemWidth` / `PushFont`: 常に対になる `Pop…`
 
 ## 関連ページ
 

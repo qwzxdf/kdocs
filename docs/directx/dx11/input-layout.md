@@ -46,15 +46,13 @@ const D3D11_INPUT_ELEMENT_DESC elements[] = {
 };
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `SemanticName` | 頂点シェーダーの入力のセマンティクス名（`POSITION`、`COLOR`、`NORMAL`、`TEXCOORD`） |
-| `SemanticIndex` | 同じ名前が複数あるときの番号（`TEXCOORD0`、`TEXCOORD1`） |
-| `Format` | この要素のデータの形式（`R32G32B32_FLOAT` ＝ `float3`） |
-| `InputSlot` | どの頂点バッファ（スロット 0〜15）から、読むか |
-| `AlignedByteOffset` | 頂点の先頭からこの要素までのバイト数。`D3D11_APPEND_ALIGNED_ELEMENT` で自動計算 |
-| `InputSlotClass` | `PER_VERTEX_DATA`（頂点ごと）、`PER_INSTANCE_DATA`（インスタンスごと） |
-| `InstanceDataStepRate` | インスタンスごとのデータを何インスタンスごとに進めるか（通常 1。頂点ごとなら 0） |
+- `SemanticName`: 頂点シェーダーの入力のセマンティクス名（`POSITION`、`COLOR`、`NORMAL`、`TEXCOORD`）
+- `SemanticIndex`: 同じ名前が複数あるときの番号（`TEXCOORD0`、`TEXCOORD1`）
+- `Format`: この要素のデータの形式（`R32G32B32_FLOAT` ＝ `float3`）
+- `InputSlot`: どの頂点バッファ（スロット 0〜15）から、読むか
+- `AlignedByteOffset`: 頂点の先頭からこの要素までのバイト数。`D3D11_APPEND_ALIGNED_ELEMENT` で自動計算
+- `InputSlotClass`: `PER_VERTEX_DATA`（頂点ごと）、`PER_INSTANCE_DATA`（インスタンスごと）
+- `InstanceDataStepRate`: インスタンスごとのデータを何インスタンスごとに進めるか（通常 1。頂点ごとなら 0）
 
 ### フォーマットの対応
 

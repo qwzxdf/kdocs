@@ -61,13 +61,11 @@ Microsoft::WRL::ComPtr<ID3D11Buffer> vertex_buffer;
 device->CreateBuffer(&desc, &init, &vertex_buffer);
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `ByteWidth` | バッファの大きさ（バイト） |
-| `Usage` | `IMMUTABLE`（変更しない）、`DEFAULT`（GPU が読み書き）、`DYNAMIC`（CPU が毎フレーム書く）、`STAGING`（CPU が読み書き） |
-| `BindFlags` | `VERTEX_BUFFER`、`INDEX_BUFFER`、`CONSTANT_BUFFER`、`SHADER_RESOURCE` など。複数の OR も可能 |
-| `CPUAccessFlags` | `DYNAMIC` のとき `WRITE` |
-| `StructureByteStride` | 構造化バッファのとき 1 要素の大きさ |
+- `ByteWidth`: バッファの大きさ（バイト）
+- `Usage`: `IMMUTABLE`（変更しない）、`DEFAULT`（GPU が読み書き）、`DYNAMIC`（CPU が毎フレーム書く）、`STAGING`（CPU が読み書き）
+- `BindFlags`: `VERTEX_BUFFER`、`INDEX_BUFFER`、`CONSTANT_BUFFER`、`SHADER_RESOURCE` など。複数の OR も可能
+- `CPUAccessFlags`: `DYNAMIC` のとき `WRITE`
+- `StructureByteStride`: 構造化バッファのとき 1 要素の大きさ
 
 `Usage` の選び方は[Map, Unmap and UpdateSubresource](map-update.md) です。
 
@@ -80,13 +78,11 @@ context->IASetVertexBuffers(0, 1, vertex_buffer.GetAddressOf(), &stride, &offset
 context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `StartSlot` | 入力スロット（0〜15）。入力レイアウトの `InputSlot` と対応 |
-| `NumBuffers` | つなぐバッファの数 |
-| `ppVertexBuffers` | バッファの配列 |
-| `pStrides` | 各バッファの 1 頂点の大きさ |
-| `pOffsets` | 各バッファの使い始める位置（バイト） |
+- `StartSlot`: 入力スロット（0〜15）。入力レイアウトの `InputSlot` と対応
+- `NumBuffers`: つなぐバッファの数
+- `ppVertexBuffers`: バッファの配列
+- `pStrides`: 各バッファの 1 頂点の大きさ
+- `pOffsets`: 各バッファの使い始める位置（バイト）
 
 `IASetPrimitiveTopology` で頂点のつなぎ方を決めます。
 

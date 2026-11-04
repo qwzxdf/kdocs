@@ -34,12 +34,10 @@ if (ImGui::Begin("プレイヤー", &open)) {
 ImGui::End();
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| <strong>`Begin("名前", &open, flags)`</strong> | ウィンドウを始める。第 2 引数に `bool*`<strong> を渡すと 閉じるボタン（×）</strong>が付く |
-| `End()` | `Begin` の戻り値に関係なく、必ず呼ぶ |
-| 戻り値 | ウィンドウが折りたたまれていなければ `true`。`false` なら 中身の処理を飛ばして、軽くできる |
-| ウィンドウの名前 | 同じ名前は、同じウィンドウ。位置・大きさは `imgui.ini` に名前で保存される |
+- <strong>`Begin("名前", &open, flags)`</strong>: ウィンドウを始める。第 2 引数に `bool*`<strong> を渡すと 閉じるボタン（×）</strong>が付く
+- `End()`: `Begin` の戻り値に関係なく、必ず呼ぶ
+- 戻り値: ウィンドウが折りたたまれていなければ `true`。`false` なら 中身の処理を飛ばして、軽くできる
+- ウィンドウの名前: 同じ名前は、同じウィンドウ。位置・大きさは `imgui.ini` に名前で保存される
 
 ### 位置と大きさ
 
@@ -55,12 +53,10 @@ ImGui::End();
 
 ### 条件（ImGuiCond）
 
-| 値 | 意味 |
-| --- | --- |
-| `ImGuiCond_Always` | 毎フレーム、強制する（ユーザーが動かしても戻る） |
-| `ImGuiCond_Once` | アプリの起動ごとに最初の 1 回 |
-| `ImGuiCond_FirstUseEver` | `imgui.ini` に記録がなければ、最初の 1 回（ユーザーが動かした位置は、保持される） |
-| `ImGuiCond_Appearing` | ウィンドウが表示されるたび |
+- `ImGuiCond_Always`: 毎フレーム、強制する（ユーザーが動かしても戻る）
+- `ImGuiCond_Once`: アプリの起動ごとに最初の 1 回
+- `ImGuiCond_FirstUseEver`: `imgui.ini` に記録がなければ、最初の 1 回（ユーザーが動かした位置は、保持される）
+- `ImGuiCond_Appearing`: ウィンドウが表示されるたび
 
 普通は `FirstUseEver`を使います（初期位置だけを決めて、あとはユーザーに任せる）。
 
@@ -183,13 +179,11 @@ if (ImGui::BeginChild("ログ", ImVec2(0, 150), ImGuiChildFlags_Borders)) {
 ImGui::EndChild();
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `BeginChild(id, size, flags)` | 子ウィンドウ。`size` の `0` は 残りの領域いっぱい |
-| `EndChild()` | `BeginChild` の戻り値に関係なく、必ず呼ぶ |
-| `ImGuiChildFlags_Borders`（旧 `border = true`） | 枠線を付ける |
-| `SetScrollHereY(1.0f)` | 一番下までスクロール（ログの自動スクロール） |
-| `GetScrollY()` / `GetScrollMaxY()` | スクロール位置の取得 |
+- `BeginChild(id, size, flags)`: 子ウィンドウ。`size` の `0` は 残りの領域いっぱい
+- `EndChild()`: `BeginChild` の戻り値に関係なく、必ず呼ぶ
+- `ImGuiChildFlags_Borders`（旧 `border = true`）: 枠線を付ける
+- `SetScrollHereY(1.0f)`: 一番下までスクロール（ログの自動スクロール）
+- `GetScrollY()` / `GetScrollMaxY()`: スクロール位置の取得
 
 !!! note "バージョンで、引数が変わる"
     `BeginChild` の `bool border` 引数は 新しい版（1.90 以降）で `ImGuiChildFlags` に変わっています。使っているバージョンのヘッダで、確認してください。
@@ -232,13 +226,11 @@ ImGui::End();
 
 <strong>ID は `ID スタック`</strong>で管理されます（ウィンドウ名 → `PushID` の値 → ラベル）。
 
-| 書き方 | 意味 |
-| --- | --- |
-| `"ラベル"` | 表示と ID が同じ |
-| `"ラベル##固定"` | 表示は「ラベル」、ID は「ラベル##固定」 |
-| `"##固定"` | 表示なし、ID だけ |
-| `"表示名###ID"` | ID は `###` 以降だけ（表示名が動的に変わっても、ウィンドウの位置が保たれる） |
-| `PushID(i)` / `PopID()` | ループの中の同じラベルを区別 |
+- `"ラベル"`: 表示と ID が同じ
+- `"ラベル##固定"`: 表示は「ラベル」、ID は「ラベル##固定」
+- `"##固定"`: 表示なし、ID だけ
+- `"表示名###ID"`: ID は `###` 以降だけ（表示名が動的に変わっても、ウィンドウの位置が保たれる）
+- `PushID(i)` / `PopID()`: ループの中の同じラベルを区別
 
 ウィンドウのタイトルに動的な値（FPS など）を入れたい場合は、`"FPS: 60###fps"` のように `###` で ID を固定します。固定しないとタイトルが変わるたびに別のウィンドウになって、位置が戻ります。
 
@@ -246,11 +238,9 @@ ImGui::End();
 
 <strong>高 DPI のディスプレイ</strong>では ImGui の文字や部品が小さく見えます。
 
-| 対策 | 説明 |
-| --- | --- |
-| `io.FontGlobalScale` | 全体の拡大率（フォントのぼやけに注意） |
-| フォントの大きさを DPI に合わせる | `AddFontFromFileTTF(path, 16.0f * dpi_scale)`（[フォント](fonts.md)） |
-| `style.ScaleAllSizes(scale)` | 余白・角丸などすべての大きさを拡大（[スタイル](style.md#dpi)） |
+- `io.FontGlobalScale`: 全体の拡大率（フォントのぼやけに注意）
+- フォントの大きさを DPI に合わせる: `AddFontFromFileTTF(path, 16.0f * dpi_scale)`（[フォント](fonts.md)）
+- `style.ScaleAllSizes(scale)`: 余白・角丸などすべての大きさを拡大（[スタイル](style.md#dpi)）
 
 ## よくあるミス
 

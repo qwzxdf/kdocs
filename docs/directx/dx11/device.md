@@ -29,15 +29,13 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
 
 デバイスは GPU 1 つ（のドライバー）を表すオブジェクトです。GPU 上のあらゆる物はデバイスが作ります。
 
-| 作るもの | 関数 |
-| --- | --- |
-| バッファ | `CreateBuffer`（[頂点](vertex-buffer.md)、[インデックス](index-buffer.md)、[定数](constant-buffer.md)、[構造化](structured-buffer.md)） |
-| テクスチャ | `CreateTexture2D`（[Texture2D](texture2d.md)）、`CreateTexture1D`、`CreateTexture3D` |
-| ビュー | `CreateRenderTargetView`、`CreateShaderResourceView`、`CreateUnorderedAccessView`、`CreateDepthStencilView` |
-| シェーダー | `CreateVertexShader`、`CreatePixelShader`、`CreateComputeShader`（[Shaders and Compilation](shaders.md)） |
-| 入力レイアウト | `CreateInputLayout`（[Input Layout](input-layout.md)） |
-| ステート | `CreateRasterizerState`、`CreateBlendState`、`CreateDepthStencilState`、`CreateSamplerState` |
-| クエリ | `CreateQuery`（[GPU Queries and Timing](query-timing.md)） |
+- バッファ: `CreateBuffer`（[頂点](vertex-buffer.md)、[インデックス](index-buffer.md)、[定数](constant-buffer.md)、[構造化](structured-buffer.md)）
+- テクスチャ: `CreateTexture2D`（[Texture2D](texture2d.md)）、`CreateTexture1D`、`CreateTexture3D`
+- ビュー: `CreateRenderTargetView`、`CreateShaderResourceView`、`CreateUnorderedAccessView`、`CreateDepthStencilView`
+- シェーダー: `CreateVertexShader`、`CreatePixelShader`、`CreateComputeShader`（[Shaders and Compilation](shaders.md)）
+- 入力レイアウト: `CreateInputLayout`（[Input Layout](input-layout.md)）
+- ステート: `CreateRasterizerState`、`CreateBlendState`、`CreateDepthStencilState`、`CreateSamplerState`
+- クエリ: `CreateQuery`（[GPU Queries and Timing](query-timing.md)）
 
 デバイスの関数は <strong>どのスレッドからでも</strong>、呼べます（スレッド セーフ）。ロード用のスレッドでテクスチャを作るといった使い方ができます。
 
@@ -53,14 +51,12 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
 
 関数の名前の接頭辞が <strong>パイプラインの段</strong>を表します。
 
-| 接頭辞 | 段 |
-| --- | --- |
-| `IA` | 入力アセンブラー（頂点・インデックス） |
-| `VS`、`HS`、`DS`、`GS` | 頂点・ハル・ドメイン・ジオメトリ シェーダー |
-| `RS` | ラスタライザー（ビューポート、ステート） |
-| `PS` | ピクセル シェーダー |
-| `OM` | 出力マージャー（レンダー ターゲット、深度、ブレンド） |
-| `CS` | 計算シェーダー |
+- `IA`: 入力アセンブラー（頂点・インデックス）
+- `VS`、`HS`、`DS`、`GS`: 頂点・ハル・ドメイン・ジオメトリ シェーダー
+- `RS`: ラスタライザー（ビューポート、ステート）
+- `PS`: ピクセル シェーダー
+- `OM`: 出力マージャー（レンダー ターゲット、深度、ブレンド）
+- `CS`: 計算シェーダー
 
 <strong>即時コンテキスト</strong>（`ID3D11DeviceContext`）の命令は 1 つのスレッドから出します。複数のスレッドで命令を作りたいときは、<strong>遅延コンテキスト</strong>（`CreateDeferredContext`）で、コマンド リストを作る方法がありますが効果は限定的です。マルチスレッドの描画が本命なら[DirectX 12](../dx12/index.md) を検討します。
 
@@ -104,24 +100,20 @@ if (FAILED(hr)) {
 
 `levels` の配列を高い順に渡すと GPU が対応する、最も高いレベルが `obtained` に返ります。11.1 を含めると一部の機能（UAV を頂点シェーダーで使うなど）が使えます。
 
-| 引数 | 内容 |
-| --- | --- |
-| `pAdapter` | 使う GPU。`nullptr` で既定。`D3D_DRIVER_TYPE_UNKNOWN` とアダプターを渡すと特定の GPU を選べる |
-| `DriverType` | `HARDWARE`（GPU）、`WARP`（ソフトウェア。GPU が無い環境やテスト用）、`REFERENCE`（遅い基準実装） |
-| `Flags` | `D3D11_CREATE_DEVICE_DEBUG`、`BGRA_SUPPORT`、`SINGLETHREADED`（スレッドのロックを省く）など |
-| `pFeatureLevels` | 試す機能レベルの配列 |
-| `SDKVersion` | 必ず `D3D11_SDK_VERSION` |
-| 戻り値 | `S_OK`、または失敗の `HRESULT` |
+- `pAdapter`: 使う GPU。`nullptr` で既定。`D3D_DRIVER_TYPE_UNKNOWN` とアダプターを渡すと特定の GPU を選べる
+- `DriverType`: `HARDWARE`（GPU）、`WARP`（ソフトウェア。GPU が無い環境やテスト用）、`REFERENCE`（遅い基準実装）
+- `Flags`: `D3D11_CREATE_DEVICE_DEBUG`、`BGRA_SUPPORT`、`SINGLETHREADED`（スレッドのロックを省く）など
+- `pFeatureLevels`: 試す機能レベルの配列
+- `SDKVersion`: 必ず `D3D11_SDK_VERSION`
+- 戻り値: `S_OK`、または失敗の `HRESULT`
 
 ## 機能レベル
 
 <strong>機能レベル</strong>（Feature Level）は、GPU が対応する機能のまとまりです。D3D11 の API で古い GPU（D3D10 世代）も動かせるよう機能レベルで分けています。
 
-| レベル | 主な内容 |
-| --- | --- |
-| 11.0 | シェーダー モデル 5.0、計算シェーダー、テッセレーション |
-| 11.1 | UAV の追加の用途、一部のフォーマット、`ID3D11DeviceContext1`（`ClearView` など） |
-| 10.0・10.1 | 計算シェーダーなし（古い GPU） |
+- 11.0: シェーダー モデル 5.0、計算シェーダー、テッセレーション
+- 11.1: UAV の追加の用途、一部のフォーマット、`ID3D11DeviceContext1`（`ClearView` など）
+- 10.0・10.1: 計算シェーダーなし（古い GPU）
 
 今の PC の GPU はほとんど 11.1 以上に対応しています。11.0 を下限として 11.1 を使える範囲で使います。
 
@@ -135,11 +127,9 @@ device->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &options, sizeof(option
 
 `D3D11CreateDevice` が失敗する主な原因です。
 
-| 症状 | 原因 |
-| --- | --- |
-| `DXGI_ERROR_SDK_COMPONENT_MISSING`（`0x887A002D`） | デバッグ レイヤーを要求したが Windows のオプション機能「グラフィックス ツール」が入っていない |
-| `E_INVALIDARG`（Windows 7） | 機能レベル 11.1 を含めたが OS が非対応。リストから 11.1 を外して、再試行する |
-| `DXGI_ERROR_UNSUPPORTED` | GPU が機能レベル 10 以上に対応していない。`D3D_DRIVER_TYPE_WARP` で再試行する |
+- `DXGI_ERROR_SDK_COMPONENT_MISSING`（`0x887A002D`）: デバッグ レイヤーを要求したが Windows のオプション機能「グラフィックス ツール」が入っていない
+- `E_INVALIDARG`（Windows 7）: 機能レベル 11.1 を含めたが OS が非対応。リストから 11.1 を外して、再試行する
+- `DXGI_ERROR_UNSUPPORTED`: GPU が機能レベル 10 以上に対応していない。`D3D_DRIVER_TYPE_WARP` で再試行する
 
 デバッグ レイヤーが使えないときに `DEBUG` フラグを外してもう一度、作るフォールバックを入れておくと環境の違いで起動しないことが、減ります。
 

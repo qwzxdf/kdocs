@@ -30,11 +30,9 @@ float eased = EaseOutCubic(t);
 Vector3 position = Vector3::Lerp(start, end, eased);
 ```
 
-| 値 | 意味 |
-| --- | --- |
-| `t` | 時間の割合（0 から 1 に一定の速さで増える） |
-| `eased` | 進み具合（イージング関数で変形した結果） |
-| `f(0) = 0`・`f(1) = 1` | 始点と終点は変わらない（途中の進み方だけが変わる） |
+- `t`: 時間の割合（0 から 1 に一定の速さで増える）
+- `eased`: 進み具合（イージング関数で変形した結果）
+- `f(0) = 0`・`f(1) = 1`: 始点と終点は変わらない（途中の進み方だけが変わる）
 
 <svg class="fig illust" viewBox="0 0 760 230" role="img" aria-label="イージングの仕組み">
 <defs><marker id="es1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
@@ -195,11 +193,9 @@ Vector3 position = Vector3::Lerp(start, end, eased);
 
 見るポイントは 3 つです。
 
-| 見るところ | 気づくこと |
-| --- | --- |
-| 出発の瞬間 | In 系はしばらく動かない（Expo は特に）。Out 系はいきなり飛び出す |
-| 到着の瞬間 | Out 系はふわっと止まる。In 系は勢いのまま終わる |
-| Back・Elastic・Bounce | 目標を行き過ぎる・揺れる・跳ねる。他の種類とまったく違う動き |
+- 出発の瞬間: In 系はしばらく動かない（Expo は特に）。Out 系はいきなり飛び出す
+- 到着の瞬間: Out 系はふわっと止まる。In 系は勢いのまま終わる
+- Back・Elastic・Bounce: 目標を行き過ぎる・揺れる・跳ねる。他の種類とまったく違う動き
 
 ### 種類ごとの特徴
 
@@ -485,11 +481,9 @@ float Ease(std::string_view name, float t) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `std::clamp(t, 0, 1)` | Elastic や Bounce は、範囲外の `t` で破綻するので、入口で丸める |
-| 名前での検索 | 毎フレーム文字列を比べると遅い。読み込み時に関数ポインタ（または番号）へ変換しておく |
-| Back・Elastic の戻り値 | 0〜1 の外に出る。位置には使えるが色の不透明度（0〜1 に収める値）に使うときはクランプする |
+- `std::clamp(t, 0, 1)`: Elastic や Bounce は、範囲外の `t` で破綻するので、入口で丸める
+- 名前での検索: 毎フレーム文字列を比べると遅い。読み込み時に関数ポインタ（または番号）へ変換しておく
+- Back・Elastic の戻り値: 0〜1 の外に出る。位置には使えるが色の不透明度（0〜1 に収める値）に使うときはクランプする
 
 ## イージングの使い方
 
@@ -519,28 +513,24 @@ class Tween {
 };
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **時間（経過）を持つ** | 毎フレーム `delta_time` を足す |
-| イージング関数を差し替え可能に | 関数ポインタ・`std::function` |
-| 終了の判定 | `elapsed >= duration` |
-| 値は 1 フレームごとに、計算し直す | 前の値に足し続けない（誤差が積み重なる） |
+- **時間（経過）を持つ**: 毎フレーム `delta_time` を足す
+- イージング関数を差し替え可能に: 関数ポインタ・`std::function`
+- 終了の判定: `elapsed >= duration`
+- 値は 1 フレームごとに、計算し直す: 前の値に足し続けない（誤差が積み重なる）
 
 ### 2. 使い分けの目安
 
-| 場面 | おすすめ |
-| --- | --- |
-| UI のウィンドウが開く | OutCubic・OutBack（ポップ感） |
-| UI のウィンドウが閉じる | InCubic |
-| 画面の切り替え・カメラ移動 | InOutCubic・InOutSine |
-| ボタンを押した反応 | OutQuad・OutBack（少し弾ませる） |
-| ダメージ数字が跳ねる | OutBounce・OutBack |
-| ゴムのような演出 | OutElastic |
-| 落下する物 | InQuad（重力のような加速） |
-| ズームイン・ズームアウト | InOutExpo・InOutCubic |
-| HP バーの減少 | OutQuad（すっと減って、止まる） |
-| フェードイン・フェードアウト | InOutSine・Linear |
-| ゆっくり出てくる文字 | OutSine |
+- UI のウィンドウが開く: OutCubic・OutBack（ポップ感）
+- UI のウィンドウが閉じる: InCubic
+- 画面の切り替え・カメラ移動: InOutCubic・InOutSine
+- ボタンを押した反応: OutQuad・OutBack（少し弾ませる）
+- ダメージ数字が跳ねる: OutBounce・OutBack
+- ゴムのような演出: OutElastic
+- 落下する物: InQuad（重力のような加速）
+- ズームイン・ズームアウト: InOutExpo・InOutCubic
+- HP バーの減少: OutQuad（すっと減って、止まる）
+- フェードイン・フェードアウト: InOutSine・Linear
+- ゆっくり出てくる文字: OutSine
 
 ### 3. 時間は同じでも、感触が違う
 
@@ -548,14 +538,12 @@ class Tween {
 
 ## イージングで気をつけること
 
-| 点 | 説明 |
-| --- | --- |
-| `t` を clamp する | `t` が 1 を超えると、関数によっては値が大きく外れる（Back・Elastic では特に） |
-| Back・Elastic は範囲外の値を返す | 0 未満や 1 を超える値になる。色や不透明度に使うと不正な値になる（clamp する） |
-| 多段のイージングの合成 | 前半を InQuad、後半を OutQuad のように、組み合わせられる |
-| 逆方向のアニメーション | 戻るときは、In と Out を入れ替えると自然 |
-| 動いている最中の再開 | 現在の値から、新しい目標へ始め直す（速度が不連続になる。気になるなら[スムージング](smoothing.md)） |
-| カーブの自作 | ベジェ曲線の 4 点（CSS の `cubic-bezier(x1, y1, x2, y2)` と同じ）で、好みの形が作れる（[曲線](curves.md)） |
+- `t` を clamp する: `t` が 1 を超えると、関数によっては値が大きく外れる（Back・Elastic では特に）
+- Back・Elastic は範囲外の値を返す: 0 未満や 1 を超える値になる。色や不透明度に使うと不正な値になる（clamp する）
+- 多段のイージングの合成: 前半を InQuad、後半を OutQuad のように、組み合わせられる
+- 逆方向のアニメーション: 戻るときは、In と Out を入れ替えると自然
+- 動いている最中の再開: 現在の値から、新しい目標へ始め直す（速度が不連続になる。気になるなら[スムージング](smoothing.md)）
+- カーブの自作: ベジェ曲線の 4 点（CSS の `cubic-bezier(x1, y1, x2, y2)` と同じ）で、好みの形が作れる（[曲線](curves.md)）
 
 ## イージングと「指数減衰」の違い
 

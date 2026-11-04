@@ -24,24 +24,20 @@ tags:
 
 <strong>疑似乱数生成器（PRNG）</strong>は、状態（数個の整数）を持ち、呼ぶたびに状態を更新して、数を返します。同じ初期状態（シード）からは必ず同じ列が出ます。
 
-| 性質 | 説明 |
-| --- | --- |
-| 再現性 | シードが同じなら、結果が同じ。リプレイ・テスト・デバッグに便利 |
-| 周期 | 一巡して元に戻るまでの長さ。長いほど良い（現代のものは長い） |
-| 品質 | 統計的な偏りが少ないか。ゲームには十分なものが多い |
-| 速さ | 1 回の生成にかかる時間 |
-| 暗号用途ではない | 次の値が予測できる。セキュリティには使えない |
+- 再現性: シードが同じなら、結果が同じ。リプレイ・テスト・デバッグに便利
+- 周期: 一巡して元に戻るまでの長さ。長いほど良い（現代のものは長い）
+- 品質: 統計的な偏りが少ないか。ゲームには十分なものが多い
+- 速さ: 1 回の生成にかかる時間
+- 暗号用途ではない: 次の値が予測できる。セキュリティには使えない
 
 ### 主な乱数エンジン
 
-| エンジン | 特徴 |
-| --- | --- |
-| `std::mt19937` | メルセンヌ・ツイスタ。標準。周期が長い。状態が大きい（約 2.5 KB） |
-| `std::mt19937_64` | 64 ビット版 |
-| `std::minstd_rand` | 小さく速い。品質は低め |
-| PCG | 小さく、速く、品質が高い（標準ではない）。ゲームでよく選ばれる |
-| xoshiro / xoroshiro | 速い。品質も高い。ゲームで人気 |
-| `std::random_device` | OS の乱数源。シードを作るために使う |
+- `std::mt19937`: メルセンヌ・ツイスタ。標準。周期が長い。状態が大きい（約 2.5 KB）
+- `std::mt19937_64`: 64 ビット版
+- `std::minstd_rand`: 小さく速い。品質は低め
+- PCG: 小さく、速く、品質が高い（標準ではない）。ゲームでよく選ばれる
+- xoshiro / xoroshiro: 速い。品質も高い。ゲームで人気
+- `std::random_device`: OS の乱数源。シードを作るために使う
 
 ## `<random>` の使い方
 
@@ -58,34 +54,28 @@ std::uniform_real_distribution<float> unit(0.0f, 1.0f);
 float r = unit(engine);
 ```
 
-| 分布 | 内容 |
-| --- | --- |
-| `uniform_int_distribution<T>(a, b)` | a〜b の整数（両端を含む）。サイコロ |
-| `uniform_real_distribution<T>(a, b)` | a 以上 b 未満の小数 |
-| `normal_distribution<T>(mean, sd)` | 正規分布（平均・標準偏差）。ばらつきのある値 |
-| `bernoulli_distribution(p)` | 確率 p で true。クリティカル判定 |
-| `discrete_distribution<int>(weights)` | 重み付き抽選 |
-| `exponential_distribution<T>(lambda)` | 指数分布。出現間隔 |
-| `poisson_distribution<int>(mean)` | ポアソン分布。一定時間内の出現回数 |
+- `uniform_int_distribution<T>(a, b)`: a〜b の整数（両端を含む）。サイコロ
+- `uniform_real_distribution<T>(a, b)`: a 以上 b 未満の小数
+- `normal_distribution<T>(mean, sd)`: 正規分布（平均・標準偏差）。ばらつきのある値
+- `bernoulli_distribution(p)`: 確率 p で true。クリティカル判定
+- `discrete_distribution<int>(weights)`: 重み付き抽選
+- `exponential_distribution<T>(lambda)`: 指数分布。出現間隔
+- `poisson_distribution<int>(mean)`: ポアソン分布。一定時間内の出現回数
 
 ### よくある間違い
 
-| 間違い | 正しくは |
-| --- | --- |
-| `rand() % 6` | 偏りがある。`uniform_int_distribution` を使う |
-| 毎回エンジンを作る | 使い回す。毎回シードから始めると、同じ値になる |
-| `std::random_device` を毎回呼ぶ | 重い。シードを作るときだけ |
-| `time(nullptr)` をシードに複数のエンジンを同時に作る | 同じ秒に作ると同じシードになる |
-| スレッドで同じエンジンを共有 | データ競合。スレッドごとに持つ |
+- `rand() % 6`: 偏りがある。`uniform_int_distribution` を使う
+- 毎回エンジンを作る: 使い回す。毎回シードから始めると、同じ値になる
+- `std::random_device` を毎回呼ぶ: 重い。シードを作るときだけ
+- `time(nullptr)` をシードに複数のエンジンを同時に作る: 同じ秒に作ると同じシードになる
+- スレッドで同じエンジンを共有: データ競合。スレッドごとに持つ
 
 ### シードと再現性
 
-| 用途 | シード |
-| --- | --- |
-| 通常のプレイ | `random_device` から（毎回違う） |
-| リプレイ・再現 | シードを保存して、同じシードで再実行 |
-| ステージの自動生成 | シードをユーザーに見せて、共有可能に（「シード値 12345」） |
-| テスト | 固定のシードで結果を固定 |
+- 通常のプレイ: `random_device` から（毎回違う）
+- リプレイ・再現: シードを保存して、同じシードで再実行
+- ステージの自動生成: シードをユーザーに見せて、共有可能に（「シード値 12345」）
+- テスト: 固定のシードで結果を固定
 
 ゲームの流れ（敵の動き・ドロップ）に使う乱数と見た目の演出（パーティクル）に使う乱数は別のエンジンにします。演出で乱数を使ってもゲームの流れの再現性が壊れないようにするためです。
 
@@ -112,22 +102,18 @@ class Xorshift32 {
 };
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 状態は 1 つの整数 | 保存・コピーが簡単（セーブデータにも入れられる） |
-| シードは 0 にしない | 0 のままだとずっと 0 |
-| `>> 8` して `/ 2^24` | 上位の 24 ビットを使って、0〜1 の小数にする（`float` の仮数が 24 ビット） |
+- 状態は 1 つの整数: 保存・コピーが簡単（セーブデータにも入れられる）
+- シードは 0 にしない: 0 のままだとずっと 0
+- `>> 8` して `/ 2^24`: 上位の 24 ビットを使って、0〜1 の小数にする（`float` の仮数が 24 ビット）
 
 ## 範囲と整数の乱数
 
-| 目的 | 書き方 |
-| --- | --- |
-| **0〜1 の小数** | `uniform_real_distribution<float>(0, 1)` |
-| a〜b の小数 | `a + (b - a) × r`（r は 0〜1） |
-| a〜b の整数（両端を含む） | `uniform_int_distribution(a, b)` |
-| 配列のランダムな要素 | `index = uniform_int_distribution<size_t>(0, size - 1)` |
-| -1 か 1 | `bernoulli` で決めて、`2 × b - 1` |
-| 確率 p で起こる | `r < p`（r は 0〜1） |
+- **0〜1 の小数**: `uniform_real_distribution<float>(0, 1)`
+- a〜b の小数: `a + (b - a) × r`（r は 0〜1）
+- a〜b の整数（両端を含む）: `uniform_int_distribution(a, b)`
+- 配列のランダムな要素: `index = uniform_int_distribution<size_t>(0, size - 1)`
+- -1 か 1: `bernoulli` で決めて、`2 × b - 1`
+- 確率 p で起こる: `r < p`（r は 0〜1）
 
 ## 円・球の中の一様な点
 
@@ -157,14 +143,12 @@ Vector2 RandomInCircle(Xorshift32& rng, float radius) {
 }
 ```
 
-| 形 | 方法 |
-| --- | --- |
-| 円の中（一様） | 半径に `√(乱数)` を掛ける |
-| 円周上 | 半径は固定、角度だけランダム |
-| 球の中（一様） | 半径に `∛(乱数)`（立方根）を掛ける ＋ 向きは球面上の一様な点 |
-| 球面上（一様） | `z = 2u - 1`、`φ = 2π v`、`r = √(1 - z²)` → `(r cos φ, r sin φ, z)` |
-| 矩形・箱の中 | 各軸を一様に |
-| 棄却法（簡単） | 箱の中の点を引き、円の外なら捨てて引き直す |
+- 円の中（一様）: 半径に `√(乱数)` を掛ける
+- 円周上: 半径は固定、角度だけランダム
+- 球の中（一様）: 半径に `∛(乱数)`（立方根）を掛ける ＋ 向きは球面上の一様な点
+- 球面上（一様）: `z = 2u - 1`、`φ = 2π v`、`r = √(1 - z²)` → `(r cos φ, r sin φ, z)`
+- 矩形・箱の中: 各軸を一様に
+- 棄却法（簡単）: 箱の中の点を引き、円の外なら捨てて引き直す
 
 ```cpp
 Vector3 RandomOnSphere(Xorshift32& rng) {
@@ -202,21 +186,17 @@ size_t PickWeighted(const std::vector<float>& weights, Xorshift32& rng) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 重みは確率でなくてよい | 合計が 1 でなくても、比で決まる（例：70・20・10 → 70%・20%・10%） |
-| 合計を掛ける | 乱数を 0〜合計 の範囲にして、重みを引いていく |
-| 標準にもある | `std::discrete_distribution` |
-| 多数の選択肢 | 累積和を作って、二分探索。さらに速いのはエイリアス法 |
+- 重みは確率でなくてよい: 合計が 1 でなくても、比で決まる（例：70・20・10 → 70%・20%・10%）
+- 合計を掛ける: 乱数を 0〜合計 の範囲にして、重みを引いていく
+- 標準にもある: `std::discrete_distribution`
+- 多数の選択肢: 累積和を作って、二分探索。さらに速いのはエイリアス法
 
 ### ドロップの設計
 
-| パターン | 説明 |
-| --- | --- |
-| 独立した判定 | アイテムごとに独立に「落ちる」か判定。複数落ちる可能性 |
-| 排他の抽選 | 1 つだけ選ぶ（重み付き抽選） |
-| テーブルの階層 | 「レア度」を先に決め、そのレアの中から選ぶ |
-| 抽選しない | 条件による確定ドロップ |
+- 独立した判定: アイテムごとに独立に「落ちる」か判定。複数落ちる可能性
+- 排他の抽選: 1 つだけ選ぶ（重み付き抽選）
+- テーブルの階層: 「レア度」を先に決め、そのレアの中から選ぶ
+- 抽選しない: 条件による確定ドロップ
 
 ## シャッフル（Fisher–Yates）
 
@@ -234,11 +214,9 @@ void Shuffle(std::vector<T>& v, std::mt19937& engine) {
 
 標準の `std::shuffle`（`<algorithm>`）が同じことをします。
 
-| 点 | 説明 |
-| --- | --- |
-| `std::sort` に乱数の比較を渡さない | 偏る。比較の矛盾でクラッシュすることもある |
-| カードの山 | 一度シャッフルして、上から引く（重複なしの抽選） |
-| ステージの順番 | シャッフルして、順に使う |
+- `std::sort` に乱数の比較を渡さない: 偏る。比較の矛盾でクラッシュすることもある
+- カードの山: 一度シャッフルして、上から引く（重複なしの抽選）
+- ステージの順番: シャッフルして、順に使う
 
 ## 正規分布（ばらつき）
 
@@ -249,12 +227,10 @@ std::normal_distribution<float> spread(0.0f, 2.0f);
 float offset = spread(engine);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 平均と標準偏差 | 約 68% が ±1 標準偏差、約 95% が ±2 標準偏差に入る |
-| 値の範囲 | 理論上は無限。clamp する（極端な値を捨てる） |
-| 一様分布との違い | 一様はどの値も同じ確率。正規分布は中央が多い |
-| 簡易な近似 | 複数の一様乱数を足す（3〜4 個を足すと釣鐘型に近づく） |
+- 平均と標準偏差: 約 68% が ±1 標準偏差、約 95% が ±2 標準偏差に入る
+- 値の範囲: 理論上は無限。clamp する（極端な値を捨てる）
+- 一様分布との違い: 一様はどの値も同じ確率。正規分布は中央が多い
+- 簡易な近似: 複数の一様乱数を足す（3〜4 個を足すと釣鐘型に近づく）
 
 <svg class="fig illust" data-fig="random-patterns" viewBox="0 0 780 260" role="img" aria-label="点の散らし方"><text x="20" y="24" class="fig-title">一様乱数は固まりと空白ができる。ジッター・ポワソン円盤・Halton は均等に散る</text><rect x="25" y="50" width="150" height="150" fill="none" stroke="currentColor" stroke-opacity="0.5"/><text x="25" y="42" style="font-size:12px;font-weight:700">一様乱数</text><circle cx="60.7" cy="131.6" r="3" fill="#4c8bf5"/><circle cx="80.5" cy="140.6" r="3" fill="#4c8bf5"/><circle cx="118.9" cy="59.8" r="3" fill="#4c8bf5"/><circle cx="27.0" cy="175.6" r="3" fill="#4c8bf5"/><circle cx="63.9" cy="85.1" r="3" fill="#4c8bf5"/><circle cx="174.3" cy="120.5" r="3" fill="#4c8bf5"/><circle cx="150.5" cy="121.5" r="3" fill="#4c8bf5"/><circle cx="120.9" cy="72.6" r="3" fill="#4c8bf5"/><circle cx="120.2" cy="180.2" r="3" fill="#4c8bf5"/><circle cx="103.5" cy="161.2" r="3" fill="#4c8bf5"/><circle cx="125.7" cy="59.6" r="3" fill="#4c8bf5"/><circle cx="138.7" cy="138.7" r="3" fill="#4c8bf5"/><circle cx="70.2" cy="54.7" r="3" fill="#4c8bf5"/><circle cx="154.8" cy="120.9" r="3" fill="#4c8bf5"/><circle cx="132.8" cy="181.8" r="3" fill="#4c8bf5"/><circle cx="132.1" cy="188.2" r="3" fill="#4c8bf5"/><circle cx="84.2" cy="170.1" r="3" fill="#4c8bf5"/><circle cx="91.7" cy="190.3" r="3" fill="#4c8bf5"/><circle cx="156.8" cy="64.6" r="3" fill="#4c8bf5"/><circle cx="45.4" cy="82.5" r="3" fill="#4c8bf5"/><circle cx="169.8" cy="115.4" r="3" fill="#4c8bf5"/><circle cx="119.0" cy="95.2" r="3" fill="#4c8bf5"/><circle cx="101.1" cy="107.9" r="3" fill="#4c8bf5"/><circle cx="77.6" cy="137.8" r="3" fill="#4c8bf5"/><circle cx="112.6" cy="185.6" r="3" fill="#4c8bf5"/><circle cx="127.3" cy="189.3" r="3" fill="#4c8bf5"/><circle cx="153.5" cy="198.6" r="3" fill="#4c8bf5"/><circle cx="125.7" cy="74.5" r="3" fill="#4c8bf5"/><circle cx="154.1" cy="194.7" r="3" fill="#4c8bf5"/><circle cx="160.7" cy="135.4" r="3" fill="#4c8bf5"/><circle cx="132.1" cy="81.7" r="3" fill="#4c8bf5"/><circle cx="149.7" cy="136.0" r="3" fill="#4c8bf5"/><circle cx="67.7" cy="59.5" r="3" fill="#4c8bf5"/><circle cx="153.1" cy="198.5" r="3" fill="#4c8bf5"/><circle cx="38.3" cy="170.1" r="3" fill="#4c8bf5"/><circle cx="86.6" cy="72.6" r="3" fill="#4c8bf5"/><circle cx="69.1" cy="165.3" r="3" fill="#4c8bf5"/><circle cx="155.9" cy="56.6" r="3" fill="#4c8bf5"/><circle cx="117.2" cy="56.7" r="3" fill="#4c8bf5"/><circle cx="132.8" cy="99.6" r="3" fill="#4c8bf5"/><circle cx="157.1" cy="197.1" r="3" fill="#4c8bf5"/><circle cx="100.8" cy="199.8" r="3" fill="#4c8bf5"/><circle cx="71.5" cy="61.5" r="3" fill="#4c8bf5"/><circle cx="115.0" cy="54.7" r="3" fill="#4c8bf5"/><circle cx="54.6" cy="111.2" r="3" fill="#4c8bf5"/><circle cx="116.6" cy="73.4" r="3" fill="#4c8bf5"/><circle cx="31.4" cy="180.2" r="3" fill="#4c8bf5"/><circle cx="72.1" cy="193.8" r="3" fill="#4c8bf5"/><circle cx="159.5" cy="106.7" r="3" fill="#4c8bf5"/><circle cx="94.1" cy="128.0" r="3" fill="#4c8bf5"/><circle cx="121.6" cy="139.3" r="3" fill="#4c8bf5"/><circle cx="108.9" cy="143.0" r="3" fill="#4c8bf5"/><circle cx="166.1" cy="126.1" r="3" fill="#4c8bf5"/><circle cx="89.7" cy="158.0" r="3" fill="#4c8bf5"/><circle cx="60.6" cy="95.2" r="3" fill="#4c8bf5"/><circle cx="171.7" cy="128.2" r="3" fill="#4c8bf5"/><circle cx="107.3" cy="51.7" r="3" fill="#4c8bf5"/><circle cx="87.3" cy="137.0" r="3" fill="#4c8bf5"/><circle cx="28.0" cy="142.4" r="3" fill="#4c8bf5"/><circle cx="119.8" cy="59.0" r="3" fill="#4c8bf5"/><circle cx="119.1" cy="119.9" r="3" fill="#4c8bf5"/><circle cx="126.9" cy="102.9" r="3" fill="#4c8bf5"/><circle cx="131.0" cy="160.7" r="3" fill="#4c8bf5"/><circle cx="28.3" cy="59.1" r="3" fill="#4c8bf5"/><rect x="215" y="50" width="150" height="150" fill="none" stroke="currentColor" stroke-opacity="0.5"/><text x="215" y="42" style="font-size:12px;font-weight:700">ジッター格子</text><circle cx="227.7" cy="68.1" r="3" fill="#4c8bf5"/><circle cx="238.5" cy="58.6" r="3" fill="#4c8bf5"/><circle cx="263.6" cy="56.0" r="3" fill="#4c8bf5"/><circle cx="278.1" cy="55.9" r="3" fill="#4c8bf5"/><circle cx="296.9" cy="61.2" r="3" fill="#4c8bf5"/><circle cx="314.4" cy="57.1" r="3" fill="#4c8bf5"/><circle cx="342.0" cy="50.5" r="3" fill="#4c8bf5"/><circle cx="356.9" cy="63.8" r="3" fill="#4c8bf5"/><circle cx="220.8" cy="72.9" r="3" fill="#4c8bf5"/><circle cx="248.8" cy="73.2" r="3" fill="#4c8bf5"/><circle cx="256.0" cy="76.9" r="3" fill="#4c8bf5"/><circle cx="284.3" cy="70.7" r="3" fill="#4c8bf5"/><circle cx="296.0" cy="75.0" r="3" fill="#4c8bf5"/><circle cx="324.4" cy="77.0" r="3" fill="#4c8bf5"/><circle cx="343.5" cy="71.9" r="3" fill="#4c8bf5"/><circle cx="352.6" cy="80.9" r="3" fill="#4c8bf5"/><circle cx="231.6" cy="96.0" r="3" fill="#4c8bf5"/><circle cx="238.0" cy="89.8" r="3" fill="#4c8bf5"/><circle cx="262.4" cy="91.1" r="3" fill="#4c8bf5"/><circle cx="286.4" cy="103.2" r="3" fill="#4c8bf5"/><circle cx="293.4" cy="92.7" r="3" fill="#4c8bf5"/><circle cx="323.9" cy="99.5" r="3" fill="#4c8bf5"/><circle cx="342.6" cy="94.0" r="3" fill="#4c8bf5"/><circle cx="348.7" cy="93.0" r="3" fill="#4c8bf5"/><circle cx="229.9" cy="111.3" r="3" fill="#4c8bf5"/><circle cx="240.2" cy="114.1" r="3" fill="#4c8bf5"/><circle cx="260.4" cy="113.9" r="3" fill="#4c8bf5"/><circle cx="288.5" cy="109.2" r="3" fill="#4c8bf5"/><circle cx="290.1" cy="123.9" r="3" fill="#4c8bf5"/><circle cx="325.2" cy="124.8" r="3" fill="#4c8bf5"/><circle cx="335.6" cy="124.1" r="3" fill="#4c8bf5"/><circle cx="363.6" cy="110.4" r="3" fill="#4c8bf5"/><circle cx="229.0" cy="140.7" r="3" fill="#4c8bf5"/><circle cx="246.2" cy="134.7" r="3" fill="#4c8bf5"/><circle cx="257.9" cy="131.4" r="3" fill="#4c8bf5"/><circle cx="275.5" cy="126.3" r="3" fill="#4c8bf5"/><circle cx="301.0" cy="130.4" r="3" fill="#4c8bf5"/><circle cx="323.9" cy="125.8" r="3" fill="#4c8bf5"/><circle cx="344.4" cy="138.0" r="3" fill="#4c8bf5"/><circle cx="363.6" cy="141.8" r="3" fill="#4c8bf5"/><circle cx="231.9" cy="154.6" r="3" fill="#4c8bf5"/><circle cx="234.0" cy="157.7" r="3" fill="#4c8bf5"/><circle cx="255.7" cy="149.4" r="3" fill="#4c8bf5"/><circle cx="283.7" cy="153.6" r="3" fill="#4c8bf5"/><circle cx="297.8" cy="161.4" r="3" fill="#4c8bf5"/><circle cx="320.2" cy="150.2" r="3" fill="#4c8bf5"/><circle cx="332.2" cy="159.9" r="3" fill="#4c8bf5"/><circle cx="355.2" cy="158.4" r="3" fill="#4c8bf5"/><circle cx="221.6" cy="166.2" r="3" fill="#4c8bf5"/><circle cx="243.8" cy="177.8" r="3" fill="#4c8bf5"/><circle cx="255.7" cy="177.3" r="3" fill="#4c8bf5"/><circle cx="288.5" cy="177.6" r="3" fill="#4c8bf5"/><circle cx="305.4" cy="162.6" r="3" fill="#4c8bf5"/><circle cx="320.5" cy="178.7" r="3" fill="#4c8bf5"/><circle cx="328.4" cy="167.6" r="3" fill="#4c8bf5"/><circle cx="351.3" cy="172.4" r="3" fill="#4c8bf5"/><circle cx="222.9" cy="190.1" r="3" fill="#4c8bf5"/><circle cx="248.3" cy="181.3" r="3" fill="#4c8bf5"/><circle cx="253.5" cy="183.6" r="3" fill="#4c8bf5"/><circle cx="273.6" cy="182.5" r="3" fill="#4c8bf5"/><circle cx="308.3" cy="197.3" r="3" fill="#4c8bf5"/><circle cx="310.4" cy="190.7" r="3" fill="#4c8bf5"/><circle cx="333.4" cy="187.1" r="3" fill="#4c8bf5"/><circle cx="352.8" cy="193.4" r="3" fill="#4c8bf5"/><rect x="405" y="50" width="150" height="150" fill="none" stroke="currentColor" stroke-opacity="0.5"/><text x="405" y="42" style="font-size:12px;font-weight:700">ポワソン円盤</text><circle cx="493.0" cy="104.1" r="3" fill="#4c8bf5"/><circle cx="433.7" cy="99.3" r="3" fill="#4c8bf5"/><circle cx="423.6" cy="133.3" r="3" fill="#4c8bf5"/><circle cx="512.4" cy="107.0" r="3" fill="#4c8bf5"/><circle cx="417.0" cy="76.8" r="3" fill="#4c8bf5"/><circle cx="461.0" cy="140.7" r="3" fill="#4c8bf5"/><circle cx="525.2" cy="143.4" r="3" fill="#4c8bf5"/><circle cx="469.7" cy="105.9" r="3" fill="#4c8bf5"/><circle cx="479.4" cy="155.4" r="3" fill="#4c8bf5"/><circle cx="474.1" cy="86.8" r="3" fill="#4c8bf5"/><circle cx="415.7" cy="113.7" r="3" fill="#4c8bf5"/><circle cx="468.9" cy="182.0" r="3" fill="#4c8bf5"/><circle cx="545.5" cy="106.1" r="3" fill="#4c8bf5"/><circle cx="539.7" cy="168.6" r="3" fill="#4c8bf5"/><circle cx="444.3" cy="119.6" r="3" fill="#4c8bf5"/><circle cx="423.5" cy="172.0" r="3" fill="#4c8bf5"/><circle cx="504.3" cy="183.1" r="3" fill="#4c8bf5"/><circle cx="521.1" cy="56.6" r="3" fill="#4c8bf5"/><circle cx="537.1" cy="76.9" r="3" fill="#4c8bf5"/><circle cx="547.9" cy="136.9" r="3" fill="#4c8bf5"/><circle cx="520.1" cy="126.7" r="3" fill="#4c8bf5"/><circle cx="489.6" cy="174.2" r="3" fill="#4c8bf5"/><circle cx="441.3" cy="77.0" r="3" fill="#4c8bf5"/><circle cx="442.5" cy="142.4" r="3" fill="#4c8bf5"/><circle cx="517.1" cy="74.1" r="3" fill="#4c8bf5"/><circle cx="508.6" cy="163.4" r="3" fill="#4c8bf5"/><circle cx="437.6" cy="53.5" r="3" fill="#4c8bf5"/><circle cx="453.3" cy="166.1" r="3" fill="#4c8bf5"/><circle cx="426.5" cy="198.7" r="3" fill="#4c8bf5"/><circle cx="533.8" cy="185.0" r="3" fill="#4c8bf5"/><circle cx="443.3" cy="179.8" r="3" fill="#4c8bf5"/><circle cx="406.0" cy="100.2" r="3" fill="#4c8bf5"/><circle cx="470.4" cy="122.9" r="3" fill="#4c8bf5"/><circle cx="486.7" cy="67.9" r="3" fill="#4c8bf5"/><circle cx="501.9" cy="144.6" r="3" fill="#4c8bf5"/><circle cx="415.3" cy="157.4" r="3" fill="#4c8bf5"/><circle cx="484.1" cy="135.3" r="3" fill="#4c8bf5"/><circle cx="489.9" cy="193.9" r="3" fill="#4c8bf5"/><circle cx="421.4" cy="56.4" r="3" fill="#4c8bf5"/><circle cx="494.5" cy="83.6" r="3" fill="#4c8bf5"/><circle cx="409.0" cy="194.8" r="3" fill="#4c8bf5"/><circle cx="456.7" cy="64.1" r="3" fill="#4c8bf5"/><circle cx="493.8" cy="50.5" r="3" fill="#4c8bf5"/><circle cx="546.0" cy="55.1" r="3" fill="#4c8bf5"/><circle cx="554.6" cy="188.0" r="3" fill="#4c8bf5"/><circle cx="452.4" cy="90.6" r="3" fill="#4c8bf5"/><circle cx="463.5" cy="198.1" r="3" fill="#4c8bf5"/><circle cx="552.0" cy="86.9" r="3" fill="#4c8bf5"/><circle cx="524.1" cy="198.7" r="3" fill="#4c8bf5"/><circle cx="551.9" cy="153.7" r="3" fill="#4c8bf5"/><circle cx="529.5" cy="92.1" r="3" fill="#4c8bf5"/><circle cx="497.6" cy="124.3" r="3" fill="#4c8bf5"/><circle cx="437.0" cy="158.1" r="3" fill="#4c8bf5"/><circle cx="406.8" cy="134.8" r="3" fill="#4c8bf5"/><circle cx="529.0" cy="109.5" r="3" fill="#4c8bf5"/><circle cx="405.1" cy="177.1" r="3" fill="#4c8bf5"/><circle cx="405.1" cy="61.9" r="3" fill="#4c8bf5"/><circle cx="444.8" cy="197.3" r="3" fill="#4c8bf5"/><circle cx="473.7" cy="55.3" r="3" fill="#4c8bf5"/><circle cx="505.5" cy="199.8" r="3" fill="#4c8bf5"/><circle cx="510.2" cy="90.0" r="3" fill="#4c8bf5"/><circle cx="502.9" cy="64.5" r="3" fill="#4c8bf5"/><circle cx="554.8" cy="121.6" r="3" fill="#4c8bf5"/><circle cx="536.6" cy="124.6" r="3" fill="#4c8bf5"/><rect x="595" y="50" width="150" height="150" fill="none" stroke="currentColor" stroke-opacity="0.5"/><text x="595" y="42" style="font-size:12px;font-weight:700">Halton</text><circle cx="670.0" cy="100.0" r="3" fill="#4c8bf5"/><circle cx="632.5" cy="150.0" r="3" fill="#4c8bf5"/><circle cx="707.5" cy="66.7" r="3" fill="#4c8bf5"/><circle cx="613.8" cy="116.7" r="3" fill="#4c8bf5"/><circle cx="688.8" cy="166.7" r="3" fill="#4c8bf5"/><circle cx="651.2" cy="83.3" r="3" fill="#4c8bf5"/><circle cx="726.2" cy="133.3" r="3" fill="#4c8bf5"/><circle cx="604.4" cy="183.3" r="3" fill="#4c8bf5"/><circle cx="679.4" cy="55.6" r="3" fill="#4c8bf5"/><circle cx="641.9" cy="105.6" r="3" fill="#4c8bf5"/><circle cx="716.9" cy="155.6" r="3" fill="#4c8bf5"/><circle cx="623.1" cy="72.2" r="3" fill="#4c8bf5"/><circle cx="698.1" cy="122.2" r="3" fill="#4c8bf5"/><circle cx="660.6" cy="172.2" r="3" fill="#4c8bf5"/><circle cx="735.6" cy="88.9" r="3" fill="#4c8bf5"/><circle cx="599.7" cy="138.9" r="3" fill="#4c8bf5"/><circle cx="674.7" cy="188.9" r="3" fill="#4c8bf5"/><circle cx="637.2" cy="61.1" r="3" fill="#4c8bf5"/><circle cx="712.2" cy="111.1" r="3" fill="#4c8bf5"/><circle cx="618.4" cy="161.1" r="3" fill="#4c8bf5"/><circle cx="693.4" cy="77.8" r="3" fill="#4c8bf5"/><circle cx="655.9" cy="127.8" r="3" fill="#4c8bf5"/><circle cx="730.9" cy="177.8" r="3" fill="#4c8bf5"/><circle cx="609.1" cy="94.4" r="3" fill="#4c8bf5"/><circle cx="684.1" cy="144.4" r="3" fill="#4c8bf5"/><circle cx="646.6" cy="194.4" r="3" fill="#4c8bf5"/><circle cx="721.6" cy="51.9" r="3" fill="#4c8bf5"/><circle cx="627.8" cy="101.9" r="3" fill="#4c8bf5"/><circle cx="702.8" cy="151.9" r="3" fill="#4c8bf5"/><circle cx="665.3" cy="68.5" r="3" fill="#4c8bf5"/><circle cx="740.3" cy="118.5" r="3" fill="#4c8bf5"/><circle cx="597.3" cy="168.5" r="3" fill="#4c8bf5"/><circle cx="672.3" cy="85.2" r="3" fill="#4c8bf5"/><circle cx="634.8" cy="135.2" r="3" fill="#4c8bf5"/><circle cx="709.8" cy="185.2" r="3" fill="#4c8bf5"/><circle cx="616.1" cy="57.4" r="3" fill="#4c8bf5"/><circle cx="691.1" cy="107.4" r="3" fill="#4c8bf5"/><circle cx="653.6" cy="157.4" r="3" fill="#4c8bf5"/><circle cx="728.6" cy="74.1" r="3" fill="#4c8bf5"/><circle cx="606.7" cy="124.1" r="3" fill="#4c8bf5"/><circle cx="681.7" cy="174.1" r="3" fill="#4c8bf5"/><circle cx="644.2" cy="90.7" r="3" fill="#4c8bf5"/><circle cx="719.2" cy="140.7" r="3" fill="#4c8bf5"/><circle cx="625.5" cy="190.7" r="3" fill="#4c8bf5"/><circle cx="700.5" cy="63.0" r="3" fill="#4c8bf5"/><circle cx="663.0" cy="113.0" r="3" fill="#4c8bf5"/><circle cx="738.0" cy="163.0" r="3" fill="#4c8bf5"/><circle cx="602.0" cy="79.6" r="3" fill="#4c8bf5"/><circle cx="677.0" cy="129.6" r="3" fill="#4c8bf5"/><circle cx="639.5" cy="179.6" r="3" fill="#4c8bf5"/><circle cx="714.5" cy="96.3" r="3" fill="#4c8bf5"/><circle cx="620.8" cy="146.3" r="3" fill="#4c8bf5"/><circle cx="695.8" cy="196.3" r="3" fill="#4c8bf5"/><circle cx="658.3" cy="53.7" r="3" fill="#4c8bf5"/><circle cx="733.3" cy="103.7" r="3" fill="#4c8bf5"/><circle cx="611.4" cy="153.7" r="3" fill="#4c8bf5"/><circle cx="686.4" cy="70.4" r="3" fill="#4c8bf5"/><circle cx="648.9" cy="120.4" r="3" fill="#4c8bf5"/><circle cx="723.9" cy="170.4" r="3" fill="#4c8bf5"/><circle cx="630.2" cy="87.0" r="3" fill="#4c8bf5"/><circle cx="705.2" cy="137.0" r="3" fill="#4c8bf5"/><circle cx="667.7" cy="187.0" r="3" fill="#4c8bf5"/><circle cx="742.7" cy="59.3" r="3" fill="#4c8bf5"/><circle cx="596.2" cy="109.3" r="3" fill="#4c8bf5"/><text x="20" y="246" style="font-size:12px;">同じ 64 点でも、散り方で見え方（ノイズの質・サンプルの偏り）が大きく変わる</text></svg>
 
@@ -264,26 +240,22 @@ float offset = spread(engine);
 
 **ランダムだが隣り合う値が連続している**関数です。地形・雲・炎・揺らぎに使います。乱数は隣り合う値に関係がないので、そのままではつながりのない模様になります。
 
-| ノイズ | 特徴 |
-| --- | --- |
-| 値ノイズ（Value Noise） | 格子点に乱数を置いて、補間する。簡単。四角っぽさが出る |
-| パーリン ノイズ | 格子点に勾配ベクトルを置いて、補間。自然。標準的 |
-| シンプレックス ノイズ | パーリンの改良版。高次元でも速い・方向の偏りが少ない |
-| ワーリー（セル）ノイズ | 点からの距離。セル状・石・泡 |
-| fBm（フラクタル） | 周波数を倍にして、振幅を半分にしながら、重ねる。自然な地形 |
+- 値ノイズ（Value Noise）: 格子点に乱数を置いて、補間する。簡単。四角っぽさが出る
+- パーリン ノイズ: 格子点に勾配ベクトルを置いて、補間。自然。標準的
+- シンプレックス ノイズ: パーリンの改良版。高次元でも速い・方向の偏りが少ない
+- ワーリー（セル）ノイズ: 点からの距離。セル状・石・泡
+- fBm（フラクタル）: 周波数を倍にして、振幅を半分にしながら、重ねる。自然な地形
 
 ```text
 fBm(x) = Σ  振幅_i × noise(x × 周波数_i)   （i = 0, 1, 2, ...）
          振幅_{i+1} = 振幅_i / 2,  周波数_{i+1} = 周波数_i × 2
 ```
 
-| 使いどころ | 説明 |
-| --- | --- |
-| 地形の高さ | 2D ノイズを高さに |
-| 洞窟・ボクセル地形 | 3D ノイズを密度に |
-| 雲・煙・炎 | 時間を 1 軸として、ノイズを動かす |
-| カメラ・ダメージの揺れ | 1D ノイズで滑らかな揺れ（ランダムなガタつきより自然） |
-| ランダムな歩行 | 向きをノイズで連続的に変える |
+- 地形の高さ: 2D ノイズを高さに
+- 洞窟・ボクセル地形: 3D ノイズを密度に
+- 雲・煙・炎: 時間を 1 軸として、ノイズを動かす
+- カメラ・ダメージの揺れ: 1D ノイズで滑らかな揺れ（ランダムなガタつきより自然）
+- ランダムな歩行: 向きをノイズで連続的に変える
 
 ## 確率の基本
 

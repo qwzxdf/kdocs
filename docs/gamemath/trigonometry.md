@@ -38,12 +38,10 @@ constexpr float kDegToRad = kPi / 180.0f;
 constexpr float kRadToDeg = 180.0f / kPi;
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `std::numbers::pi_v<float>` | C++20 で追加された円周率の定数（`<numbers>`） |
-| 度とラジアンの変換 | `度 × π / 180 = ラジアン` |
-| ゲームの設定画面や FOV は度 | 人間に見せる値は度、計算はラジアン、と分けると混乱しない |
-| `<cmath>` の関数はラジアン | `std::sin(90.0f)` は、90 ラジアンの sin（意図した値にならない） |
+- `std::numbers::pi_v<float>`: C++20 で追加された円周率の定数（`<numbers>`）
+- 度とラジアンの変換: `度 × π / 180 = ラジアン`
+- ゲームの設定画面や FOV は度: 人間に見せる値は度、計算はラジアン、と分けると混乱しない
+- `<cmath>` の関数はラジアン: `std::sin(90.0f)` は、90 ラジアンの sin（意図した値にならない）
 
 ## 単位円と sin・cos
 
@@ -76,13 +74,11 @@ constexpr float kRadToDeg = 180.0f / kPi;
 
 ### ゲームでの使い方
 
-| 使い方 | 式 |
-| --- | --- |
-| 角度から方向ベクトル | `direction = (cos θ, sin θ)` |
-| 円運動 | `position = center + radius × (cos ωt, sin ωt)` |
-| 扇状に弾を撃つ | 基準の角度に `i × 間隔` を足して、`(cos, sin)` を速度にする |
-| 上下に揺れる | `y = base + amplitude × sin(ωt)` |
-| 点滅・呼吸 | `alpha = 0.5 + 0.5 × sin(ωt)`（0〜1 に収める） |
+- 角度から方向ベクトル: `direction = (cos θ, sin θ)`
+- 円運動: `position = center + radius × (cos ωt, sin ωt)`
+- 扇状に弾を撃つ: 基準の角度に `i × 間隔` を足して、`(cos, sin)` を速度にする
+- 上下に揺れる: `y = base + amplitude × sin(ωt)`
+- 点滅・呼吸: `alpha = 0.5 + 0.5 × sin(ωt)`（0〜1 に収める）
 
 ```cpp
 Vector2 DirectionFromAngle(float radians) {
@@ -120,13 +116,11 @@ Vector2 OnCircle(Vector2 center, float radius, float angular_speed, float time) 
 float angle = std::atan2(target.y - self.y, target.x - self.x);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 戻り値の範囲 | -π 〜 π（-180° 〜 180°） |
-| `atan(y / x)` を使わない | x が 0 のとき割り算で壊れる。象限（どの方向か）が分からなくなる |
-| 引数の順番は (y, x) | (x, y) と逆に書きやすい |
-| 3D の場合 | 水平面の向きは `atan2(dz, dx)`（XZ 平面）。仰角は `atan2(dy, 水平距離)` |
-| 2D の回転の向き | 数学では反時計回りが正。画面の Y が下向きだと、見た目が逆になる |
+- 戻り値の範囲: -π 〜 π（-180° 〜 180°）
+- `atan(y / x)` を使わない: x が 0 のとき割り算で壊れる。象限（どの方向か）が分からなくなる
+- 引数の順番は (y, x): (x, y) と逆に書きやすい
+- 3D の場合: 水平面の向きは `atan2(dz, dx)`（XZ 平面）。仰角は `atan2(dy, 水平距離)`
+- 2D の回転の向き: 数学では反時計回りが正。画面の Y が下向きだと、見た目が逆になる
 
 ## 角度の扱い
 
@@ -145,11 +139,9 @@ float WrapAngle(float radians) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 範囲を決める | -π〜π、または 0〜2π |
-| `fmod` は負の数に注意 | 結果が負になるので`+ 2π` で補正する |
-| `%` は整数だけ | 浮動小数点では `std::fmod` |
+- 範囲を決める: -π〜π、または 0〜2π
+- `fmod` は負の数に注意: 結果が負になるので`+ 2π` で補正する
+- `%` は整数だけ: 浮動小数点では `std::fmod`
 
 ### 角度の差（最短の回り方）
 
@@ -167,11 +159,9 @@ float RotateToward(float current, float target, float max_step) {
 }
 ```
 
-| 使いどころ | 説明 |
-| --- | --- |
-| 敵がプレイヤーへ向く | 目標の角度へ 1 フレームに `max_step` だけ回す（急に振り向かない） |
-| 砲台の旋回 | 同じ。回転速度を制限する |
-| 向きの補間 | 角度の `lerp` も同じく最短の差を使う |
+- 敵がプレイヤーへ向く: 目標の角度へ 1 フレームに `max_step` だけ回す（急に振り向かない）
+- 砲台の旋回: 同じ。回転速度を制限する
+- 向きの補間: 角度の `lerp` も同じく最短の差を使う
 
 ## 2D の回転
 
@@ -233,21 +223,17 @@ bool InRange(Vector2 a, Vector2 b, float range) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 「射程内か」は 2 乗で | `距離 <= 射程` は `距離² <= 射程²` と同じ |
-| 「どちらが近いか」も 2 乗で | 大小の順序は、2 乗しても変わらない |
-| 実際の距離が必要なときだけ `sqrt` | ダメージの距離減衰など |
-| DirectXMath | `XMVector3LengthSq` や、SimpleMath の `LengthSquared()` |
+- 「射程内か」は 2 乗で: `距離 <= 射程` は `距離² <= 射程²` と同じ
+- 「どちらが近いか」も 2 乗で: 大小の順序は、2 乗しても変わらない
+- 実際の距離が必要なときだけ `sqrt`: ダメージの距離減衰など
+- DirectXMath: `XMVector3LengthSq` や、SimpleMath の `LengthSquared()`
 
 ## 三角関数のコスト
 
-| 点 | 説明 |
-| --- | --- |
-| **`sin`・`cos` は重め** | 数万回なら問題ないが毎フレーム数十万回は重い |
-| `sincos`（同時計算） | `sin` と `cos` を同時に出す関数は、別々に呼ぶより速いことが多い |
-| テーブル・近似式 | 精度が低くてよいなら、テーブル引きや多項式の近似 |
-| SIMD | DirectXMath の `XMVectorSinCos` などで、まとめて計算 |
+- **`sin`・`cos` は重め**: 数万回なら問題ないが毎フレーム数十万回は重い
+- `sincos`（同時計算）: `sin` と `cos` を同時に出す関数は、別々に呼ぶより速いことが多い
+- テーブル・近似式: 精度が低くてよいなら、テーブル引きや多項式の近似
+- SIMD: DirectXMath の `XMVectorSinCos` などで、まとめて計算
 
 ## よくあるミス
 

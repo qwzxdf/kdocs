@@ -243,13 +243,11 @@ true
 
 ## ゲームでの例
 
-| 場面 | 方法 |
-| --- | --- |
-| 設定ファイル | テキスト（`key=value`）か JSON |
-| セーブデータ | バイナリ + バージョン番号、または JSON（[シリアライズ](../engine/serialization/index.md)） |
-| ステージデータ | テキスト（文字でマップを書く）や JSON、専用のバイナリ |
-| ログ | `std::ios::app` で追記 |
-| アセット一覧 | `directory_iterator` でフォルダの中身を回す |
+- 設定ファイル: テキスト（`key=value`）か JSON
+- セーブデータ: バイナリ + バージョン番号、または JSON（[シリアライズ](../engine/serialization/index.md)）
+- ステージデータ: テキスト（文字でマップを書く）や JSON、専用のバイナリ
+- ログ: `std::ios::app` で追記
+- アセット一覧: `directory_iterator` でフォルダの中身を回す
 
 ## よくあるミス
 

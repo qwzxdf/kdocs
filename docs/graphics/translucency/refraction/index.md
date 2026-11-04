@@ -6,7 +6,7 @@ tags:
 
 # Refraction
 
-<strong>ガラスや水を通して見ると、後ろの景色が曲がって見えます</strong>。<strong>これが屈折</strong>で、ゲームでは「画面空間の屈折」で、安く近似します。このセクションでは、原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像を 1 つずつ別のページで説明します。
+<strong>ガラスや水を通して見ると後ろの景色が曲がって見えます</strong>。<strong>これが屈折</strong>でゲームでは「画面空間の屈折」で、安く近似します。このセクションでは原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像を 1 つずつ別のページで説明します。
 
 <!-- fig:snell-refraction:begin -->
 
@@ -159,7 +159,7 @@ tags:
 <!-- fig:snell-refraction:end -->
 
 ## 屈折の原理
-<strong>光が空気からガラスや水へ入るとき、境目で曲がります</strong>。<strong>曲がり方は、媒質ごとの「屈折率」</strong>で決まります。
+<strong>光が空気からガラスや水へ入るとき境目で曲がります</strong>。<strong>曲がり方は媒質ごとの「屈折率」</strong>で決まります。
 
 | 媒質 | 屈折率（n） |
 | --- | --- |
@@ -175,10 +175,10 @@ tags:
 | 記号 | 意味 |
 | --- | --- |
 | n₁・n₂ | 入る側・出る側の媒質の屈折率 |
-| θ₁ | 入射角（面の法線と、入る光のなす角） |
-| θ₂ | 屈折角（面の法線と、曲がった光のなす角） |
+| θ₁ | 入射角（面の法線と入る光のなす角） |
+| θ₂ | 屈折角（面の法線と曲がった光のなす角） |
 
-<strong>空気（1.0）から水（1.33）へ入る</strong>と、<strong>屈折率が大きい側へ入る</strong>ので、法線に近づく向きに曲がります。
+<strong>空気（1.0）から水（1.33）へ入る</strong>と <strong>屈折率が大きい側へ入る</strong>ので、法線に近づく向きに曲がります。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="屈折">
 <text x="20" y="24" class="fig-title">光は、屈折率の大きい媒質へ入ると、法線に近づく向きに曲がる</text>
@@ -206,7 +206,7 @@ float3 refracted = refract(incident, normal, eta);
 | `incident` | 入射する光の向き（正規化済み。光が進む向き＝視線方向） |
 | `normal` | 面の法線（入る側を向く） |
 | `eta` | 屈折率の比 `n₁ / n₂`（空気 → 水なら 1.0 / 1.33） |
-| 戻り値 | 屈折した向き。全反射（臨界角を超える）なら、`(0, 0, 0)` |
+| 戻り値 | 屈折した向き。全反射（臨界角を超える）なら `(0, 0, 0)` |
 
 <strong>視線方向</strong>（カメラから面へ向かう向き）を `incident` に渡します。<strong>反射は `reflect(incident, normal)`</strong> で得られます。
 
@@ -219,13 +219,13 @@ float3 refracted = refract(incident, normal, eta);
 | [Fresnel](fresnel.md) | 反射と屈折の割合 |
 | [Thickness and Color](thickness-color.md) | ビア＝ランバートの法則 |
 | [Dispersion](dispersion.md) | 色ごとにずらす |
-| [Thin and Thick Glass](thin-thick.md) | 窓ガラスと、ガラスの塊 |
+| [Thin and Thick Glass](thin-thick.md) | 窓ガラスとガラスの塊 |
 | [Implementation Overview and Cost](implementation.md) | 手順・限界 |
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 屈折は、画面をずらして読む近似が基本
+    - [x] 屈折は画面をずらして読む近似が基本
     - [x] フレネル・厚み・色で、リアルになる
 
 ## 参考

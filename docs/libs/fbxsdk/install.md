@@ -16,11 +16,9 @@ FBX SDK は**Autodesk のサイトから、インストーラーをダウンロ�
 
 ## 入手とインストール
 
-| 手順 | 内容 |
-| --- | --- |
-| **1. ダウンロード** | Autodesk の「FBX SDK」のページから、Visual Studio のバージョンに合う Windows 用のインストーラーを取得（Autodesk のアカウント・ライセンスへの同意が必要な場合がある） |
-| 2. インストール | インストーラーを実行。既定では `C:\Program Files\Autodesk\FBX\FBX SDK\<バージョン>\` に入る |
-| 3. 中身を確認 | `include\`（ヘッダ）、`lib\`（ライブラリ）、`samples\`（サンプル） |
+1. **1. ダウンロード**: Autodesk の「FBX SDK」のページから、Visual Studio のバージョンに合う Windows 用のインストーラーを取得（Autodesk のアカウント・ライセンスへの同意が必要な場合がある）
+2. 2. インストール: インストーラーを実行。既定では `C:\Program Files\Autodesk\FBX\FBX SDK\<バージョン>\` に入る
+3. 3. 中身を確認: `include\`（ヘッダ）、`lib\`（ライブラリ）、`samples\`（サンプル）
 
 !!! warning "Autodesk のライセンスを確認する"
     FBX SDK は Autodesk のライセンス（製品に組み込んで、再配布する条件）に従います。ゲームの配布（DLL の同梱）が許される条件・表示すべき著作権を必ず確認します。商用では特に重要です。ライセンスが厳しい・不安な場合は[ufbx](../ufbx/index.md)（MIT）やglTF への変換を検討します。
@@ -56,10 +54,8 @@ FBX SDK は**Autodesk のサイトから、インストーラーをダウンロ�
 
 ### プリプロセッサの定義
 
-| 定義 | 意味 |
-| --- | --- |
-| `FBXSDK_SHARED` | DLL 版を使うときに定義（`libfbxsdk.lib` + DLL） |
-| `NOMINMAX` | Windows の `min` / `max` マクロの衝突を避ける（[プリプロセッサマクロ](../../vs/preprocessor.md)） |
+- `FBXSDK_SHARED`: DLL 版を使うときに定義（`libfbxsdk.lib` + DLL）
+- `NOMINMAX`: Windows の `min` / `max` マクロの衝突を避ける（[プリプロセッサマクロ](../../vs/preprocessor.md)）
 
 ## 最小の確認
 

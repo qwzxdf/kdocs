@@ -7,7 +7,7 @@ tags:
 
 # Windows API と文字コード
 
-Windows の API は**文字列を扱う関数が 2 種類**あります。末尾が `A` の関数（`CreateFileA`、`MessageBoxA`）と末尾が `W` の関数（`CreateFileW`、`MessageBoxW`）です。`A` は ANSI（日本語版 Windows では Shift_JIS 系の CP932）、`W` は Wide（UTF-16）を受け取ります。しかも普段書く `CreateFile` や `MessageBox` は実はマクロで、プロジェクトの設定によって A か W に置き換わります。この仕組みを知らないと「`std::string` を渡したら、日本語が文字化けする」「ファイルが開けない」といった問題が起きます。このページではWindows API では、どの文字コードが要求されるのか、どう呼び分けるのかを徹底的に整理します。
+Windows の API は**文字列を扱う関数が 2 種類**あります。末尾が `A` の関数（`CreateFileA`、`MessageBoxA`）と末尾が `W` の関数（`CreateFileW`、`MessageBoxW`）です。`A` は ANSI（日本語版 Windows では Shift_JIS 系の CP932）、`W` は Wide（UTF-16）を受け取ります。しかも普段書く `CreateFile` や `MessageBox` は実はマクロで、プロジェクトの設定によって A か W に置き換わります。この仕組みを知らないと「`std::string` を渡したら、日本語が文字化けする」「ファイルが開けない」といった問題が起きます。このページではWindows API では、どの文字コードが要求されるのかどう呼び分けるのかを徹底的に整理します。
 
 !!! tip "ポイント"
     - <strong>Windows の API は、内部が UTF-16。`W` 版が本物</strong>で `A` 版は「ANSI → UTF-16 に変換して、`W` 版を呼ぶ」ラッパー。
@@ -87,12 +87,10 @@ Windows の API は**文字列を扱う関数が 2 種類**あります。末尾
 
 ### ライブラリ
 
-| ライブラリ | 要求 |
-| --- | --- |
-| DirectX（`D3DCompileFromFile`、DirectXTex、DirectXTK の `CreateDDSTextureFromFile`） | **`wchar_t*`（UTF-16）** のパス |
-| ImGui、SDL、GLFW、FMOD、nlohmann/json | **`char*`（UTF-8）** |
-| stb_image（`stbi_load`） | `char*` だが、内部で `fopen`（ANSI）。日本語パスは失敗する → `stbi_load_from_memory` か wchar 用の関数 |
-| OpenGL（シェーダー文字列、ウィンドウ名） | ASCII（シェーダー）、UTF-8（ウィンドウ名は GLFW が変換） |
+- DirectX（`D3DCompileFromFile`、DirectXTex、DirectXTK の `CreateDDSTextureFromFile`）: **`wchar_t*`（UTF-16）** のパス
+- ImGui、SDL、GLFW、FMOD、nlohmann/json: **`char*`（UTF-8）**
+- stb_image（`stbi_load`）: `char*` だが、内部で `fopen`（ANSI）。日本語パスは失敗する → `stbi_load_from_memory` か wchar 用の関数
+- OpenGL（シェーダー文字列、ウィンドウ名）: ASCII（シェーダー）、UTF-8（ウィンドウ名は GLFW が変換）
 
 詳しくは [外部ライブラリと文字コード](libraries.md) を見てください。
 
@@ -113,13 +111,11 @@ HANDLE OpenForRead(const std::string& path_utf8) {
 }
 ```
 
-| ルール | 理由 |
-| --- | --- |
-| **ゲームの中は UTF-8 の `std::string`** | ライブラリのほとんどが UTF-8 前提。`wstring` に統一すると変換だらけ |
-| API を呼ぶ関数を 1 か所にまとめる（プラットフォーム層） | 変換をそこに閉じ込める。ほかのコードは UTF-8 だけ |
-| `W` 版を明示的に呼ぶ | マクロの置き換えに左右されない |
-| 変換した `wstring` はすぐ捨てる | 長く持つと 2 種類の文字列を管理する羽目に |
-| `TCHAR`、`_T("...")`、`_tcslen` などは使わない | `A` / `W` の両対応のための古い仕組み。今は Unicode だけ |
+- **ゲームの中は UTF-8 の `std::string`**: ライブラリのほとんどが UTF-8 前提。`wstring` に統一すると変換だらけ
+- API を呼ぶ関数を 1 か所にまとめる（プラットフォーム層）: 変換をそこに閉じ込める。ほかのコードは UTF-8 だけ
+- `W` 版を明示的に呼ぶ: マクロの置き換えに左右されない
+- 変換した `wstring` はすぐ捨てる: 長く持つと 2 種類の文字列を管理する羽目に
+- `TCHAR`、`_T("...")`、`_tcslen` などは使わない: `A` / `W` の両対応のための古い仕組み。今は Unicode だけ
 
 ## std::filesystem::path（Windows）
 
@@ -134,14 +130,12 @@ std::ifstream file(path, std::ios::binary);                                     
 std::string utf8 = path.string();   // ← Windows では ANSI（CP932）の文字列になる！UTF-8 ではない
 ```
 
-| 操作 | Windows での挙動 |
-| --- | --- |
-| `path(std::string)` | ANSI（CP932）として、UTF-16 に変換する。UTF-8 の文字列を渡すと化ける |
-| `path(std::u8string)` / `path(u8"...")`（C++20） | UTF-8 として扱う。正しい |
-| `path::string()` | ANSIに変換して返す。日本語以外の文字で例外や `?` |
-| `path::wstring()` | UTF-16（`std::wstring`）。Windows API に渡すのに便利 |
-| `path::u8string()`（C++20） | UTF-8（`std::u8string`）。`std::string` に直すには `reinterpret_cast` |
-| `std::filesystem::u8path(...)`（C++17） | UTF-8 から path を作る。C++20 で非推奨 |
+- `path(std::string)`: ANSI（CP932）として、UTF-16 に変換する。UTF-8 の文字列を渡すと化ける
+- `path(std::u8string)` / `path(u8"...")`（C++20）: UTF-8 として扱う。正しい
+- `path::string()`: ANSIに変換して返す。日本語以外の文字で例外や `?`
+- `path::wstring()`: UTF-16（`std::wstring`）。Windows API に渡すのに便利
+- `path::u8string()`（C++20）: UTF-8（`std::u8string`）。`std::string` に直すには `reinterpret_cast`
+- `std::filesystem::u8path(...)`（C++17）: UTF-8 から path を作る。C++20 で非推奨
 
 ```cpp
 // UTF-8 の std::string から、path を作る（C++20 以降）
@@ -176,13 +170,11 @@ std::string ToUtf8(const std::filesystem::path& p) {
 
 Visual Studio ではこのファイルを `app.manifest` として作りプロジェクトのプロパティ → マニフェスト ツール → 入力と出力 → 追加のマニフェスト ファイル に指定します。
 
-| 項目 | 内容 |
-| --- | --- |
-| 効果 | `char*` の API・`fopen`・`argv` が UTF-8 になる。`A` 版を UTF-8 で使える |
-| 必要な Windows | Windows 10 1903（2019 年 5 月）以降 |
-| 古い Windows | 設定が無視されて、ANSI のまま。古い OS をサポートするなら使えない |
-| 全部が UTF-8 になる | 使っている DLL・ライブラリの `A` 版の動きも変わる。多くは問題ないが確認が必要 |
-| おすすめか | 便利だが、`W` 版を明示的に呼ぶほうが確実。ゲームの配布先が新しい Windows だけなら併用してよい |
+- 効果: `char*` の API・`fopen`・`argv` が UTF-8 になる。`A` 版を UTF-8 で使える
+- 必要な Windows: Windows 10 1903（2019 年 5 月）以降
+- 古い Windows: 設定が無視されて、ANSI のまま。古い OS をサポートするなら使えない
+- 全部が UTF-8 になる: 使っている DLL・ライブラリの `A` 版の動きも変わる。多くは問題ないが確認が必要
+- おすすめか: 便利だが `W` 版を明示的に呼ぶほうが確実。ゲームの配布先が新しい Windows だけなら併用してよい
 
 ### 「Beta: ワールドワイド言語サポートで Unicode UTF-8 を使用」（システム設定）
 
@@ -213,23 +205,19 @@ int main() {
 
 ## リソース ファイル（.rc）とダイアログ
 
-| 項目 | 注意 |
-| --- | --- |
-| **`.rc` ファイル**（アイコン、バージョン情報、メニュー） | 文字コードの扱いが特殊。UTF-8 で保存し先頭に `#pragma code_page(65001)` と書くか UTF-16 で保存する |
-| バージョン情報の文字列 | 日本語を入れるならコード ページの指定に注意 |
-| メニュー・ダイアログの文字列 | `W` 版（`CreateWindowExW`）なら UTF-16 で、そのまま |
+- **`.rc` ファイル**（アイコン、バージョン情報、メニュー）: 文字コードの扱いが特殊。UTF-8 で保存し先頭に `#pragma code_page(65001)` と書くか UTF-16 で保存する
+- バージョン情報の文字列: 日本語を入れるならコード ページの指定に注意
+- メニュー・ダイアログの文字列: `W` 版（`CreateWindowExW`）なら UTF-16 で、そのまま
 
 ## ゲームでの使いどころ
 
-| 場面 | 方法 |
-| --- | --- |
-| ウィンドウのタイトル（日本語） | `SetWindowTextW(hwnd, Utf8ToWide(title).c_str())` |
-| エラー ダイアログ | `MessageBoxW` |
-| デバッグ出力 | `OutputDebugStringW`（Visual Studio の出力に出る）。または `std::println` |
-| ファイルのパス（日本語を含む） | `std::filesystem::path`（UTF-8 から作る）か `CreateFileW` |
-| 設定の保存先（`%APPDATA%`） | `SHGetKnownFolderPath`（UTF-16）→ UTF-8 に変換。ユーザー名が日本語のことがある |
-| 画像・音の読み込み（外部ライブラリ） | ライブラリごとに確認（`wchar_t*` か `char*`） |
-| コマンド ライン引数 | `GetCommandLineW` + `CommandLineToArgvW` |
+- ウィンドウのタイトル（日本語）: `SetWindowTextW(hwnd, Utf8ToWide(title).c_str())`
+- エラー ダイアログ: `MessageBoxW`
+- デバッグ出力: `OutputDebugStringW`（Visual Studio の出力に出る）。または `std::println`
+- ファイルのパス（日本語を含む）: `std::filesystem::path`（UTF-8 から作る）か `CreateFileW`
+- 設定の保存先（`%APPDATA%`）: `SHGetKnownFolderPath`（UTF-16）→ UTF-8 に変換。ユーザー名が日本語のことがある
+- 画像・音の読み込み（外部ライブラリ）: ライブラリごとに確認（`wchar_t*` か `char*`）
+- コマンド ライン引数: `GetCommandLineW` + `CommandLineToArgvW`
 
 ## よくあるミス
 

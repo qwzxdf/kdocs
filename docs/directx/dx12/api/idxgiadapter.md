@@ -60,21 +60,17 @@ GPU が使えるメモリの予算と、アプリがいま使っている量を�
 
 `MemorySegmentGroup` は 2 つから選びます。
 
-| 値 | 意味 |
-| --- | --- |
-| `DXGI_MEMORY_SEGMENT_GROUP_LOCAL` | GPU に近いメモリ。外付け GPU なら VRAM。内蔵 GPU ならシステム メモリのうち GPU 用に確保された部分 |
-| `DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL` | GPU から遠いメモリ。外付け GPU から見たシステム メモリ |
+- `DXGI_MEMORY_SEGMENT_GROUP_LOCAL`: GPU に近いメモリ。外付け GPU なら VRAM。内蔵 GPU ならシステム メモリのうち GPU 用に確保された部分
+- `DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL`: GPU から遠いメモリ。外付け GPU から見たシステム メモリ
 
 ゲームがテクスチャやバッファを置く場所は、まず `LOCAL` です。外付け GPU で VRAM が足りなくなるとリソースは `NON_LOCAL`（システム メモリ）へ追い出され、PCI Express 経由の遅いアクセスになります。そのため見張るのは `LOCAL` が中心です。
 
 結果の `DXGI_QUERY_VIDEO_MEMORY_INFO` には、4 つの値が入ります。
 
-| 項目 | 意味 |
-| --- | --- |
-| `Budget` | OS がこのアプリに割り当てた使用量の目安（バイト）。他のアプリの使用量によって上下する |
-| `CurrentUsage` | このアプリがいま使っている量 |
-| `AvailableForReservation` | 予約（`SetVideoMemoryReservation`）できる最大量 |
-| `CurrentReservation` | いま予約している量 |
+- `Budget`: OS がこのアプリに割り当てた使用量の目安（バイト）。他のアプリの使用量によって上下する
+- `CurrentUsage`: このアプリがいま使っている量
+- `AvailableForReservation`: 予約（`SetVideoMemoryReservation`）できる最大量
+- `CurrentReservation`: いま予約している量
 
 見るのは `Budget` と `CurrentUsage` です。`CurrentUsage` が `Budget` を超えると、OS が一部を追い出し始めてフレームが急に遅くなります。そのため、`CurrentUsage` が `Budget` に近づいたら、テクスチャの解像度を落とす、使っていないリソースを手放す、といった対応をします。`Budget` は固定の値ではありません。ほかのアプリがメモリを使うと小さくなるので、毎フレームか数フレームに 1 回、調べ直します。
 

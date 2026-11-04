@@ -194,11 +194,9 @@ Get-ChildItem src -Recurse -Include *.cpp,*.h | ForEach-Object {
 *.lib binary
 ```
 
-| 書き方 | 意味 |
-| --- | --- |
-| `* text=auto eol=lf` | テキストファイルと判断したものは、LF にそろえる |
-| `*.sln text eol=crlf` | その拡張子は CRLF にする |
-| `*.png binary` | 中身を変えない（画像、モデル、DLL などは必須） |
+- `* text=auto eol=lf`: テキストファイルと判断したものは、LF にそろえる
+- `*.sln text eol=crlf`: その拡張子は CRLF にする
+- `*.png binary`: 中身を変えない（画像、モデル、DLL などは必須）
 
 改行の状態は次のコマンドで確かめられます。
 

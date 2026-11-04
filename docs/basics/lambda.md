@@ -197,20 +197,16 @@ int main() {
 
 ### 変数に入れる・保存する
 
-| 入れ物 | 使うとき |
-| --- | --- |
-| `auto f = [...]` | その場で使う。一番速い |
-| [`std::function<R(Args)>`](../stl/utilities/function.md) | メンバ変数に保存する、vector に入れる |
-| 関数ポインタ `R(*)(Args)` | キャプチャが無いラムダだけ変換できる。C の API に渡す |
+- `auto f = [...]`: その場で使う。一番速い
+- [`std::function<R(Args)>`](../stl/utilities/function.md): メンバ変数に保存する、vector に入れる
+- 関数ポインタ `R(*)(Args)`: キャプチャが無いラムダだけ変換できる。C の API に渡す
 
 ## ゲームでの例
 
-| 場面 | 例 |
-| --- | --- |
-| 並べ替えの基準 | `std::ranges::sort(units, [](const auto& a, const auto& b) { ... })` |
-| 削除の条件 | `std::erase_if(bullets, [](const Bullet& b) { return b.dead; })` |
-| コールバック | `button.OnClick([this] { OpenMenu(); })` |
-| 遅延実行 | `timer.After(2s, [id] { Explode(id); })` |
+- 並べ替えの基準: `std::ranges::sort(units, [](const auto& a, const auto& b) { ... })`
+- 削除の条件: `std::erase_if(bullets, [](const Bullet& b) { return b.dead; })`
+- コールバック: `button.OnClick([this] { OpenMenu(); })`
+- 遅延実行: `timer.After(2s, [id] { Explode(id); })`
 
 ## よくあるミス
 

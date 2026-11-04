@@ -58,13 +58,11 @@ class ArenaAllocator {
 };
 ```
 
-| 要素 | 意味 |
-| --- | --- |
-| `value_type` | 確保する要素の型 |
-| `allocate(n)` | `n` 個ぶんのメモリを貸す（要素の構築は、コンテナがやる） |
-| `deallocate(p, n)` | 返す。リニアなら何もしない |
-| 変換コンストラクタ（`ArenaAllocator<U>` から） | コンテナが内部のノード型（`std::list` のノードなど）用に `rebind` するときに使う |
-| `operator==` | 「同じアロケータか」。一方で確保したものを他方で解放できるかの判断（C++20 は、`!=` を自動で作る） |
+- `value_type`: 確保する要素の型
+- `allocate(n)`: `n` 個ぶんのメモリを貸す（要素の構築は、コンテナがやる）
+- `deallocate(p, n)`: 返す。リニアなら何もしない
+- 変換コンストラクタ（`ArenaAllocator<U>` から）: コンテナが内部のノード型（`std::list` のノードなど）用に `rebind` するときに使う
+- `operator==`: 「同じアロケータか」。一方で確保したものを他方で解放できるかの判断（C++20 は、`!=` を自動で作る）
 
 ### 使い方
 
@@ -83,10 +81,8 @@ std::list<int, ArenaAllocator<int>> l(allocator);
 
 上の例は「どのアリーナを使うか」という状態（`arena_`）を持つステートフルです。
 
-| 種類 | 説明 |
-| --- | --- |
-| ステートレス（`std::allocator`） | 状態を持たない。どれも同じ（`==` は常に `true`） |
-| ステートフル（自作） | 状態（アリーナのポインタ）を持つ。`==` は状態を比べる |
+- ステートレス（`std::allocator`）: 状態を持たない。どれも同じ（`==` は常に `true`）
+- ステートフル（自作）: 状態（アリーナのポインタ）を持つ。`==` は状態を比べる
 
 コンテナのコピー・ムーブのときにアロケータをどうするかは、**`allocator_traits` の `propagate_on_container_*`**で決まります。
 
@@ -137,13 +133,11 @@ Process(v);
 
 ### 標準の memory_resource
 
-| クラス | 動き |
-| --- | --- |
-| `std::pmr::new_delete_resource()` | 普通の `new` / `delete`（既定） |
-| `std::pmr::null_memory_resource()` | 常に失敗（`std::bad_alloc`）。上流を禁止したいときに |
-| `std::pmr::monotonic_buffer_resource` | [リニア](linear.md)。解放は無視、`release()` でまとめて捨てる |
-| `std::pmr::unsynchronized_pool_resource` | プール（サイズクラス）、スレッド非安全（速い） |
-| `std::pmr::synchronized_pool_resource` | 上のスレッド安全版 |
+- `std::pmr::new_delete_resource()`: 普通の `new` / `delete`（既定）
+- `std::pmr::null_memory_resource()`: 常に失敗（`std::bad_alloc`）。上流を禁止したいときに
+- `std::pmr::monotonic_buffer_resource`: [リニア](linear.md)。解放は無視、`release()` でまとめて捨てる
+- `std::pmr::unsynchronized_pool_resource`: プール（サイズクラス）、スレッド非安全（速い）
+- `std::pmr::synchronized_pool_resource`: 上のスレッド安全版
 
 ```cpp
 alignas(64) std::byte buffer[1 << 16];
@@ -223,12 +217,10 @@ std::pmr::set_default_resource(&my_resource);
 
 ## ゲームでの使い方
 
-| 場面 | 使い方 |
-| --- | --- |
-| **フレームの一時コンテナ** | `monotonic_buffer_resource`（フレームごとに `release()`）。`pmr::vector` を使う |
-| ロード中の一時データ | `monotonic_buffer_resource`（ロード後に捨てる） |
-| 同じ大きさの小さな要素が多い `map` / `list` | `unsynchronized_pool_resource` |
-| 自作のプールをコンテナで使う | `memory_resource` を継承して、包む |
+- **フレームの一時コンテナ**: `monotonic_buffer_resource`（フレームごとに `release()`）。`pmr::vector` を使う
+- ロード中の一時データ: `monotonic_buffer_resource`（ロード後に捨てる）
+- 同じ大きさの小さな要素が多い `map` / `list`: `unsynchronized_pool_resource`
+- 自作のプールをコンテナで使う: `memory_resource` を継承して、包む
 
 ```cpp
 void Frame() {

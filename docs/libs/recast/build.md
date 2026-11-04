@@ -78,12 +78,10 @@ rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.heigh
 
 ### 設定の決め方
 
-| 考え方 | 内容 |
-| --- | --- |
-| ① キャラの大きさを決める | 半径（例：0.6 m）・高さ（例：2.0 m）・登れる段差（例：0.9 m）・登れる坂（例：45 度） |
-| ② ボクセルの細かさを決める | `cs` は半径の 1/2 〜 1/3 程度。細かいほど、狭い通路を正しく表せる |
-| ③ ボクセル数に変換する | `ceil(2.0 / ch)` など |
-| ④ 結果を見て調整 | デバッグ描画でナビメッシュが壁や段差にどう合っているか確認する |
+- ① キャラの大きさを決める: 半径（例：0.6 m）・高さ（例：2.0 m）・登れる段差（例：0.9 m）・登れる坂（例：45 度）
+- ② ボクセルの細かさを決める: `cs` は半径の 1/2 〜 1/3 程度。細かいほど、狭い通路を正しく表せる
+- ③ ボクセル数に変換する: `ceil(2.0 / ch)` など
+- ④ 結果を見て調整: デバッグ描画でナビメッシュが壁や段差にどう合っているか確認する
 
 ## コードの流れ
 
@@ -117,13 +115,11 @@ rcPolyMeshDetail* detail_mesh = rcAllocPolyMeshDetail();
 rcBuildPolyMeshDetail(&context, *poly_mesh, *compact, config.detailSampleDist, config.detailSampleMaxError, *detail_mesh);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`rcContext`** | ログ・タイマー用の入れ物。エラーや処理時間を取れる |
-| `rcMarkWalkableTriangles` | 傾斜から、歩ける三角形に印を付ける（`triangle_areas` に歩行可能なエリアの ID を入れる） |
-| `rcFilter...` | 「低い障害物をまたぐ」「崖の縁を除く」「天井が低い所を除く」 |
-| `rcBuildRegions` | 領域分割の方法は 3 種類（Watershed・Monotone・Layers）。一般的には Watershed |
-| メモリ確保 | `rcAlloc...` で確保したものは、`rcFree...` で解放する |
+- **`rcContext`**: ログ・タイマー用の入れ物。エラーや処理時間を取れる
+- `rcMarkWalkableTriangles`: 傾斜から、歩ける三角形に印を付ける（`triangle_areas` に歩行可能なエリアの ID を入れる）
+- `rcFilter...`: 「低い障害物をまたぐ」「崖の縁を除く」「天井が低い所を除く」
+- `rcBuildRegions`: 領域分割の方法は 3 種類（Watershed・Monotone・Layers）。一般的には Watershed
+- メモリ確保: `rcAlloc...` で確保したものは、`rcFree...` で解放する
 
 !!! note "関数のシグネチャはバージョンで違う"
     ボクセル化のあたりは、バージョンで関数名・引数が変わっています（`rcHeightfield` を参照で渡す形など）。自分の `Recast.h` を開いて確認してください。
@@ -166,34 +162,28 @@ int nav_data_size = 0;
 dtCreateNavMeshData(&params, &nav_data, &nav_data_size);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`polyFlags`** | ポリゴンごとの通行の種類のビット（歩く・泳ぐ・ドア）。後でフィルタで絞る（[Detour](query.md)） |
-| `polyAreas` | エリアの種類（水・草・溶岩）。通行コストを変えられる |
-| `walkableHeight` など | ここはワールド単位で渡す（`rcConfig` はボクセル数） |
-| `buildBvTree` | 検索を速くするための木。`true` が一般的 |
-| 戻り値のバッファ | `dtFree` で解放する（`DT_TILE_FREE_DATA` で `dtNavMesh` に渡せば、まとめて解放される） |
+- **`polyFlags`**: ポリゴンごとの通行の種類のビット（歩く・泳ぐ・ドア）。後でフィルタで絞る（[Detour](query.md)）
+- `polyAreas`: エリアの種類（水・草・溶岩）。通行コストを変えられる
+- `walkableHeight` など: ここはワールド単位で渡す（`rcConfig` はボクセル数）
+- `buildBvTree`: 検索を速くするための木。`true` が一般的
+- 戻り値のバッファ: `dtFree` で解放する（`DT_TILE_FREE_DATA` で `dtNavMesh` に渡せば、まとめて解放される）
 
 ## タイル
 
 大きなマップを 1 つのナビメッシュで作ると、**ビルドが重く**、一部を変更しただけでも全体を作り直すことになります。マップをタイル（正方形）に分けて作ります。
 
-| 点 | 説明 |
-| --- | --- |
-| `tileSize` | 1 タイルの大きさ（ボクセル数。32〜128 が一般的） |
-| `borderSize` | タイルの境界の余白（`walkableRadius + 3` 程度）。隣のタイルとつなぐため |
-| タイルごとにビルド | 範囲 `bmin`・`bmax` をタイルごとに設定して、同じ工程を繰り返す |
-| 利点 | 部分的な作り直し・並列ビルド・ストリーミング（必要なタイルだけ読み込む） |
+- `tileSize`: 1 タイルの大きさ（ボクセル数。32〜128 が一般的）
+- `borderSize`: タイルの境界の余白（`walkableRadius + 3` 程度）。隣のタイルとつなぐため
+- タイルごとにビルド: 範囲 `bmin`・`bmax` をタイルごとに設定して、同じ工程を繰り返す
+- 利点: 部分的な作り直し・並列ビルド・ストリーミング（必要なタイルだけ読み込む）
 
 ## 保存と読み込み
 
 ナビメッシュのデータ（`nav_data`）は、**そのままバイナリでファイルに保存**できます。
 
-| 点 | 説明 |
-| --- | --- |
-| 保存する単位 | 1 タイルごとにヘッダ ＋ データ |
-| 実行時 | ファイルを読み、`dtNavMesh::addTile` で追加する（[Detour](query.md)） |
-| バージョン管理 | データの形式を変えたら、バージョン番号を持たせて、古いファイルを弾く（[ベイク](../../optimize/baking.md)） |
+- 保存する単位: 1 タイルごとにヘッダ ＋ データ
+- 実行時: ファイルを読み、`dtNavMesh::addTile` で追加する（[Detour](query.md)）
+- バージョン管理: データの形式を変えたら、バージョン番号を持たせて、古いファイルを弾く（[ベイク](../../optimize/baking.md)）
 
 ## よくあるミス
 

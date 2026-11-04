@@ -46,17 +46,15 @@ Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 device->CreateTexture2D(&desc, &init, &texture);
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `Width`・`Height` | 大きさ（ピクセル）。2 のべき乗である必要はない（ミップを使うならきれいに割れる大きさが、望ましい） |
-| `MipLevels` | ミップマップの段数。1 でミップなし 0 で 1×1 まで、全段 |
-| `ArraySize` | 配列の要素の数。キューブマップは 6 |
-| `Format` | 画素の形式（[Formats and Typeless](../concepts/formats.md)） |
-| `SampleDesc` | MSAA のサンプル数。通常 `{1, 0}` |
-| `Usage` | `IMMUTABLE`、`DEFAULT`、`DYNAMIC`、`STAGING`（[Map, Unmap and UpdateSubresource](map-update.md)） |
-| `BindFlags` | `SHADER_RESOURCE`、`RENDER_TARGET`、`DEPTH_STENCIL`、`UNORDERED_ACCESS`。OR で複数 |
-| `CPUAccessFlags` | `DYNAMIC` のとき `WRITE`、`STAGING` のとき `READ`/`WRITE` |
-| `MiscFlags` | `GENERATE_MIPS`、`TEXTURECUBE`、`SHARED` など |
+- `Width`・`Height`: 大きさ（ピクセル）。2 のべき乗である必要はない（ミップを使うならきれいに割れる大きさが、望ましい）
+- `MipLevels`: ミップマップの段数。1 でミップなし 0 で 1×1 まで全段
+- `ArraySize`: 配列の要素の数。キューブマップは 6
+- `Format`: 画素の形式（[Formats and Typeless](../concepts/formats.md)）
+- `SampleDesc`: MSAA のサンプル数。通常 `{1, 0}`
+- `Usage`: `IMMUTABLE`、`DEFAULT`、`DYNAMIC`、`STAGING`（[Map, Unmap and UpdateSubresource](map-update.md)）
+- `BindFlags`: `SHADER_RESOURCE`、`RENDER_TARGET`、`DEPTH_STENCIL`、`UNORDERED_ACCESS`。OR で複数
+- `CPUAccessFlags`: `DYNAMIC` のとき `WRITE`、`STAGING` のとき `READ`/`WRITE`
+- `MiscFlags`: `GENERATE_MIPS`、`TEXTURECUBE`、`SHARED` など
 
 `SysMemPitch` は <strong>1 行のバイト数</strong>です。幅 × 1 画素のバイト数で、圧縮フォーマットなどでは計算が違います。
 
@@ -109,11 +107,9 @@ context->GenerateMips(srv.Get());                           // 残りの段を G
 
 D3D11 自身は PNG や JPG をデコードできません。次のライブラリを使います。
 
-| 方法 | 内容 |
-| --- | --- |
-| DirectXTK の `CreateWICTextureFromFile` | WIC（Windows の画像デコーダー）で PNG、JPG などを読み SRV まで、作る |
-| DirectXTK の `CreateDDSTextureFromFile` | DDS（圧縮・ミップ入り）を読む。ゲームの標準形式 |
-| `stb_image` | 1 ファイルの軽量デコーダー。RGBA のピクセル列を返す。自分で `CreateTexture2D` |
+- DirectXTK の `CreateWICTextureFromFile`: WIC（Windows の画像デコーダー）で PNG、JPG などを読み SRV まで作る
+- DirectXTK の `CreateDDSTextureFromFile`: DDS（圧縮・ミップ入り）を読む。ゲームの標準形式
+- `stb_image`: 1 ファイルの軽量デコーダー。RGBA のピクセル列を返す。自分で `CreateTexture2D`
 
 ```cpp
 // DirectXTK（ライブラリ）

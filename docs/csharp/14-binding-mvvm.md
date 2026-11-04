@@ -6,30 +6,30 @@ tags:
 
 # 第 14 章 データバインディングと MVVM
 
-第 6 章で作ったエディタは、枠だけで中身が空っぽです。シーン ツリーには「シーン ツリー」という文字が、プロパティには「プロパティ」という文字が置いてあるだけで、オブジェクトを選んでも何も起きません。この章では、この 2 つのパネルを、データバインディングでつなぎます。シーン ツリーで選んだオブジェクトの名前と位置が、プロパティ パネルに出て、そこで書き換えられるようにします。
+第 6 章で作ったエディタは枠だけで中身が空っぽです。シーン ツリーには「シーン ツリー」という文字が、プロパティには「プロパティ」という文字が置いてあるだけで、オブジェクトを選んでも何も起きません。この章ではこの 2 つのパネルをデータバインディングでつなぎます。シーン ツリーで選んだオブジェクトの名前と位置が、プロパティ パネルに出てそこで書き換えられるようにします。
 
-WPF を使う最大の理由は、データバインディングです。画面とデータが何十か所もつながるエディタでは、これがあるかないかで、コードの量がまるで変わります。
+WPF を使う最大の理由はデータバインディングです。画面とデータが何十か所もつながるエディタでは、これがあるかないかでコードの量がまるで変わります。
 
 !!! info "このページを読む前に"
     - [第 13 章 見た目のテーマを入れる](13-theme.md)（前の章。ここまでの内容が前提になる）
     - [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md)（ViewModelLocator が、ビューモデルを `DataContext` に入れる流れ。NuGet の入れ方も同じ）
     - [第 6 章 WPF プロジェクトと XAML](06-wpf-xaml.md)（この章は、そこで作った `MainWindow.xaml` を書き換えていく）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
     | `Scene/SceneObjectViewModel.cs`（新規） | シーンの 1 オブジェクト（名前と位置） |
-    | `MainWindowViewModel.cs`（変更） | オブジェクトの一覧と、選択中のオブジェクト |
+    | `MainWindowViewModel.cs`（変更） | オブジェクトの一覧と選択中のオブジェクト |
     | `MainWindow.xaml`（変更） | 左にシーン ツリー、右にプロパティ パネルを作る |
 
-    値の変化を画面に知らせる仕組みと、ボタンの処理には、NuGet の CommunityToolkit.Mvvm を使います。自分では書きません。そのかわり、中でどんなことが起きているのかは、「深掘り」の節で見ます。
+    値の変化を画面に知らせる仕組みとボタンの処理には、NuGet の CommunityToolkit.Mvvm を使います。自分では書きません。そのかわり中でどんなことが起きているのかは、「深掘り」の節で見ます。
 
-    このあと、各節の終わりに「深掘り」を置いています。作った物の中に出てきた仕組みを、1 つずつ見ていく節です。
+    このあと各節の終わりに「深掘り」を置いています。作った物の中に出てきた仕組みを 1 つずつ見ていく節です。
 
 ## バインディングがないと何が大変か
 
-オブジェクトの位置を画面の入力欄に出すコードを、C++ の GUI ライブラリで書くとしましょう。
+オブジェクトの位置を画面の入力欄に出すコードを C++ の GUI ライブラリで書くとしましょう。
 
 ```cpp
 void OnPositionChanged(const Vec3& pos) {      // データが変わったら、画面を更新する
@@ -41,21 +41,21 @@ void OnXEdited(const std::string& s) {         // 画面で入力されたら、
 }
 ```
 
-部品が増えるたびに「どこで何を更新するか」を手で書いて回ることになります。位置を変える場所が増えれば、更新の呼び忘れも増えます。呼び忘れると、画面が古いまま残ります。
+部品が増えるたびに「どこで何を更新するか」を手で書いて回ることになります。位置を変える場所が増えれば更新の呼び忘れも増えます。呼び忘れると画面が古いまま残ります。
 
-バインディングは、この更新を宣言に置き換えます。
+バインディングはこの更新を宣言に置き換えます。
 
 ```xml
 <TextBox Text="{Binding X}" />
 ```
 
-これだけで、「この `TextBox` の文字は、データの `X` とつながっている」と宣言したことになります。`X` が変われば `TextBox` が変わり、`TextBox` に入力すれば `X` が変わります。更新の呼び忘れという種類のバグがなくなります。
+これだけで「この `TextBox` の文字はデータの `X` とつながっている」と宣言したことになります。`X` が変われば `TextBox` が変わり `TextBox` に入力すれば `X` が変わります。更新の呼び忘れという種類のバグがなくなります。
 
-## まず、選んだオブジェクトを表示する
+## まず選んだオブジェクトを表示する
 
-最初は、画面に出すだけにします。オブジェクトを表すクラスを、`Editor` の下に `Scene` フォルダーを作って置きます。
+最初は画面に出すだけにします。オブジェクトを表すクラスを `Editor` の下に `Scene` フォルダーを作って置きます。
 
-この教材では、フォルダーを「種類」（ビュー、ビューモデル、モデル）ではなく「機能」（シーン、アセット、ログ…）で切ります。ひとつの機能を直すとき、触るファイルが同じフォルダーに集まるからです。その機能の画面、ビューモデル、データの型は、まとめて同じフォルダーに置きます。複数の機能が使う道具だけは、あとで `Shared` フォルダーに置きます。
+この教材ではフォルダーを「種類」（ビュー、ビューモデル、モデル）ではなく「機能」（シーン、アセット、ログ…）で切ります。ひとつの機能を直すとき触るファイルが同じフォルダーに集まるからです。その機能の画面、ビューモデル、データの型はまとめて同じフォルダーに置きます。複数の機能が使う道具だけはあとで `Shared` フォルダーに置きます。
 
 ```csharp title="Scene/SceneObjectViewModel.cs（新規）"
 namespace Editor.Scene;
@@ -77,7 +77,7 @@ public class SceneObjectViewModel
 }
 ```
 
-次に、ウィンドウ全体のデータを持つクラスです。今は、選択中のオブジェクトを 1 つ持つだけです。
+次に、ウィンドウ全体のデータを持つクラスです。今は選択中のオブジェクトを 1 つ持つだけです。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
 using Editor.Scene;
@@ -91,9 +91,9 @@ public class MainWindowViewModel
 }
 ```
 
-第 12 章で作った `MainWindowViewModel` に、`Selected` を足しました。このクラスをウィンドウに持たせる作業は、もう要りません。`AutoWireViewModel="True"` を付けてあるので、ViewModelLocator が見つけて、`DataContext` に入れてくれます。`Title` は、第 12 章で確かめたときの「（ビューモデルから）」を消した形にしました。
+第 12 章で作った `MainWindowViewModel` に `Selected` を足しました。このクラスをウィンドウに持たせる作業は、もう要りません。`AutoWireViewModel="True"` を付けてあるので ViewModelLocator が見つけて、`DataContext` に入れてくれます。`Title` は第 12 章で確かめたときの「（ビューモデルから）」を消した形にしました。
 
-最後に、第 6 章で「プロパティ」という文字だけを置いた右のパネルを、入力欄に差し替えます。
+最後に、第 6 章で「プロパティ」という文字だけを置いた右のパネルを入力欄に差し替えます。
 
 ```xml title="MainWindow.xaml（変更：右のパネル）"
 <Border Grid.Column="4" Background="#FF252526" Padding="8">
@@ -111,21 +111,21 @@ public class MainWindowViewModel
 </Border>
 ```
 
-`F5` で実行すると、右のパネルに `Cube`、`1`、`0`、`2` が出ます。
+`F5` で実行すると右のパネルに `Cube`、`1`、`0`、`2` が出ます。
 
 ### 深掘り：`{Binding Selected.Name}` はどこを見ているのか
 
-`{Binding Selected.Name}` の `Selected.Name` は、「どこかのオブジェクトの `Selected` プロパティの、さらに `Name` プロパティ」という意味です。その「どこかのオブジェクト」を決めているのが `DataContext` です。
+`{Binding Selected.Name}` の `Selected.Name` は「どこかのオブジェクトの `Selected` プロパティのさらに `Name` プロパティ」という意味です。その「どこかのオブジェクト」を決めているのが `DataContext` です。
 
-`DataContext` は、すべての部品が持っているプロパティで、ここに設定したオブジェクトが、バインディングの探し先になります。部品に設定しなければ、親の `DataContext` を引き継ぎます。上では ViewModelLocator が `MainWindow` に 1 回設定しただけですが、ウィンドウの中のすべての部品が、それを見に行きます。
+`DataContext` はすべての部品が持っているプロパティで、ここに設定したオブジェクトが、バインディングの探し先になります。部品に設定しなければ親の `DataContext` を引き継ぎます。上では ViewModelLocator が `MainWindow` に 1 回設定しただけですが、ウィンドウの中のすべての部品が、それを見に行きます。
 
-読むときは、「画面の部品 → `{Binding パス}` → `DataContext` のオブジェクト」の順に矢印をたどります。右パネルの `TextBox` なら、`TextBox` → `Selected.Name` → `MainWindowViewModel` の `Selected` → その `Name`、です。慣れるまでは、この矢印を毎回たどってみてください。
+読むときは「画面の部品 → `{Binding パス}` → `DataContext` のオブジェクト」の順に矢印をたどります。右パネルの `TextBox` なら `TextBox` → `Selected.Name` → `MainWindowViewModel` の `Selected` → その `Name`、です。慣れるまではこの矢印を毎回たどってみてください。
 
-`TextBox` の `Text` は、初期状態で双方向になっています。画面で書き換えると `Name` が変わります。文字列 `"1"` が `float` の `X` に自動で変換される点も覚えておいてください。`abc` のように変換できないものを入れると、入力欄が赤い枠になって、値は反映されません。
+`TextBox` の `Text` は初期状態で双方向になっています。画面で書き換えると `Name` が変わります。文字列 `"1"` が `float` の `X` に自動で変換される点も覚えておいてください。`abc` のように変換できないものを入れると、入力欄が赤い枠になって値は反映されません。
 
 ## 画面が更新されない
 
-次は、コードの側から値を変えてみます。位置を原点に戻す「位置をリセット」ボタンを、プロパティ パネルに足します。
+次はコードの側から値を変えてみます。位置を原点に戻す「位置をリセット」ボタンをプロパティ パネルに足します。
 
 ```csharp title="Scene/SceneObjectViewModel.cs（変更：メソッドを足す）"
 public void Reset()
@@ -147,11 +147,11 @@ private void OnReset(object sender, RoutedEventArgs e)
 }
 ```
 
-実行して押しても、入力欄の `1`、`0`、`2` は変わりません。デバッガーで見ると、`X`、`Y`、`Z` は確かに 0 になっています。画面だけが、それを知らないのです。
+実行して押しても入力欄の `1`、`0`、`2` は変わりません。デバッガーで見ると `X`、`Y`、`Z` は確かに 0 になっています。画面だけがそれを知らないのです。
 
 ### 深掘り：INotifyPropertyChanged
 
-バインディングは、最初に値を読んだあと、「値が変わったよ」という知らせを待っています。通常のプロパティは、変わっても誰にも知らせません。知らせるには、`INotifyPropertyChanged` というインターフェースを実装して、値が変わるたびに `PropertyChanged` イベントを起こします。
+バインディングは最初に値を読んだあと「値が変わったよ」という知らせを待っています。通常のプロパティは変わっても誰にも知らせません。知らせるには `INotifyPropertyChanged` というインターフェースを実装して、値が変わるたびに `PropertyChanged` イベントを起こします。
 
 ```csharp
 using System.ComponentModel;
@@ -180,19 +180,19 @@ public class SceneObjectViewModel : INotifyPropertyChanged
 }
 ```
 
-`[CallerMemberName]` は、呼び出した側のメンバーの名前（ここでは `X`）をコンパイラーが引数に自動で入れてくれる属性です。`OnPropertyChanged()` と書くだけで `"X"` が渡されるので、名前を文字列で書き間違えたり、名前を変えたときに直し忘れたりしません。
+`[CallerMemberName]` は呼び出した側のメンバーの名前（ここでは `X`）をコンパイラーが引数に自動で入れてくれる属性です。`OnPropertyChanged()` と書くだけで `"X"` が渡されるので、名前を文字列で書き間違えたり名前を変えたときに直し忘れたりしません。
 
-属性は、`[...]` で宣言に追加の情報を付ける C# の仕組みです。C++ の `[[nodiscard]]` に似ていますが、実行時にも読み取れる点が違います。これから `[DllImport]` や `[StructLayout]` など、いくつも出てきます。
+属性は `[...]` で宣言に追加の情報を付ける C# の仕組みです。C++ の `[[nodiscard]]` に似ていますが、実行時にも読み取れる点が違います。これから `[DllImport]` や `[StructLayout]` などいくつも出てきます。
 
-WPF でありがちな事故の大半は、この通知の書き忘れです。`set` の中に `OnPropertyChanged()` を書いたか、値が変わったのに通知しない道が残っていないか。画面が更新されないときは、まずここを疑ってください。
+WPF でありがちな事故の大半はこの通知の書き忘れです。`set` の中に `OnPropertyChanged()` を書いたか値が変わったのに通知しない道が残っていないか。画面が更新されないときはまずここを疑ってください。
 
 ### CommunityToolkit.Mvvm で書く
 
-とはいえ、プロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つ、これから増えていく他のビューモデルを含めると、数十個になります。
+とはいえプロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つこれから増えていく他のビューモデルを含めると、数十個になります。
 
-そこで、この教材では **CommunityToolkit.Mvvm** を使います。Microsoft が保守している、MVVM のための小さなライブラリです。定型コードを、コンパイルのときに自動で生成してくれます。
+そこで、この教材では **CommunityToolkit.Mvvm** を使います。Microsoft が保守している、MVVM のための小さなライブラリです。定型コードをコンパイルのときに自動で生成してくれます。
 
-Prism にも同じ役目の `BindableBase` と `DelegateCommand` がありますが、この教材では使いません。Prism は、画面とビューモデルの結びつけ、DI、リージョン、ダイアログといった「アプリの構造」の部分に使い、ビューモデルの中身の書き方は CommunityToolkit.Mvvm に任せます。2 つは役目が違うので、一緒に使って衝突しません。分担の考え方は、第 26 章で詳しく説明します。
+Prism にも同じ役目の `BindableBase` と `DelegateCommand` がありますが、この教材では使いません。Prism は画面とビューモデルの結びつけ DI、リージョン、ダイアログといった「アプリの構造」の部分に使いビューモデルの中身の書き方は CommunityToolkit.Mvvm に任せます。2 つは役目が違うので一緒に使って衝突しません。分担の考え方は第 26 章で詳しく説明します。
 
 NuGet で `CommunityToolkit.Mvvm` を入れます（第 12 章の Prism と同じ手順です）。安定版の 8.x を選んでください。
 
@@ -232,11 +232,11 @@ public partial class SceneObjectViewModel : ObservableObject
 }
 ```
 
-さきほどの 10 行が、フィールド 1 つと属性 1 つになりました。働きを順に見ます。
+さきほどの 10 行がフィールド 1 つと属性 1 つになりました。働きを順に見ます。
 
-`ObservableObject` は、`INotifyPropertyChanged` を実装済みの基底クラスです。`PropertyChanged` イベントも、`OnPropertyChanged` の関数も、持っています。
+`ObservableObject` は `INotifyPropertyChanged` を実装済みの基底クラスです。`PropertyChanged` イベントも `OnPropertyChanged` の関数も持っています。
 
-`[ObservableProperty]` は、フィールドに付ける属性で、「このフィールドから、通知つきのプロパティを作ってください」という指示です。フィールド `_x` から、`X` というプロパティが生成されます。生成されるのは、手で書いた版とほぼ同じ、次のような形です。
+`[ObservableProperty]` はフィールドに付ける属性で、「このフィールドから通知つきのプロパティを作ってください」という指示です。フィールド `_x` から `X` というプロパティが生成されます。生成されるのは手で書いた版とほぼ同じ次のような形です。
 
 ```csharp title="生成されるコードのイメージ（自分では書かない）"
 public float X
@@ -253,62 +253,62 @@ public float X
 }
 ```
 
-この仕組みを**ソース ジェネレーター**と呼びます。コンパイルのときに、ライブラリのつくり手が用意したコードが動いて、別のソース ファイルを生成します。実行時に何かが動くわけではないので、速さは手書きと変わりません。生成されたコードは、Visual Studio の「ソリューション エクスプローラー → 依存関係 → アナライザー」から開いて読めます。
+この仕組みを**ソース ジェネレーター**と呼びます。コンパイルのときにライブラリのつくり手が用意したコードが動いて、別のソース ファイルを生成します。実行時に何かが動くわけではないので、速さは手書きと変わりません。生成されたコードは Visual Studio の「ソリューション エクスプローラー → 依存関係 → アナライザー」から開いて読めます。
 
-フィールドの名前は、`_x`、`x`、`m_x` のどれでも、`X` というプロパティになります。この教材では、`_x` と書きます。
+フィールドの名前は `_x`、`x`、`m_x` のどれでも `X` というプロパティになります。この教材では `_x` と書きます。
 
-クラスに `partial` を付ける必要があります。生成されたコードを、同じクラスの別ファイルとして足すためです。付け忘れると、ジェネレーターがエラーを出します。
+クラスに `partial` を付ける必要があります。生成されたコードを同じクラスの別ファイルとして足すためです。付け忘れるとジェネレーターがエラーを出します。
 
-そして、必ず**プロパティの側**（`X`）を使って値を書き換えてください。フィールドの `_x = 5` と書くと、通知が出ません。このクラスの中でも、`Reset` が `X = 0` と大文字で書いているのは、そのためです。コンストラクターで `_name = name` とフィールドに直接入れているのは、作っている最中は、まだ誰も `PropertyChanged` を聞いていないので、通知が要らないからです。
+そして、必ず**プロパティの側**（`X`）を使って値を書き換えてください。フィールドの `_x = 5` と書くと通知が出ません。このクラスの中でも `Reset` が `X = 0` と大文字で書いているのは、そのためです。コンストラクターで `_name = name` とフィールドに直接入れているのは、作っている最中はまだ誰も `PropertyChanged` を聞いていないので、通知が要らないからです。
 
-プロパティを手で書きたい場面もあります。そのために、`ObservableObject` は `SetProperty(ref _x, value)` も持っています。Prism の `BindableBase` の同名の関数と、使い方は同じです。
+プロパティを手で書きたい場面もあります。そのために、`ObservableObject` は `SetProperty(ref _x, value)` も持っています。Prism の `BindableBase` の同名の関数と使い方は同じです。
 
 別のプロパティも一緒に変わったと知らせたいときは、`OnPropertyChanged(nameof(HasSelection))` を呼びます。`nameof` は名前をコンパイル時に文字列にする書き方です。
 
-画面の側は、何も変わりません。バインディングは、普通のプロパティ `X` を見に行くだけです。もう一度実行して「位置をリセット」を押すと、入力欄が 0 になります。
+画面の側は何も変わりません。バインディングは普通のプロパティ `X` を見に行くだけです。もう一度実行して「位置をリセット」を押すと入力欄が 0 になります。
 
 ### 画面が古いままのときのチェックリスト
 
-バインディングは、間違えても例外が出ません。静かに何も表示されないだけです。症状別に、確認する順番を決めておくと便利です。
+バインディングは間違えても例外が出ません。静かに何も表示されないだけです。症状別に確認する順番を決めておくと便利です。
 
 画面に何も出ないとき。
 
 1. `{Binding ...}` のプロパティ名のつづりを確かめる。`Massage` と `Message` のような 1 文字違いが定番です。
-2. そのプロパティが `public` で、フィールドではなく `{ get; set; }` のプロパティになっているか。WPF のバインディングは、フィールドを見ません。
-3. `DataContext` が設定されているか。設定した対象は、その部品の親の位置か。
+2. そのプロパティが `public` で、フィールドではなく `{ get; set; }` のプロパティになっているか。WPF のバインディングはフィールドを見ません。
+3. `DataContext` が設定されているか。設定した対象はその部品の親の位置か。
 4. Visual Studio の「出力」ウィンドウに `BindingExpression path error` が出ていないか。バインディングの失敗はここにだけ書かれます。
 
-値は出るのに、変えても画面が追従しないとき。
+値は出るのに変えても画面が追従しないとき。
 
 1. `INotifyPropertyChanged` を実装しているか（`ObservableObject` を継承しているか）。
-2. `[ObservableProperty]` のフィールドを、フィールドのまま（`_x = 5`）書き換えていないか。プロパティ（`X = 5`）で書き換えます。
-3. 手で書いたプロパティなら、`set` の中で通知を起こしているか。名前は合っているか。
-4. コレクションなら、`List<T>` ではなく `ObservableCollection<T>` か（あとで使います）。
+2. `[ObservableProperty]` のフィールドをフィールドのまま（`_x = 5`）書き換えていないか。プロパティ（`X = 5`）で書き換えます。
+3. 手で書いたプロパティなら `set` の中で通知を起こしているか。名前は合っているか。
+4. コレクションなら `List<T>` ではなく `ObservableCollection<T>` か（あとで使います）。
 
-入力しても、すぐにデータへ反映されないとき。
+入力してもすぐにデータへ反映されないとき。
 
-- `TextBox` の `Text` は、入力欄からフォーカスが外れたときに初めてデータへ反映されます。次の節で扱います。
+- `TextBox` の `Text` は入力欄からフォーカスが外れたときに初めてデータへ反映されます。次の節で扱います。
 
 ## 入力のたびに反映する
 
-名前の `TextBox` に文字を打っても、フォーカスを外すまでは `Name` が変わりません。あとで、シーン ツリーに名前を出すようにすると、打っている最中に反映されたほうが気持ちがよいので、設定を足します。
+名前の `TextBox` に文字を打っても、フォーカスを外すまでは `Name` が変わりません。あとでシーン ツリーに名前を出すようにすると、打っている最中に反映されたほうが気持ちがよいので、設定を足します。
 
 ```xml title="MainWindow.xaml（変更：名前の入力欄）"
 <TextBox Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}" />
 ```
 
-位置の入力欄は、このままにします。理由は、深掘りで説明します。
+位置の入力欄はこのままにします。理由は深掘りで説明します。
 
 ### 深掘り：`{Binding}` の設定
 
-`{Binding}` には、いくつかの設定を足せます。
+`{Binding}` にはいくつかの設定を足せます。
 
 ```xml
 <TextBox Text="{Binding Selected.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 <TextBlock Text="{Binding Selected.X, StringFormat=X: {0:F2}}" />
 ```
 
-`Mode` は、データがどちら向きに流れるかです。
+`Mode` はデータがどちら向きに流れるかです。
 
 | 値 | 向き |
 | --- | --- |
@@ -317,19 +317,19 @@ public float X
 | `OneTime` | 最初に読むだけ |
 | `OneWayToSource` | 画面からデータへだけ |
 
-何も書かなければ、部品とプロパティごとの既定値になります。入力を受け付ける `TextBox.Text` のようなものは双方向で、`TextBlock.Text` のようなものは一方向です。
+何も書かなければ部品とプロパティごとの既定値になります。入力を受け付ける `TextBox.Text` のようなものは双方向で、`TextBlock.Text` のようなものは一方向です。
 
-`UpdateSourceTrigger` は、画面からデータへ書き戻すタイミングです。`TextBox` の既定は `LostFocus` で、これが先ほどのチェックリストの最後の項目の理由でした。数値の入力欄に `PropertyChanged` を付けると、`1.` のように小数点を打った途中の文字列が、そのたびに数値へ変換されて、入力しにくくなることがあります。そのため、数値は既定のまま、名前だけに付けました。
+`UpdateSourceTrigger` は画面からデータへ書き戻すタイミングです。`TextBox` の既定は `LostFocus` でこれが先ほどのチェックリストの最後の項目の理由でした。数値の入力欄に `PropertyChanged` を付けると、`1.` のように小数点を打った途中の文字列が、そのたびに数値へ変換されて入力しにくくなることがあります。そのため、数値は既定のまま名前だけに付けました。
 
-`StringFormat` は表示形式の指定で、`{0:F2}` なら小数 2 桁になります。ほかにも `Converter`、`FallbackValue`、`ElementName`、`RelativeSource` などがあります。第 15 章で詳しく扱います。
+`StringFormat` は表示形式の指定で `{0:F2}` なら小数 2 桁になります。ほかにも `Converter`、`FallbackValue`、`ElementName`、`RelativeSource` などがあります。第 15 章で詳しく扱います。
 
 ## ボタンの処理をビューモデルに移す
 
-「位置をリセット」は、`Click="OnReset"` で、コードビハインドの `OnReset` を呼んでいます。ボタンが何十個にもなると、画面のコードが処理だらけになります。バインディングがデータの受け渡しを画面から切り離してくれたように、操作も切り離せます。それがコマンドです。
+「位置をリセット」は `Click="OnReset"` でコードビハインドの `OnReset` を呼んでいます。ボタンが何十個にもなると画面のコードが処理だらけになります。バインディングがデータの受け渡しを画面から切り離してくれたように操作も切り離せます。それがコマンドです。
 
-コマンドを作る部品は、CommunityToolkit.Mvvm の `RelayCommand` を使います。メソッドに `[RelayCommand]` を付けると、コマンドが生成されます。
+コマンドを作る部品は CommunityToolkit.Mvvm の `RelayCommand` を使います。メソッドに `[RelayCommand]` を付けるとコマンドが生成されます。
 
-使うのは `SceneObjectViewModel` です。リセットは、すでに原点にいるときは押せなくしたいので、「いま押してよいか」を返すメソッドも用意します。
+使うのは `SceneObjectViewModel` です。リセットはすでに原点にいるときは押せなくしたいので、「いま押してよいか」を返すメソッドも用意します。
 
 ```csharp title="Scene/SceneObjectViewModel.cs（変更）"
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -361,40 +361,38 @@ public partial class SceneObjectViewModel : ObservableObject
 }
 ```
 
-`[RelayCommand]` を付けたメソッド `Reset` から、`ResetCommand` というプロパティが生成されます。名前の規則は、メソッド名の末尾に `Command` を足すことです。型は `IRelayCommand` で、`ICommand` として画面に結べます。
+`[RelayCommand]` を付けたメソッド `Reset` から、`ResetCommand` というプロパティが生成されます。名前の規則はメソッド名の末尾に `Command` を足すことです。型は `IRelayCommand` で `ICommand` として画面に結べます。
 
-`CanExecute = nameof(CanReset)` が、「いま押してよいか」を返すメソッドの指定です。ここでは、どれかが 0 以外なら押せる、としています。
+`CanExecute = nameof(CanReset)` が「いま押してよいか」を返すメソッドの指定です。ここでは、どれかが 0 以外なら押せるとしています。
 
-`[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` は、「この値が変わったら、`ResetCommand` の押してよいかを、もう一度聞き直して」という指示です。Prism の `ObservesProperty(() => X)` にあたります。`X`、`Y`、`Z` のそれぞれに付けます。付け忘れると、値を書き換えてもボタンの状態が古いままになります。
+`[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` は「この値が変わったら `ResetCommand` の押してよいかをもう一度聞き直して」という指示です。Prism の `ObservesProperty(() => X)` にあたります。`X`、`Y`、`Z` のそれぞれに付けます。付け忘れると値を書き換えてもボタンの状態が古いままになります。
 
-`Reset` は、`public` から `private` に変えました。外からは、生成された `ResetCommand` を通して呼ぶからです。ボタンは、`Click` をやめて `Command` にします。
+`Reset` は `public` から `private` に変えました。外からは生成された `ResetCommand` を通して呼ぶからです。ボタンは `Click` をやめて `Command` にします。
 
 ```xml title="MainWindow.xaml（変更：ボタン）"
 <Button Content="位置をリセット" Margin="0,12,0,0"
         Command="{Binding Selected.ResetCommand}" />
 ```
 
-コードビハインドの `OnReset` は、もう使いません。`MainWindow.xaml.cs` から消してください。実行すると、位置がすべて 0 のときはボタンが灰色になり、どれかを 0 以外に書き換えると、押せるようになります。
+コードビハインドの `OnReset` はもう使いません。`MainWindow.xaml.cs` から消してください。実行すると位置がすべて 0 のときはボタンが灰色になりどれかを 0 以外に書き換えると、押せるようになります。
 
 ### 深掘り：ICommand
 
-`ICommand` というインターフェースは、3 つのメンバーを持っています。
+`ICommand` というインターフェースは 3 つのメンバーを持っています。
 
-| メンバー | 役目 |
-| --- | --- |
-| `Execute(parameter)` | 実行する処理 |
-| `CanExecute(parameter)` | 今、実行してよいか。`false` ならボタンが自動で無効になる |
-| `CanExecuteChanged` | 「実行してよいかどうかが変わったかも」という知らせ |
+- `Execute(parameter)`: 実行する処理
+- `CanExecute(parameter)`: 今、実行してよいか。`false` ならボタンが自動で無効になる
+- `CanExecuteChanged`: 「実行してよいかどうかが変わったかも」という知らせ
 
 便利なのは `CanExecute` です。ボタンの有効、無効の判断をビューモデルに書けば、画面の側でボタンを無効にする処理を書かなくて済みます。
 
-`CanExecuteChanged` は、「実行してよいかどうかが変わったかもしれないので、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これが起きないと、ボタンの状態が更新されません。`RelayCommand` には `NotifyCanExecuteChanged()` という、この合図を手で出す関数もあります。ただ、呼び忘れるとボタンの状態が古いままになるので、プロパティに連動するものは、`[NotifyCanExecuteChangedFor]` に任せるほうが安全です。
+`CanExecuteChanged` は「実行してよいかどうかが変わったかもしれないので、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これが起きないとボタンの状態が更新されません。`RelayCommand` には `NotifyCanExecuteChanged()` というこの合図を手で出す関数もあります。ただ、呼び忘れるとボタンの状態が古いままになるので、プロパティに連動するものは `[NotifyCanExecuteChangedFor]` に任せるほうが安全です。
 
-`RelayCommand` の中身は、「`Action` と `Func<bool>` を受け取って、`ICommand` の 3 つのメンバーに渡す」だけの小さなクラスです。自分で `ICommand` を実装するときも、コンストラクターで受け取った関数を `Execute` と `CanExecute` から呼ぶだけの形になります。
+`RelayCommand` の中身は「`Action` と `Func<bool>` を受け取って、`ICommand` の 3 つのメンバーに渡す」だけの小さなクラスです。自分で `ICommand` を実装するときもコンストラクターで受け取った関数を `Execute` と `CanExecute` から呼ぶだけの形になります。
 
 ## シーン ツリーを作る
 
-右のパネルが動いたので、左のシーン ツリーに、オブジェクトを並べます。複数のオブジェクトを持つ `MainWindowViewModel` に書き直します。
+右のパネルが動いたので左のシーン ツリーにオブジェクトを並べます。複数のオブジェクトを持つ `MainWindowViewModel` に書き直します。
 
 ```csharp title="MainWindowViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
@@ -437,13 +435,13 @@ public partial class MainWindowViewModel : ObservableObject
 }
 ```
 
-`Selected` は、選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。`Add` メソッドからは、`AddCommand` が生成されます。
+`Selected` は選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。`Add` メソッドからは `AddCommand` が生成されます。
 
-`HasSelection` は、このあと画面の表示と非表示の切り替えに使います。`Selected` が変わったときに、`HasSelection` も変わったと知らせているのが、`[NotifyPropertyChangedFor(nameof(HasSelection))]` の行です。`HasSelection` には `set` がなく、`Selected` から計算するだけのプロパティです。元の `Selected` の側に「変わったら、誰を更新するか」を書く方式なので、計算元が増えたときは、この属性を足し忘れないようにしてください。
+`HasSelection` はこのあと画面の表示と非表示の切り替えに使います。`Selected` が変わったときに `HasSelection` も変わったと知らせているのが、`[NotifyPropertyChangedFor(nameof(HasSelection))]` の行です。`HasSelection` には `set` がなく `Selected` から計算するだけのプロパティです。元の `Selected` の側に「変わったら、誰を更新するか」を書く方式なので、計算元が増えたときはこの属性を足し忘れないようにしてください。
 
-`Title` は、最初から最後まで変わらない値なので、通知がいりません。普通のプロパティのままです。
+`Title` は最初から最後まで変わらない値なので、通知がいりません。普通のプロパティのままです。
 
-画面は、第 6 章で「シーン ツリー」という文字だけを置いた、左のパネルを差し替えます。
+画面は第 6 章で「シーン ツリー」という文字だけを置いた、左のパネルを差し替えます。
 
 ```xml title="MainWindow.xaml（変更：左のパネル）"
 <DockPanel Grid.Column="0" Background="#FF252526">
@@ -456,19 +454,19 @@ public partial class MainWindowViewModel : ObservableObject
 </DockPanel>
 ```
 
-実行すると、`Camera`、`Cube`、`Light` が並びます。クリックすると、右のパネルの中身が選んだオブジェクトに切り替わります。名前の入力欄に文字を打つと、左のリストの名前も同時に変わります。「オブジェクトを追加」を押すと、行が増えて、その行が選ばれます。
+実行すると `Camera`、`Cube`、`Light` が並びます。クリックすると右のパネルの中身が選んだオブジェクトに切り替わります。名前の入力欄に文字を打つと左のリストの名前も同時に変わります。「オブジェクトを追加」を押すと行が増えて、その行が選ばれます。
 
 ### 深掘り：ObservableCollection
 
-リストに要素を足したり消したりしたときも、画面へ知らせる必要があります。`List<T>` は何も知らせないので、`ObservableCollection<T>` を使います。要素の追加と削除が、そのまま画面に反映されます。
+リストに要素を足したり消したりしたときも画面へ知らせる必要があります。`List<T>` は何も知らせないので `ObservableCollection<T>` を使います。要素の追加と削除がそのまま画面に反映されます。
 
-ひとつ注意があります。`Objects = new ObservableCollection<...>(...)` のように、入れ物ごと差し替えると、`ObservableCollection` の通知では足りません。そのプロパティ自体の `PropertyChanged` が必要です。普段は入れ物を作り替えず、`Clear()` と `Add()` で中身を変えるほうが安全です。上の `Objects` が、`{ get; }` だけで `set` を持たないのは、そのためです。
+ひとつ注意があります。`Objects = new ObservableCollection<...>(...)` のように入れ物ごと差し替えると、`ObservableCollection` の通知では足りません。そのプロパティ自体の `PropertyChanged` が必要です。普段は入れ物を作り替えず `Clear()` と `Add()` で中身を変えるほうが安全です。上の `Objects` が `{ get; }` だけで `set` を持たないのは、そのためです。
 
-`ItemsSource` は、リスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は、選んでいる 1 件で、`ListBox` の側で選び直すと `Selected` に書き戻されます。第 16 章で詳しく扱います。
+`ItemsSource` はリスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は選んでいる 1 件で `ListBox` の側で選び直すと `Selected` に書き戻されます。第 16 章で詳しく扱います。
 
 ### 深掘り：項目の見た目（DataTemplate）
 
-`DisplayMemberPath="Name"` は、「各要素の `Name` を文字で出す」だけの簡単な指定です。名前と位置を並べたいときは、`DataTemplate` で、1 件ごとの見た目を決めます。
+`DisplayMemberPath="Name"` は「各要素の `Name` を文字で出す」だけの簡単な指定です。名前と位置を並べたいときは `DataTemplate` で、1 件ごとの見た目を決めます。
 
 ```xml title="MainWindow.xaml（変更：ListBox の中身）"
 <ListBox ItemsSource="{Binding Objects}"
@@ -486,9 +484,9 @@ public partial class MainWindowViewModel : ObservableObject
 </ListBox>
 ```
 
-大事なのは、`DataTemplate` の中では、`DataContext` が「リストの 1 要素」になることです。だから `{Binding Name}` は、各要素の `Name` を指します。ウィンドウ全体のビューモデルの `Name` ではありません。迷ったら、`DataTemplate` の中なら 1 要素、それ以外なら親から引き継いだもの、と考えれば追えます。
+大事なのは `DataTemplate` の中では `DataContext` が「リストの 1 要素」になることです。だから `{Binding Name}` は各要素の `Name` を指します。ウィンドウ全体のビューモデルの `Name` ではありません。迷ったら `DataTemplate` の中なら 1 要素、それ以外なら親から引き継いだものと考えれば追えます。
 
-右のパネルで位置を書き換えて、フォーカスを外すと、左のリストの `X:` も変わります。`SceneObjectViewModel` が通知を出しているので、リストの 1 行ごとに、バインディングが生きているのです。
+右のパネルで位置を書き換えて、フォーカスを外すと左のリストの `X:` も変わります。`SceneObjectViewModel` が通知を出しているのでリストの 1 行ごとにバインディングが生きているのです。
 
 ## 何も選ばれていないときは隠す
 
@@ -506,11 +504,11 @@ public partial class MainWindowViewModel : ObservableObject
 </StackPanel>
 ```
 
-`HasSelection` は `bool` ですが、`Visibility` に入れられるのは `Visible`、`Hidden`、`Collapsed` の 3 つのどれかです。型が違う 2 つをつなぐのが、`Converter` です。WPF には、`bool` と `Visibility` を変換する `BooleanToVisibilityConverter` が、最初から入っています。
+`HasSelection` は `bool` ですが `Visibility` に入れられるのは `Visible`、`Hidden`、`Collapsed` の 3 つのどれかです。型が違う 2 つをつなぐのが、`Converter` です。WPF には `bool` と `Visibility` を変換する `BooleanToVisibilityConverter` が、最初から入っています。
 
 ### 深掘り：値の変換（IValueConverter）
 
-標準の変換では足りないときは、自分で書きます。中身の仕組みを見るために、同じ変換を書いてみます。この `BoolToVisibilityConverter` は、仕組みを知るための実験で、`Editor` には入れません。
+標準の変換では足りないときは自分で書きます。中身の仕組みを見るために同じ変換を書いてみます。この `BoolToVisibilityConverter` は仕組みを知るための実験で、`Editor` には入れません。
 
 ```csharp title="実験：IValueConverter の中身（Editor には入れない）"
 using System.Globalization;
@@ -526,13 +524,13 @@ public class BoolToVisibilityConverter : IValueConverter
 }
 ```
 
-`Convert` がデータから画面へ、`ConvertBack` が画面からデータへの変換です。リソースに登録して名前で呼ぶ形は、標準のものと同じです。
+`Convert` がデータから画面へ `ConvertBack` が画面からデータへの変換です。リソースに登録して名前で呼ぶ形は標準のものと同じです。
 
-`Visibility` の 3 つの値は、`Visible` が見える、`Hidden` が見えないが場所は残る、`Collapsed` が見えず場所も詰まる、です。パネルを丸ごと隠すときは、レイアウトが空かないように `Collapsed` を使います。
+`Visibility` の 3 つの値は `Visible` が見える `Hidden` が見えないが場所は残る `Collapsed` が見えず場所も詰まるです。パネルを丸ごと隠すときはレイアウトが空かないように `Collapsed` を使います。
 
 ## MVVM という考え方
 
-ここまでに作ったものを、役割で整理します。
+ここまでに作ったものを役割で整理します。
 
 | 役割 | 呼び方 | この教材では |
 | --- | --- | --- |
@@ -540,7 +538,7 @@ public class BoolToVisibilityConverter : IValueConverter
 | 画面 | View（ビュー） | `MainWindow.xaml` |
 | 本来のデータ・ロジック | Model（モデル） | エンジン側、あとで作る `SceneDocument` など |
 
-ビューは、ビューモデルのプロパティを見るだけです。ビューモデルは、ビューを知りません。この一方通行のおかげで、画面を作り替えてもロジックは壊れず、ビューモデルを画面なしでテストすることもできます。
+ビューはビューモデルのプロパティを見るだけです。ビューモデルはビューを知りません。この一方通行のおかげで画面を作り替えてもロジックは壊れずビューモデルを画面なしでテストすることもできます。
 
 ```text
 View（MainWindow.xaml）            ViewModel（C#）
@@ -552,43 +550,41 @@ View（MainWindow.xaml）            ViewModel（C#）
                                   Model（エンジン、ドキュメント）
 ```
 
-今の `SceneObjectViewModel` は、データそのものも持っています。まだエンジンにつながっていないので、ビューモデルがモデルを兼ねていますが、第 40 章でエンジンのシーンとつなぐときに、データ側を切り出します。
+今の `SceneObjectViewModel` はデータそのものも持っています。まだエンジンにつながっていないので、ビューモデルがモデルを兼ねていますが、第 40 章でエンジンのシーンとつなぐときにデータ側を切り出します。
 
-「このコードはどこに書けばよいか」で迷ったときの目安も、書いておきます。
+「このコードはどこに書けばよいか」で迷ったときの目安も書いておきます。
 
-| こういう処理は | ここに書く |
-| --- | --- |
-| 画面に見せる値、入力された値の検証 | ビューモデル |
-| ボタンを押したときの処理 | ビューモデル（コマンド） |
-| ファイルやエンジンの呼び出し | ビューモデルから、サービス（インターフェース）を通して |
-| 見た目だけの話（アニメーション、部品の配置の微調整） | XAML か、ビューのコードビハインド |
-| ウィンドウや部品そのものを触る処理（`HwndHost` のイベントを受けるなど） | ビューのコードビハインド（ビューモデルに橋渡しするだけにする） |
-| `MessageBox`、ファイル ダイアログ | サービスに包んで、ビューモデルから呼ぶ（第 24 章） |
+- 画面に見せる値、入力された値の検証: ビューモデル
+- ボタンを押したときの処理: ビューモデル（コマンド）
+- ファイルやエンジンの呼び出し: ビューモデルから、サービス（インターフェース）を通して
+- 見た目だけの話（アニメーション、部品の配置の微調整）: XAML かビューのコードビハインド
+- ウィンドウや部品そのものを触る処理（`HwndHost` のイベントを受けるなど）: ビューのコードビハインド（ビューモデルに橋渡しするだけにする）
+- `MessageBox`、ファイル ダイアログ: サービスに包んで、ビューモデルから呼ぶ（第 24 章）
 
-コードビハインドを絶対に使ってはいけない、という決まりではありません。画面の部品そのものを相手にする処理は、ビューのコードビハインドに書いたほうが素直です。ただしロジックは書かず、ビューモデルへ橋渡しするだけにとどめます。
+コードビハインドを絶対に使ってはいけない、という決まりではありません。画面の部品そのものを相手にする処理は、ビューのコードビハインドに書いたほうが素直です。ただしロジックは書かずビューモデルへ橋渡しするだけにとどめます。
 
 ## 動かして確かめる
 
-`F5` で実行して、次を確かめてください。
+`F5` で実行して次を確かめてください。
 
-- 左に `Camera`、`Cube`、`Light` が並び、`Cube` が選ばれている。
-- 別の行を選ぶと、右のパネルの名前と位置が切り替わる。
-- 名前を打つと、打つたびに左のリストの名前が変わる。
-- 位置を書き換えてフォーカスを外すと、リストの `X:` の数字が変わる。
-- 位置がすべて 0 のとき、「位置をリセット」が灰色になる。
-- 「オブジェクトを追加」で行が増え、増えた行が選ばれる。
+- 左に `Camera`、`Cube`、`Light` が並び `Cube` が選ばれている。
+- 別の行を選ぶと右のパネルの名前と位置が切り替わる。
+- 名前を打つと打つたびに左のリストの名前が変わる。
+- 位置を書き換えてフォーカスを外すとリストの `X:` の数字が変わる。
+- 位置がすべて 0 のとき「位置をリセット」が灰色になる。
+- 「オブジェクトを追加」で行が増え増えた行が選ばれる。
 
-??? failure "右のパネルが空のまま、何も出ない"
+??? failure "右のパネルが空のまま何も出ない"
     `MainWindow.xaml` に `AutoWireViewModel="True"` が書いてあるか（第 12 章）、「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。`MainWindowViewModel` の `Selected` が `public` のプロパティになっているかも見てください。
 
 ??? failure "位置を書き換えても、左のリストの数字が変わらない"
-    `SceneObjectViewModel` が `ObservableObject` を継承して、`[ObservableProperty]` のフィールドを、プロパティ（`X`）経由で書き換えているかを確かめます。フィールド（`_x`）に直接書くと、通知が出ません。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
+    `SceneObjectViewModel` が `ObservableObject` を継承して、`[ObservableProperty]` のフィールドをプロパティ（`X`）経由で書き換えているかを確かめます。フィールド（`_x`）に直接書くと通知が出ません。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
 
 ??? failure "`partial` に関するエラー、または `X` が見つからない"
-    クラスに `partial` を付けているかを確かめます。付けないと、ジェネレーターが生成したプロパティを、同じクラスに足せません。ビルドし直したあとも消えないときは、Visual Studio を開き直してください。
+    クラスに `partial` を付けているかを確かめます。付けないとジェネレーターが生成したプロパティを同じクラスに足せません。ビルドし直したあとも消えないときは Visual Studio を開き直してください。
 
 ??? failure "リセットを押しても、ボタンの状態が戻らない"
-    `X`、`Y`、`Z` のフィールドに、`[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` が付いているかを確かめます。
+    `X`、`Y`、`Z` のフィールドに `[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` が付いているかを確かめます。
 
 ## ここまでの Editor
 
@@ -602,11 +598,11 @@ Editor/
 
 ## ここまでのまとめ
 
-- `DataContext` に入れたオブジェクトを、`{Binding プロパティ名}` が見に行く。
-- 画面が追従するには、`INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。プロパティは CommunityToolkit.Mvvm の `ObservableObject` と `[ObservableProperty]` で書く。
-- 別のプロパティから計算する値は、元のプロパティに `[NotifyPropertyChangedFor]` を付けて知らせる。
+- `DataContext` に入れたオブジェクトを `{Binding プロパティ名}` が見に行く。
+- 画面が追従するには `INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。プロパティは CommunityToolkit.Mvvm の `ObservableObject` と `[ObservableProperty]` で書く。
+- 別のプロパティから計算する値は元のプロパティに `[NotifyPropertyChangedFor]` を付けて知らせる。
 - 操作は `ICommand`（`[RelayCommand]` で生成する）、リストの 1 件の見た目は `DataTemplate`、型の違いは `Converter` でつなぐ。
-- 画面で困ったら、「出力」ウィンドウの `BindingExpression path error` を見る。
+- 画面で困ったら「出力」ウィンドウの `BindingExpression path error` を見る。
 
 ## 関連する章
 
@@ -615,6 +611,6 @@ Editor/
 - [第 28 章 コードビハインドを減らす](28-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
 - [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)：CommunityToolkit.Mvvm と、Prism の `BindableBase`、ReactiveProperty の書き比べ。Prism との分担
 
-次の章では、バインディングの設定を細かく見ていきます。「更新されない」の原因の多くは、ここにあります。
+次の章ではバインディングの設定を細かく見ていきます。「更新されない」の原因の多くはここにあります。
 
 [第 15 章 バインディングを掘り下げる](15-binding.md) へ進みます。

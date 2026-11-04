@@ -203,32 +203,28 @@ json LoadSettings(const char* path) {
 
 nlohmann/json は、次の型を**何も書かずに**変換できます。
 
-| JSON | C++ の型（読み書きできるもの） |
-| --- | --- |
-| `null` | `nullptr`、空の `std::optional`（後述） |
-| `true` / `false` | `bool` |
-| 数値（整数） | `int`、`std::int64_t`、`unsigned` など全ての整数型 |
-| 数値（小数） | `float`、`double` |
-| 文字列 | `std::string`、`const char*`（書くときだけ）、`std::string_view`（書くときだけ） |
-| 配列 | `std::vector`、`std::array`、`std::list`、`std::deque`、`std::set`、`std::pair`、`std::tuple` など |
-| オブジェクト | `std::map<std::string, T>`、`std::unordered_map<std::string, T>` |
-| 文字列（enum） | `NLOHMANN_JSON_SERIALIZE_ENUM` を書いた enum |
+- `null`: `nullptr`、空の `std::optional`（後述）
+- `true` / `false`: `bool`
+- 数値（整数）: `int`、`std::int64_t`、`unsigned` など全ての整数型
+- 数値（小数）: `float`、`double`
+- 文字列: `std::string`、`const char*`（書くときだけ）、`std::string_view`（書くときだけ）
+- 配列: `std::vector`、`std::array`、`std::list`、`std::deque`、`std::set`、`std::pair`、`std::tuple` など
+- オブジェクト: `std::map<std::string, T>`、`std::unordered_map<std::string, T>`
+- 文字列（enum）: `NLOHMANN_JSON_SERIALIZE_ENUM` を書いた enum
 
 !!! note "std::optional"
     `std::optional` は最近のバージョンでは標準で対応していて、値が無いときは `null` になります。古い版でコンパイルエラーになる場合は、`nlohmann::adl_serializer<std::optional<T>>` を特殊化して変換方法を自分で書きます。
 
 内部では、1 つの `json` オブジェクトが「今どの種類の値を持っているか」を覚えていて（`std::variant` に近い仕組み）、種類は次の 8 つです。
 
-| 種類（`value_t`） | 内部の C++ の型 |
-| --- | --- |
-| `null` | なし |
-| `object` | `std::map<std::string, json>` |
-| `array` | `std::vector<json>` |
-| `string` | `std::string` |
-| `boolean` | `bool` |
-| `number_integer` | `std::int64_t` |
-| `number_unsigned` | `std::uint64_t` |
-| `number_float` | `double` |
+- `null`: なし
+- `object`: `std::map<std::string, json>`
+- `array`: `std::vector<json>`
+- `string`: `std::string`
+- `boolean`: `bool`
+- `number_integer`: `std::int64_t`
+- `number_unsigned`: `std::uint64_t`
+- `number_float`: `double`
 
 ### オブジェクトのキーの順番 {#key_order}
 
@@ -481,12 +477,10 @@ nlohmann/json は**書きやすさを最優先**にしたライブラリなの�
 
 とはいえ、数 MB までの JSON なら一瞬で読めます。ゲームで問題になるのは、次のような場合だけです。
 
-| 状況 | 対策 |
-| --- | --- |
-| 数十 MB 以上の JSON を読む | 読み込みだけ [simdjson](simdjson.md) にする |
-| 毎フレーム JSON を作る・読む | JSON はロード時だけにして、実行中は普通の構造体を使う |
-| 製品版のロード時間を短くしたい | 開発中は JSON、製品版はビルド時にバイナリ（[zpp_bits](zpp-bits.md) など）に変換 |
-| サイズを小さくしたい | `to_cbor` / `to_msgpack` でバイナリにする（読み書きのコードは同じ） |
+- 数十 MB 以上の JSON を読む: 読み込みだけ [simdjson](simdjson.md) にする
+- 毎フレーム JSON を作る・読む: JSON はロード時だけにして、実行中は普通の構造体を使う
+- 製品版のロード時間を短くしたい: 開発中は JSON、製品版はビルド時にバイナリ（[zpp_bits](zpp-bits.md) など）に変換
+- サイズを小さくしたい: `to_cbor` / `to_msgpack` でバイナリにする（読み書きのコードは同じ）
 
 ## 関数の詳しい説明
 
@@ -1112,22 +1106,18 @@ int main() {
 
 ### dump の error_handler
 
-| 値 | 不正な UTF-8 があったとき |
-| --- | --- |
-| `json::error_handler_t::strict`（デフォルト） | `json::type_error`（316）を投げる |
-| `json::error_handler_t::replace` | 不正なバイトを `U+FFFD`（�）に置き換える |
-| `json::error_handler_t::ignore` | 不正なバイトを捨てる |
+- `json::error_handler_t::strict`（デフォルト）: `json::type_error`（316）を投げる
+- `json::error_handler_t::replace`: 不正なバイトを `U+FFFD`（�）に置き換える
+- `json::error_handler_t::ignore`: 不正なバイトを捨てる
 
 Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 として不正なので `dump` が例外を投げます。ソースファイルを UTF-8 で保存し、MSVC では `/utf-8` オプションを付けます。
 
 ### 設定マクロ（include の前に定義する）
 
-| マクロ | 意味 |
-| --- | --- |
-| `JSON_USE_IMPLICIT_CONVERSIONS=0` | `int x = j;` のような暗黙の変換を禁止し、`get<T>()` を強制する |
-| `JSON_DIAGNOSTICS=1` | 例外のメッセージにエラーが起きた場所のパス（`/stages/0/hp` など）を付ける。デバッグに便利だが少し重い |
-| `JSON_NOEXCEPTION` | 例外を使わない（エラー時は `abort`） |
-| `JSON_USE_GLOBAL_UDLS=0` | `_json` リテラルをグローバルに置かない |
+- `JSON_USE_IMPLICIT_CONVERSIONS=0`: `int x = j;` のような暗黙の変換を禁止し、`get<T>()` を強制する
+- `JSON_DIAGNOSTICS=1`: 例外のメッセージにエラーが起きた場所のパス（`/stages/0/hp` など）を付ける。デバッグに便利だが少し重い
+- `JSON_NOEXCEPTION`: 例外を使わない（エラー時は `abort`）
+- `JSON_USE_GLOBAL_UDLS=0`: `_json` リテラルをグローバルに置かない
 
 ### 型の別名
 
@@ -1139,14 +1129,12 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| 設定ファイル（音量・画面・キー設定） | `ordered_json` + `value()` で、無い項目はデフォルト |
-| セーブデータ | 構造体にマクロ、`version` キーを入れる |
-| ステージ・敵の配置（エディタ出力） | `from_json` で読み、ゲームの構造体に変換 |
-| マスターデータ（アイテム・敵の表） | 開発中は JSON。量が増えたら製品版はバイナリに変換 |
-| デバッグ表示・ログ | 状態を `dump(2)` で書き出して確認 |
-| ImGui のエディタの保存 | 構造体ごと JSON に |
+- 設定ファイル（音量・画面・キー設定）: `ordered_json` + `value()` で、無い項目はデフォルト
+- セーブデータ: 構造体にマクロ、`version` キーを入れる
+- ステージ・敵の配置（エディタ出力）: `from_json` で読み、ゲームの構造体に変換
+- マスターデータ（アイテム・敵の表）: 開発中は JSON。量が増えたら製品版はバイナリに変換
+- デバッグ表示・ログ: 状態を `dump(2)` で書き出して確認
+- ImGui のエディタの保存: 構造体ごと JSON に
 
 ## よくあるミス {#mistakes}
 

@@ -60,24 +60,20 @@ void OnResize(UINT new_width, UINT new_height) {
 
 ### 引数
 
-| 引数 | 内容 |
-| --- | --- |
-| `BufferCount` | バッファの数。0 で今のまま |
-| `Width`・`Height` | 新しい大きさ。0 でウィンドウの描画領域に合わせる |
-| `NewFormat` | フォーマット。`DXGI_FORMAT_UNKNOWN` で今のまま |
-| `SwapChainFlags` | 作成時のフラグと同じものを渡す |
+- `BufferCount`: バッファの数。0 で今のまま
+- `Width`・`Height`: 新しい大きさ。0 でウィンドウの描画領域に合わせる
+- `NewFormat`: フォーマット。`DXGI_FORMAT_UNKNOWN` で今のまま
+- `SwapChainFlags`: 作成時のフラグと同じものを渡す
 
 ## 画面の大きさに依存する、リソース
 
 バック バッファ以外にも画面の大きさで作った、リソースはすべて作り直します。
 
-| リソース | 大きさ |
-| --- | --- |
-| 深度バッファ | 画面と同じ |
-| G バッファ（MRT） | 画面と同じ |
-| HDR のシーン色 | 画面と同じ |
-| ポスト プロセスの中間バッファ | 画面（または、半分・1/4） |
-| TAA の履歴 | 画面と同じ（作り直したら履歴は無効。最初のフレームは履歴を使わない） |
+- 深度バッファ: 画面と同じ
+- G バッファ（MRT）: 画面と同じ
+- HDR のシーン色: 画面と同じ
+- ポスト プロセスの中間バッファ: 画面（または、半分・1/4）
+- TAA の履歴: 画面と同じ（作り直したら履歴は無効。最初のフレームは履歴を使わない）
 
 ```cpp
 void CreateScreenSizedResources() {
@@ -112,13 +108,11 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 }
 ```
 
-| `GetDeviceRemovedReason` の値 | 内容 |
-| --- | --- |
-| `DXGI_ERROR_DEVICE_HUNG` | GPU が応答しなくなった（重すぎる無限ループのシェーダー） |
-| `DXGI_ERROR_DEVICE_REMOVED` | GPU が取り外されたまたは、ドライバーが更新された |
-| `DXGI_ERROR_DEVICE_RESET` | 不正な描画命令で、リセットされた |
-| `DXGI_ERROR_DRIVER_INTERNAL_ERROR` | ドライバーの内部エラー |
-| `DXGI_ERROR_INVALID_CALL` | API の使い方が間違っていた |
+- `DXGI_ERROR_DEVICE_HUNG`: GPU が応答しなくなった（重すぎる無限ループのシェーダー）
+- `DXGI_ERROR_DEVICE_REMOVED`: GPU が取り外されたまたは、ドライバーが更新された
+- `DXGI_ERROR_DEVICE_RESET`: 不正な描画命令で、リセットされた
+- `DXGI_ERROR_DRIVER_INTERNAL_ERROR`: ドライバーの内部エラー
+- `DXGI_ERROR_INVALID_CALL`: API の使い方が間違っていた
 
 ### 作り直し
 
@@ -137,12 +131,10 @@ void RecreateDevice() {
 
 ## 最小化・フォーカスの扱い
 
-| 状態 | 対処 |
-| --- | --- |
-| 最小化（`SIZE_MINIMIZED`） | 描画を止める。バック バッファは作り直さない |
-| 最小化から復帰（`SIZE_RESTORED`） | 大きさが、変わっていれば作り直す |
-| `Present` が `DXGI_STATUS_OCCLUDED` | ウィンドウが隠れている。描画をスキップして少し待つ |
-| フォーカスを失う | 必要なら更新を一時停止 |
+- 最小化（`SIZE_MINIMIZED`）: 描画を止める。バック バッファは作り直さない
+- 最小化から復帰（`SIZE_RESTORED`）: 大きさが、変わっていれば作り直す
+- `Present` が `DXGI_STATUS_OCCLUDED`: ウィンドウが隠れている。描画をスキップして少し待つ
+- フォーカスを失う: 必要なら更新を一時停止
 
 ## フルスクリーン
 

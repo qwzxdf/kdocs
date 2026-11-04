@@ -71,10 +71,8 @@ int main() {
 
 ### class と struct の使い分け
 
-| 使い方 | 書き方 |
-| --- | --- |
-| 守るべきルール（不変条件）がある | `class`（メンバは private） |
-| ただのデータの入れ物（どんな値でも OK） | `struct`（メンバは public） |
+- 守るべきルール（不変条件）がある: `class`（メンバは private）
+- ただのデータの入れ物（どんな値でも OK）: `struct`（メンバは public）
 
 ```cpp
 struct Vec2 {  // どんな x, y でも正しい → struct で公開
@@ -166,10 +164,8 @@ int main() {
 
 ## 4. Rule of Zero / Rule of Five
 
-| ルール | 中身 |
-| --- | --- |
-| **Rule of Zero** | メンバが標準の型（string、vector、unique_ptr）なら、コピー・ムーブ・デストラクタを**何も書かない**。コンパイラが正しく作ってくれる |
-| **Rule of Five** | どれか 1 つ（デストラクタなど）を自分で書いたら、残り 4 つ（コピーコンストラクタ、コピー代入、ムーブコンストラクタ、ムーブ代入）も考える |
+- **Rule of Zero**: メンバが標準の型（string、vector、unique_ptr）なら、コピー・ムーブ・デストラクタを**何も書かない**。コンパイラが正しく作ってくれる
+- **Rule of Five**: どれか 1 つ（デストラクタなど）を自分で書いたら、残り 4 つ（コピーコンストラクタ、コピー代入、ムーブコンストラクタ、ムーブ代入）も考える
 
 ```cpp
 // Rule of Zero：何も書かなくていい
@@ -203,14 +199,12 @@ class GpuBuffer {
 
 ## 5. その他のポイント
 
-| ポイント | 理由 |
-| --- | --- |
-| public → protected → private の順に書く | 使う人が知りたいもの（public）が先に見える（Google Style） |
-| メンバ変数の名前の最後に `_` を付ける | ローカル変数・引数と区別できる（Google Style） |
-| 仮想関数を持つ基底クラスのデストラクタは `virtual` | [継承と仮想関数](../../basics/virtual.md) |
-| 継承させないクラスには `final` | 意図がはっきりし、最適化もされやすい |
-| 1 つのクラスが大きくなったら分ける | [単一責任](principles.md#1-単一責任single-responsibility) |
-| 比較が必要なら `operator==` / `<=>` を `= default` | メンバごとの比較を自動で作れる |
+- public → protected → private の順に書く: 使う人が知りたいもの（public）が先に見える（Google Style）
+- メンバ変数の名前の最後に `_` を付ける: ローカル変数・引数と区別できる（Google Style）
+- 仮想関数を持つ基底クラスのデストラクタは `virtual`: [継承と仮想関数](../../basics/virtual.md)
+- 継承させないクラスには `final`: 意図がはっきりし、最適化もされやすい
+- 1 つのクラスが大きくなったら分ける: [単一責任](principles.md#1-単一責任single-responsibility)
+- 比較が必要なら `operator==` / `<=>` を `= default`: メンバごとの比較を自動で作れる
 
 ```cpp
 #include <compare>

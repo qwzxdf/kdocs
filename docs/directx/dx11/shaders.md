@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>シェーダー</strong>は GPU の上で動く、小さなプログラムです。DirectX では <strong>HLSL</strong>（High-Level Shading Language）という、C に似た言語で書き <strong>バイトコード</strong>に、コンパイルして GPU に渡します。頂点シェーダー（VS）は頂点ごと、ピクセル シェーダー（PS）は、ピクセルごと計算シェーダー（CS）は自由な、並列計算を行います。
+<strong>シェーダー</strong>は GPU の上で動く、小さなプログラムです。DirectX では <strong>HLSL</strong>（High-Level Shading Language）という、C に似た言語で書き <strong>バイトコード</strong>にコンパイルして GPU に渡します。頂点シェーダー（VS）は頂点ごとピクセル シェーダー（PS）は、ピクセルごと計算シェーダー（CS）は自由な並列計算を行います。
 
 !!! tip "ポイント"
     - HLSL を <strong>コンパイル</strong>して、バイトコード（`ID3DBlob`）を得る。それから `CreateVertexShader` などでシェーダー オブジェクトを作る。
     - コンパイルのタイミングは、2 通り。<strong>ビルド時</strong>（`fxc`、Visual Studio の HLSL コンパイラー。`.cso` を読む）と <strong>実行時</strong>（`D3DCompileFromFile`）。
-    - 入口の関数の名前（`VSMain` など）と、ターゲット（`vs_5_0`）を指定する。
-    - コンパイルのエラーは、`errors` の ブロブに文字列で入る。必ず表示する。
-    - バイトコードは <strong>入力レイアウトの作成</strong>にも、使う（[Input Layout](input-layout.md)）。
+    - 入口の関数の名前（`VSMain` など）とターゲット（`vs_5_0`）を指定する。
+    - コンパイルのエラーは `errors` の ブロブに文字列で入る。必ず表示する。
+    - バイトコードは <strong>入力レイアウトの作成</strong>にも使う（[Input Layout](input-layout.md)）。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -51,7 +51,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 }
 ```
 
-`: POSITION` や `: SV_Position` は <strong>セマンティクス</strong>（意味づけ）です。`SV_` で始まるシステム値はパイプラインが特別な意味で、扱います（`SV_Position` はクリップ空間の位置、`SV_Target` は出力先の色）。それ以外の名前（`POSITION`、`COLOR`、`TEXCOORD0`）は VS の入力と VS から PS への、受け渡しをつなぐ目印です。
+`: POSITION` や `: SV_Position` は <strong>セマンティクス</strong>（意味づけ）です。`SV_` で始まるシステム値はパイプラインが特別な意味で、扱います（`SV_Position` はクリップ空間の位置、`SV_Target` は出力先の色）。それ以外の名前（`POSITION`、`COLOR`、`TEXCOORD0`）は VS の入力と VS から PS への受け渡しをつなぐ目印です。
 
 ## 実行時にコンパイルする
 
@@ -76,26 +76,22 @@ Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(const wchar_t* path, const char* 
 }
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pFileName` | HLSL ファイルの、パス |
-| `pDefines` | `#define` の配列（`nullptr` で、無し） |
-| `pInclude` | `#include` の解決。`D3D_COMPILE_STANDARD_FILE_INCLUDE` でファイルから読む |
-| `pEntrypoint` | 入口の関数名（`"VSMain"`） |
-| `pTarget` | ターゲット（`"vs_5_0"`、`"ps_5_0"`、`"cs_5_0"`） |
-| `Flags1` | `D3DCOMPILE_*`（下の表） |
-| `ppCode` | 出力: バイトコード |
-| `ppErrorMsgs` | 出力: エラー・警告の、文字列 |
+- `pFileName`: HLSL ファイルのパス
+- `pDefines`: `#define` の配列（`nullptr` で無し）
+- `pInclude`: `#include` の解決。`D3D_COMPILE_STANDARD_FILE_INCLUDE` でファイルから読む
+- `pEntrypoint`: 入口の関数名（`"VSMain"`）
+- `pTarget`: ターゲット（`"vs_5_0"`、`"ps_5_0"`、`"cs_5_0"`）
+- `Flags1`: `D3DCOMPILE_*`（下の表）
+- `ppCode`: 出力: バイトコード
+- `ppErrorMsgs`: 出力: エラー・警告の文字列
 
-| フラグ | 内容 |
-| --- | --- |
-| `D3DCOMPILE_ENABLE_STRICTNESS` | 古い構文を禁止する（常に、付ける） |
-| `D3DCOMPILE_DEBUG` | デバッグ情報を埋める（グラフィックス デバッガーで、ソースを見られる） |
-| `D3DCOMPILE_SKIP_OPTIMIZATION` | 最適化をしない（デバッグ時） |
-| `D3DCOMPILE_OPTIMIZATION_LEVEL3` | 最大の最適化（既定） |
-| `D3DCOMPILE_WARNINGS_ARE_ERRORS` | 警告をエラー扱い |
+- `D3DCOMPILE_ENABLE_STRICTNESS`: 古い構文を禁止する（常に付ける）
+- `D3DCOMPILE_DEBUG`: デバッグ情報を埋める（グラフィックス デバッガーで、ソースを見られる）
+- `D3DCOMPILE_SKIP_OPTIMIZATION`: 最適化をしない（デバッグ時）
+- `D3DCOMPILE_OPTIMIZATION_LEVEL3`: 最大の最適化（既定）
+- `D3DCOMPILE_WARNINGS_ARE_ERRORS`: 警告をエラー扱い
 
-エラーの文字列（`errors`）は `ID3DBlob` に、入ります。<strong>`FAILED` の時、必ず表示</strong>します。表示しないと「シェーダーが作れない」としか、分からず原因が探せません。
+エラーの文字列（`errors`）は `ID3DBlob` に入ります。<strong>`FAILED` の時、必ず表示</strong>します。表示しないと「シェーダーが作れない」としか分からず原因が探せません。
 
 ## シェーダー オブジェクトを作る
 
@@ -128,15 +124,13 @@ device->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBuffe
 
 HLSL ファイルをプロジェクトに追加し、ファイルのプロパティで次を設定します。
 
-| 設定 | 値 |
-| --- | --- |
-| 項目の種類 | HLSL コンパイラ |
-| シェーダーの種類 | 頂点シェーダー（`/vs`）、ピクセル シェーダー（`/ps`）、計算シェーダー（`/cs`） |
-| シェーダー モデル | 5.0（`/5_0`） |
-| エントリ ポイント名 | `VSMain` など |
-| オブジェクト ファイル名 | `$(OutDir)%(Filename).cso` |
+- 項目の種類: HLSL コンパイラ
+- シェーダーの種類: 頂点シェーダー（`/vs`）、ピクセル シェーダー（`/ps`）、計算シェーダー（`/cs`）
+- シェーダー モデル: 5.0（`/5_0`）
+- エントリ ポイント名: `VSMain` など
+- オブジェクト ファイル名: `$(OutDir)%(Filename).cso`
 
-1 つの HLSL ファイルに複数のシェーダーがある場合は、シェーダーごとに別の HLSL ファイル（または別の、設定）にします。
+1 つの HLSL ファイルに複数のシェーダーがある場合は、シェーダーごとに別の HLSL ファイル（または別の設定）にします。
 
 ```cpp
 // .cso を読み込む。
@@ -172,7 +166,7 @@ fxc /T ps_5_0 /E PSMain /Fo triangle_ps.cso triangle.hlsl
 
 ## 開発中のホット リロード
 
-実行時のコンパイルを使うとシェーダーを書き換えてゲームを再起動せずに、反映できます。
+実行時のコンパイルを使うとシェーダーを書き換えてゲームを再起動せずに反映できます。
 
 ```cpp
 // ファイルの更新時刻が変わったら、再コンパイルして、シェーダーを差し替える。
@@ -190,7 +184,7 @@ if (time != last_write_time_) {
 
 ## リフレクション（シェーダーの情報を読む）
 
-バイトコードから「どんな入力・定数バッファ・テクスチャがあるか」を読み取れます（`D3DReflect`）。入力レイアウトの自動生成などに、使えます。
+バイトコードから「どんな入力・定数バッファ・テクスチャがあるか」を読み取れます（`D3DReflect`）。入力レイアウトの自動生成などに使えます。
 
 ```cpp
 Microsoft::WRL::ComPtr<ID3D11ShaderReflection> reflection;
@@ -202,7 +196,7 @@ reflection->GetDesc(&desc);                                // 入力の数、定
 ## よくあるミス
 
 ??? failure "`D3DCompileFromFile` が、失敗するが理由が分からない"
-    `errors` の内容を表示していない。`OutputDebugStringA` で出力ウィンドウに出す。ファイルのパスが実行ファイルの、作業ディレクトリから見えるかも、確認する。
+    `errors` の内容を表示していない。`OutputDebugStringA` で出力ウィンドウに出す。ファイルのパスが実行ファイルの作業ディレクトリから見えるかも確認する。
 
 ??? failure "実行ファイルを別の場所に置くとシェーダーが見つからない"
     パスが相対で作業ディレクトリに依存している。`.cso` を実行ファイルの隣に置き `GetModuleFileName` でパスを組み立てる。
@@ -210,16 +204,16 @@ reflection->GetDesc(&desc);                                // 入力の数、定
 ??? failure "ピクセル シェーダーの入力が頂点シェーダーの出力と合わない"
     セマンティクスや型が合っていない。`VSOutput` を両方で同じ構造体にすると、間違えにくい。
 
-??? failure "ビルドしたのに古い、シェーダーが動く"
-    `.cso` の出力先と読み込み先が違う。Debug と Release の、出力フォルダを取り違えている。
+??? failure "ビルドしたのに古いシェーダーが動く"
+    `.cso` の出力先と読み込み先が違う。Debug と Release の出力フォルダを取り違えている。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] シェーダー ＝ GPU で動く小さなプログラム。HLSL で書きバイトコードにする
     - [x] 実行時は `D3DCompileFromFile`、製品はビルド時に `.cso` を作る
-    - [x] 入口の関数名と、ターゲット（`vs_5_0` など）を指定
-    - [x] コンパイル エラーの、文字列は必ず表示する
+    - [x] 入口の関数名とターゲット（`vs_5_0` など）を指定
+    - [x] コンパイル エラーの文字列は必ず表示する
     - [x] `CreateVertexShader`・`CreatePixelShader`・`CreateComputeShader` で、オブジェクトにする
     - [x] SM 6 以上は、`dxc`（D3D12）
 

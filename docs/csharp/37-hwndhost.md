@@ -6,11 +6,11 @@ tags:
 
 # 第 37 章 HwndHost でビューポートを実装する
 
-この章で、エディタの真ん中にエンジンの絵が出ます。`HwndHost` を継承した部品を作って、その中に Win32 の子ウィンドウを作り、その `HWND` で `Engine` を動かします。第 3〜4 章で作った「色が変わるウィンドウ」が WPF の画面の中に入るところです。
+この章でエディタの真ん中にエンジンの絵が出ます。`HwndHost` を継承した部品を作ってその中に Win32 の子ウィンドウを作りその `HWND` で `Engine` を動かします。第 3〜4 章で作った「色が変わるウィンドウ」が WPF の画面の中に入るところです。
 
 !!! info "このページを読む前に"
     - [第 36 章 3D ビューポートを埋め込む方法の比較](36-viewport-options.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
@@ -26,7 +26,7 @@ tags:
 
 ## HwndHost がやってくれること
 
-`HwndHost` は、WPF と Win32 の橋渡し役です。WPF の部品としてレイアウトに参加しますが、中身は Win32 のウィンドウです。
+`HwndHost` は WPF と Win32 の橋渡し役です。WPF の部品としてレイアウトに参加しますが、中身は Win32 のウィンドウです。
 
 ```text
 ViewportView（UserControl）
@@ -35,13 +35,13 @@ ViewportView（UserControl）
            └─ Engine がここにスワップ チェーンを作る
 ```
 
-`HwndHost` を継承したクラスがやる仕事は 3 つです。`BuildWindowCore` で `CreateWindowEx` を呼んで子ウィンドウを作り、`DestroyWindowCore` でそれを壊し、`OnWindowPositionChanged` で WPF のレイアウトによる大きさの変化を受け取ります。
+`HwndHost` を継承したクラスがやる仕事は 3 つです。`BuildWindowCore` で `CreateWindowEx` を呼んで子ウィンドウを作り `DestroyWindowCore` でそれを壊し、`OnWindowPositionChanged` で WPF のレイアウトによる大きさの変化を受け取ります。
 
-エンジンは WPF の存在を知りません。`HWND` を 1 つ受け取って、そこへ描くだけです。第 4 章の Player が作ったウィンドウに描くのと、まったく同じです。
+エンジンは WPF の存在を知りません。`HWND` を 1 つ受け取ってそこへ描くだけです。第 4 章の Player が作ったウィンドウに描くのとまったく同じです。
 
 ## フォルダーを用意する
 
-第 23 章と同じ作り方で、`Viewport` モジュールを作ります。
+第 23 章と同じ作り方で `Viewport` モジュールを作ります。
 
 ```text
 Editor\Viewport\
@@ -52,11 +52,11 @@ Editor\Viewport\
 Editor\Engine\Win32.cs          ← Win32 API の宣言
 ```
 
-`ViewportModule` は `SceneTreeModule` と同じ形で、`RegionNames.Viewport` に `ViewportView` を登録します。`App.xaml.cs` の `ConfigureModuleCatalog` に、`moduleCatalog.AddModule<ViewportModule>();` も足しておきます。
+`ViewportModule` は `SceneTreeModule` と同じ形で `RegionNames.Viewport` に `ViewportView` を登録します。`App.xaml.cs` の `ConfigureModuleCatalog` に `moduleCatalog.AddModule<ViewportModule>();` も足しておきます。
 
 ## Win32 API を宣言する
 
-子ウィンドウを作るために、`user32.dll` の関数を P/Invoke で宣言します。
+子ウィンドウを作るために `user32.dll` の関数を P/Invoke で宣言します。
 
 ```csharp title="Engine/Win32.cs（新規）"
 using System.Runtime.InteropServices;
@@ -126,13 +126,13 @@ internal static partial class Win32
 }
 ```
 
-定数の値は、C++ の `windows.h` に書かれているものと同じです。`WS_CHILD` は「親の中だけに表示される子ウィンドウ」、`WS_CLIPSIBLINGS` と `WS_CLIPCHILDREN` は「兄弟や子と重なる部分を描画から除く」指定で、ちらつきを防ぎます。`WNDCLASSEXW` は第 4 章の C++ と同じ構造体を `nint` の個数や並びごと、そのまま C# で再現しています。`RECT` は矩形で、`GetClientRect` が返す値は物理ピクセルです。
+定数の値は C++ の `windows.h` に書かれているものと同じです。`WS_CHILD` は「親の中だけに表示される子ウィンドウ」、`WS_CLIPSIBLINGS` と `WS_CLIPCHILDREN` は「兄弟や子と重なる部分を描画から除く」指定で、ちらつきを防ぎます。`WNDCLASSEXW` は第 4 章の C++ と同じ構造体を `nint` の個数や並びごとそのまま C# で再現しています。`RECT` は矩形で `GetClientRect` が返す値は物理ピクセルです。
 
-`SetLastError = true` は、呼び出しの直後に Windows のエラー コードを保存する指定で、あとから `Marshal.GetLastPInvokeError()` で読めます。`EntryPoint = "CreateWindowExW"` は、DLL 内の関数名を指定します。C# のメソッド名と変えたいときに使います（Windows API の `W` 付きが UTF-16 版です）。
+`SetLastError = true` は呼び出しの直後に Windows のエラー コードを保存する指定で、あとから `Marshal.GetLastPInvokeError()` で読めます。`EntryPoint = "CreateWindowExW"` は DLL 内の関数名を指定します。C# のメソッド名と変えたいときに使います（Windows API の `W` 付きが UTF-16 版です）。
 
 ## ViewportHost を書く
 
-まず、イベントの引数と、クラスの骨組みです。
+まず、イベントの引数とクラスの骨組みです。
 
 ```csharp title="Viewport/ViewportHost.cs（新規）"
 using System.Runtime.InteropServices;
@@ -171,7 +171,7 @@ public sealed class ViewportHost : HwndHost
     public event EventHandler? HandleDestroying;                         // 壊される直前
 ```
 
-`EventArgs` は、イベントの引数の基底クラスです。値を運びたいときは、これを継承したクラスを作ります。ここでは、子ウィンドウのハンドルと大きさを運びます。`HandleReady` など 3 つのイベントは、ビューポートの外（ビューやビューモデル）に状態を知らせるためのものです。
+`EventArgs` はイベントの引数の基底クラスです。値を運びたいときはこれを継承したクラスを作ります。ここでは、子ウィンドウのハンドルと大きさを運びます。`HandleReady` など 3 つのイベントはビューポートの外（ビューやビューモデル）に状態を知らせるためのものです。
 
 ### 子ウィンドウを作る
 
@@ -225,12 +225,12 @@ public sealed class ViewportHost : HwndHost
     }
 ```
 
-`BuildWindowCore` の引数 `hwndParent` は、WPF が用意する親の HWND です。作った子ウィンドウを `HandleRef` に包んで返します。`HandleRef` は、ハンドルとその持ち主をペアにした構造体で、ハンドルが使われている間、持ち主が GC に回収されないようにします。引数が多い関数なので、`exStyle: 0` のように名前付き引数で書いて、どれが何か分かるようにしています。
+`BuildWindowCore` の引数 `hwndParent` は WPF が用意する親の HWND です。作った子ウィンドウを `HandleRef` に包んで返します。`HandleRef` はハンドルとその持ち主をペアにした構造体で、ハンドルが使われている間、持ち主が GC に回収されないようにします。引数が多い関数なので `exStyle: 0` のように名前付き引数で書いて、どれが何か分かるようにしています。
 
-ウィンドウ クラスは、アプリで 1 回だけ登録すればよいので、`static` のフラグで管理しています。ウィンドウ プロシージャには、何もしない既定の `DefWindowProcW` のアドレスを `user32.dll` から取って渡しました。メッセージの処理は WPF（`HwndHost`）が受け取るので、この子ウィンドウ自身は何もしなくて済みます。クラス名の文字列は、プログラムが動いている間ずっと必要なので、`StringToHGlobalUni` でコピーして、解放しません。
+ウィンドウ クラスはアプリで 1 回だけ登録すればよいので、`static` のフラグで管理しています。ウィンドウ プロシージャには何もしない既定の `DefWindowProcW` のアドレスを `user32.dll` から取って渡しました。メッセージの処理は WPF（`HwndHost`）が受け取るので、この子ウィンドウ自身は何もしなくて済みます。クラス名の文字列はプログラムが動いている間ずっと必要なので、`StringToHGlobalUni` でコピーして解放しません。
 
 !!! note "「static」クラスで済ませない理由"
-    手軽に既存の `"static"` クラスで子ウィンドウを作る例もあります。ただ、`"static"` はマウスのメッセージを親に素通しにしてしまうので、第 39 章のマウス入力が取れません。自分で登録したクラスなら、マウスのメッセージがこの子ウィンドウに届きます。
+    手軽に既存の `"static"` クラスで子ウィンドウを作る例もあります。ただ、`"static"` はマウスのメッセージを親に素通しにしてしまうので、第 39 章のマウス入力が取れません。自分で登録したクラスならマウスのメッセージがこの子ウィンドウに届きます。
 
 ### 壊す
 
@@ -245,7 +245,7 @@ public sealed class ViewportHost : HwndHost
     }
 ```
 
-順序が大事です。エンジンを先に破棄してスワップ チェーンを解放してから、ウィンドウを壊します。逆にすると、DX12 が、壊れたあとの HWND を触ってエラーになります。
+順序が大事です。エンジンを先に破棄してスワップ チェーンを解放してから、ウィンドウを壊します。逆にすると、DX12 が壊れたあとの HWND を触ってエラーになります。
 
 ### 大きさの変化を受け取る
 
@@ -279,7 +279,7 @@ public sealed class ViewportHost : HwndHost
 }
 ```
 
-`OnWindowPositionChanged` は、WPF のレイアウトで位置や大きさが変わったときに呼ばれます。エンジンには、この関数で大きさを伝えます。
+`OnWindowPositionChanged` は WPF のレイアウトで位置や大きさが変わったときに呼ばれます。エンジンにはこの関数で大きさを伝えます。
 
 引数の `Rect` を使わず `GetClientRect` を使っているのは、`Rect` が WPF のデバイス非依存単位だからです。エンジンに渡すのは物理ピクセルでなければいけません。エンジンの作成には「大きさが 0 ではない」ことが必要なので、大きさが初めて決まった瞬間に `HandleReady` を出し、それ以降は `ViewportResized` を出します。
 
@@ -288,7 +288,7 @@ public sealed class ViewportHost : HwndHost
 
 ## ビューとビューモデル
 
-ビューは、`ViewportHost` を置くだけです。
+ビューは `ViewportHost` を置くだけです。
 
 ```xml title="Viewport/ViewportView.xaml（新規）"
 <UserControl x:Class="Editor.Viewport.ViewportView"
@@ -303,7 +303,7 @@ public sealed class ViewportHost : HwndHost
 </UserControl>
 ```
 
-`HwndHost` のイベントは、バインディングでは受けられません。そこで、ビューのコードビハインドで受けて、ビューモデルへ橋渡しします。ビューモデルは、画面を知らず、`HWND` と数値だけを受け取ります。
+`HwndHost` のイベントはバインディングでは受けられません。そこで、ビューのコードビハインドで受けて、ビューモデルへ橋渡しします。ビューモデルは画面を知らず `HWND` と数値だけを受け取ります。
 
 ```csharp title="Viewport/ViewportView.xaml.cs（新規）"
 using System.Windows.Controls;
@@ -325,9 +325,9 @@ public partial class ViewportView : UserControl
 }
 ```
 
-`(_, e) => ...` の `_` は、使わない引数の名前で、「捨てる」という意味です。`DataContext as ViewportViewModel` は、型の変換に失敗すると `null` になる書き方で、`ViewModel?.OnWindowReady(...)` の `?.` が、`null` のときは何もしない扱いにしてくれます。
+`(_, e) => ...` の `_` は使わない引数の名前で、「捨てる」という意味です。`DataContext as ViewportViewModel` は型の変換に失敗すると `null` になる書き方で、`ViewModel?.OnWindowReady(...)` の `?.` が `null` のときは何もしない扱いにしてくれます。
 
-コードビハインドにロジックは書いていません。画面の部品のイベントをビューモデルへ渡すだけの用途なら、コードビハインドを使っても問題ありません。
+コードビハインドにロジックは書いていません。画面の部品のイベントをビューモデルへ渡すだけの用途ならコードビハインドを使っても問題ありません。
 
 ```csharp title="Viewport/ViewportViewModel.cs（新規）"
 using System.Diagnostics;
@@ -404,11 +404,11 @@ public class ViewportViewModel
 }
 ```
 
-`CompositionTarget.Rendering` は、WPF が画面を 1 フレーム描くたびに、UI スレッドで呼ばれるイベントです。毎秒 60 回ほど呼ばれるので、ここをゲーム ループ代わりにしました。`Stopwatch` で経過時間を測って、`Tick` に渡しています（第 4 章の `steady_clock` と同じ役目です）。
+`CompositionTarget.Rendering` は WPF が画面を 1 フレーム描くたびに UI スレッドで呼ばれるイベントです。毎秒 60 回ほど呼ばれるので、ここをゲーム ループ代わりにしました。`Stopwatch` で経過時間を測って `Tick` に渡しています（第 4 章の `steady_clock` と同じ役目です）。
 
-後片付けの順序は、ループを止めてからエンジンを破棄することです。ループが動いたまま破棄すると、破棄済みのエンジンに `Tick` してしまいます。
+後片付けの順序はループを止めてからエンジンを破棄することです。ループが動いたまま破棄すると、破棄済みのエンジンに `Tick` してしまいます。
 
-ただし、このイベントが呼ばれる頻度は保証されていません。画面の更新が必要ないときは呼ばれないことがあり、ゲームの時間が止まる場合もあります。次の章で、専用のスレッドで一定の周期で回す方法に作り替えます。
+ただし、このイベントが呼ばれる頻度は保証されていません。画面の更新が必要ないときは呼ばれないことがありゲームの時間が止まる場合もあります。次の章で専用のスレッドで一定の周期で回す方法に作り替えます。
 
 ## モジュールに登録する
 
@@ -434,36 +434,36 @@ public class ViewportModule : IModule
 }
 ```
 
-`IEngineService` は第 33 章で `RegisterSingleton` 済みなので、ビューモデルは同じ 1 つのエンジンを受け取ります。エンジンのログも、第 33 章の `NativeLog.Install` のおかげで、ログ タブに出ます。
+`IEngineService` は第 33 章で `RegisterSingleton` 済みなので、ビューモデルは同じ 1 つのエンジンを受け取ります。エンジンのログも第 33 章の `NativeLog.Install` のおかげで、ログ タブに出ます。
 
 ## 動かしてみる
 
 `F5` で起動します。
 
-- ビューポートの領域で、色がなめらかに変わる（第 3 章の `Tick` の色）。
-- ログ タブに「エンジンを初期化しました（W×H）」と、エンジン側の「Engine を作成しました」が出る。
-- 仕切りをドラッグして大きさを変えても、色が出続ける。最小化して戻すと、描画が再開する。
-- ウィンドウを閉じると、例外なく終了して、ログに「エンジンを破棄しました」が出る。
-- メニューやパネル、タブは、普通に操作できる。
+- ビューポートの領域で色がなめらかに変わる（第 3 章の `Tick` の色）。
+- ログ タブに「エンジンを初期化しました（W×H）」とエンジン側の「Engine を作成しました」が出る。
+- 仕切りをドラッグして大きさを変えても、色が出続ける。最小化して戻すと描画が再開する。
+- ウィンドウを閉じると例外なく終了して、ログに「エンジンを破棄しました」が出る。
+- メニューやパネル、タブは普通に操作できる。
 
 ??? failure "ビューポートが真っ黒のまま"
-    `HandleReady` が呼ばれていません。`OnWindowPositionChanged` が、大きさ 0 のままのはずです。`Border` の中の `Host` が、レイアウトで大きさを持っているかを確かめます。ログに「エンジンを初期化」が出ていなければ、そこで止まっています。
+    `HandleReady` が呼ばれていません。`OnWindowPositionChanged` が大きさ 0 のままのはずです。`Border` の中の `Host` がレイアウトで大きさを持っているかを確かめます。ログに「エンジンを初期化」が出ていなければ、そこで止まっています。
 
 ??? failure "ログに「Engine の作成に失敗」と出る"
-    スワップ チェーンの作成に失敗しています。出力ウィンドウの `D3D12 ERROR` を見てください。`CreateSwapChainForHwnd` に渡しているのが、WPF の最上位ウィンドウの HWND ではなく、子ウィンドウの HWND になっているかも確かめます。
+    スワップ チェーンの作成に失敗しています。出力ウィンドウの `D3D12 ERROR` を見てください。`CreateSwapChainForHwnd` に渡しているのが WPF の最上位ウィンドウの HWND ではなく、子ウィンドウの HWND になっているかも確かめます。
 
-??? failure "リサイズすると真っ黒になる、エラーが出る"
-    `Renderer::Resize` が、バック バッファの参照を残しています（第 3 章）。または、`Resize` の前に `WaitForGpu` していません。
+??? failure "リサイズすると真っ黒になるエラーが出る"
+    `Renderer::Resize` がバック バッファの参照を残しています（第 3 章）。または、`Resize` の前に `WaitForGpu` していません。
 
 ??? failure "終了時にクラッシュする"
-    エンジンを破棄する前にウィンドウが壊されています。`DestroyWindowCore` で、先に `HandleDestroying` を呼んでいるかを確認します。
+    エンジンを破棄する前にウィンドウが壊されています。`DestroyWindowCore` で先に `HandleDestroying` を呼んでいるかを確認します。
 
 ??? failure "`controls:ViewportHost` が見つからない（`MC3074`）"
-    `xmlns:controls` の名前空間が合っていないか、`ViewportHost` を作ったあとにまだビルドしていません。一度ビルドしてから XAML を開き直します。
+    `xmlns:controls` の名前空間が合っていないか `ViewportHost` を作ったあとにまだビルドしていません。一度ビルドしてから XAML を開き直します。
 
 ??? failure "拡大率 150% の画面で、絵がぼやける"
     アプリが DPI 対応になっていません。`app.manifest` で PerMonitorV2 を指定します。
 
-次の章では、描画ループを専用のスレッドで回す形に作り替えます。
+次の章では描画ループを専用のスレッドで回す形に作り替えます。
 
 [第 38 章 描画ループとスレッド](38-render-loop.md) へ進みます。

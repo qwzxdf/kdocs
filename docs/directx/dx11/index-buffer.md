@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>インデックス バッファ</strong>は、「どの頂点をどの順で三角形につなぐか」を <strong>頂点の番号</strong>で並べた、バッファです。四角形（三角形 2 枚）は頂点が 4 つで、足りるのに頂点バッファだけで描くと、6 頂点が要ります。インデックスを使うと <strong>共有できる頂点を 1 つにまとめて</strong>、データを減らせます。
+<strong>インデックス バッファ</strong>は「どの頂点をどの順で三角形につなぐか」を <strong>頂点の番号</strong>で並べた、バッファです。四角形（三角形 2 枚）は頂点が 4 つで、足りるのに頂点バッファだけで描くと 6 頂点が要ります。インデックスを使うと <strong>共有できる頂点を 1 つにまとめて</strong>、データを減らせます。
 
 !!! tip "ポイント"
-    - 頂点バッファ（頂点の、データ）とインデックス バッファ（頂点の、番号）の 2 つでメッシュを表す。
+    - 頂点バッファ（頂点のデータ）とインデックス バッファ（頂点の、番号）の 2 つでメッシュを表す。
     - 番号は `uint16_t`（65535 頂点まで）か `uint32_t`。フォーマットを `IASetIndexBuffer` に渡す。
     - 描画は `DrawIndexed`。`Draw` ではない。
     - 三角形の頂点の並びが、時計回り（CW）が表。
-    - 同じ頂点を共有すると、GPU の頂点キャッシュが効き、頂点シェーダーの呼び出しが減る。
+    - 同じ頂点を共有すると、GPU の頂点キャッシュが効き頂点シェーダーの呼び出しが減る。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -73,11 +73,9 @@ device->CreateBuffer(&desc, &init, &index_buffer);
 context->IASetIndexBuffer(index_buffer.Get(), DXGI_FORMAT_R16_UINT, 0);   // フォーマット: 番号の型。オフセット: 0
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pIndexBuffer` | インデックス バッファ |
-| `Format` | `DXGI_FORMAT_R16_UINT`（16 ビット）、`DXGI_FORMAT_R32_UINT`（32 ビット） |
-| `Offset` | バッファの使い始める、位置（バイト） |
+- `pIndexBuffer`: インデックス バッファ
+- `Format`: `DXGI_FORMAT_R16_UINT`（16 ビット）、`DXGI_FORMAT_R32_UINT`（32 ビット）
+- `Offset`: バッファの使い始める位置（バイト）
 
 | 型 | 頂点の最大数 | 大きさ |
 | --- | --- | --- |
@@ -94,13 +92,11 @@ context->DrawIndexed(6,      // インデックスの数
                      0);     // 各インデックスに足す値（頂点バッファの、基準位置）
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `IndexCount` | 使うインデックスの数 |
-| `StartIndexLocation` | インデックス バッファの、開始位置（個数） |
-| `BaseVertexLocation` | 頂点バッファから、頂点を引くとき各インデックスに足す値 |
+- `IndexCount`: 使うインデックスの数
+- `StartIndexLocation`: インデックス バッファの開始位置（個数）
+- `BaseVertexLocation`: 頂点バッファから頂点を引くとき各インデックスに足す値
 
-<strong>`BaseVertexLocation`</strong> は 1 つの大きな頂点バッファに複数の、メッシュを詰めたときに役立ちます。
+<strong>`BaseVertexLocation`</strong> は 1 つの大きな頂点バッファに複数のメッシュを詰めたときに役立ちます。
 
 ```cpp
 // メッシュ A: 頂点 0〜99、メッシュ B: 頂点 100〜199。どちらも、インデックスは、0 始まりで、持てる。
@@ -121,12 +117,12 @@ const uint16_t strip[] = {0, 1, 2, 3, 0xFFFF, 4, 5, 6, 7};   // 2 つの、ス�
 ## よくあるミス
 
 ??? failure "メッシュが化けるまたは一部が欠ける"
-    `IASetIndexBuffer` のフォーマットがインデックスの型と合っていない（`uint16_t` の、データに `R32_UINT` を指定したなど）。
+    `IASetIndexBuffer` のフォーマットがインデックスの型と合っていない（`uint16_t` のデータに `R32_UINT` を指定したなど）。
 
-??? failure "`Draw` を呼んで何も、描かれない"
+??? failure "`Draw` を呼んで何も描かれない"
     インデックスを使うメッシュは `DrawIndexed`。`Draw` はインデックス バッファを無視して頂点バッファを順に読む。
 
-??? failure "片方の三角形だけ、見えない"
+??? failure "片方の三角形だけ見えない"
     その三角形の並びが反時計回り（CCW）で、裏面として捨てられている。2 枚とも時計回りにそろえる。
 
 ??? failure "65,536 を超える頂点で、メッシュが壊れる"
@@ -139,7 +135,7 @@ const uint16_t strip[] = {0, 1, 2, 3, 0xFFFF, 4, 5, 6, 7};   // 2 つの、ス�
     - [x] `D3D11_BIND_INDEX_BUFFER`、`IASetIndexBuffer`（フォーマットは番号の型）
     - [x] 描画は `DrawIndexed`
     - [x] 並びは時計回りが表
-    - [x] 1 つの、大きなバッファに詰めるときは `BaseVertexLocation`
+    - [x] 1 つの大きなバッファに詰めるときは `BaseVertexLocation`
 
 ## 関連ページ
 

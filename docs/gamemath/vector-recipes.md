@@ -80,12 +80,10 @@ bool InViewCone(Vector3 self, Vector3 forward, Vector3 target, float half_angle,
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `cos(half_angle)` をあらかじめ計算 | 毎回 `acos` で角度を求めず、内積と cos の比較で済ませる |
-| forward は単位ベクトル | 正規化されていないと結果がずれる |
-| 距離を先に確認 | 範囲外なら、正規化（`sqrt`）をしないで済む |
-| 遮蔽物 | 視野に入っても壁の後ろは見えない。さらにレイキャストで確認 |
+- `cos(half_angle)` をあらかじめ計算: 毎回 `acos` で角度を求めず、内積と cos の比較で済ませる
+- forward は単位ベクトル: 正規化されていないと結果がずれる
+- 距離を先に確認: 範囲外なら、正規化（`sqrt`）をしないで済む
+- 遮蔽物: 視野に入っても壁の後ろは見えない。さらにレイキャストで確認
 
 ### 射影（ベクトルを別のベクトルの方向に落とす）
 
@@ -113,11 +111,9 @@ Vector3 RemoveComponent(Vector3 v, Vector3 n) {
 }
 ```
 
-| 使いどころ | 説明 |
-| --- | --- |
-| 壁ずり（スライド） | 壁にぶつかったとき、壁の法線方向の速度を消して、壁に沿って滑る |
-| 水平方向の向き | カメラの向きから、上下成分を取り除いて、地面と平行な向きにする |
-| 斜面を登る | 床の法線方向の成分を消す |
+- 壁ずり（スライド）: 壁にぶつかったとき、壁の法線方向の速度を消して、壁に沿って滑る
+- 水平方向の向き: カメラの向きから、上下成分を取り除いて、地面と平行な向きにする
+- 斜面を登る: 床の法線方向の成分を消す
 
 ## 反射
 
@@ -143,11 +139,9 @@ Vector3 Reflect(Vector3 v, Vector3 normal) {
 <text x="60" y="216" style="font-size:12px">入射角 ＝ 反射角。法線方向の成分だけが反転する</text>
 </svg>
 
-| 点 | 説明 |
-| --- | --- |
-| **法線は単位ベクトル** | 正規化していないと跳ね返る量が狂う |
-| 反発係数 | 反射後に法線成分だけ `e` 倍（0〜1）して、エネルギーを失わせる |
-| HLSL にも `reflect` | `reflect(i, n)`。ライティングの鏡面反射に使う |
+- **法線は単位ベクトル**: 正規化していないと跳ね返る量が狂う
+- 反発係数: 反射後に法線成分だけ `e` 倍（0〜1）して、エネルギーを失わせる
+- HLSL にも `reflect`: `reflect(i, n)`。ライティングの鏡面反射に使う
 
 ```cpp
 Vector3 Bounce(Vector3 v, Vector3 normal, float restitution) {
@@ -211,10 +205,8 @@ Vector3 normal = (b - a).Cross(c - a).Normalized();
 
 ## 垂直なベクトルの作り方
 
-| 場面 | 方法 |
-| --- | --- |
-| **2D** | `(x, y)` に垂直なのは `(-y, x)`（左回りに 90 度）または `(y, -x)`（右回り） |
-| 3D の任意の垂直ベクトル | 軸のうち、最も垂直に近いものとの外積 |
+- **2D**: `(x, y)` に垂直なのは `(-y, x)`（左回りに 90 度）または `(y, -x)`（右回り）
+- 3D の任意の垂直ベクトル: 軸のうち、最も垂直に近いものとの外積
 
 ```cpp
 Vector2 Perpendicular(Vector2 v) {
@@ -232,15 +224,13 @@ Vector2 Perpendicular(Vector2 v) {
 
 敵やエージェントを**動かすときの基本パターン**です。目標の速度を決め、現在の速度との差を操舵力にします。
 
-| 行動 | 目標の速度 |
-| --- | --- |
-| Seek（追う） | 目標へ向かう最大速度 |
-| Flee（逃げる） | 目標から離れる最大速度 |
-| Arrive（到着） | 近づくほど減速（距離に比例） |
-| Pursuit（先回り） | 目標の未来の位置へ向かう |
-| Wander（うろつく） | 前方の円周上のランダムな点へ |
-| Avoid（避ける） | 障害物から離れる向きを足す |
-| Separation・Alignment・Cohesion | 群れ（Boids）：離れる・向きを合わせる・中心へ寄る |
+- Seek（追う）: 目標へ向かう最大速度
+- Flee（逃げる）: 目標から離れる最大速度
+- Arrive（到着）: 近づくほど減速（距離に比例）
+- Pursuit（先回り）: 目標の未来の位置へ向かう
+- Wander（うろつく）: 前方の円周上のランダムな点へ
+- Avoid（避ける）: 障害物から離れる向きを足す
+- Separation・Alignment・Cohesion: 群れ（Boids）：離れる・向きを合わせる・中心へ寄る
 
 ```cpp
 Vector2 Seek(Vector2 position, Vector2 velocity, Vector2 target, float max_speed, float max_force) {
@@ -262,11 +252,9 @@ Vector2 Arrive(Vector2 position, Vector2 velocity, Vector2 target, float max_spe
 
 ## 距離と最近接点
 
-| 目的 | 式 |
-| --- | --- |
-| **点から直線への最近接点** | 直線上の点 A、方向 d（単位）のとき、`A + d × ((P - A)・d)` |
-| 点から線分への最近接点 | 上の `t` を 0〜1 に clamp する |
-| 点から平面への距離 | `(P - 平面上の点)・n`（正負で表裏） |
+- **点から直線への最近接点**: 直線上の点 A、方向 d（単位）のとき、`A + d × ((P - A)・d)`
+- 点から線分への最近接点: 上の `t` を 0〜1 に clamp する
+- 点から平面への距離: `(P - 平面上の点)・n`（正負で表裏）
 
 ```cpp
 Vector2 ClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 p) {
@@ -284,11 +272,9 @@ Vector2 ClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 p) {
 
 ## 3 次元の向き（ビルボード・ルックアット）
 
-| 目的 | 方法 |
-| --- | --- |
-| <strong>目標を向く（ルックアット）</strong> | forward ＝ 目標への単位ベクトル。right ＝ `up × forward`。up ＝ `forward × right` |
-| 水平だけ向く | 目標へのベクトルから、上下成分を消して正規化 |
-| ビルボード | カメラの right・up をスプライトの軸にする |
+- <strong>目標を向く（ルックアット）</strong>: forward ＝ 目標への単位ベクトル。right ＝ `up × forward`。up ＝ `forward × right`
+- 水平だけ向く: 目標へのベクトルから、上下成分を消して正規化
+- ビルボード: カメラの right・up をスプライトの軸にする
 
 <!-- fig:dot-projection:begin -->
 

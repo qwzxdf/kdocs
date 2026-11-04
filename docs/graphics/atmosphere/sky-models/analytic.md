@@ -6,19 +6,19 @@ tags:
 
 # Analytic Sky Models
 
-<strong>Preetham や Hosek-Wilkie などは、太陽の位置と大気の濁りから空の色を式で求めるモデル</strong>です。グラデーションより物理的で、積分も要りません。このページでは解析的な空のモデルを説明します。
+<strong>Preetham や Hosek-Wilkie などは、太陽の位置と大気の濁りから空の色を式で求めるモデル</strong>です。グラデーションより物理的で積分も要りません。このページでは解析的な空のモデルを説明します。
 
 !!! tip "ポイント"
     - 太陽の高さと濁り（タービディティ）で、空の色が決まる。
     - Hosek-Wilkie は、Preetham より精度が高い。
     - 1 画素ごとに式を評価するだけ。
-    - 宇宙からの視点には、向かない。
+    - 宇宙からの視点には向かない。
 
 !!! info "このページを読む前に"
-    - [Sky Models](index.md)（このセクション全体の地図と、読む順番）
+    - [Sky Models](index.md)（このセクション全体の地図と読む順番）
 
 ## 解析的な空のモデル
-<strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、空の輝度分布を少数のパラメータの数式で近似します。パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）です。実測・シミュレーションにフィットさせた式なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。
+<strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、空の輝度分布を少数のパラメータの数式で近似します。パラメータは太陽の高さ（天頂角）と大気の濁り（turbidity）です。実測・シミュレーションにフィットさせた式なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。
 
 ### Preetham（Perez の式）
 
@@ -39,7 +39,7 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 }
 ```
 
-コードの要点です。`max(cos θ, 0.01)` は地平線で発散するのを防ぎます。xyY から RGB への変換は、色度 (x, y) と輝度 Y を XYZ から sRGB（線形）へ変換する処理です。輝度が絶対値（cd/m²）なので、露出で合わせます。
+コードの要点です。`max(cos θ, 0.01)` は地平線で発散するのを防ぎます。xyY から RGB への変換は色度 (x, y) と輝度 Y を XYZ から sRGB（線形）へ変換する処理です。輝度が絶対値（cd/m²）なので、露出で合わせます。
 
 ### Hosek-Wilkie
 
@@ -53,18 +53,18 @@ Hosek-Wilkie は Preetham の改良版で、特に太陽が低いとき地面の
 | 用途 | 軽量・手軽 | 品質重視 |
 
 
-原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
+原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
-原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
+原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
 どちらも空の見た目だけで大気の中を通る光（遠景の霞・光の筋）は別に計算します。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
 
 ## 解析的な空のモデル
 
-<strong>解析的なモデル</strong>は 観測や、シミュレーションの結果に数式を当てはめたものです。太陽の高さと大気の濁り（turbidity）を入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
+<strong>解析的なモデル</strong>は 観測やシミュレーションの結果に数式を当てはめたものです。太陽の高さと大気の濁り（turbidity）を入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
 
 - Perez の式（1993）: 空の輝度の分布を 5 つの係数で表す古典的な式。後続のモデルの土台
-- Preetham（1999）: Perez の式の係数を濁りの関数として決めた。簡単で広く使われた。昼の空だけ（太陽が地平線より、上）
+- Preetham（1999）: Perez の式の係数を濁りの関数として決めた。簡単で広く使われた。昼の空だけ（太陽が地平線より上）
 - Hošek–Wilkie（2012）: Preetham より精度が高く太陽が低いとき（朝夕）もうまく動く。スペクトル全体でフィット
 
 ## Perez の式
@@ -79,7 +79,7 @@ F(θ, γ) = (1 + A × exp(B / cosθ)) × (1 + C × exp(D × γ) + E × cos²γ)
 A, B, C, D, E: 係数（天候・濁りで、決まる）
 ```
 
-- `(1 + A × exp(B / cosθ))`: 地平線に近づくほど、明るく（霞）。`A`、`B` が地平線の明るさを決める
+- `(1 + A × exp(B / cosθ))`: 地平線に近づくほど明るく（霞）。`A`、`B` が地平線の明るさを決める
 - `(1 + C × exp(D × γ) + E × cos²γ)`: 太陽の周りが明るい（`C`、`D`）。太陽と反対側のわずかな明るさ（`E`）
 
 ```hlsl
@@ -125,14 +125,14 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 }
 ```
 
-濁り（turbidity）は、2（澄んだ）〜 10（霞んだ）の範囲を使います。大きいほど空が白っぽく霞んで見えます。
+濁り（turbidity）は 2（澄んだ）〜 10（霞んだ）の範囲を使います。大きいほど空が白っぽく霞んで見えます。
 
 ## 長所と短所
 
 - 長所: 実行時のコストが小さい（数十命令）。事前計算も LUT も不要
 - 長所: パラメーターが少ない（太陽の高さ濁り）。調整が簡単
 - 長所: 昼のリアルな空が得られる
-- 短所: 太陽が低い（朝夕）、地平線の下（薄明）では精度が落ちる（Preetham）。Hošek–Wilkie で、改善
+- 短所: 太陽が低い（朝夕）、地平線の下（薄明）では精度が落ちる（Preetham）。Hošek–Wilkie で改善
 - 短所: カメラが地上に固定。高い山、飛行機、宇宙では使えない
 - 短所: 空気遠近法（遠景の霞）を別の方法で与える必要がある（空の色と、整合させる）
 - 短所: 大気のパラメーターを自由に変えられない（濁り以外）

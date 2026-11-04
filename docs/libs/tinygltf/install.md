@@ -109,11 +109,9 @@ target_link_libraries(MyGame PRIVATE tinygltf::tinygltf)
 
 glTF のライブラリはバージョンで、挙動や API が変わります。<strong>再現性のあるビルド</strong>のためにバージョンを固定します。
 
-| 方法 | 内容 |
-| --- | --- |
-| ファイルを置く | リポジトリにヘッダーをそのままコミットする（バージョンが固定される） |
-| vcpkg（マニフェスト） | `vcpkg.json` の `builtin-baseline` に vcpkg のコミット ハッシュを書く |
-| FetchContent | `GIT_TAG` にタグ（`v2.9.x`）、またはコミット ハッシュを書く |
+- ファイルを置く: リポジトリにヘッダーをそのままコミットする（バージョンが固定される）
+- vcpkg（マニフェスト）: `vcpkg.json` の `builtin-baseline` に vcpkg のコミット ハッシュを書く
+- FetchContent: `GIT_TAG` にタグ（`v2.9.x`）、またはコミット ハッシュを書く
 
 ## 関連ページ
 

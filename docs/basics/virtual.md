@@ -72,15 +72,13 @@ int main() {
 
 ### キーワードのまとめ
 
-| 書き方 | 意味 |
-| --- | --- |
-| `class Derived : public Base` | Base を継承する（ほぼ必ず `public`） |
-| `virtual void F();` | 派生クラスで上書きできる関数 |
-| `virtual void F() = 0;` | 純粋仮想関数。派生クラスで必ず書く。これがあるクラスは直接作れない（抽象クラス） |
-| `void F() override;` | 基底クラスの仮想関数を上書きする（書き間違いをコンパイラが見つけてくれる） |
-| `void F() final;` / `class X final` | これ以上上書き・継承させない |
-| `virtual ~Base() = default;` | 仮想デストラクタ |
-| `protected:` | 自分と派生クラスからだけ使える |
+- `class Derived : public Base`: Base を継承する（ほぼ必ず `public`）
+- `virtual void F();`: 派生クラスで上書きできる関数
+- `virtual void F() = 0;`: 純粋仮想関数。派生クラスで必ず書く。これがあるクラスは直接作れない（抽象クラス）
+- `void F() override;`: 基底クラスの仮想関数を上書きする（書き間違いをコンパイラが見つけてくれる）
+- `void F() final;` / `class X final`: これ以上上書き・継承させない
+- `virtual ~Base() = default;`: 仮想デストラクタ
+- `protected:`: 自分と派生クラスからだけ使える
 
 ### override を必ず付ける理由
 
@@ -174,12 +172,10 @@ int main() {
 
 ## ゲームでの例
 
-| 場面 | 例 |
-| --- | --- |
-| シーン | `class Scene { virtual void Update(); virtual void Draw(); }` を継承した `TitleScene`、`GameScene` |
-| コンポーネントの基底 | `class Component { virtual void Update(float dt); }` |
-| ステート | `class State { virtual void Enter(); virtual void Update(); }` |
-| AI の行動 | `class Action { virtual bool Execute(); }` |
+- シーン: `class Scene { virtual void Update(); virtual void Draw(); }` を継承した `TitleScene`、`GameScene`
+- コンポーネントの基底: `class Component { virtual void Update(float dt); }`
+- ステート: `class State { virtual void Enter(); virtual void Update(); }`
+- AI の行動: `class Action { virtual bool Execute(); }`
 
 <!-- fig:vtable-call:begin -->
 

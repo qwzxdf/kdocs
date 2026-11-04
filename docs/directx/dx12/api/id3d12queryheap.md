@@ -30,13 +30,11 @@ GPU の処理に何ミリ秒かかったか、何個のピクセルが描かれ�
 
 `D3D12_QUERY_HEAP_DESC::Type` で記録の種類を決めます。
 
-| `Type` | 記録するもの |
-| --- | --- |
-| `D3D12_QUERY_HEAP_TYPE_TIMESTAMP` | 時刻（DIRECT と COMPUTE のキュー） |
-| `D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP` | 時刻（COPY のキュー） |
-| `D3D12_QUERY_HEAP_TYPE_OCCLUSION` | 深度テストを通ったサンプルの数 |
-| `D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS` | 頂点やピクセル シェーダーの呼び出し数などの統計 |
-| `D3D12_QUERY_HEAP_TYPE_SO_STATISTICS` | ストリーム アウトプットの統計 |
+- `D3D12_QUERY_HEAP_TYPE_TIMESTAMP`: 時刻（DIRECT と COMPUTE のキュー）
+- `D3D12_QUERY_HEAP_TYPE_COPY_QUEUE_TIMESTAMP`: 時刻（COPY のキュー）
+- `D3D12_QUERY_HEAP_TYPE_OCCLUSION`: 深度テストを通ったサンプルの数
+- `D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS`: 頂点やピクセル シェーダーの呼び出し数などの統計
+- `D3D12_QUERY_HEAP_TYPE_SO_STATISTICS`: ストリーム アウトプットの統計
 
 `Count` は、そのヒープに記録できる数です。1 フレームに記録する数に飛ばして読むフレーム数を掛けた分より多く確保します。
 

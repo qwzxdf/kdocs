@@ -31,11 +31,11 @@ tags:
 
 ### 歴史
 
-ゲームでのレイトレ反射の本格的な採用は、2018 年の DXR 登場と、それを使った『Battlefield V』が最初です。同じ頃、SEED の PICA PICA プロジェクトがハイブリッド構成（SSR で足りない部分だけレイトレ）の実用的な設計を公開しました。また、Stachowiak の "Stochastic all the things"（SIGGRAPH 2018）は、確率的なレイとデノイズで反射を出す設計を示しました。いまの商用エンジンの反射はこれらの流れの上にあります。
+ゲームでのレイトレ反射の本格的な採用は、2018 年の DXR 登場とそれを使った『Battlefield V』が最初です。同じ頃、SEED の PICA PICA プロジェクトがハイブリッド構成（SSR で足りない部分だけレイトレ）の実用的な設計を公開しました。また、Stachowiak の "Stochastic all the things"（SIGGRAPH 2018）は、確率的なレイとデノイズで反射を出す設計を示しました。いまの商用エンジンの反射はこれらの流れの上にあります。
 
 ### 歴史
 
-ゲームでのレイトレ反射の本格的な採用は、2018 年の DXR 登場と、それを使った『Battlefield V』が最初です。同じ頃、SEED の PICA PICA プロジェクトがハイブリッド構成（SSR で足りない部分だけレイトレ）の実用的な設計を公開しました。また、Stachowiak の "Stochastic all the things"（SIGGRAPH 2018）は、確率的なレイとデノイズで反射を出す設計を示しました。いまの商用エンジンの反射はこれらの流れの上にあります。
+ゲームでのレイトレ反射の本格的な採用は、2018 年の DXR 登場とそれを使った『Battlefield V』が最初です。同じ頃、SEED の PICA PICA プロジェクトがハイブリッド構成（SSR で足りない部分だけレイトレ）の実用的な設計を公開しました。また、Stachowiak の "Stochastic all the things"（SIGGRAPH 2018）は、確率的なレイとデノイズで反射を出す設計を示しました。いまの商用エンジンの反射はこれらの流れの上にあります。
 
 ## ページ一覧
 
@@ -48,7 +48,7 @@ tags:
 
 ## レイトレーシングで反射を描く
 
-<strong>ハードウェア レイトレーシング</strong>（DXR）を使うと、<strong>反射</strong>を実際の三角形にレイを飛ばして正確に求められます。SSR の限界（画面の外、隠れた面）がありません。反射の反射（多重反射）、屈折、ガラスの反射も自然に扱えます。
+<strong>ハードウェア レイトレーシング</strong>（DXR）を使うと <strong>反射</strong>を実際の三角形にレイを飛ばして正確に求められます。SSR の限界（画面の外、隠れた面）がありません。反射の反射（多重反射）、屈折、ガラスの反射も自然に扱えます。
 
 ## 基本の流れ
 
@@ -64,9 +64,9 @@ tags:
 
 | 要素 | 内容 | ページ |
 | --- | --- | --- |
-| レイの生成 | どの画素から、どの方向にレイを飛ばすか（粗さに応じた、分布） | [Ray Generation](ray-generation.md) |
+| レイの生成 | どの画素から、どの方向にレイを飛ばすか（粗さに応じた分布） | [Ray Generation](ray-generation.md) |
 | ヒット シェーディング | 当たった面の色を求める。BVH（加速構造）の管理 | [Hit Shading and BVH](hit-shading.md) |
-| ハイブリッド | SSR と、レイトレーシングの組み合わせ（画面内は SSR、外れたら RT） | [Hybrid Pipeline](hybrid.md) |
+| ハイブリッド | SSR とレイトレーシングの組み合わせ（画面内は SSR、外れたら RT） | [Hybrid Pipeline](hybrid.md) |
 | デノイズ | ノイズを取り除く | [Denoising](denoise.md) |
 
 ## SSR との比較
@@ -84,12 +84,12 @@ tags:
 
 ## RT 反射の現実的な使い方
 
-<strong>フルスクリーンの RT 反射</strong>は、<strong>重い</strong>ので工夫して使います。
+<strong>フルスクリーンの RT 反射</strong>は <strong>重い</strong>ので工夫して使います。
 
 | 工夫 | 内容 |
 | --- | --- |
 | ハイブリッド | SSR で、取れる画素は SSR（安い）、取れなかった画素だけ RT（[Hybrid Pipeline](hybrid.md)） |
-| 反射が強い（つるつるの）面だけ、RT | 粗い面や非金属は反射プローブで、十分 |
+| 反射が強い（つるつるの）面だけ RT | 粗い面や非金属は反射プローブで、十分 |
 | 半分の解像度で RT | レイ数が 1/4。アップサンプルしてデノイズ |
 | レイの最大距離を短く | 遠くは、プローブに任せる |
 | ヒット シェーディングを簡略化 | 当たった面は低品質なシェーディング（影なし、簡易ライティング） |
@@ -104,12 +104,12 @@ tags:
 | 影 | シャドウ マップ（[Shadow Map Basics](../../shadows/shadow-map-basics/index.md)） |
 | 間接光 | ライトマップ・プローブ・SSGI・ボクセル GI（[Global Illumination (GI)](../../gi/index.md)） |
 
-D3D12 側の初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../../../directx/dx12/dxr-host.md) に、まとめています。
+D3D12 側の初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../../../directx/dx12/dxr-host.md) にまとめています。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] レイトレ反射は、正確だが重い
+    - [x] レイトレ反射は正確だが重い
     - [x] ハイブリッドとデノイズで、実用にする
 
 ## 参考

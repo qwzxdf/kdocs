@@ -45,15 +45,13 @@ device->CreateSamplerState(&desc, &sampler);
 context->PSSetSamplers(0, 1, sampler.GetAddressOf());       // スロット 0（HLSL の register(s0)）
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `Filter` | 拡大・縮小・ミップの補間の方法（下の表） |
-| `AddressU`・`V`・`W` | uv が、0〜1 の外に出たときの扱い |
-| `MipLODBias` | ミップの選択に足す偏り（正でぼける負でシャープ。TAA では負にする） |
-| `MaxAnisotropy` | 異方性フィルタの倍率（`Filter` が `ANISOTROPIC` のとき） |
-| `ComparisonFunc` | 比較サンプラーの比較関数 |
-| `BorderColor` | `BORDER` の外側の色 |
-| `MinLOD`・`MaxLOD` | 使えるミップの範囲。`MaxLOD = D3D11_FLOAT32_MAX` で全段 |
+- `Filter`: 拡大・縮小・ミップの補間の方法（下の表）
+- `AddressU`・`V`・`W`: uv が、0〜1 の外に出たときの扱い
+- `MipLODBias`: ミップの選択に足す偏り（正でぼける負でシャープ。TAA では負にする）
+- `MaxAnisotropy`: 異方性フィルタの倍率（`Filter` が `ANISOTROPIC` のとき）
+- `ComparisonFunc`: 比較サンプラーの比較関数
+- `BorderColor`: `BORDER` の外側の色
+- `MinLOD`・`MaxLOD`: 使えるミップの範囲。`MaxLOD = D3D11_FLOAT32_MAX` で全段
 
 ## フィルタリング
 

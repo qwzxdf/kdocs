@@ -25,10 +25,8 @@ tags:
 
 `#include` の書き方で、探し始める場所が変わります。
 
-| 書き方 | 探す順番 |
-| --- | --- |
-| `#include "foo.h"` | ① **今のファイルがあるフォルダー** → ② 追加のインクルード ディレクトリ → ③ 外部インクルード ディレクトリ → ④ 標準のフォルダー |
-| `#include <foo.h>` | ② 追加のインクルード ディレクトリ → ③ 外部インクルード ディレクトリ → ④ 標準のフォルダー（今のファイルのフォルダーは見ない） |
+- `#include "foo.h"`: ① **今のファイルがあるフォルダー** → ② 追加のインクルード ディレクトリ → ③ 外部インクルード ディレクトリ → ④ 標準のフォルダー
+- `#include <foo.h>`: ② 追加のインクルード ディレクトリ → ③ 外部インクルード ディレクトリ → ④ 標準のフォルダー（今のファイルのフォルダーは見ない）
 
 自分のプロジェクトのヘッダは `""`、標準ライブラリや外部ライブラリは `<>` で書く、と分けておくと迷いません。どこにも見つからないと、`C1083: include ファイルを開けません` になります（[よくあるエラー](errors.md)）。
 
@@ -57,12 +55,10 @@ tags:
 $(SolutionDir)third_party;$(ProjectDir)include;%(AdditionalIncludeDirectories)
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| `;` 区切り | 複数のフォルダーを並べるときの区切り（編集画面では 1 行に 1 つ書く） |
-| `%(AdditionalIncludeDirectories)` | プロパティ シートなど、上位の設定を引き継ぐ。消さない |
-| 相対パス | プロジェクト（`.vcxproj`）のあるフォルダーが基準。`..\third_party` のように書ける |
-| 末尾の `\` | あってもなくても動く。マクロの値は、末尾に `\` が付くものが多い |
+- `;` 区切り: 複数のフォルダーを並べるときの区切り（編集画面では 1 行に 1 つ書く）
+- `%(AdditionalIncludeDirectories)`: プロパティ シートなど、上位の設定を引き継ぐ。消さない
+- 相対パス: プロジェクト（`.vcxproj`）のあるフォルダーが基準。`..\third_party` のように書ける
+- 末尾の `\`: あってもなくても動く。マクロの値は、末尾に `\` が付くものが多い
 
 この設定は、コンパイラのオプション `/I` になります。
 
@@ -123,15 +119,13 @@ cl /I C:\proj\third_party /I C:\proj\Engine\include main.cpp
 
 ### 使用例 {#examples}
 
-| やりたいこと | 書き方 |
-| --- | --- |
-| ソリューション直下の `third_party` をインクルードに足す | `$(SolutionDir)third_party` |
-| 自分のプロジェクトの `include` フォルダーを足す | `$(ProjectDir)include` |
-| 出力を構成ごとのフォルダーに分ける（出力ディレクトリ） | `$(SolutionDir)bin\$(Platform)\$(Configuration)\` |
-| 中間ファイルをプロジェクトごとに分ける（中間ディレクトリ） | `$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\` |
-| ライブラリを構成ごとに使い分ける（追加の依存ファイル） | `mylib_$(Configuration).lib` |
-| 実行時に `assets` フォルダーを出力先へコピー（ビルド後イベント） | `xcopy /Y /E /I "$(ProjectDir)assets" "$(OutDir)assets"` |
-| デバッグ時の作業ディレクトリをプロジェクトにそろえる | `$(ProjectDir)` |
+- ソリューション直下の `third_party` をインクルードに足す: `$(SolutionDir)third_party`
+- 自分のプロジェクトの `include` フォルダーを足す: `$(ProjectDir)include`
+- 出力を構成ごとのフォルダーに分ける（出力ディレクトリ）: `$(SolutionDir)bin\$(Platform)\$(Configuration)\`
+- 中間ファイルをプロジェクトごとに分ける（中間ディレクトリ）: `$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\`
+- ライブラリを構成ごとに使い分ける（追加の依存ファイル）: `mylib_$(Configuration).lib`
+- 実行時に `assets` フォルダーを出力先へコピー（ビルド後イベント）: `xcopy /Y /E /I "$(ProjectDir)assets" "$(OutDir)assets"`
+- デバッグ時の作業ディレクトリをプロジェクトにそろえる: `$(ProjectDir)`
 
 出力ディレクトリを `$(Platform)\$(Configuration)\` で分けておくと、Debug と Release の `.exe` や `.lib` が混ざりません。ライブラリの Debug 用と Release 用を `mylib_Debug.lib` のように分けているとき、`$(Configuration)` で 1 行にまとめられます。
 

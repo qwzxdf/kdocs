@@ -6,7 +6,7 @@ tags:
 
 # Atmospheric Scattering
 
-<strong>空が青く、夕焼けが赤いのは、大気中の分子や粒子が光を散乱させるため</strong>です。<strong>この散乱を計算すると、物理的に正しい空が作れます</strong>。このセクションでは、空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙を 1 つずつ別のページで説明します。
+<strong>空が青く夕焼けが赤いのは大気中の分子や粒子が光を散乱させるため</strong>です。<strong>この散乱を計算すると物理的に正しい空が作れます</strong>。このセクションでは空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙を 1 つずつ別のページで説明します。
 
 ## なぜ空は青いか
 <strong>太陽光は白色</strong>（全波長を含む）ですが<strong>大気の分子に当たると短い波長（青）ほど強く散らされます</strong>。
@@ -19,7 +19,7 @@ tags:
 | 550 nm | 緑 | 約 2.6 |
 | 450 nm | 青 | 約 5.9 |
 
-<strong>青い光が全方向に散って空が青く見えます</strong>。<strong>夕方は太陽の光が大気を長く通り、青が散り尽くして赤だけが残る</strong>ので、太陽が赤く、空が赤く染まります。
+<strong>青い光が全方向に散って空が青く見えます</strong>。<strong>夕方は太陽の光が大気を長く通り青が散り尽くして赤だけが残る</strong>ので、太陽が赤く空が赤く染まります。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="夕焼けの理由">
 <text x="20" y="24" class="fig-title">昼と夕方：光が通る大気の長さが違う</text>
@@ -145,11 +145,11 @@ tags:
 
 ## このセクションの流れ
 
-大気散乱は、物理の式が多く出てくる分野なので、見通しを先に示します。目標は、「空の色」と「遠景のかすみ」を物理的に正しく計算することです。
+大気散乱は物理の式が多く出てくる分野なので、見通しを先に示します。目標は「空の色」と「遠景のかすみ」を物理的に正しく計算することです。
 
-最初に、大気を<strong>どう表すか</strong>を決めます（[Atmosphere Model](atmosphere-model.md)）。地球の大気を球状の層とみなし、高さに応じて指数的に薄くなる分子（レイリー散乱）と微粒子（ミー散乱）、そして光を吸収するオゾンで表します。次に、光が大気を通るときの<strong>減り方</strong>を扱います（[Transmittance](transmittance.md)）。そして、視線に沿って<strong>散乱された光を足し合わせる</strong>式を立てます（[Single-Scattering Integral](single-scattering.md)）。この式には、散乱の方向依存性を表す<strong>位相関数</strong>が登場します（[Phase Functions](phase-function.md)）。
+最初に大気を<strong>どう表すか</strong>を決めます（[Atmosphere Model](atmosphere-model.md)）。地球の大気を球状の層とみなし、高さに応じて指数的に薄くなる分子（レイリー散乱）と微粒子（ミー散乱）、そして光を吸収するオゾンで表します。次に、光が大気を通るときの<strong>減り方</strong>を扱います（[Transmittance](transmittance.md)）。そして、視線に沿って<strong>散乱された光を足し合わせる</strong>式を立てます（[Single-Scattering Integral](single-scattering.md)）。この式には散乱の方向依存性を表す<strong>位相関数</strong>が登場します（[Phase Functions](phase-function.md)）。
 
-ここまでが単散乱（光が 1 回だけ散乱する場合）です。実際には、散乱された光がさらに散乱される<strong>多重散乱</strong>も効いてきます（[Multiple Scattering](multiple-scattering.md)）。これを毎フレーム計算するのは重いので、実用的な方式が 2 つ提案されています。Bruneton の方式は、すべてを 4 次元のテーブルに事前計算します（[Bruneton Precomputed Scattering](bruneton.md)）。Hillaire の方式は、小さな LUT を毎フレーム更新して、動的な大気にも対応します（[Hillaire 2020: Four LUTs](hillaire.md)）。最後に、地上と宇宙で、視点の位置による違いを扱います（[Ground and Space Views](ground-space.md)）。
+ここまでが単散乱（光が 1 回だけ散乱する場合）です。実際には、散乱された光がさらに散乱される<strong>多重散乱</strong>も効いてきます（[Multiple Scattering](multiple-scattering.md)）。これを毎フレーム計算するのは重いので、実用的な方式が 2 つ提案されています。Bruneton の方式はすべてを 4 次元のテーブルに事前計算します（[Bruneton Precomputed Scattering](bruneton.md)）。Hillaire の方式は小さな LUT を毎フレーム更新して、動的な大気にも対応します（[Hillaire 2020: Four LUTs](hillaire.md)）。最後に、地上と宇宙で視点の位置による違いを扱います（[Ground and Space Views](ground-space.md)）。
 
 ## ページ一覧
 

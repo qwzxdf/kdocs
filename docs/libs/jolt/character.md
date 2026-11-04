@@ -58,14 +58,12 @@ settings->mMaxStrength = 100.0f;
 character = new CharacterVirtual(settings, RVec3(0, 2, 0), Quat::sIdentity(), &physics_system);
 ```
 
-| 設定 | 意味 |
-| --- | --- |
-| `mShape` | カプセル（足元が原点になるよう、`RotatedTranslatedShape` で、持ち上げる） |
-| `mMaxSlopeAngle` | 歩ける坂の最大の角度（これより急な坂は、登れない・滑り落ちる） |
-| `mUp` | 上方向（通常 `Y`） |
-| `mSupportingVolume` | 足元の判定領域（この範囲に触れていれば、接地）。カプセルの下半分 |
-| `mMass` / `mMaxStrength` | ほかの動的な物体を押すときの質量と力の上限 |
-| `mPredictiveContactDistance` | 接触を予測する距離（めり込みを防ぐ） |
+- `mShape`: カプセル（足元が原点になるよう、`RotatedTranslatedShape` で、持ち上げる）
+- `mMaxSlopeAngle`: 歩ける坂の最大の角度（これより急な坂は、登れない・滑り落ちる）
+- `mUp`: 上方向（通常 `Y`）
+- `mSupportingVolume`: 足元の判定領域（この範囲に触れていれば、接地）。カプセルの下半分
+- `mMass` / `mMaxStrength`: ほかの動的な物体を押すときの質量と力の上限
+- `mPredictiveContactDistance`: 接触を予測する距離（めり込みを防ぐ）
 
 ## 毎フレームの更新
 
@@ -97,20 +95,16 @@ void UpdateCharacter(float dt, const Vec3& move_direction, bool jump) {
 }
 ```
 
-| 手順 | 内容 |
-| --- | --- |
-| **1. 接地状態を調べる** | `GetGroundState()` |
-| 2. 速度を決める | 入力から、移動速度・ジャンプ・重力（ゲーム側のロジック） |
-| 3. `SetLinearVelocity` | 速度をキャラクターに設定 |
-| 4. `ExtendedUpdate` | 移動を衝突を考慮して、実行（階段・床への吸着を含む） |
+1. **1. 接地状態を調べる**: `GetGroundState()`
+2. 2. 速度を決める: 入力から、移動速度・ジャンプ・重力（ゲーム側のロジック）
+3. 3. `SetLinearVelocity`: 速度をキャラクターに設定
+4. 4. `ExtendedUpdate`: 移動を衝突を考慮して、実行（階段・床への吸着を含む）
 
 ### ExtendedUpdate の設定
 
-| 設定 | 意味 |
-| --- | --- |
-| `mStickToFloorStepDown` | 足が少し浮いても床に吸着（下り坂・階段で浮かない）。下向きのベクトル |
-| `mWalkStairsStepUp` | 登れる段差の高さ（階段）。上向きのベクトル |
-| `mWalkStairsMinStepForward` / `mWalkStairsStepForwardTest` | 階段の判定の細かい設定 |
+- `mStickToFloorStepDown`: 足が少し浮いても床に吸着（下り坂・階段で浮かない）。下向きのベクトル
+- `mWalkStairsStepUp`: 登れる段差の高さ（階段）。上向きのベクトル
+- `mWalkStairsMinStepForward` / `mWalkStairsStepForwardTest`: 階段の判定の細かい設定
 
 | 関数 | 違い |
 | --- | --- |
@@ -148,19 +142,15 @@ Vec3 ground_velocity = character->GetGroundVelocity();
 new_velocity = move_direction * kMoveSpeed + ground_velocity;
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `GetGroundVelocity()` | 足元の地面（物体）の、速度（動く床・エレベーター・回転する床） |
-| 速度に足す | キャラクターの速度に地面の速度を加えると床に乗って、運ばれる |
-| キネマティックな物体 | `MoveKinematic` で動く床（[物体](bodies.md)） |
+- `GetGroundVelocity()`: 足元の地面（物体）の、速度（動く床・エレベーター・回転する床）
+- 速度に足す: キャラクターの速度に地面の速度を加えると床に乗って、運ばれる
+- キネマティックな物体: `MoveKinematic` で動く床（[物体](bodies.md)）
 
 ## 壁ずり・押し出し
 
-| 動き | 説明 |
-| --- | --- |
-| **壁に向かって歩く** | 壁に沿って、滑る（壁ずり）。張り付かない |
-| 動的な物体を押す | `mMass`・`mMaxStrength` で、押す力が決まる。重い物は動かない |
-| 挟まれる | 押しつぶされないように、位置を補正 |
+- **壁に向かって歩く**: 壁に沿って、滑る（壁ずり）。張り付かない
+- 動的な物体を押す: `mMass`・`mMaxStrength` で、押す力が決まる。重い物は動かない
+- 挟まれる: 押しつぶされないように、位置を補正
 
 ## キャラクターのリスナー（接触の通知）
 
@@ -182,11 +172,9 @@ class MyCharacterListener : public CharacterContactListener {
 character->SetListener(&listener);
 ```
 
-| 用途 | 説明 |
-| --- | --- |
-| 特定の物体とすり抜ける | `io_settings.mCanPushCharacter = false` などで、押し合いを調整 |
-| ダメージ床・トリガー | 接触した物体をゲーム側で処理 |
-| 動く床の速度の調整 | `OnAdjustBodyVelocity` |
+- 特定の物体とすり抜ける: `io_settings.mCanPushCharacter = false` などで、押し合いを調整
+- ダメージ床・トリガー: 接触した物体をゲーム側で処理
+- 動く床の速度の調整: `OnAdjustBodyVelocity`
 
 ## Character（剛体版）
 
@@ -213,11 +201,9 @@ character->PostSimulation(0.05f);
 
 <strong>敵の移動も、`CharacterVirtual`</strong>で作れます。経路探索（ナビメッシュ）の結果から、移動の向きを決め、同じ更新を使います。
 
-| 点 | 説明 |
-| --- | --- |
-| 大量の敵 | 数百体の `CharacterVirtual` は、やや重い。遠くの敵は簡易な移動（物理なし）に切り替える |
-| ナビメッシュと組み合わせる | 経路 → 次の目標点 → 速度 → `ExtendedUpdate`（[ベイク](../../optimize/baking.md)のナビメッシュ） |
-| レイヤー | 敵どうしの衝突をレイヤーで制御（[レイヤー](layers.md)） |
+- 大量の敵: 数百体の `CharacterVirtual` は、やや重い。遠くの敵は簡易な移動（物理なし）に切り替える
+- ナビメッシュと組み合わせる: 経路 → 次の目標点 → 速度 → `ExtendedUpdate`（[ベイク](../../optimize/baking.md)のナビメッシュ）
+- レイヤー: 敵どうしの衝突をレイヤーで制御（[レイヤー](layers.md)）
 
 <!-- fig:character-slide:begin -->
 

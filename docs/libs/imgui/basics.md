@@ -7,11 +7,11 @@ tags:
 
 # ImGui の仕組みと最小のコード
 
-**即時モード**の考え方、1 フレームの流れ、DirectX 11 + Win32 の最小のコード、バックエンドの選び方、よくあるミスをまとめます。
+**即時モード**の考え方、1 フレームの流れ DirectX 11 + Win32 の最小のコード、バックエンドの選び方、よくあるミスをまとめます。
 
 ## 仕組み：即時モード GUI
 
-普通の GUI（Windows のフォーム、Unity の UI など）は、**部品（オブジェクト）を作って、画面に置いて、イベントを待つ**「保持モード」です。ImGui は逆に、毎フレーム、「今こうなっている」と描くたびに伝えるだけです。
+普通の GUI（Windows のフォーム、Unity の UI など）は**部品（オブジェクト）を作って、画面に置いてイベントを待つ**「保持モード」です。ImGui は逆に毎フレーム、「今こうなっている」と描くたびに伝えるだけです。
 
 ```cpp
 // 保持モード（イメージ）
@@ -27,11 +27,11 @@ if (ImGui::Button("Reset")) {  // 押されたフレームだけ true
 
 | 項目 | 保持モード | 即時モード（ImGui） |
 | --- | --- | --- |
-| 部品の管理 | 作って、保持して、消す | しない |
+| 部品の管理 | 作って保持して、消す | しない |
 | 値の同期 | 変数と部品の値を合わせる | 変数そのものを渡す（`SliderFloat("速さ", &speed, ...)`） |
 | 表示・非表示 | 部品の表示フラグ | `if` で呼ぶか呼ばないか |
 | コードの量 | 多い | 少ない |
-| 弱点 | — | 見た目の自由度が低い（デバッグ・ツール向き）。毎フレーム再構築するので、重い画面は工夫が必要 |
+| 弱点 | — | 見た目の自由度が低い（デバッグ・ツール向き）。毎フレーム再構築するので重い画面は工夫が必要 |
 
 
 ## 1 フレームの流れ
@@ -41,7 +41,7 @@ if (ImGui::Button("Reset")) {  // 押されたフレームだけ true
 
 ## 最小のコード（DirectX 11 + Win32）
 
-ウィンドウと DirectX 11 の初期化（`CreateDeviceD3D`、`WndProc` など）は、ImGui の `examples/example_win32_directx11/main.cpp` と同じです。**そのファイルをプロジェクトにコピーして動かすのが、一番確実な最初の一歩**です。ImGui に関係する部分だけ抜き出すと、次のようになります。
+ウィンドウと DirectX 11 の初期化（`CreateDeviceD3D`、`WndProc` など）は ImGui の `examples/example_win32_directx11/main.cpp` と同じです。**そのファイルをプロジェクトにコピーして動かすのが、一番確実な最初の一歩**です。ImGui に関係する部分だけ抜き出すと次のようになります。
 
 ```cpp
 #include "imgui.h"
@@ -103,27 +103,23 @@ void ShutdownImGui() {
 ```
 
 !!! warning "日本語が `?` になる"
-    ImGui の標準フォントには日本語の字がありません。日本語を出すには、日本語に対応したフォント（Windows の `C:\Windows\Fonts\meiryo.ttc` など）を読み込む必要があります。[日本語フォントとアイコン](fonts.md) のページで説明します。ひとまず、`io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\meiryo.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());` を初期化の最後に書くと表示できます。
+    ImGui の標準フォントには日本語の字がありません。日本語を出すには日本語に対応したフォント（Windows の `C:\Windows\Fonts\meiryo.ttc` など）を読み込む必要があります。[日本語フォントとアイコン](fonts.md) のページで説明します。ひとまず `io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\meiryo.ttc", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());` を初期化の最後に書くと表示できます。
 
 
 ## バックエンドの組み合わせ
 
-ImGui は、**プラットフォーム**（ウィンドウ・入力）とレンダラー（描画）を別々に選びます。
+ImGui は**プラットフォーム**（ウィンドウ・入力）とレンダラー（描画）を別々に選びます。
 
-| プラットフォーム | 説明 |
-| --- | --- |
-| `imgui_impl_win32` | Win32 API（Windows 専用）。ウィンドウを自分で作る場合 |
-| `imgui_impl_glfw` | GLFW。OpenGL / Vulkan で、ウィンドウを簡単に作れる |
-| `imgui_impl_sdl2` / `imgui_impl_sdl3` | SDL。ゲームの入力（ゲームパッド）にも強い |
+- `imgui_impl_win32`: Win32 API（Windows 専用）。ウィンドウを自分で作る場合
+- `imgui_impl_glfw`: GLFW。OpenGL / Vulkan で、ウィンドウを簡単に作れる
+- `imgui_impl_sdl2` / `imgui_impl_sdl3`: SDL。ゲームの入力（ゲームパッド）にも強い
 
-| レンダラー | 説明 |
-| --- | --- |
-| `imgui_impl_dx11` | DirectX 11。Windows で一番よく使われる |
-| `imgui_impl_dx12` | DirectX 12 |
-| `imgui_impl_opengl3` | OpenGL 3 以降 |
-| `imgui_impl_vulkan` | Vulkan |
+- `imgui_impl_dx11`: DirectX 11。Windows で一番よく使われる
+- `imgui_impl_dx12`: DirectX 12
+- `imgui_impl_opengl3`: OpenGL 3 以降
+- `imgui_impl_vulkan`: Vulkan
 
-自作のゲームエンジンで、すでに DirectX 11 を使っているなら、`imgui_impl_win32` + `imgui_impl_dx11` が最も簡単です。
+自作のゲームエンジンですでに DirectX 11 を使っているなら `imgui_impl_win32` + `imgui_impl_dx11` が最も簡単です。
 
 
 ## よく使う関数（入口だけ）
@@ -141,11 +137,11 @@ ImGui は、**プラットフォーム**（ウィンドウ・入力）とレン�
 | `ImGui::ShowDemoWindow()` | **デモ ウィンドウ**。全部の部品が動いて見える |
 
 !!! tip "デモ ウィンドウを見る"
-    ImGui の使い方で迷ったら、**`ImGui::ShowDemoWindow();` を毎フレーム呼んで、動かして<strong>見ます。ほとんどの部品の見た目と、</strong>その部品を出すコードの場所**が分かります（`imgui_demo.cpp` に全部書いてあります）。
+    ImGui の使い方で迷ったら、**`ImGui::ShowDemoWindow();` を毎フレーム呼んで動かして<strong>見ます。ほとんどの部品の見た目と </strong>その部品を出すコードの場所**が分かります（`imgui_demo.cpp` に全部書いてあります）。
 
 
 !!! info "このページを読む前に"
-    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui](index.md)（このセクション全体の地図と読む順番）
     - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
 
 <!-- fig:imgui-frame-loop:begin -->
@@ -184,19 +180,19 @@ ImGui は、**プラットフォーム**（ウィンドウ・入力）とレン�
 ## よくあるミス
 
 ??? failure "ウィジェットの名前が重複して、片方しか動かない"
-    ImGui は、**名前から ID を作って**部品を区別しています。同じ名前のボタンを 2 つ並べると、同じ部品とみなされて、一方しか反応しません。`ImGui::Button("削除##1")`、`ImGui::Button("削除##2")` のように、`##` のあとに ID を付けます（`##` より後ろは表示されません）。ループの中では `ImGui::PushID(i);` ... `ImGui::PopID();` で囲みます。
+    ImGui は**名前から ID を作って**部品を区別しています。同じ名前のボタンを 2 つ並べると、同じ部品とみなされて一方しか反応しません。`ImGui::Button("削除##1")`、`ImGui::Button("削除##2")` のように `##` のあとに ID を付けます（`##` より後ろは表示されません）。ループの中では `ImGui::PushID(i);` ... `ImGui::PopID();` で囲みます。
 
 ??? failure "`Begin` と `End`、`TreeNode` と `TreePop` の組が合っていない"
-    `Begin()` は、返り値が `false` でも、必ず `End()` を呼びます（これは例外）。`TreeNode()` が `true` のときだけ `TreePop()` を呼びます。合っていないと、実行時にアサートで止まります。
+    `Begin()` は返り値が `false` でも必ず `End()` を呼びます（これは例外）。`TreeNode()` が `true` のときだけ `TreePop()` を呼びます。合っていないと実行時にアサートで止まります。
 
 ??? failure "ImGui の上でクリックしたのに、ゲームの操作も反応する"
-    ImGui のウィンドウ上でマウスを使っているのに、ゲーム側もクリックを受け取ってしまいます。`ImGui::GetIO().WantCaptureMouse` が `true` のときは、ゲーム側でマウスの入力を無視します（キーボードは `WantCaptureKeyboard`）。
+    ImGui のウィンドウ上でマウスを使っているのに、ゲーム側もクリックを受け取ってしまいます。`ImGui::GetIO().WantCaptureMouse` が `true` のときはゲーム側でマウスの入力を無視します（キーボードは `WantCaptureKeyboard`）。
 
 ??? failure "NewFrame を呼ぶ順番が違う"
     `ImGui_ImplDX11_NewFrame()` → `ImGui_ImplWin32_NewFrame()` → `ImGui::NewFrame()` の順番を守ります。`Render()` の後に画面の描画で ImGui を呼ぶのを忘れると、何も表示されません。
 
 ??? failure "リリースビルドにも ImGui が入っている"
-    デバッグ用の画面なので、製品版ではビルドに含めないようにします（`#ifdef _DEBUG` で囲む、`IMGUI_DISABLE` を定義する、など）。
+    デバッグ用の画面なので、製品版ではビルドに含めないようにします（`#ifdef _DEBUG` で囲む `IMGUI_DISABLE` を定義する、など）。
 
 ## 関連ページ
 

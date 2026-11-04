@@ -60,26 +60,22 @@ context->OMSetBlendState(state.Get(), blend_factor, 0xFFFFFFFF);   // 第 3 引�
 
 `SRC_ALPHA` と `INV_SRC_ALPHA` の組み合わせは「ソースのアルファ分だけ新しい色、残りは古い色」の混ぜ方で `結果 = ソース × α + デスト × (1 − α)` です。アルファ 0.3 なら新しい色が 30%、背景が 70% です。
 
-| メンバー | 内容 |
-| --- | --- |
-| `BlendEnable` | ブレンドを有効にするか |
-| `SrcBlend`・`DestBlend` | RGB のソースとデストの係数 |
-| `BlendOp` | `ADD`、`SUBTRACT`、`REV_SUBTRACT`、`MIN`、`MAX` |
-| `SrcBlendAlpha`・`DestBlendAlpha`・`BlendOpAlpha` | アルファ チャンネル用（RGB と別に指定できる） |
-| `RenderTargetWriteMask` | 書くチャンネル（`RED`、`GREEN`、`BLUE`、`ALPHA`、`ALL`） |
+- `BlendEnable`: ブレンドを有効にするか
+- `SrcBlend`・`DestBlend`: RGB のソースとデストの係数
+- `BlendOp`: `ADD`、`SUBTRACT`、`REV_SUBTRACT`、`MIN`、`MAX`
+- `SrcBlendAlpha`・`DestBlendAlpha`・`BlendOpAlpha`: アルファ チャンネル用（RGB と別に指定できる）
+- `RenderTargetWriteMask`: 書くチャンネル（`RED`、`GREEN`、`BLUE`、`ALPHA`、`ALL`）
 
 ## ブレンド係数
 
-| `D3D11_BLEND_*` | 係数 |
-| --- | --- |
-| `ZERO` | 0 |
-| `ONE` | 1 |
-| `SRC_COLOR`・`INV_SRC_COLOR` | ソースの色、(1 − ソースの色) |
-| `SRC_ALPHA`・`INV_SRC_ALPHA` | ソースのアルファ、(1 − ソースのアルファ) |
-| `DEST_COLOR`・`INV_DEST_COLOR` | デストの色、(1 − デストの色) |
-| `DEST_ALPHA`・`INV_DEST_ALPHA` | デストのアルファ、(1 − デストのアルファ) |
-| `BLEND_FACTOR`・`INV_BLEND_FACTOR` | `OMSetBlendState` で渡した定数色 |
-| `SRC1_COLOR`・`SRC1_ALPHA` | デュアル ソース ブレンド（ピクセル シェーダーが 2 つの色を出力） |
+- `ZERO`: 0
+- `ONE`: 1
+- `SRC_COLOR`・`INV_SRC_COLOR`: ソースの色、(1 − ソースの色)
+- `SRC_ALPHA`・`INV_SRC_ALPHA`: ソースのアルファ、(1 − ソースのアルファ)
+- `DEST_COLOR`・`INV_DEST_COLOR`: デストの色、(1 − デストの色)
+- `DEST_ALPHA`・`INV_DEST_ALPHA`: デストのアルファ、(1 − デストのアルファ)
+- `BLEND_FACTOR`・`INV_BLEND_FACTOR`: `OMSetBlendState` で渡した定数色
+- `SRC1_COLOR`・`SRC1_ALPHA`: デュアル ソース ブレンド（ピクセル シェーダーが 2 つの色を出力）
 
 ## よく使うブレンド
 
@@ -106,11 +102,9 @@ return float4(color.rgb * color.a, color.a);                // アルファを�
 
 通常の、アルファ ブレンドは <strong>順序に依存する</strong>演算で奥の物を先に描かないと結果が変わります。
 
-| 種類 | 順序 |
-| --- | --- |
-| 不透明 | 順序は自由（深度テストが解決する）。手前から描くとオーバードローが減る |
-| 半透明（通常のアルファ） | <strong>奥から、手前</strong>の順（ソートが必要） |
-| 加算（`ONE`、`ONE`） | 順序に依存しない（足し算は、交換できる）。ソート不要 |
+- 不透明: 順序は自由（深度テストが解決する）。手前から描くとオーバードローが減る
+- 半透明（通常のアルファ）: <strong>奥から、手前</strong>の順（ソートが必要）
+- 加算（`ONE`、`ONE`）: 順序に依存しない（足し算は交換できる）。ソート不要
 
 順序の問題を避ける方法は[OIT](../../graphics/translucency/oit/index.md) です。
 

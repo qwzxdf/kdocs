@@ -27,10 +27,8 @@ tags:
 
 ドッキングは**ImGui の `docking` ブランチ**に入っています（正式版の `master` には、まだ入っていません。安定していて広く使われています）。
 
-| 入手方法 | 説明 |
-| --- | --- |
-| GitHub の `docking` ブランチ | `git clone -b docking https://github.com/ocornut/imgui`。ソースを入れる方法（[導入](install.md)）で使う |
-| vcpkg | `vcpkg install imgui[docking-experimental,dx11-binding,win32-binding]:x64-windows`（機能名は、ポートの定義を確認） |
+- GitHub の `docking` ブランチ: `git clone -b docking https://github.com/ocornut/imgui`。ソースを入れる方法（[導入](install.md)）で使う
+- vcpkg: `vcpkg install imgui[docking-experimental,dx11-binding,win32-binding]:x64-windows`（機能名は、ポートの定義を確認）
 
 !!! note "vcpkg の機能名"
     vcpkg の `imgui` ポートは、`docking-experimental`（ドッキング）、`multi-viewport`（マルチビューポート）、`dx11-binding`、`win32-binding` などの 機能（feature）を持ちます。バージョンで名前が変わることがあるので `vcpkg search imgui` やポートのドキュメントで確認します。
@@ -57,11 +55,9 @@ io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `DockSpaceOverViewport(...)` | メイン ビューポート全体にドッキング領域を作る（メニューバーの下など、作業領域に合わせる） |
-| 毎フレーム、`NewFrame` の後に呼ぶ | ほかのウィンドウを作る前に |
-| シグネチャ | バージョンで引数が違う（`dockspace_id`、`viewport`、`flags`、…）。使っているバージョンのヘッダで確認 |
+- `DockSpaceOverViewport(...)`: メイン ビューポート全体にドッキング領域を作る（メニューバーの下など、作業領域に合わせる）
+- 毎フレーム、`NewFrame` の後に呼ぶ: ほかのウィンドウを作る前に
+- シグネチャ: バージョンで引数が違う（`dockspace_id`、`viewport`、`flags`、…）。使っているバージョンのヘッダで確認
 
 ### 背景を透けさせる（ゲームの画面を見せる）
 
@@ -71,11 +67,9 @@ ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 ```
 
-| フラグ | 意味 |
-| --- | --- |
-| `ImGuiDockNodeFlags_PassthruCentralNode` | 中央のノードを透明にして、後ろの描画（ゲーム）が見える |
-| `ImGuiDockNodeFlags_NoDockingInCentralNode` | 中央にドッキングさせない |
-| `ImGuiDockNodeFlags_AutoHideTabBar` | 1 つしかないタブのタブバーを隠す |
+- `ImGuiDockNodeFlags_PassthruCentralNode`: 中央のノードを透明にして、後ろの描画（ゲーム）が見える
+- `ImGuiDockNodeFlags_NoDockingInCentralNode`: 中央にドッキングさせない
+- `ImGuiDockNodeFlags_AutoHideTabBar`: 1 つしかないタブのタブバーを隠す
 
 ゲームの画面をそのまま背景に出し、周りにパネルを並べる構成です。シーンビューをウィンドウに入れたい場合は、レンダー ターゲットにします（[テクスチャ](textures.md)）。
 
@@ -117,12 +111,10 @@ ImGui::End();
 
 ## レイアウトの保存と読み込み
 
-| 方法 | 説明 |
-| --- | --- |
-| <strong>`imgui.ini`（自動）</strong> | ウィンドウの位置・大きさ・ドッキングの配置が自動で保存・復元される（`io.IniFilename`） |
-| 保存先を変える | `io.IniFilename = "layout.ini";`、または `nullptr` で保存しない |
-| 文字列で保存・読み込み | `ImGui::SaveIniSettingsToMemory()` / `LoadIniSettingsFromMemory(data)` で、独自のファイル・メモリへ |
-| `SaveIniSettingsToDisk(path)` / `LoadIniSettingsFromDisk(path)` | 別のファイルへ保存・読み込み（複数のレイアウト切り替えに） |
+- <strong>`imgui.ini`（自動）</strong>: ウィンドウの位置・大きさ・ドッキングの配置が自動で保存・復元される（`io.IniFilename`）
+- 保存先を変える: `io.IniFilename = "layout.ini";`、または `nullptr` で保存しない
+- 文字列で保存・読み込み: `ImGui::SaveIniSettingsToMemory()` / `LoadIniSettingsFromMemory(data)` で、独自のファイル・メモリへ
+- `SaveIniSettingsToDisk(path)` / `LoadIniSettingsFromDisk(path)`: 別のファイルへ保存・読み込み（複数のレイアウト切り替えに）
 
 ```cpp
 if (ImGui::MenuItem("レイアウトを保存")) ImGui::SaveIniSettingsToDisk("layouts/my_layout.ini");
@@ -173,11 +165,9 @@ if (ImGui::DockBuilderGetNode(dockspace_id) == nullptr) {
 io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| バックエンドの対応が必要 | Win32 + DirectX 11 は、対応している |
-| 描画のあとに追加の呼び出し | メインの描画が終わったあとに、`UpdatePlatformWindows()` と `RenderPlatformWindowsDefault()` を呼ぶ |
-| スタイルの調整 | ウィンドウの角丸・背景の透明が OS ウィンドウでは違和感がある → `WindowRounding = 0`、`WindowBg.w = 1` |
+- バックエンドの対応が必要: Win32 + DirectX 11 は、対応している
+- 描画のあとに追加の呼び出し: メインの描画が終わったあとに、`UpdatePlatformWindows()` と `RenderPlatformWindowsDefault()` を呼ぶ
+- スタイルの調整: ウィンドウの角丸・背景の透明が OS ウィンドウでは違和感がある → `WindowRounding = 0`、`WindowBg.w = 1`
 
 ```cpp
 ImGui::Render();

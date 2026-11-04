@@ -37,10 +37,8 @@ tags:
 
 **デバッグ描画はビルド時に `JPH_DEBUG_RENDERER` を定義**したときだけ使えます。
 
-| 場所 | 設定 |
-| --- | --- |
-| Jolt のライブラリ | `JPH_DEBUG_RENDERER` を定義して、ビルド（vcpkg なら `debug-renderer` 機能） |
-| 自分のプロジェクト | 同じく、`JPH_DEBUG_RENDERER` を定義（食い違うとクラッシュ） |
+- Jolt のライブラリ: `JPH_DEBUG_RENDERER` を定義して、ビルド（vcpkg なら `debug-renderer` 機能）
+- 自分のプロジェクト: 同じく、`JPH_DEBUG_RENDERER` を定義（食い違うとクラッシュ）
 
 （詳しくは[ビルドと設定](build.md)）
 
@@ -122,16 +120,14 @@ void DrawPhysicsDebug(PhysicsSystem& system, MyDebugRenderer& renderer) {
 
 ### DrawSettings の主な項目
 
-| 項目 | 意味 |
-| --- | --- |
-| `mDrawShape` | 形を描く |
-| `mDrawShapeWireframe` | ワイヤーフレームで |
-| `mDrawShapeColor` | 色の付け方（物体の種類・休止状態・動き方で、色分け） |
-| `mDrawBoundingBox` | AABB |
-| `mDrawCenterOfMassTransform` | 重心の座標軸 |
-| `mDrawVelocity` | 速度のベクトル |
-| `mDrawMassAndInertia` | 質量と慣性 |
-| `mDrawSleepStats` | スリープまでの時間 |
+- `mDrawShape`: 形を描く
+- `mDrawShapeWireframe`: ワイヤーフレームで
+- `mDrawShapeColor`: 色の付け方（物体の種類・休止状態・動き方で、色分け）
+- `mDrawBoundingBox`: AABB
+- `mDrawCenterOfMassTransform`: 重心の座標軸
+- `mDrawVelocity`: 速度のベクトル
+- `mDrawMassAndInertia`: 質量と慣性
+- `mDrawSleepStats`: スリープまでの時間
 
 ## 3D の線を画面に描く
 
@@ -147,11 +143,9 @@ bool WorldToScreen(const Vector3& world, const Matrix& view, const Matrix& proj,
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `Viewport::Project`（SimpleMath） | ワールド座標 → 画面のピクセル座標（[SimpleMath](../../gamemath/simplemath.md)、[変換と MVP](../../3d/transforms-mvp.md)） |
-| `screen.z` | 0〜1 の範囲外は、カメラの後ろ・遠すぎ。描かない |
-| `ImDrawList::AddLine` | 画面上に線を描く（[デバッグ画面](../imgui/debug-ui.md)） |
+- `Viewport::Project`（SimpleMath）: ワールド座標 → 画面のピクセル座標（[SimpleMath](../../gamemath/simplemath.md)、[変換と MVP](../../3d/transforms-mvp.md)）
+- `screen.z`: 0〜1 の範囲外は、カメラの後ろ・遠すぎ。描かない
+- `ImDrawList::AddLine`: 画面上に線を描く（[デバッグ画面](../imgui/debug-ui.md)）
 
 ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に描けば、ゲームの画面の上に線が重なります。専用の線描画（頂点バッファ・シェーダー）を作る方が本格的で深度テストもできます（ImGui の線は、深度テストなしで手前の物の裏側も見える）。
 
@@ -159,23 +153,19 @@ ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に
 
 **物体が多いと線が数万本**になります。
 
-| 工夫 | 説明 |
-| --- | --- |
-| 線をまとめて描く | 1 本ずつ描画命令を出さず、頂点を溜めて 1 回で描く |
-| 範囲を絞る | カメラの近くの物体だけを描く（`DrawBodies` の、物体の範囲指定） |
-| 必要なときだけ | ボタンで、オン・オフ（[デバッグ画面](../imgui/debug-ui.md)） |
-| ワイヤーフレームを簡略に | 形の分割数を減らす |
+- 線をまとめて描く: 1 本ずつ描画命令を出さず、頂点を溜めて 1 回で描く
+- 範囲を絞る: カメラの近くの物体だけを描く（`DrawBodies` の、物体の範囲指定）
+- 必要なときだけ: ボタンで、オン・オフ（[デバッグ画面](../imgui/debug-ui.md)）
+- ワイヤーフレームを簡略に: 形の分割数を減らす
 
 ## 使い方のコツ
 
-| 見たいもの | 設定 |
-| --- | --- |
-| **衝突の形が見た目と合っているか** | `mDrawShapeWireframe = true` ＋ 見た目のメッシュを半透明に |
-| すり抜け・めり込み | 形と AABB を描いて、位置関係を見る |
-| 重心 | `mDrawCenterOfMassTransform` |
-| ヒンジの動き | `DrawConstraints` と `DrawConstraintLimits` |
-| 休止している物体 | 色分け（休止中は暗い色）で、スリープが効いているか |
-| キャラクターの形 | `CharacterVirtual` の形も描ける（`character->GetShape()` を手動で描画） |
+- **衝突の形が見た目と合っているか**: `mDrawShapeWireframe = true` ＋ 見た目のメッシュを半透明に
+- すり抜け・めり込み: 形と AABB を描いて、位置関係を見る
+- 重心: `mDrawCenterOfMassTransform`
+- ヒンジの動き: `DrawConstraints` と `DrawConstraintLimits`
+- 休止している物体: 色分け（休止中は暗い色）で、スリープが効いているか
+- キャラクターの形: `CharacterVirtual` の形も描ける（`character->GetShape()` を手動で描画）
 
 ## 製品版
 

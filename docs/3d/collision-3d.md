@@ -6,18 +6,18 @@ tags:
 
 # 3D の衝突判定
 
-3D の衝突判定は、**複雑なモデルを単純な形（球・箱・カプセル）で近似**して、重なりを調べるのが基本です。DirectXMath に付属する DirectXCollision（`BoundingSphere`・`BoundingBox`・`BoundingOrientedBox`・`BoundingFrustum`）を使えば、基本の形の判定がすぐに使えます。このページは各形状の選び方、判定の書き方、カプセルや段階的な判定をまとめます。
+3D の衝突判定は**複雑なモデルを単純な形（球・箱・カプセル）で近似**して、重なりを調べるのが基本です。DirectXMath に付属する DirectXCollision（`BoundingSphere`・`BoundingBox`・`BoundingOrientedBox`・`BoundingFrustum`）を使えば、基本の形の判定がすぐに使えます。このページは各形状の選び方、判定の書き方、カプセルや段階的な判定をまとめます。
 
 !!! tip "ポイント"
-    - 複雑な形は、<strong>単純な形（コライダー）で近似</strong>する。<strong>球・箱・カプセル</strong>が基本。
+    - 複雑な形は <strong>単純な形（コライダー）で近似</strong>する。<strong>球・箱・カプセル</strong>が基本。
     - DirectXCollision：`BoundingSphere`・`BoundingBox`（AABB）・`BoundingOrientedBox`（OBB）・`BoundingFrustum`。
     - 判定は `Intersects`（交差するか）と `Contains`（`DISJOINT` / `INTERSECTS` / `CONTAINS`）。
     - 球が最速、AABB が次、OBB は重い。まず軽い形で絞る。
-    - 衝突判定（重なったか）と、衝突応答（どう動くか）は別。応答は物理エンジンに任せる手もある。
-    - 数が多いなら、空間分割で判定する組み合わせを減らす。
+    - 衝突判定（重なったか）と衝突応答（どう動くか）は別。応答は物理エンジンに任せる手もある。
+    - 数が多いなら空間分割で判定する組み合わせを減らす。
 
 !!! info "このページを読む前に"
-    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [3d/index.md](index.md)（このセクション全体の地図と読む順番）
     - [行列](../gamemath/matrices.md)（行列の基礎）
     - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
 
@@ -47,11 +47,9 @@ BoundingBox box(XMFLOAT3(0, 0, 0), XMFLOAT3(1, 1, 1));
 BoundingOrientedBox obb(XMFLOAT3(0, 0, 0), XMFLOAT3(1, 0.5f, 2), XMFLOAT4(0, 0, 0, 1));
 ```
 
-| 引数 | 説明 |
-| --- | --- |
-| 球 | **中心**、半径 |
-| AABB | 中心、半分の大きさ（`Extents`）。幅の半分であることに注意 |
-| OBB | 中心、半分の大きさ、回転（クォータニオン） |
+- 球: **中心**、半径
+- AABB: 中心、半分の大きさ（`Extents`）。幅の半分であることに注意
+- OBB: 中心、半分の大きさ回転（クォータニオン）
 
 SimpleMath の `Vector3` は `XMFLOAT3` から派生しているので、そのまま渡せます。
 
@@ -65,7 +63,7 @@ BoundingSphere sphere;
 BoundingSphere::CreateFromPoints(sphere, vertices.size(), &vertices[0].position, sizeof(Vertex));
 ```
 
-メッシュの頂点から、ぴったりの境界を求められます。モデル読み込み時に 1 回計算します。
+メッシュの頂点からぴったりの境界を求められます。モデル読み込み時に 1 回計算します。
 
 ### 判定
 
@@ -89,7 +87,7 @@ BoundingSphere world_sphere;
 local_sphere.Transform(world_sphere, world_matrix);
 ```
 
-ローカルの境界をワールドに変換して使います。球・OBB は回転にも対応します。AABB は回転すると箱が大きくなる（軸に平行なまま、包み直し）ことに注意します。
+ローカルの境界をワールドに変換して使います。球・OBB は回転にも対応します。AABB は回転すると箱が大きくなる（軸に平行なまま包み直し）ことに注意します。
 
 ## 自作の判定
 
@@ -102,7 +100,7 @@ bool SphereVsSphere(const Vector3& c1, float r1, const Vector3& c2, float r2) {
 }
 ```
 
-**平方根を避ける**ため、距離の 2 乗で比べます。
+**平方根を避ける**ため距離の 2 乗で比べます。
 
 ### AABB と AABB
 
@@ -115,7 +113,7 @@ bool AabbVsAabb(const Vector3& min1, const Vector3& max1,
 }
 ```
 
-3 つの軸のすべてで区間が重なっているときに、衝突しています。
+3 つの軸のすべてで区間が重なっているときに衝突しています。
 
 ### 点から線分への最短点
 
@@ -148,11 +146,11 @@ bool CapsuleVsSphere(const Capsule& capsule, const Vector3& center, float radius
 }
 ```
 
-カプセルと球の判定は、「線分上の最も近い点」と球の中心の距離で決まります。カプセル同士も線分同士の最短距離を求めて、半径の和と比べます。
+カプセルと球の判定は「線分上の最も近い点」と球の中心の距離で決まります。カプセル同士も線分同士の最短距離を求めて、半径の和と比べます。
 
 ## 衝突の深さと押し戻し
 
-**当たった**だけでなく、どれだけ食い込んでいるかが分かれば、押し戻しができます。
+**当たった**だけでなくどれだけ食い込んでいるかが分かれば、押し戻しができます。
 
 ```cpp
 struct Contact {
@@ -173,10 +171,8 @@ bool SphereVsSphereContact(const Vector3& c1, float r1, const Vector3& c2, float
 }
 ```
 
-| 値 | 意味 |
-| --- | --- |
-| 法線 | 押し戻す向き |
-| 深さ | 食い込んだ量。`法線 × 深さ` だけ動かせば、離れる |
+- 法線: 押し戻す向き
+- 深さ: 食い込んだ量。`法線 × 深さ` だけ動かせば離れる
 
 ## 段階的な判定（ブロードフェーズとナローフェーズ）
 
@@ -189,7 +185,7 @@ bool SphereVsSphereContact(const Vector3& c1, float r1, const Vector3& c2, float
 
 <svg class="fig flow" viewBox="0 0 932 112" role="img" aria-label="ブロードフェーズで絞り、ナローフェーズで正確に判定する"><defs><marker id="fl83599" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ブロードフェーズで絞り、ナローフェーズで正確に判定する</text><line x1="151.0" y1="64.0" x2="209.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="403.0" y1="64.0" x2="461.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="543.0" y1="64.0" x2="601.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="753.0" y1="64.0" x2="811.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><rect x="28.0" y="44.0" width="120" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="88.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">全物体 1000個</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="212.0" y="44.0" width="188" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="306.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ブロード （近い組だけ）</text><circle cx="214.0" cy="46.0" r="10" fill="#2ea043"/><text x="214.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="464.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="502.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">50組</text><circle cx="466.0" cy="46.0" r="10" fill="#e5a828"/><text x="466.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="604.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="677.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ナロー （正確に）</text><circle cx="606.0" cy="46.0" r="10" fill="#e5484d"/><text x="606.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="814.0" y="44.0" width="90" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="859.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">5組が衝突</text><circle cx="816.0" cy="46.0" r="10" fill="#9664e6"/><text x="816.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
-空間分割は、[空間分割](../optimize/algorithms.md)で、詳しく解説しています。
+空間分割は[空間分割](../optimize/algorithms.md)で詳しく解説しています。
 
 ## 高速な物体（トンネリング）
 
@@ -206,62 +202,56 @@ n w 壁_（レイが当たる） 2 1 hit
 l b w hit 前→今の位置にレイ
 </div>
 
-**弾のように速い**物体は、1 フレームで壁を通り抜けることがあります（トンネリング）。
+**弾のように速い**物体は 1 フレームで壁を通り抜けることがあります（トンネリング）。
 
-| 対策 | 説明 |
-| --- | --- |
-| レイキャスト（スイープ） | 前フレームの位置から、今の位置へレイを飛ばして、間の壁を検出 |
-| サブステップ | 1 フレームを小さな時間に分割して、何度も判定 |
-| 連続衝突判定（CCD） | 物理エンジンの機能（Jolt など） |
-| 壁を厚くする | 簡単だが限界がある |
+- レイキャスト（スイープ）: 前フレームの位置から、今の位置へレイを飛ばして間の壁を検出
+- サブステップ: 1 フレームを小さな時間に分割して、何度も判定
+- 連続衝突判定（CCD）: 物理エンジンの機能（Jolt など）
+- 壁を厚くする: 簡単だが限界がある
 
 ## 地形・メッシュとの判定
 
-| 方法 | 説明 |
-| --- | --- |
-| **高さマップ** | 地形が高さの配列なら、XZ から高さを引くだけで、床判定ができる。速い |
-| 三角形メッシュ | 正確。BVH で三角形を絞ってから判定 |
-| ボクセル・グリッド | ブロック状の世界（マインクラフト風）。セルの配列を調べるだけ |
-| ナビメッシュ | 歩ける場所を多角形で。経路探索に使う |
+- **高さマップ**: 地形が高さの配列なら XZ から高さを引くだけで、床判定ができる。速い
+- 三角形メッシュ: 正確。BVH で三角形を絞ってから判定
+- ボクセル・グリッド: ブロック状の世界（マインクラフト風）。セルの配列を調べるだけ
+- ナビメッシュ: 歩ける場所を多角形で。経路探索に使う
 
 ## 衝突判定と衝突応答
 
-| 役割 | 内容 |
-| --- | --- |
-| **衝突判定** | 重なったか、法線・深さは何か |
-| 衝突応答 | どう動くか（押し戻す、跳ね返る、止まる、ダメージ） |
+- **衝突判定**: 重なったか法線・深さは何か
+- 衝突応答: どう動くか（押し戻す跳ね返る止まるダメージ）
 
-物理的な応答（跳ね返り・摩擦・積み重なり）まで必要なら、物理エンジン（Jolt・Bullet）が適しています（[Jolt Physics](../libs/jolt/index.md)）。自作するのは当たったら、ダメージのような、単純な用途に向きます。
+物理的な応答（跳ね返り・摩擦・積み重なり）まで必要なら物理エンジン（Jolt・Bullet）が適しています（[Jolt Physics](../libs/jolt/index.md)）。自作するのは当たったらダメージのような単純な用途に向きます。
 
 ## よくあるミス
 
 ??? failure "AABB のサイズを幅で渡してしまう"
-    `BoundingBox` の第 2 引数は、**半分の大きさ**（`Extents`）です。
+    `BoundingBox` の第 2 引数は**半分の大きさ**（`Extents`）です。
 
 ??? failure "ローカルの境界をそのまま使って、当たらない"
-    `Transform` で、ワールド空間に変換してから判定します。
+    `Transform` でワールド空間に変換してから判定します。
 
 ??? failure "回転した物体の AABB が、大きすぎる"
-    回転すると軸に平行な箱は、大きくなります。OBB・カプセルを使います。
+    回転すると軸に平行な箱は大きくなります。OBB・カプセルを使います。
 
 ??? failure "弾が壁を通り抜ける"
     トンネリングです。レイキャストやサブステップを使います。
 
-??? failure "全物体の総当たりで、重い"
+??? failure "全物体の総当たりで重い"
     ブロードフェーズ（空間分割）を入れます。
 
-??? failure "球の判定で `sqrt` を毎回呼んで、遅い"
+??? failure "球の判定で `sqrt` を毎回呼んで遅い"
     距離の 2 乗で比べます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 複雑な形は、球・AABB・OBB・カプセルで近似。速さは球 > AABB > OBB
+    - [x] 複雑な形は球・AABB・OBB・カプセルで近似。速さは球 > AABB > OBB
     - [x] DirectXCollision の `Intersects` / `Contains`。AABB の大きさは「半分」で渡す
     - [x] ワールド空間にそろえて判定（`Transform`）。2 乗の距離で比べる
-    - [x] 数が多いなら、ブロードフェーズ（空間分割）→ ナローフェーズ
-    - [x] 速い物は、レイキャスト・サブステップでトンネリングを防ぐ
-    - [x] 物理的な応答が必要なら、物理エンジン
+    - [x] 数が多いならブロードフェーズ（空間分割）→ ナローフェーズ
+    - [x] 速い物はレイキャスト・サブステップでトンネリングを防ぐ
+    - [x] 物理的な応答が必要なら物理エンジン
 
 ## 関連ページ
 

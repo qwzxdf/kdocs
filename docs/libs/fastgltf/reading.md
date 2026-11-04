@@ -126,14 +126,12 @@ void LoadScene(const fastgltf::Asset& asset, std::vector<DrawItem>& out) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`node.transform`** | TRS か行列の `std::variant`。`getLocalTransformMatrix(node)`（バージョンで名前が違う：`getTransformMatrix` など）で、4×4 行列に統一 |
-| 行列の並び | glTF は列優先。SimpleMath の行優先（行ベクトル規約）にそのまま `memcpy` できる（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へはルートに X 反転の行列を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)） |
-| `node.meshIndex` | `std::optional<size_t>`。`has_value()` を確認 |
-| `node.children` | 子ノードの番号（`size_t` の配列） |
-| **`world = local * parent_world` | 行ベクトル規約での 子 × 親** |
-| `asset.defaultScene.value_or(0)` | 既定のシーン、なければ 0 番 |
+- **`node.transform`**: TRS か行列の `std::variant`。`getLocalTransformMatrix(node)`（バージョンで名前が違う：`getTransformMatrix` など）で、4×4 行列に統一
+- 行列の並び: glTF は列優先。SimpleMath の行優先（行ベクトル規約）にそのまま `memcpy` できる（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へはルートに X 反転の行列を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）
+- `node.meshIndex`: `std::optional<size_t>`。`has_value()` を確認
+- `node.children`: 子ノードの番号（`size_t` の配列）
+- **`world = local * parent_world`: 行ベクトル規約での 子 × 親**
+- `asset.defaultScene.value_or(0)`: 既定のシーン、なければ 0 番
 
 `Options::DecomposeNodeMatrices` を指定するとノードの行列を TRS に分解して持ちます（アニメーションで、TRS が必要なとき）。
 
@@ -155,14 +153,12 @@ if (pbr.baseColorTexture.has_value()) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`primitive.materialIndex`** | `std::optional<size_t>`（マテリアルなしもある） |
-| `material.pbrData` | メタリック・ラフネスのデータ |
-| `baseColorTexture` | `std::optional`。`->textureIndex`（`textures` の番号） |
-| `texture.imageIndex` | `images` の番号（`std::optional`） |
-| `texture.samplerIndex` | `samplers` の番号 |
-| `material.normalTexture`・`occlusionTexture`・`emissiveTexture` | 同様（`std::optional`） |
+- **`primitive.materialIndex`**: `std::optional<size_t>`（マテリアルなしもある）
+- `material.pbrData`: メタリック・ラフネスのデータ
+- `baseColorTexture`: `std::optional`。`->textureIndex`（`textures` の番号）
+- `texture.imageIndex`: `images` の番号（`std::optional`）
+- `texture.samplerIndex`: `samplers` の番号
+- `material.normalTexture`・`occlusionTexture`・`emissiveTexture`: 同様（`std::optional`）
 
 ### 画像の実体
 
@@ -186,11 +182,9 @@ std::visit(fastgltf::visitor{
 }, image.data);
 ```
 
-| 種類 | 意味 |
-| --- | --- |
-| `URI` | 外部ファイル（`.png` など）の場所 |
-| `Array` | メモリ上のバイト列（`LoadExternalImages` や base64 の埋め込み） |
-| `BufferView` | `.glb` の中に埋め込まれた画像 |
+- `URI`: 外部ファイル（`.png` など）の場所
+- `Array`: メモリ上のバイト列（`LoadExternalImages` や base64 の埋め込み）
+- `BufferView`: `.glb` の中に埋め込まれた画像
 
 デコードは `stb_image`（`stbi_load_from_memory`）などで、自分で行います（[ImGui のテクスチャ](../imgui/textures.md)）。色の空間（sRGB かリニアか）は、tinygltf と同じです（[PBR](../../3d/pbr.md)）。
 
@@ -216,13 +210,11 @@ for (const fastgltf::AnimationChannel& channel : animation.channels) {
 }
 ```
 
-| 項目 | 意味 |
-| --- | --- |
-| **`channel.samplerIndex`** | そのアニメーションの `samplers` の番号 |
-| `channel.nodeIndex` | 動かすノードの番号（`std::optional`） |
-| `channel.path` | `Translation` / `Rotation` / `Scale` / `Weights` |
-| `sampler.inputAccessor` / `outputAccessor` | 時刻・値の accessor の番号 |
-| `sampler.interpolation` | `Linear` / `Step` / `CubicSpline` |
+- **`channel.samplerIndex`**: そのアニメーションの `samplers` の番号
+- `channel.nodeIndex`: 動かすノードの番号（`std::optional`）
+- `channel.path`: `Translation` / `Rotation` / `Scale` / `Weights`
+- `sampler.inputAccessor` / `outputAccessor`: 時刻・値の accessor の番号
+- `sampler.interpolation`: `Linear` / `Step` / `CubicSpline`
 
 クォータニオンは `(x, y, z, w)` で、SimpleMath と同じ並びです。ノードの値は変換せずルートの X 反転の行列でまとめて反転します（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）。補間は `Slerp`（[回転](../../gamemath/rotation.md)）。
 
@@ -241,13 +233,11 @@ fastgltf::copyFromAccessor<fastgltf::math::fmat4x4>(
 
 ## まとめ方
 
-| やること | 説明 |
-| --- | --- |
-| **プリミティブごとに `MeshData`** | 1 プリミティブ ＝ 1 回の描画 |
-| テクスチャは番号の表で重複を避ける | 同じ `textures[i]` を一度だけ作る |
-| `Asset` は変換後に捨てる | メモリを節約 |
-| 非同期ロード | `Parser` と `Asset` は、別スレッドで読み込める（スレッドごとに `Parser`） |
-| ゲーム用の形式にビルド時に変換 | 開発中は glTF、製品は独自のバイナリ（[ベイク](../../optimize/baking.md)） |
+- **プリミティブごとに `MeshData`**: 1 プリミティブ ＝ 1 回の描画
+- テクスチャは番号の表で重複を避ける: 同じ `textures[i]` を一度だけ作る
+- `Asset` は変換後に捨てる: メモリを節約
+- 非同期ロード: `Parser` と `Asset` は、別スレッドで読み込める（スレッドごとに `Parser`）
+- ゲーム用の形式にビルド時に変換: 開発中は glTF、製品は独自のバイナリ（[ベイク](../../optimize/baking.md)）
 
 ## よくあるミス
 

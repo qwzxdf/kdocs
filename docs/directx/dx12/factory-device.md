@@ -159,11 +159,9 @@ PC に載っている GPU を指定した優先順で 1 つずつ取り出しま
 
 `GpuPreference` には次の 3 つがあります。
 
-| 値 | 並び順 |
-| --- | --- |
-| `DXGI_GPU_PREFERENCE_UNSPECIFIED` | 指定なし（`EnumAdapters1` と同じ順） |
-| `DXGI_GPU_PREFERENCE_MINIMUM_POWER` | 消費電力が低い順（内蔵 GPU が先） |
-| `DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE` | 性能が高い順（外付け GPU が先） |
+- `DXGI_GPU_PREFERENCE_UNSPECIFIED`: 指定なし（`EnumAdapters1` と同じ順）
+- `DXGI_GPU_PREFERENCE_MINIMUM_POWER`: 消費電力が低い順（内蔵 GPU が先）
+- `DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE`: 性能が高い順（外付け GPU が先）
 
 ゲームでは `HIGH_PERFORMANCE` を使います。ノート PC には内蔵 GPU と外付け GPU が両方載っていることがあり、順番を気にせずに最初の 1 つを取ると、遅い内蔵 GPU になりがちだからです。
 
@@ -179,12 +177,10 @@ HRESULT IDXGIAdapter1::GetDesc1(DXGI_ADAPTER_DESC1* pDesc);
 
 構造体のうち使うことが多い項目は次の 4 つです。
 
-| 項目 | 意味 |
-| --- | --- |
-| `Description` | GPU の名前（`WCHAR[128]`）。ログに出す |
-| `VendorId` | メーカーの番号。`0x10DE` が NVIDIA、`0x1002` が AMD、`0x8086` が Intel、`0x1414` が Microsoft（WARP） |
-| `DedicatedVideoMemory` | GPU 専用のメモリ（VRAM）の大きさ（バイト） |
-| `Flags` | `DXGI_ADAPTER_FLAG_SOFTWARE` が立っていれば、GPU ではなくソフトウェア（WARP） |
+- `Description`: GPU の名前（`WCHAR[128]`）。ログに出す
+- `VendorId`: メーカーの番号。`0x10DE` が NVIDIA、`0x1002` が AMD、`0x8086` が Intel、`0x1414` が Microsoft（WARP）
+- `DedicatedVideoMemory`: GPU 専用のメモリ（VRAM）の大きさ（バイト）
+- `Flags`: `DXGI_ADAPTER_FLAG_SOFTWARE` が立っていれば、GPU ではなくソフトウェア（WARP）
 
 上のコードで `Flags` を見ているのは、WARP を飛ばすためです。WARP は GPU がない PC でも D3D12 を動かすために CPU が代わりに描く仕組みで、とても遅いため最初の候補にはしません。使うのは本物の GPU がどれも使えなかったときの最後の手段です。
 
@@ -235,12 +231,10 @@ D3D12 で渡せる最低値は 11.0 です。これは D3D11 世代の古い GPU
 
 成功なら `ppDevice` にデバイスが入ります。失敗する主な原因は次のとおりです。
 
-| 原因 | 対処 |
-| --- | --- |
-| GPU かドライバーが D3D12 に対応していない | ドライバーを更新する。だめなら WARP（`IDXGIFactory4::EnumWarpAdapter`）で再試行する |
-| `MinimumFeatureLevel` が GPU の機能レベルより高い | 渡す値を下げる |
-| デバッグ レイヤーを有効にしたのに、「グラフィックス ツール」が入っていない | ツールを入れるかデバッグ レイヤーを外す |
-| メモリ不足 | 他のアプリを閉じる。VRAM が足りないことが多い |
+- GPU かドライバーが D3D12 に対応していない: ドライバーを更新する。だめなら WARP（`IDXGIFactory4::EnumWarpAdapter`）で再試行する
+- `MinimumFeatureLevel` が GPU の機能レベルより高い: 渡す値を下げる
+- デバッグ レイヤーを有効にしたのに、「グラフィックス ツール」が入っていない: ツールを入れるかデバッグ レイヤーを外す
+- メモリ不足: 他のアプリを閉じる。VRAM が足りないことが多い
 
 ### CheckFeatureSupport {#checkfeaturesupport}
 

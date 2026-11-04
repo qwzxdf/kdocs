@@ -7,36 +7,34 @@ tags:
 
 # Jolt のビルドと設定
 
-Jolt は<strong>ビルドのときの設定（プリプロセッサの定義・CMake のオプション）</strong>によって、クラスの中身（メンバ）や、機能が変わります。ライブラリを作ったときの設定と、自分のプロジェクトで `#include` するときの設定が食い違うと、実行時に原因不明のクラッシュが起きます。このページは主な設定の意味、Debug / Release の使い分け、倍精度・決定性、vcpkg と CMake の違い、食い違いを防ぐ方法をまとめます（導入の基本は [Jolt Physics](index.md)）。
+Jolt は<strong>ビルドのときの設定（プリプロセッサの定義・CMake のオプション）</strong>によって、クラスの中身（メンバ）や機能が変わります。ライブラリを作ったときの設定と自分のプロジェクトで `#include` するときの設定が食い違うと、実行時に原因不明のクラッシュが起きます。このページは主な設定の意味、Debug / Release の使い分け倍精度・決定性、vcpkg と CMake の違い食い違いを防ぐ方法をまとめます（導入の基本は [Jolt Physics](index.md)）。
 
 !!! tip "ポイント"
-    - <strong>Jolt のビルド設定（定義）は、「ライブラリ」と「使う側」で、必ず一致させる</strong>。<strong>ずれると構造体の大きさが違い、メモリが壊れる</strong>。
+    - <strong>Jolt のビルド設定（定義）は、「ライブラリ」と「使う側」で、必ず一致させる</strong>。<strong>ずれると構造体の大きさが違いメモリが壊れる</strong>。
     - 主な定義：`JPH_DEBUG_RENDERER`（デバッグ描画）、`JPH_PROFILE_ENABLED`（プロファイル）、`JPH_DOUBLE_PRECISION`（倍精度）、`JPH_ENABLE_ASSERTS`、`JPH_CROSS_PLATFORM_DETERMINISTIC`。
     - Debug と Release で、別々にビルドする（ランタイム `/MD` と `/MDd` も合わせる）。
     - CPU の命令セット（SSE4.1・AVX2 など）の設定も一致させる。
-    - vcpkg で入れると、設定が一貫する。自分でビルドするなら、CMake のオプションをメモしておく。
-    - `JPH_DEBUG_RENDERER` と `JPH_PROFILE_ENABLED` は、製品版では無効にする。
+    - vcpkg で入れると、設定が一貫する。自分でビルドするなら CMake のオプションをメモしておく。
+    - `JPH_DEBUG_RENDERER` と `JPH_PROFILE_ENABLED` は製品版では無効にする。
 
 !!! info "このページを読む前に"
-    - [Jolt Physics](index.md)（このセクション全体の地図と、読む順番）
+    - [Jolt Physics](index.md)（このセクション全体の地図と読む順番）
     - [物理演算の全体像](overview.md)（Jolt の全体像）
 
 ## なぜ設定を合わせるのか
 
-Jolt は**ヘッダの中にクラスの定義**を持ちます。一部のクラスは、定義（マクロ）によって、メンバが増えたり減ったりします。
+Jolt は**ヘッダの中にクラスの定義**を持ちます。一部のクラスは定義（マクロ）によって、メンバが増えたり減ったりします。
 
 ```text
 JPH_DEBUG_RENDERER が有効 → Body などのクラスに、デバッグ用のメンバが追加される
 ```
 
-ライブラリ（`Jolt.lib`）をビルドしたときと自分のコード（ヘッダを include）で、定義が違うと同じクラスなのにサイズや並びが違うことになり、メモリを読み間違えて、クラッシュします。コンパイルもリンクも通るので、気づきにくいバグです。
+ライブラリ（`Jolt.lib`）をビルドしたときと自分のコード（ヘッダを include）で、定義が違うと同じクラスなのにサイズや並びが違うことになりメモリを読み間違えて、クラッシュします。コンパイルもリンクも通るので、気づきにくいバグです。
 
-| ずれの例 | 症状 |
-| --- | --- |
-| ライブラリは `JPH_DEBUG_RENDERER` あり、自分のプロジェクトはなし | 構造体のサイズが違い、物体の情報が壊れる |
-| ライブラリは Release、自分のプロジェクトは Debug | ランタイム（CRT）の不一致（`LNK2038`）、または実行時のクラッシュ |
-| 倍精度（`JPH_DOUBLE_PRECISION`）の有無が違う | 位置の型（`RVec3`）が違い、座標が壊れる |
-| AVX2 の有無が違う | `Vec4` などのアライメントの要求が違う |
+- ライブラリは `JPH_DEBUG_RENDERER` あり自分のプロジェクトはなし: 構造体のサイズが違い、物体の情報が壊れる
+- ライブラリは Release、自分のプロジェクトは Debug: ランタイム（CRT）の不一致（`LNK2038`）、または実行時のクラッシュ
+- 倍精度（`JPH_DOUBLE_PRECISION`）の有無が違う: 位置の型（`RVec3`）が違い座標が壊れる
+- AVX2 の有無が違う: `Vec4` などのアライメントの要求が違う
 
 ## 主な定義（プリプロセッサ）
 
@@ -51,18 +49,16 @@ JPH_DEBUG_RENDERER が有効 → Body などのクラスに、デバッグ用の
 | `JPH_USE_*`（`JPH_USE_AVX2` など） | 使う CPU 命令セット | CMake が自動で設定 |
 | `JPH_FLOATING_POINT_EXCEPTIONS_ENABLED` | 浮動小数点の例外を有効に（バグの検出） | Debug |
 
-!!! warning "定義は、自分のプロジェクトにも、必ず書く"
-    Jolt のヘッダを include する側（自分のゲームの全部のプロジェクト）で、同じ定義をプロパティの「プリプロセッサの定義」に書きます（[プリプロセッサマクロ](../../vs/preprocessor.md)）。CMake で `target_link_libraries(... Jolt)` すると、`PUBLIC` な定義が自動で伝わります。
+!!! warning "定義は自分のプロジェクトにも必ず書く"
+    Jolt のヘッダを include する側（自分のゲームの全部のプロジェクト）で、同じ定義をプロパティの「プリプロセッサの定義」に書きます（[プリプロセッサマクロ](../../vs/preprocessor.md)）。CMake で `target_link_libraries(... Jolt)` すると `PUBLIC` な定義が自動で伝わります。
 
 ## Debug と Release
 
-| 構成 | 設定 |
-| --- | --- |
-| **Debug** | 最適化なし・assert 有効・`JPH_DEBUG_RENDERER` |
-| Release | 最適化・assert なし・デバッグ描画なし |
-| Distribution（配布用） | Release ＋ LTO（リンク時の最適化）、すべての診断を無効 |
+- **Debug**: 最適化なし・assert 有効・`JPH_DEBUG_RENDERER`
+- Release: 最適化・assert なし・デバッグ描画なし
+- Distribution（配布用）: Release ＋ LTO（リンク時の最適化）、すべての診断を無効
 
-Debug の物理は、遅い（数十倍）ことがあります。ゲームの動作確認が重いときは、物理だけ Release のライブラリを使う（ただし、ランタイムの設定は、合わせる）ことも検討します。
+Debug の物理は遅い（数十倍）ことがあります。ゲームの動作確認が重いときは物理だけ Release のライブラリを使う（ただし、ランタイムの設定は合わせる）ことも検討します。
 
 ### ランタイム ライブラリ（/MD と /MT）
 
@@ -74,11 +70,11 @@ Visual Studio の「コード生成 → ランタイム ライブラリ」をラ
 | `/MT` / `/MTd` | 静的リンクのランタイム |
 
 !!! warning "Jolt の CMake の既定は、静的ランタイム"
-    Jolt を CMake で自分でビルドすると、既定で静的ランタイム（`/MT`）になる場合があります。自分のプロジェクトが `/MD` なら、不一致（`LNK2038`）になります。CMake のオプションで、DLL 版（`/MD`）にする（`USE_STATIC_MSVC_RUNTIME_LIBRARY` を `OFF`。名前はバージョンで変わるので、`CMakeLists.txt` を確認）。vcpkg は、`/MD` に合わせてあります（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）。
+    Jolt を CMake で自分でビルドすると、既定で静的ランタイム（`/MT`）になる場合があります。自分のプロジェクトが `/MD` なら不一致（`LNK2038`）になります。CMake のオプションで DLL 版（`/MD`）にする（`USE_STATIC_MSVC_RUNTIME_LIBRARY` を `OFF`。名前はバージョンで変わるので、`CMakeLists.txt` を確認）。vcpkg は `/MD` に合わせてあります（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）。
 
 ## 倍精度（Double Precision）
 
-<strong>既定は位置も単精度（`float`）</strong>です。原点から遠く離れると精度が落ちて、物体が震えたり、すり抜けたりします。
+<strong>既定は位置も単精度（`float`）</strong>です。原点から遠く離れると精度が落ちて、物体が震えたりすり抜けたりします。
 
 | 距離（原点から） | 単精度の最小の刻み（目安） |
 | --- | --- |
@@ -87,7 +83,7 @@ Visual Studio の「コード生成 → ランタイム ライブラリ」をラ
 | 10 km | 約 1 ミリメートル |
 | 100 km | 約 8 ミリメートル |
 
-数 km までなら、単精度で十分です。広大なワールド（宇宙ゲーム・巨大なオープンワールド）では、`JPH_DOUBLE_PRECISION`（位置を `double` で持つ）を使います。
+数 km までなら単精度で十分です。広大なワールド（宇宙ゲーム・巨大なオープンワールド）では、`JPH_DOUBLE_PRECISION`（位置を `double` で持つ）を使います。
 
 | 型 | 単精度のとき | 倍精度のとき |
 | --- | --- | --- |
@@ -95,42 +91,36 @@ Visual Studio の「コード生成 → ランタイム ライブラリ」をラ
 | `RVec3`（位置） | `Vec3` と同じ | `double` × 3 |
 | `Real` | `float` | `double` |
 
-位置を扱う API は、`RVec3` / `Real` で書いておくと、どちらの設定でもコンパイルできます（[Jolt Physics](index.md) のサンプルが `RVec3` を使うのは、この理由）。
+位置を扱う API は `RVec3` / `Real` で書いておくとどちらの設定でもコンパイルできます（[Jolt Physics](index.md) のサンプルが `RVec3` を使うのは、この理由）。
 
-!!! note "倍精度は、メモリと速度の代償"
+!!! note "倍精度はメモリと速度の代償"
     位置が `double` になるので、メモリと計算が少し増えます。必要なときだけ有効にします。別の方法（ワールドを区画に分けて、原点を動かす（フローティング・オリジン））もあります。
 
 ## 決定性（Determinism）
 
 **決定性**とは同じ入力から、いつも同じ結果になることです。
 
-| 用途 | 説明 |
-| --- | --- |
-| リプレイ | 入力だけを記録して、物理の結果を再現 |
-| ロックステップのネットワーク | 全員が同じ入力で同じ結果を計算する（物理の状態は送らない） |
-| テスト | 物理のバグを再現できる |
+- リプレイ: 入力だけを記録して、物理の結果を再現
+- ロックステップのネットワーク: 全員が同じ入力で同じ結果を計算する（物理の状態は送らない）
+- テスト: 物理のバグを再現できる
 
-Jolt は同じバイナリ・同じ CPU 環境なら、決定的です。異なる CPU・コンパイラ・OS をまたぐ決定性が必要なら、`JPH_CROSS_PLATFORM_DETERMINISTIC` を有効にします（速度が少し落ちます）。
+Jolt は同じバイナリ・同じ CPU 環境なら決定的です。異なる CPU・コンパイラ・OS をまたぐ決定性が必要なら `JPH_CROSS_PLATFORM_DETERMINISTIC` を有効にします（速度が少し落ちます）。
 
-| 注意 | 説明 |
-| --- | --- |
-| 更新の順番を固定 | 物体を追加する順・更新の呼び出し順が同じであること |
-| 固定タイムステップ | 可変の `dt` は、決定性を壊す（[世界の初期化と更新](system.md)） |
-| 浮動小数点の設定 | `/fp:fast` は避ける（`/fp:precise`）。Jolt の既定の設定に従う |
-| スレッド数に依存しない | Jolt はスレッド数が違っても同じ結果になるよう設計されている |
+- 更新の順番を固定: 物体を追加する順・更新の呼び出し順が同じであること
+- 固定タイムステップ: 可変の `dt` は、決定性を壊す（[世界の初期化と更新](system.md)）
+- 浮動小数点の設定: `/fp:fast` は避ける（`/fp:precise`）。Jolt の既定の設定に従う
+- スレッド数に依存しない: Jolt はスレッド数が違っても同じ結果になるよう設計されている
 
 ## CPU の命令セット
 
-**SIMD の命令セット**（SSE4.1・SSE4.2・AVX・AVX2・AVX512・FMA・F16C）の、使うものを選べます。新しい命令を使うと速く、古い CPU では動きません。
+**SIMD の命令セット**（SSE4.1・SSE4.2・AVX・AVX2・AVX512・FMA・F16C）の、使うものを選べます。新しい命令を使うと速く古い CPU では動きません。
 
-| 設定（CMake） | 意味 |
-| --- | --- |
-| `USE_SSE4_1` / `USE_SSE4_2` | SSE4.1 / 4.2 |
-| `USE_AVX2` | AVX2（多くの現代の PC で使える） |
-| `USE_AVX512` | AVX-512（対応 CPU が限られる） |
-| `USE_LZCNT` / `USE_TZCNT` / `USE_F16C` / `USE_FMADD` | 個別の命令 |
+- `USE_SSE4_1` / `USE_SSE4_2`: SSE4.1 / 4.2
+- `USE_AVX2`: AVX2（多くの現代の PC で使える）
+- `USE_AVX512`: AVX-512（対応 CPU が限られる）
+- `USE_LZCNT` / `USE_TZCNT` / `USE_F16C` / `USE_FMADD`: 個別の命令
 
-配布するゲームでは、対象の PC の範囲を考えて決めます（Steam のハードウェア調査で、AVX2 の普及率を確認する、など）。AVX2 を有効にしたら、ライブラリと自分のプロジェクトで、`/arch:AVX2` をそろえます。
+配布するゲームでは対象の PC の範囲を考えて決めます（Steam のハードウェア調査で、AVX2 の普及率を確認する、など）。AVX2 を有効にしたらライブラリと自分のプロジェクトで、`/arch:AVX2` をそろえます。
 
 ## vcpkg と CMake の違い
 
@@ -146,14 +136,12 @@ Jolt は同じバイナリ・同じ CPU 環境なら、決定的です。異な�
 vcpkg install joltphysics[debug-renderer,profiler]:x64-windows
 ```
 
-| 機能（feature） | 意味 |
-| --- | --- |
-| `debug-renderer` | `JPH_DEBUG_RENDERER` を有効に |
-| `profiler` | `JPH_PROFILE_ENABLED` を有効に |
+- `debug-renderer`: `JPH_DEBUG_RENDERER` を有効に
+- `profiler`: `JPH_PROFILE_ENABLED` を有効に
 
-機能名はポートのバージョンで変わります。`vcpkg search joltphysics` や、ポートの `portfile`・`vcpkg.json` で確認します。
+機能名はポートのバージョンで変わります。`vcpkg search joltphysics` やポートの `portfile`・`vcpkg.json` で確認します。
 
-### CMake で、自分のプロジェクトに組み込む
+### CMake で自分のプロジェクトに組み込む
 
 ```cmake
 add_subdirectory(third_party/JoltPhysics/Build)
@@ -170,13 +158,11 @@ target_link_libraries(my_game PRIVATE Jolt)
 JPH_ASSERT(sizeof(Body) == ...);
 ```
 
-| 方法 | 説明 |
-| --- | --- |
-| `JPH_ENABLE_ASSERTS` | Debug で内部のチェックが有効（構造体のずれを早く検出） |
-| `Factory` の登録時のチェック | 型の不一致で初期化時に失敗することがある |
-| 最小のサンプルを動かす | [最小の流れ](index.md)（球が落ちるだけ）で、クラッシュしないか確認 |
+- `JPH_ENABLE_ASSERTS`: Debug で内部のチェックが有効（構造体のずれを早く検出）
+- `Factory` の登録時のチェック: 型の不一致で初期化時に失敗することがある
+- 最小のサンプルを動かす: [最小の流れ](index.md)（球が落ちるだけ）で、クラッシュしないか確認
 
-入れ直したとき、構成を変えたときは、まず最小のサンプルで確認します。
+入れ直したとき構成を変えたときはまず最小のサンプルで確認します。
 
 ## 製品版で無効にするもの
 
@@ -192,7 +178,7 @@ JPH_ASSERT(sizeof(Body) == ...);
 
 ## よくあるミス
 
-??? failure "Jolt のライブラリと、自分のプロジェクトで、`JPH_DEBUG_RENDERER` の有無が違う"
+??? failure "Jolt のライブラリと自分のプロジェクトで、`JPH_DEBUG_RENDERER` の有無が違う"
     実行時にクラッシュします。両方で同じ定義にします。
 
 ??? failure "`LNK2038`（ランタイムの不一致）が出る"
@@ -208,17 +194,17 @@ JPH_ASSERT(sizeof(Body) == ...);
     `/fp:precise` にします。
 
 ??? failure "AVX2 を有効にしたら、古い PC で起動しない"
-    対象の PC に、AVX2 があるか確認します。
+    対象の PC に AVX2 があるか確認します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] Jolt の定義（`JPH_DEBUG_RENDERER` など）は、ライブラリと自分のプロジェクトで、必ず一致。ずれると実行時にクラッシュ
-    - [x] Debug と Release は、別のライブラリ。ランタイム（`/MD`・`/MDd`）も、そろえる
-    - [x] 倍精度は、広大なワールドのとき。位置は `RVec3` / `Real` で書く
-    - [x] 決定性は、リプレイ・ロックステップに。固定タイムステップが前提
+    - [x] Debug と Release は、別のライブラリ。ランタイム（`/MD`・`/MDd`）もそろえる
+    - [x] 倍精度は広大なワールドのとき。位置は `RVec3` / `Real` で書く
+    - [x] 決定性はリプレイ・ロックステップに。固定タイムステップが前提
     - [x] vcpkg は一貫、CMake は細かく制御。`Jolt` ターゲットをリンクすれば、定義が伝わる
-    - [x] 製品版は、デバッグ描画・プロファイル・assert を無効
+    - [x] 製品版はデバッグ描画・プロファイル・assert を無効
 
 ## 関連ページ
 

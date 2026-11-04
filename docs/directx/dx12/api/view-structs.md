@@ -14,11 +14,11 @@ api:
 `#include <d3d12.h>`
 </div>
 
-GPU はリソースの名前もポインタも知りません。シェーダーがテクスチャを読んだり、出力がレンダー ターゲットに書いたりするには、「このリソースをこの形式で、この範囲で見る」という小さなデータ（ディスクリプタ）をヒープに書いておく必要があります。そのディスクリプタを書き込むときに渡す構造体と、書き込み先を指すハンドルがこのページの主役です。
+GPU はリソースの名前もポインタも知りません。シェーダーがテクスチャを読んだり出力がレンダー ターゲットに書いたりするには、「このリソースをこの形式でこの範囲で見る」という小さなデータ（ディスクリプタ）をヒープに書いておく必要があります。そのディスクリプタを書き込むときに渡す構造体と書き込み先を指すハンドルがこのページの主役です。
 
 !!! tip "ポイント"
-    - ディスクリプタの置き場は `D3D12_DESCRIPTOR_HEAP_DESC` で作り、書き込み先は `D3D12_CPU_DESCRIPTOR_HANDLE` で指す。
-    - `ptr` は生の数値。n 番目は `ptr + n × 増分` で求め、増分は `GetDescriptorHandleIncrementSize` で調べる。
+    - ディスクリプタの置き場は `D3D12_DESCRIPTOR_HEAP_DESC` で作り書き込み先は `D3D12_CPU_DESCRIPTOR_HANDLE` で指す。
+    - `ptr` は生の数値。n 番目は `ptr + n × 増分` で求め増分は `GetDescriptorHandleIncrementSize` で調べる。
     - `Format` を `UNKNOWN` にするとリソースの形式を引き継ぐ。ただし typeless のときは明示が必要。
     - `ViewDimension` が決めた共用体のメンバーだけを埋める。
     - 頂点・インデックス・定数バッファのビューは、リソースの GPU 仮想アドレスを持つ。
@@ -65,7 +65,7 @@ typedef struct D3D12_DESCRIPTOR_HEAP_DESC {
 | `Flags` | `D3D12_DESCRIPTOR_HEAP_FLAGS` | `NONE` か `SHADER_VISIBLE` |
 | `NodeMask` | `UINT` | GPU が 1 つなら 0 |
 
-`Type` は 1 つのヒープに 1 種類だけです。CBV・SRV・UAV は同じヒープに混ぜられますが、サンプラー、RTV、DSV は別々のヒープが要ります。ディスクリプタ 1 つの大きさが種類ごとに違うので、`NumDescriptors` と合わせて、ヒープの大きさが決まります。
+`Type` は 1 つのヒープに 1 種類だけです。CBV・SRV・UAV は同じヒープに混ぜられますが、サンプラー、RTV、DSV は別々のヒープが要ります。ディスクリプタ 1 つの大きさが種類ごとに違うので、`NumDescriptors` と合わせてヒープの大きさが決まります。
 
 `Flags` の `SHADER_VISIBLE` は「シェーダー（GPU）から見える」ヒープを意味します。コマンド リストに `SetDescriptorHeaps` で渡せるのは、このフラグ付きのヒープだけです。付けられるのは `CBV_SRV_UAV` と `SAMPLER` だけで、`RTV` と `DSV` に付けると作成が失敗します。シェーダー可視のヒープはメモリが限られるので、数を無駄に大きくしないようにします。
 
@@ -87,13 +87,13 @@ typedef struct D3D12_CPU_DESCRIPTOR_HANDLE {
 } D3D12_CPU_DESCRIPTOR_HANDLE;
 ```
 
-ディスクリプタ ヒープの中の、CPU から書き込む位置を表します。メンバーは `ptr` が 1 つだけで、中身はメモリのアドレスのような数値です。
+ディスクリプタ ヒープの中の CPU から書き込む位置を表します。メンバーは `ptr` が 1 つだけで、中身はメモリのアドレスのような数値です。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `ptr` | `SIZE_T` | ヒープ内の位置を表す数値 |
 
-ヒープの先頭は `GetCPUDescriptorHandleForHeapStart()` で取ります。n 番目の位置は、`ptr` に `n × 増分` を足します。増分はドライバーごとに違うので、`ID3D12Device::GetDescriptorHandleIncrementSize` で種類ごとに調べます。固定の値（32 など）を決め打ちしてはいけません。
+ヒープの先頭は `GetCPUDescriptorHandleForHeapStart()` で取ります。n 番目の位置は `ptr` に `n × 増分` を足します。増分はドライバーごとに違うので、`ID3D12Device::GetDescriptorHandleIncrementSize` で種類ごとに調べます。固定の値（32 など）を決め打ちしてはいけません。
 
 この足し算は [`OffsetHandle`](../util.md#offsethandle) に任せます。
 
@@ -111,13 +111,13 @@ typedef struct D3D12_GPU_DESCRIPTOR_HANDLE {
 } D3D12_GPU_DESCRIPTOR_HANDLE;
 ```
 
-シェーダー可視のヒープの中の、GPU が読む位置を表します。ルート シグネチャのディスクリプタ テーブルへ「この位置から始まる」と教えるために使います。
+シェーダー可視のヒープの中の GPU が読む位置を表します。ルート シグネチャのディスクリプタ テーブルへ「この位置から始まる」と教えるために使います。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `ptr` | `UINT64` | ヒープ内の位置を表す数値 |
 
-`ptr` が 64 ビット固定なのは、CPU のハンドルと違って GPU の仮想アドレス空間にあるからです。`GetGPUDescriptorHandleForHeapStart()` で取れるのは、`SHADER_VISIBLE` のヒープだけで、そうでないヒープで呼ぶと 0 が返ります。CPU のハンドルと同じ増分で、`OffsetHandle` で n 番目を求められます。
+`ptr` が 64 ビット固定なのは、CPU のハンドルと違って GPU の仮想アドレス空間にあるからです。`GetGPUDescriptorHandleForHeapStart()` で取れるのは `SHADER_VISIBLE` のヒープだけで、そうでないヒープで呼ぶと 0 が返ります。CPU のハンドルと同じ増分で、`OffsetHandle` で n 番目を求められます。
 
 CPU のハンドルと GPU のハンドルは別の型で、互いに代入できません。書き込むときは CPU、`SetGraphicsRootDescriptorTable` に渡すときは GPU、と使い分けます。
 
@@ -156,9 +156,9 @@ typedef struct D3D12_RENDER_TARGET_VIEW_DESC {
 | `Texture2D.MipSlice` | `UINT` | 描き込むミップ レベル |
 | `Texture2D.PlaneSlice` | `UINT` | 通常は 0（平面形式のためのもの） |
 
-`ViewDimension` を決めると、共用体の中で使うメンバーが決まります。普通の 2D レンダー ターゲットなら `D3D12_RTV_DIMENSION_TEXTURE2D` にして、`Texture2D` の `MipSlice`（普通は 0）を書きます。配列の特定のスライスに描くときは `TEXTURE2DARRAY` にして、`FirstArraySlice` と `ArraySize` を決めます。
+`ViewDimension` を決めると共用体の中で使うメンバーが決まります。普通の 2D レンダー ターゲットなら `D3D12_RTV_DIMENSION_TEXTURE2D` にして、`Texture2D` の `MipSlice`（普通は 0）を書きます。配列の特定のスライスに描くときは `TEXTURE2DARRAY` にして、`FirstArraySlice` と `ArraySize` を決めます。
 
-`Format` は、typeless のリソースに RTV を作るときに必要です。たとえば `R8G8B8A8_TYPELESS` のテクスチャに `R8G8B8A8_UNORM_SRGB` で RTV を作ると、書き込み時に sRGB への変換が自動で行われます。
+`Format` は typeless のリソースに RTV を作るときに必要です。たとえば `R8G8B8A8_TYPELESS` のテクスチャに `R8G8B8A8_UNORM_SRGB` で RTV を作ると、書き込み時に sRGB への変換が自動で行われます。
 
 スワップ チェーンのバック バッファなどでリソースの形式がそのまま使えるなら、`CreateRenderTargetView` の第 2 引数に `nullptr` を渡すこともできます。そのときはこの構造体を作らなくて済みます。
 
@@ -188,7 +188,7 @@ typedef struct D3D12_DEPTH_STENCIL_VIEW_DESC {
 } D3D12_DEPTH_STENCIL_VIEW_DESC;
 ```
 
-深度バッファの形を決めます。RTV と似ていますが、`Flags` があります。
+深度バッファの形を決めます。RTV と似ていますが `Flags` があります。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -197,9 +197,9 @@ typedef struct D3D12_DEPTH_STENCIL_VIEW_DESC {
 | `Flags` | `D3D12_DSV_FLAGS` | `NONE`、`READ_ONLY_DEPTH`、`READ_ONLY_STENCIL` |
 | `Texture2D.MipSlice` | `UINT` | ミップ レベル。普通は 0 |
 
-`Format` には、深度の書ける形式を指定します。リソースが `R32_TYPELESS` なら `D32_FLOAT` です。
+`Format` には深度の書ける形式を指定します。リソースが `R32_TYPELESS` なら `D32_FLOAT` です。
 
-`Flags` の `READ_ONLY_DEPTH` は、深度を「読み取り専用」で使う DSV にします。同じ深度バッファをシェーダーで読みながら、深度テストにも使いたいとき（ソフト パーティクルなど）にこの DSV と SRV を同時に使えます。通常は `NONE` です。
+`Flags` の `READ_ONLY_DEPTH` は深度を「読み取り専用」で使う DSV にします。同じ深度バッファをシェーダーで読みながら、深度テストにも使いたいとき（ソフト パーティクルなど）にこの DSV と SRV を同時に使えます。通常は `NONE` です。
 
 ### D3D12_SHADER_RESOURCE_VIEW_DESC {#d3d12_shader_resource_view_desc}
 
@@ -224,7 +224,7 @@ typedef struct D3D12_SHADER_RESOURCE_VIEW_DESC {
 } D3D12_SHADER_RESOURCE_VIEW_DESC;
 ```
 
-シェーダーがテクスチャやバッファを読むときの形を決めます。メンバーが多いのは、読み方の種類が多いからです。
+シェーダーがテクスチャやバッファを読むときの形を決めます。メンバーが多いのは読み方の種類が多いからです。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -232,13 +232,13 @@ typedef struct D3D12_SHADER_RESOURCE_VIEW_DESC {
 | `ViewDimension` | `D3D12_SRV_DIMENSION` | `TEXTURE2D`、`TEXTURECUBE`、`BUFFER` など |
 | `Shader4ComponentMapping` | `UINT` | R、G、B、A をどの成分から読むか |
 | `Texture2D.MostDetailedMip` | `UINT` | 見える最も詳細なミップ |
-| `Texture2D.MipLevels` | `UINT` | 見えるミップの数。`-1`（`UINT_MAX`）は、すべて |
+| `Texture2D.MipLevels` | `UINT` | 見えるミップの数。`-1`（`UINT_MAX`）はすべて |
 | `Texture2D.PlaneSlice` | `UINT` | 通常は 0 |
 | `Texture2D.ResourceMinLODClamp` | `FLOAT` | これ未満の詳細度へは下げない。通常は 0 |
 
-`Shader4ComponentMapping` は、必ず設定します。0 のままだと、すべての成分が成分 0（R）から読まれて、おかしな見た目になります。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING`（R、G、B、A の順そのまま）を入れます。成分を入れ替えたい（例えば 1 チャンネルのテクスチャを RGB すべてに広げる）ときだけ、`D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING` で組み立てます。
+`Shader4ComponentMapping` は必ず設定します。0 のままだとすべての成分が成分 0（R）から読まれて、おかしな見た目になります。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING`（R、G、B、A の順そのまま）を入れます。成分を入れ替えたい（例えば 1 チャンネルのテクスチャを RGB すべてに広げる）ときだけ、`D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING` で組み立てます。
 
-`MipLevels` に `UINT_MAX`（`-1`）を入れると、`MostDetailedMip` から最後までのすべてを見ます。0 や、実際の数を超える値は、作成の失敗になります。
+`MipLevels` に `UINT_MAX`（`-1`）を入れると `MostDetailedMip` から最後までのすべてを見ます。0 や実際の数を超える値は作成の失敗になります。
 
 深度バッファを SRV として読むときは、`Format` を深度の読める形式にします（`D32_FLOAT` のリソースなら `R32_FLOAT`）。
 
@@ -290,7 +290,7 @@ typedef struct D3D12_UNORDERED_ACCESS_VIEW_DESC {
 | `Buffer.CounterOffsetInBytes` | `UINT64` | カウンターの位置。使わなければ 0 |
 | `Buffer.Flags` | `D3D12_BUFFER_UAV_FLAGS` | `NONE` か `RAW` |
 
-UAV は SRV と違い、ミップを 1 つだけ選びます。範囲は選べません。バッファでは、`Format` が `UNKNOWN` で `StructureByteStride` が 0 以外なら構造化バッファ、`Flags` が `RAW` で `Format` が `R32_TYPELESS` ならバイト アドレス バッファになります。カウンターを使わないなら、`CreateUnorderedAccessView` の 2 番目の引数（カウンター用リソース）は `nullptr` にします。
+UAV は SRV と違いミップを 1 つだけ選びます。範囲は選べません。バッファでは `Format` が `UNKNOWN` で `StructureByteStride` が 0 以外なら構造化バッファ、`Flags` が `RAW` で `Format` が `R32_TYPELESS` ならバイト アドレス バッファになります。カウンターを使わないなら `CreateUnorderedAccessView` の 2 番目の引数（カウンター用リソース）は `nullptr` にします。
 
 ### D3D12_CONSTANT_BUFFER_VIEW_DESC {#d3d12_constant_buffer_view_desc}
 
@@ -322,7 +322,7 @@ typedef struct D3D12_VERTEX_BUFFER_VIEW {
 } D3D12_VERTEX_BUFFER_VIEW;
 ```
 
-頂点バッファをコマンド リストに伝えます。ディスクリプタ ヒープは使わず、構造体をそのまま `IASetVertexBuffers` に渡します。
+頂点バッファをコマンド リストに伝えます。ディスクリプタ ヒープは使わず構造体をそのまま `IASetVertexBuffers` に渡します。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -330,7 +330,7 @@ typedef struct D3D12_VERTEX_BUFFER_VIEW {
 | `SizeInBytes` | `UINT` | バッファ全体のバイト数 |
 | `StrideInBytes` | `UINT` | 頂点 1 つのバイト数 |
 
-`StrideInBytes` は、頂点の構造体の `sizeof` です。入力レイアウトに書いた各要素の合計と合わなくても、エラーになるとは限らず、描かれた絵だけが壊れます。`SizeInBytes` は頂点数ではなくバイト数です。
+`StrideInBytes` は頂点の構造体の `sizeof` です。入力レイアウトに書いた各要素の合計と合わなくても、エラーになるとは限らず描かれた絵だけが壊れます。`SizeInBytes` は頂点数ではなくバイト数です。
 
 ```cpp
 D3D12_VERTEX_BUFFER_VIEW vbv = {};
@@ -358,7 +358,7 @@ typedef struct D3D12_INDEX_BUFFER_VIEW {
 | `SizeInBytes` | `UINT` | バッファ全体のバイト数 |
 | `Format` | `DXGI_FORMAT` | `R16_UINT` か `R32_UINT` |
 
-`Format` はインデックス 1 つの大きさです。実際のデータが 16 ビットなら `R16_UINT`、32 ビットなら `R32_UINT` にします。食い違うと、頂点がめちゃくちゃにつながります。`R16_UINT` で表せる頂点は 65,536 個までです。
+`Format` はインデックス 1 つの大きさです。実際のデータが 16 ビットなら `R16_UINT`、32 ビットなら `R32_UINT` にします。食い違うと頂点がめちゃくちゃにつながります。`R16_UINT` で表せる頂点は 65,536 個までです。
 
 !!! failure "よくあるミス"
     - `StrideInBytes` が `sizeof(Vertex)` と違う。
@@ -384,7 +384,7 @@ typedef struct D3D12_SAMPLER_DESC {
 } D3D12_SAMPLER_DESC;
 ```
 
-テクスチャを読むときの補間や、範囲外の扱いを決めます。サンプラー ヒープにディスクリプタとして書き込みます。
+テクスチャを読むときの補間や範囲外の扱いを決めます。サンプラー ヒープにディスクリプタとして書き込みます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -396,11 +396,11 @@ typedef struct D3D12_SAMPLER_DESC {
 | `BorderColor` | `FLOAT[4]` | `BORDER` のときの色 |
 | `MinLOD`、`MaxLOD` | `FLOAT` | 使えるミップの範囲 |
 
-`Filter` は見た目と重さの両方を決めます。`MIN_MAG_MIP_POINT` は最も軽く、ドット絵向けです。`MIN_MAG_MIP_LINEAR` が標準で、`ANISOTROPIC` は斜めから見る床がぼやけにくくなります。`ANISOTROPIC` を選んだときだけ `MaxAnisotropy` が使われます。
+`Filter` は見た目と重さの両方を決めます。`MIN_MAG_MIP_POINT` は最も軽くドット絵向けです。`MIN_MAG_MIP_LINEAR` が標準で `ANISOTROPIC` は斜めから見る床がぼやけにくくなります。`ANISOTROPIC` を選んだときだけ `MaxAnisotropy` が使われます。
 
-`AddressU/V/W` は、UV が 0〜1 の外へ出たときの動きです。`WRAP` は繰り返し、`CLAMP` は端の色を伸ばし、`MIRROR` は鏡のように折り返し、`BORDER` は `BorderColor` を使います。
+`AddressU/V/W` は UV が 0〜1 の外へ出たときの動きです。`WRAP` は繰り返し `CLAMP` は端の色を伸ばし、`MIRROR` は鏡のように折り返し `BORDER` は `BorderColor` を使います。
 
-`MaxLOD` を 0 にすると、ミップマップの最も詳細なレベルしか使われず、遠くが粗くなります。ミップを全部使うなら `D3D12_FLOAT32_MAX` です。ゼロ初期化のまま忘れやすいメンバーです。
+`MaxLOD` を 0 にするとミップマップの最も詳細なレベルしか使われず遠くが粗くなります。ミップを全部使うなら `D3D12_FLOAT32_MAX` です。ゼロ初期化のまま忘れやすいメンバーです。
 
 ```cpp
 D3D12_SAMPLER_DESC sampler = {};
@@ -435,7 +435,7 @@ typedef struct D3D12_STATIC_SAMPLER_DESC {
 } D3D12_STATIC_SAMPLER_DESC;
 ```
 
-サンプラーをディスクリプタ ヒープではなくルート シグネチャの中に埋め込む形です。サンプラーの設定が固定なら、ヒープを用意しなくてよいので、最もよく使います。
+サンプラーをディスクリプタ ヒープではなくルート シグネチャの中に埋め込む形です。サンプラーの設定が固定ならヒープを用意しなくてよいので、最もよく使います。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -446,9 +446,9 @@ typedef struct D3D12_STATIC_SAMPLER_DESC {
 | `RegisterSpace` | `UINT` | 通常は 0 |
 | `ShaderVisibility` | `D3D12_SHADER_VISIBILITY` | どのステージから見えるか。通常は `ALL` か `PIXEL` |
 
-`D3D12_SAMPLER_DESC` との違いは、境界色が 3 つの定数に限られる点と、シェーダー側のレジスタを指定する 3 つのメンバーが加わる点です。`ShaderRegister` は HLSL の `register(s0)` の `0` に対応します。`ShaderVisibility` はサンプラーを使うステージにだけ絞ると、無駄が減ります。ピクセル シェーダーでしか使わないなら `PIXEL` です。
+`D3D12_SAMPLER_DESC` との違いは境界色が 3 つの定数に限られる点とシェーダー側のレジスタを指定する 3 つのメンバーが加わる点です。`ShaderRegister` は HLSL の `register(s0)` の `0` に対応します。`ShaderVisibility` はサンプラーを使うステージにだけ絞ると、無駄が減ります。ピクセル シェーダーでしか使わないなら `PIXEL` です。
 
-静的サンプラーは、ルート シグネチャの `pStaticSamplers` に配列で渡します。
+静的サンプラーはルート シグネチャの `pStaticSamplers` に配列で渡します。
 
 ## 関連ページ
 

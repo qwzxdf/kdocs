@@ -129,13 +129,11 @@ device->CreateInputLayout(layout, _countof(layout), vs_bytecode->GetBufferPointe
                           vs_bytecode->GetBufferSize(), &input_layout);
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| セマンティクス名・番号 | HLSL の `POSITION`・`NORMAL`・`TEXCOORD0` と、同じ名前 |
-| フォーマット | `R32G32B32_FLOAT` ＝ `float` 3 つ。`Vector3` に対応 |
-| オフセット | 構造体の中の位置。`offsetof` が確実 |
-| スロット | 頂点バッファの番号（複数の頂点バッファを使うとき） |
-| `PER_VERTEX_DATA` / `PER_INSTANCE_DATA` | 頂点ごとか、インスタンスごとか（インスタンシング） |
+- セマンティクス名・番号: HLSL の `POSITION`・`NORMAL`・`TEXCOORD0` と、同じ名前
+- フォーマット: `R32G32B32_FLOAT` ＝ `float` 3 つ。`Vector3` に対応
+- オフセット: 構造体の中の位置。`offsetof` が確実
+- スロット: 頂点バッファの番号（複数の頂点バッファを使うとき）
+- `PER_VERTEX_DATA` / `PER_INSTANCE_DATA`: 頂点ごとか、インスタンスごとか（インスタンシング）
 
 ## 描画する
 
@@ -150,12 +148,10 @@ context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 context->DrawIndexed(static_cast<UINT>(indices.size()), 0, 0);
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| `stride` | 頂点 1 つのバイト数（`sizeof(Vertex)`） |
-| `DXGI_FORMAT_R16_UINT` / `R32_UINT` | インデックスの型と**一致**させる |
-| `TRIANGLELIST` | 3 つごとに、1 つの三角形（最も一般的） |
-| `DrawIndexed(個数, 開始位置, 頂点のずれ)` | インデックスを使う描画 |
+- `stride`: 頂点 1 つのバイト数（`sizeof(Vertex)`）
+- `DXGI_FORMAT_R16_UINT` / `R32_UINT`: インデックスの型と**一致**させる
+- `TRIANGLELIST`: 3 つごとに、1 つの三角形（最も一般的）
+- `DrawIndexed(個数, 開始位置, 頂点のずれ)`: インデックスを使う描画
 
 ## UV とテクスチャ
 
@@ -183,11 +179,9 @@ DirectX::CreateDDSTextureFromFile(device, L"assets/albedo.dds", nullptr, &srv);
 context->PSSetShaderResources(0, 1, srv.GetAddressOf());
 ```
 
-| ローダー | 用途 |
-| --- | --- |
-| `CreateWICTextureFromFile` | PNG・JPG など。ミップマップを自動生成する（`context` を渡したとき） |
-| `CreateDDSTextureFromFile` | DDS（圧縮・ミップ済み）。本番はこれが速い |
-| `DirectXTex` | 変換・圧縮・ミップ生成のツール・ライブラリ |
+- `CreateWICTextureFromFile`: PNG・JPG など。ミップマップを自動生成する（`context` を渡したとき）
+- `CreateDDSTextureFromFile`: DDS（圧縮・ミップ済み）。本番はこれが速い
+- `DirectXTex`: 変換・圧縮・ミップ生成のツール・ライブラリ
 
 sRGB：色のテクスチャは、`DXGI_FORMAT_*_SRGB` として読むと、ガンマ補正が自動です（`WIC_LOADER_FORCE_SRGB`）。法線マップ・数値のテクスチャは、sRGB にしません。
 
@@ -257,35 +251,29 @@ UV が `0..1` の外に出たときの扱いです。
 
 <svg class="fig flow" viewBox="0 0 704 112" role="img" aria-label="ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）"><defs><marker id="fl37951" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）</text><line x1="111.0" y1="64.0" x2="169.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="255.0" y1="64.0" x2="313.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="399.0" y1="64.0" x2="457.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="539.0" y1="64.0" x2="597.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><rect x="28.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="68.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">512×512</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="172.0" y="44.0" width="80" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">256×256</text><circle cx="174.0" cy="46.0" r="10" fill="#2ea043"/><text x="174.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="316.0" y="44.0" width="80" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="356.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128×128</text><circle cx="318.0" cy="46.0" r="10" fill="#e5a828"/><text x="318.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="460.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="498.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">...</text><circle cx="462.0" cy="46.0" r="10" fill="#e5484d"/><text x="462.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="600.0" y="44.0" width="76" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="638.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">1×1</text><circle cx="602.0" cy="46.0" r="10" fill="#9664e6"/><text x="602.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
-| 項目 | 説明 |
-| --- | --- |
-| 効果 | 遠くのちらつきが消える。速くなることが多い |
-| コスト | メモリが約 33% 増える |
-| 作り方 | ローダーの自動生成、`GenerateMips`、DDS に最初から入れる |
-| 使わない場合 | UI・2D スプライト（等倍で表示するもの） |
+- 効果: 遠くのちらつきが消える。速くなることが多い
+- コスト: メモリが約 33% 増える
+- 作り方: ローダーの自動生成、`GenerateMips`、DDS に最初から入れる
+- 使わない場合: UI・2D スプライト（等倍で表示するもの）
 
 ## メッシュの読み込み
 
-| 形式 | 特徴 |
-| --- | --- |
-| **`.obj`** | 単純なテキスト。アニメーションなし。学習・簡単な用途 |
-| `.fbx` | 業界標準。アニメーション・ボーンあり。SDK が重い |
-| `.gltf` / `.glb` | オープン形式。軽量。PBR・アニメーション対応。おすすめ |
-| 独自形式 | 読み込みが速い。ツールで変換して、ゲーム用に最適化 |
-| `.sdkmesh`（DirectXTK） | DX 向けのサンプル形式 |
+- **`.obj`**: 単純なテキスト。アニメーションなし。学習・簡単な用途
+- `.fbx`: 業界標準。アニメーション・ボーンあり。SDK が重い
+- `.gltf` / `.glb`: オープン形式。軽量。PBR・アニメーション対応。おすすめ
+- 独自形式: 読み込みが速い。ツールで変換して、ゲーム用に最適化
+- `.sdkmesh`（DirectXTK）: DX 向けのサンプル形式
 
 !!! tip "ゲームの本番は、独自の軽い形式に変換する"
     開発中は `.gltf`・`.fbx`、リリース時はビルド時に独自の形式に変換して、そのままメモリに読む形にします。読み込みが速く、扱いも単純になります。
 
 ## 頂点の最適化
 
-| 方法 | 効果 |
-| --- | --- |
-| 頂点の共有（インデックス） | メモリ・頂点処理を減らす |
-| 頂点のフォーマットを小さく | 法線を `R10G10B10A2`、UV を `half` に |
-| 頂点キャッシュの最適化 | 三角形の並びを GPU のキャッシュに優しく並べ替え（`DirectXMesh` の `OptimizeFaces`） |
-| インスタンシング | 同じメッシュを大量に描く（木・草・弾）。1 回の描画命令で |
-| LOD | 遠くは頂点の少ないモデル |
+- 頂点の共有（インデックス）: メモリ・頂点処理を減らす
+- 頂点のフォーマットを小さく: 法線を `R10G10B10A2`、UV を `half` に
+- 頂点キャッシュの最適化: 三角形の並びを GPU のキャッシュに優しく並べ替え（`DirectXMesh` の `OptimizeFaces`）
+- インスタンシング: 同じメッシュを大量に描く（木・草・弾）。1 回の描画命令で
+- LOD: 遠くは頂点の少ないモデル
 
 <!-- fig:uv-sampling:begin -->
 

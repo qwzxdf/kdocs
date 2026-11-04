@@ -7,14 +7,14 @@ tags:
 
 # ビルドと CMake の構成
 
-**ビルド**はソースコードを実行できるファイルにする作業です。ゲームが大きくなるとビルドの設計（どのファイルをどのまとまりでどの順番で作るか）が開発の快適さを左右します。「ビルドに 10 分かかる」「ヘッダを 1 行直しただけで、全部がビルドし直される」「他の人の PC でビルドが通らない」といった問題は、コードの設計（[ヘッダとソースの分け方](../foundations/header-source.md)、[レイヤー](../foundations/layers.md)）と、ビルドの構成の両方で防げます。このページはヘッダとソースの分離の延長として、ビルドを速く、再現可能に整理して保つ考え方を説明します（Visual Studio の操作は [Visual Studio](../../vs/index.md)、CMake の基本は [CMake で使う](../../vs/cmake.md)）。
+**ビルド**はソースコードを実行できるファイルにする作業です。ゲームが大きくなるとビルドの設計（どのファイルをどのまとまりでどの順番で作るか）が開発の快適さを左右します。「ビルドに 10 分かかる」「ヘッダを 1 行直しただけで、全部がビルドし直される」「他の人の PC でビルドが通らない」といった問題は、コードの設計（[ヘッダとソースの分け方](../foundations/header-source.md)、[レイヤー](../foundations/layers.md)）とビルドの構成の両方で防げます。このページはヘッダとソースの分離の延長として、ビルドを速く再現可能に整理して保つ考え方を説明します（Visual Studio の操作は [Visual Studio](../../vs/index.md)、CMake の基本は [CMake で使う](../../vs/cmake.md)）。
 
 !!! tip "ポイント"
-    - **ビルドが遅い原因は、ほとんど `#include`**。ヘッダに入れる `#include` を減らす（前方宣言、PImpl）。
+    - **ビルドが遅い原因はほとんど `#include`**。ヘッダに入れる `#include` を減らす（前方宣言、PImpl）。
     - コードを**ライブラリ（静的ライブラリ）に分ける**と変更した部分だけがビルドされ、依存の向きも守りやすい。
-    - ビルドの設定は、ファイルに書いて Git に入れる（`CMakeLists.txt`、`vcxproj`、`vcpkg.json`）。手で設定した画面の内容は、他の人に伝わらない。
-    - 外部ライブラリは、バージョンを固定する（vcpkg のマニフェスト、Git のタグ）。
-    - 「クローンして、1 コマンドでビルドできる」状態を常に保つ。
+    - ビルドの設定はファイルに書いて Git に入れる（`CMakeLists.txt`、`vcxproj`、`vcpkg.json`）。手で設定した画面の内容は他の人に伝わらない。
+    - 外部ライブラリはバージョンを固定する（vcpkg のマニフェスト、Git のタグ）。
+    - 「クローンして 1 コマンドでビルドできる」状態を常に保つ。
 
 !!! info "このページを読む前に"
     - [design/index.md](../index.md)（このセクション全体の地図と、読む順番）
@@ -24,7 +24,7 @@ tags:
 
 | 原因 | 説明 | 対策 |
 | --- | --- | --- |
-| **ヘッダの `#include` が多い** | 1 つのヘッダを直すと、それを include した全ファイルが再ビルド | 前方宣言、PImpl、`.cpp` で include |
+| **ヘッダの `#include` が多い** | 1 つのヘッダを直すとそれを include した全ファイルが再ビルド | 前方宣言、PImpl、`.cpp` で include |
 | 巨大なヘッダ（`<windows.h>`、nlohmann/json、`<regex>`） | include するだけで、何万行も読む | `.cpp` だけで include。プリコンパイル済みヘッダ |
 | テンプレートの多用 | コンパイルのたびに展開される | `extern template`、実装を `.cpp` に |
 | 1 つのファイルが巨大 | 1 行直すと全体が再コンパイル | ファイルを分ける |
@@ -33,40 +33,34 @@ tags:
 
 ### 計測する
 
-「ビルドが遅い」と感じたら、どこで時間を使っているかを測ります。
+「ビルドが遅い」と感じたらどこで時間を使っているかを測ります。
 
-| 道具 | 説明 |
-| --- | --- |
-| MSVC の `/Bt+`（C/C++ → コマンド ライン） | ファイルごとのコンパイル時間を表示 |
-| Visual Studio の「ビルド インサイト」 | 時間のかかる `#include` や、テンプレートを可視化 |
-| `/showIncludes` | ヘッダの include の一覧を出す |
-| ClangBuildAnalyzer | 時間がかかるヘッダ・テンプレートを集計する |
+- MSVC の `/Bt+`（C/C++ → コマンド ライン）: ファイルごとのコンパイル時間を表示
+- Visual Studio の「ビルド インサイト」: 時間のかかる `#include` や、テンプレートを可視化
+- `/showIncludes`: ヘッダの include の一覧を出す
+- ClangBuildAnalyzer: 時間がかかるヘッダ・テンプレートを集計する
 
 ## 1. ヘッダを軽くする
 
-| 方法 | 説明 |
-| --- | --- |
-| **前方宣言**（`class Enemy;`） | ヘッダではポインタ・参照だけで使い、`#include` しない |
-| `.cpp` で `#include` | 実装でだけ必要なヘッダは、ヘッダに書かない |
-| PImpl | 外部ライブラリを `.cpp` に隠す（[PImpl](../patterns/pimpl.md)） |
-| 「使うものを include」 | 他のヘッダ経由で入ってくるのに頼らない（`include-what-you-use`） |
-| `#pragma once` | インクルードガード（二重 include の防止） |
-| 巨大ヘッダはプリコンパイル済みヘッダ（PCH）に | 一度だけコンパイルして、使い回す |
+- **前方宣言**（`class Enemy;`）: ヘッダではポインタ・参照だけで使い `#include` しない
+- `.cpp` で `#include`: 実装でだけ必要なヘッダは、ヘッダに書かない
+- PImpl: 外部ライブラリを `.cpp` に隠す（[PImpl](../patterns/pimpl.md)）
+- 「使うものを include」: 他のヘッダ経由で入ってくるのに頼らない（`include-what-you-use`）
+- `#pragma once`: インクルードガード（二重 include の防止）
+- 巨大ヘッダはプリコンパイル済みヘッダ（PCH）に: 一度だけコンパイルして、使い回す
 
 ### プリコンパイル済みヘッダ（PCH）
 
 変更されない巨大なヘッダ（標準ライブラリ、`<windows.h>`、外部ライブラリ）を先に 1 回だけコンパイルして、使い回す仕組みです。
 
-| 手順（Visual Studio） | 内容 |
-| --- | --- |
-| ① `pch.h` を作る | `#include <vector>`、`<string>`、`<windows.h>` など、変更しないものだけを書く |
-| ② `pch.cpp` を作る | `#include "pch.h"` だけを書く |
-| ③ プロパティ → C/C++ → プリコンパイル済みヘッダー | `pch.cpp` は「作成 (/Yc)」、他は「使用 (/Yu)」、ファイル名は `pch.h` |
-| ④ すべての `.cpp` の最初の行に `#include "pch.h"` | |
+1. ① `pch.h` を作る: `#include <vector>`、`<string>`、`<windows.h>` など変更しないものだけを書く
+2. ② `pch.cpp` を作る: `#include "pch.h"` だけを書く
+3. ③ プロパティ → C/C++ → プリコンパイル済みヘッダー: `pch.cpp` は「作成 (/Yc)」、他は「使用 (/Yu)」、ファイル名は `pch.h`
+4. ④ すべての `.cpp` の最初の行に `#include "pch.h"`: 
 
 CMake なら `target_precompile_headers(MyGame PRIVATE pch.h)` の 1 行です。
 
-!!! warning "PCH に、自分のよく変わるヘッダを入れない"
+!!! warning "PCH に自分のよく変わるヘッダを入れない"
     PCH を変更すると全部のファイルが再ビルドになります。標準ライブラリと外部ライブラリだけを入れます。
 
 ## 2. コードをライブラリに分ける
@@ -115,12 +109,10 @@ add_executable(MyGame src/app/main.cpp)
 target_link_libraries(MyGame PRIVATE game)
 ```
 
-| 命令 | 意味 |
-| --- | --- |
-| `add_library(名前 STATIC ソース…)` | 静的ライブラリを作る |
-| `target_include_directories(名前 PUBLIC パス)` | その名前を使う側にもパスを伝える（`PUBLIC`）。内部だけなら `PRIVATE` |
-| `target_link_libraries(A PUBLIC B)` | A は B に依存し、A を使う側も B を使う |
-| `PUBLIC` / `PRIVATE` / `INTERFACE` | 依存を使う側に伝えるか、内部だけにするか |
+- `add_library(名前 STATIC ソース…)`: 静的ライブラリを作る
+- `target_include_directories(名前 PUBLIC パス)`: その名前を使う側にもパスを伝える（`PUBLIC`）。内部だけなら `PRIVATE`
+- `target_link_libraries(A PUBLIC B)`: A は B に依存し、A を使う側も B を使う
+- `PUBLIC` / `PRIVATE` / `INTERFACE`: 依存を使う側に伝えるか内部だけにするか
 
 `engine` が `base` に `PUBLIC` でリンクしているので、`game` は `engine` にリンクするだけで、`base` も使えます。依存の向き（下から上へ）が `CMakeLists.txt` にそのまま書かれます。
 
@@ -143,23 +135,19 @@ MyGame/
 └── tools/                  … ビルド補助スクリプト
 ```
 
-| ルール | 理由 |
-| --- | --- |
-| **フォルダー = モジュール**（ライブラリ） | 依存関係がフォルダーで見える |
-| 公開するヘッダと内部のヘッダを分ける（`include/` と `src/`） | 使う側に見せるものを最小にする |
-| ビルド結果はソースと別の場所（`build/`、`out/`） | `.gitignore` が簡単。きれいに作り直せる |
-| ビルド設定はファイルで管理 | 画面で設定した内容は、Git に入らず、他の人に伝わらない |
+- **フォルダー = モジュール**（ライブラリ）: 依存関係がフォルダーで見える
+- 公開するヘッダと内部のヘッダを分ける（`include/` と `src/`）: 使う側に見せるものを最小にする
+- ビルド結果はソースと別の場所（`build/`、`out/`）: `.gitignore` が簡単。きれいに作り直せる
+- ビルド設定はファイルで管理: 画面で設定した内容は、Git に入らず他の人に伝わらない
 
 ## 4. 外部ライブラリの管理
 
-| 方法 | 説明 |
-| --- | --- |
-| <strong>vcpkg（マニフェスト）</strong> | `vcpkg.json` に書く。バージョンも固定できる（[外部ライブラリの入れ方](../../vs/libraries.md)） |
-| CMake の `FetchContent` | ダウンロードして、一緒にビルド。タグで固定 |
-| Git サブモジュール | 外部ライブラリを特定のコミットでリポジトリに取り込む |
-| `third_party/` にコピー | 小さなヘッダ ライブラリ。簡単だが更新が手作業 |
+- <strong>vcpkg（マニフェスト）</strong>: `vcpkg.json` に書く。バージョンも固定できる（[外部ライブラリの入れ方](../../vs/libraries.md)）
+- CMake の `FetchContent`: ダウンロードして、一緒にビルド。タグで固定
+- Git サブモジュール: 外部ライブラリを特定のコミットでリポジトリに取り込む
+- `third_party/` にコピー: 小さなヘッダ ライブラリ。簡単だが更新が手作業
 
-バージョンを固定します（`master` ではなく、タグやコミットを指定）。固定しないとある日、ライブラリが更新されて、ビルドが壊れます。
+バージョンを固定します（`master` ではなく、タグやコミットを指定）。固定しないとある日、ライブラリが更新されてビルドが壊れます。
 
 ## 5. ビルドの構成（Debug / Release / Development）
 
@@ -169,7 +157,7 @@ MyGame/
 | Development（自作） | あり（`/O2`） | あり | 有効 | 普段の開発・テスト プレイ（速く、デバッグ機能あり） |
 | Release | あり（`/O2`） | 少し | 無効 | 製品版 |
 
-CMake では、`CMAKE_CONFIGURATION_TYPES` や、`target_compile_definitions` で、構成ごとの定義（`ENABLE_DEBUG_UI` など）を切り替えます。
+CMake では `CMAKE_CONFIGURATION_TYPES` や `target_compile_definitions` で、構成ごとの定義（`ENABLE_DEBUG_UI` など）を切り替えます。
 
 ```cmake
 target_compile_definitions(game PRIVATE
@@ -179,13 +167,11 @@ target_compile_definitions(game PRIVATE
 
 ## 6. 自動化（CI）
 
-**CI**（継続的インテグレーション）は、Git に push するたびに、自動でビルドとテストを実行する仕組みです。GitHub Actions なら、リポジトリに設定ファイルを置くだけです。
+**CI**（継続的インテグレーション）は、Git に push するたびに自動でビルドとテストを実行する仕組みです。GitHub Actions ならリポジトリに設定ファイルを置くだけです。
 
-| 効果 | 説明 |
-| --- | --- |
-| 「自分の PC でだけ動く」を防ぐ | きれいな環境で毎回ビルドする |
-| 壊れたら、すぐ分かる | push 直後に通知される |
-| テストが自動で回る | [テスト](../foundations/testability.md)を実行し忘れない |
+- 「自分の PC でだけ動く」を防ぐ: きれいな環境で毎回ビルドする
+- 壊れたらすぐ分かる: push 直後に通知される
+- テストが自動で回る: [テスト](../foundations/testability.md)を実行し忘れない
 
 ```yaml
 # .github/workflows/build.yml（Windows でビルドする例）
@@ -206,37 +192,35 @@ jobs:
 
 ## ゲームでの使いどころ
 
-| 場面 | 設計 |
-| --- | --- |
-| ビルドが 5 分を超えてきた | ビルド インサイトで原因を探す → PCH、前方宣言、ライブラリ分割 |
-| エディタとゲームでコードを共有 | エンジンを静的ライブラリにして、両方からリンク |
-| チームで環境が違ってビルドが通らない | vcpkg のマニフェストと、`CMakePresets.json` を Git に入れる |
-| 外部ライブラリが大きくなった | vcpkg にして、バイナリ キャッシュを使う |
-| アセットのビルド（画像の圧縮など） | ビルド ステップに組み込む（`add_custom_command`） |
-| 製品版の配布 | Release 構成で、`assets/` と DLL をまとめて、ZIP にする |
+- ビルドが 5 分を超えてきた: ビルド インサイトで原因を探す → PCH、前方宣言、ライブラリ分割
+- エディタとゲームでコードを共有: エンジンを静的ライブラリにして、両方からリンク
+- チームで環境が違ってビルドが通らない: vcpkg のマニフェストと、`CMakePresets.json` を Git に入れる
+- 外部ライブラリが大きくなった: vcpkg にして、バイナリ キャッシュを使う
+- アセットのビルド（画像の圧縮など）: ビルド ステップに組み込む（`add_custom_command`）
+- 製品版の配布: Release 構成で、`assets/` と DLL をまとめて ZIP にする
 
 ## よくあるミス
 
 ??? failure "全部のヘッダを `common.h` にまとめて、全員が include する"
-    `common.h` を 1 行変えると、**全部が再ビルド**されます。必要なものだけ、必要な場所で include します。
+    `common.h` を 1 行変えると、**全部が再ビルド**されます。必要なものだけ必要な場所で include します。
 
 ??? failure "ビルド結果（`Debug/`、`x64/`、`.vs/`）を Git に入れる"
-    リポジトリが巨大になり、他の人の環境と衝突します。`.gitignore` に入れます。
+    リポジトリが巨大になり他の人の環境と衝突します。`.gitignore` に入れます。
 
 ??? failure "Visual Studio の画面でだけ設定して、ファイルに残さない"
-    `.vcxproj` に保存されますが、パスが自分の PC の絶対パスだと、他の人のビルドが壊れます。`$(SolutionDir)` などのマクロを使います（[外部ライブラリの入れ方](../../vs/libraries.md)）。
+    `.vcxproj` に保存されますが、パスが自分の PC の絶対パスだと他の人のビルドが壊れます。`$(SolutionDir)` などのマクロを使います（[外部ライブラリの入れ方](../../vs/libraries.md)）。
 
 ??? failure "外部ライブラリを `master` で取り込む"
     ある日、ライブラリの更新でビルドが壊れます。バージョンを固定します。
 
 ??? failure "循環したライブラリ依存"
-    `engine` が `game` を使い、`game` が `engine` を使うと、リンクが通りません。依存の向きを一方向にします。
+    `engine` が `game` を使い `game` が `engine` を使うとリンクが通りません。依存の向きを一方向にします。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ビルドが遅い原因の大半は `#include`。前方宣言・PImpl・PCH で減らす
-    - [x] コードを層ごとの**静的ライブラリ**に分けると、速く、依存も守れる
+    - [x] コードを層ごとの**静的ライブラリ**に分けると速く、依存も守れる
     - [x] ビルド設定はファイルに書いて Git に入れる（CMake / vcxproj / vcpkg.json）
     - [x] 外部ライブラリはバージョンを固定。「クローンして 1 コマンドでビルド」を保つ
     - [x] 構成は Debug / Development / Release。CI で自動ビルド

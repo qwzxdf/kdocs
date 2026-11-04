@@ -82,12 +82,10 @@ tags:
 
 プログラムは `std::string` や `malloc` を**ランタイム ライブラリ**から呼んでいます。
 
-| オプション | 意味 |
-| --- | --- |
-| `/MD` | リリース版を DLL で使う。実行時に `vcruntime140.dll` などが必要 |
-| `/MDd` | デバッグ版を DLL で使う |
-| `/MT` | リリース版を実行ファイルに埋め込む（静的リンク）。DLL が要らない |
-| `/MTd` | デバッグ版を静的リンクする |
+- `/MD`: リリース版を DLL で使う。実行時に `vcruntime140.dll` などが必要
+- `/MDd`: デバッグ版を DLL で使う
+- `/MT`: リリース版を実行ファイルに埋め込む（静的リンク）。DLL が要らない
+- `/MTd`: デバッグ版を静的リンクする
 
 リンクするすべての `.lib` で、この設定をそろえる必要があります。Debug の本体に Release 用に作られたライブラリを混ぜると、`LNK2038`（`RuntimeLibrary` の不一致）が出ます。外部ライブラリを vcpkg で入れると、構成に合うものが自動で選ばれます（[外部ライブラリの入れ方](../libraries.md)）。
 
@@ -95,12 +93,10 @@ tags:
 
 Debug の CRT はメモリに目印の値を書き込みます。バグ探しの手がかりになります。
 
-| 値 | 意味 |
-| --- | --- |
-| `0xCDCDCDCD` | 確保したばかりで、まだ何も書いていないヒープ |
-| `0xDDDDDDDD` | 解放したあとのヒープ |
-| `0xFDFDFDFD` | 確保した範囲の前後にある、ガード（番兵）。上書きされると解放のときに検出される |
-| `0xCCCCCCCC` | 初期化していないローカル変数（スタック。`/RTC1` が有効なとき） |
+- `0xCDCDCDCD`: 確保したばかりで、まだ何も書いていないヒープ
+- `0xDDDDDDDD`: 解放したあとのヒープ
+- `0xFDFDFDFD`: 確保した範囲の前後にある、ガード（番兵）。上書きされると解放のときに検出される
+- `0xCCCCCCCC`: 初期化していないローカル変数（スタック。`/RTC1` が有効なとき）
 
 変数の値が `0xCCCCCCCC` や `0xCDCDCDCD` になっていたら、初期化し忘れです。`0xDDDDDDDD` なら 解放済みのメモリを使っています。
 
@@ -160,11 +156,9 @@ void Boot() {
 
 プリプロセッサ定義に構成ごとのマクロを入れておくとコードの中で分けられます。
 
-| 構成 | プリプロセッサ定義の例 |
-| --- | --- |
-| Debug | `_DEBUG;GAME_DEBUG;GAME_ENABLE_LOG` |
-| Profile | `NDEBUG;GAME_PROFILE;GAME_ENABLE_LOG` |
-| Shipping | `NDEBUG;GAME_SHIPPING` |
+- Debug: `_DEBUG;GAME_DEBUG;GAME_ENABLE_LOG`
+- Profile: `NDEBUG;GAME_PROFILE;GAME_ENABLE_LOG`
+- Shipping: `NDEBUG;GAME_SHIPPING`
 
 ```cpp
 #if defined(GAME_DEBUG)

@@ -269,10 +269,8 @@ std::int64_t b = v.get_int64();  // だめ：もう読んだ値
 
 SIMD 命令は 32 バイトや 64 バイトをまとめて読むので、JSON の最後のあたりを読むときに、**文字列の終わりより少し先のメモリまで**読んでしまいます。そこが確保されていないとクラッシュするので、simdjson は入力の後ろに `SIMDJSON_PADDING`（64 バイト）の余白があることを要求します。
 
-| 範囲 | 内容 |
-| --- | --- |
-| JSON の本体 | `{ "name": ... }` |
-| 余白 64 バイト | 中身は何でもよい。ここまで読んでも安全なようにする |
+- JSON の本体: `{ "name": ... }`
+- 余白 64 バイト: 中身は何でもよい。ここまで読んでも安全なようにする
 
 `padded_string` は、この余白を自動で確保してくれる文字列です。`std::string` を `iterate` に渡すこともできますが、容量（`capacity`）が足りないと中でコピーや再確保が起きるので、最初から `padded_string` を使うのがおすすめです。
 
@@ -325,21 +323,19 @@ sp: キーがありません
 
 よく出るエラーコードは次のとおりです。
 
-| エラーコード | 意味 |
-| --- | --- |
-| `SUCCESS` | 成功（値は 0 なので `if (error)` で失敗が分かる） |
-| `INCORRECT_TYPE` | 型が違う（文字列を整数として読んだ、など） |
-| `NO_SUCH_FIELD` | キーが無い |
-| `INDEX_OUT_OF_BOUNDS` | 配列の範囲外（`at_pointer` など） |
-| `NUMBER_OUT_OF_RANGE` | 数値が型に入らない |
-| `NUMBER_ERROR` | 数値の書き方がおかしい |
-| `TAPE_ERROR` | JSON の構造（括弧の対応など）が壊れている |
-| `UNCLOSED_STRING` | 文字列の `"` が閉じていない |
-| `UTF8_ERROR` | UTF-8 として不正な文字がある |
-| `EMPTY` | 入力が空 |
-| `CAPACITY` | 入力がパーサーの最大サイズより大きい |
-| `OUT_OF_ORDER_ITERATION` | 読む順番のルールを破った |
-| `IO_ERROR` | ファイルが読めない（`padded_string::load`） |
+- `SUCCESS`: 成功（値は 0 なので `if (error)` で失敗が分かる）
+- `INCORRECT_TYPE`: 型が違う（文字列を整数として読んだ、など）
+- `NO_SUCH_FIELD`: キーが無い
+- `INDEX_OUT_OF_BOUNDS`: 配列の範囲外（`at_pointer` など）
+- `NUMBER_OUT_OF_RANGE`: 数値が型に入らない
+- `NUMBER_ERROR`: 数値の書き方がおかしい
+- `TAPE_ERROR`: JSON の構造（括弧の対応など）が壊れている
+- `UNCLOSED_STRING`: 文字列の `"` が閉じていない
+- `UTF8_ERROR`: UTF-8 として不正な文字がある
+- `EMPTY`: 入力が空
+- `CAPACITY`: 入力がパーサーの最大サイズより大きい
+- `OUT_OF_ORDER_ITERATION`: 読む順番のルールを破った
+- `IO_ERROR`: ファイルが読めない（`padded_string::load`）
 
 !!! warning "読まなかった部分は細かくチェックされない"
     On-Demand は、括弧の対応などの**大きな構造**は最初に全部チェックしますが、読まなかった値の中身（数値の書き方など）はチェックしません。「読み込めたから JSON 全体が正しい」とは限らないことに注意します。全部を検証したいときは [DOM API](#dom_parser) を使います。
@@ -374,12 +370,10 @@ simdjson は**読むためのライブラリ**です。JSON を書き出した�
 
 ## 速さの特徴
 
-| 項目 | 特徴 |
-| --- | --- |
-| 読み込みの速さ | 1 秒間に数 GB。nlohmann/json の十倍以上になることが多い |
-| メモリ | 値ごとのヒープ確保が無い。パーサーが内部バッファを持ち、使い回す |
-| 一番速い使い方 | パーサーを使い回す。JSON に書かれた順番に読む。必要な値だけ読む |
-| 遅くなる使い方 | 毎回パーサーを作る。キーを逆順に探す。デバッグビルド |
+- 読み込みの速さ: 1 秒間に数 GB。nlohmann/json の十倍以上になることが多い
+- メモリ: 値ごとのヒープ確保が無い。パーサーが内部バッファを持ち、使い回す
+- 一番速い使い方: パーサーを使い回す。JSON に書かれた順番に読む。必要な値だけ読む
+- 遅くなる使い方: 毎回パーサーを作る。キーを逆順に探す。デバッグビルド
 
 !!! note "ゲームのロードは JSON だけで遅いわけではない"
     ロードが遅いとき、原因は JSON の解析ではなく「ファイルを読む」「テクスチャを作る」「メモリを確保する」ことのほうが多いです。simdjson に変える前にまず[プロファイラ](../../basics/cache.md)などで、本当に JSON の解析が遅いのかを確認します。
@@ -731,27 +725,21 @@ class simdjson::dom::parser {
 
 ### 設定マクロ（include の前、またはビルド設定で定義する）
 
-| マクロ | 意味 |
-| --- | --- |
-| `SIMDJSON_EXCEPTIONS=0` | 例外を使わない。`std::int64_t hp = doc["hp"];` のような自動変換が使えなくなり、`get(x)` で書く |
-| `SIMDJSON_DEVELOPMENT_CHECKS=1` | 読む順番のルール違反などをデバッグ時に assert で見つける。開発中はオンにするのがおすすめ |
-| `SIMDJSON_IMPLEMENTATION_xxx=0` | 特定の実装（`ICELAKE` など）を入れない。実行ファイルを小さくしたいとき |
+- `SIMDJSON_EXCEPTIONS=0`: 例外を使わない。`std::int64_t hp = doc["hp"];` のような自動変換が使えなくなり、`get(x)` で書く
+- `SIMDJSON_DEVELOPMENT_CHECKS=1`: 読む順番のルール違反などをデバッグ時に assert で見つける。開発中はオンにするのがおすすめ
+- `SIMDJSON_IMPLEMENTATION_xxx=0`: 特定の実装（`ICELAKE` など）を入れない。実行ファイルを小さくしたいとき
 
 ### 定数
 
-| 定数 | 値・意味 |
-| --- | --- |
-| `SIMDJSON_PADDING` | 入力の後ろに必要な余白のバイト数（64） |
-| `SIMDJSON_MAXSIZE_BYTES` | パーサーが読める最大サイズのデフォルト（約 4 GB） |
+- `SIMDJSON_PADDING`: 入力の後ろに必要な余白のバイト数（64）
+- `SIMDJSON_MAXSIZE_BYTES`: パーサーが読める最大サイズのデフォルト（約 4 GB）
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| 巨大なステージ・ワールドデータ（数十 MB） | 読み込みを simdjson に。書き出し（エディタ側）は nlohmann/json |
-| マスターデータを起動時に大量に読む | パーサー 1 つを使い回して、全ファイルを順番に読む |
-| ログ・リプレイの解析ツール | 大量の JSON Lines（1 行 1 JSON）を `iterate_many` で高速に読む |
-| サーバーから受け取る大きなレスポンス | 必要なキーだけ On-Demand で読む |
+- 巨大なステージ・ワールドデータ（数十 MB）: 読み込みを simdjson に。書き出し（エディタ側）は nlohmann/json
+- マスターデータを起動時に大量に読む: パーサー 1 つを使い回して、全ファイルを順番に読む
+- ログ・リプレイの解析ツール: 大量の JSON Lines（1 行 1 JSON）を `iterate_many` で高速に読む
+- サーバーから受け取る大きなレスポンス: 必要なキーだけ On-Demand で読む
 
 !!! note "iterate_many"
     `parser.iterate_many(json)` を使うと、`{...}{...}{...}` や 1 行に 1 つの JSON が並んだデータ（JSON Lines）をまとめて速く読めます。ログファイルの解析で便利です。
@@ -778,12 +766,10 @@ class simdjson::dom::parser {
 
 ## 類似ライブラリ
 
-| ライブラリ | 違い |
-| --- | --- |
-| [nlohmann/json](nlohmann-json.md) | 書きやすさ優先。読み書き両方。遅い |
-| RapidJSON | 速く、読み書き両方できる。書き方が冗長 |
-| Glaze | 構造体と JSON を自動で変換し、読み書きとも速い（C++23） |
-| yyjson（C 言語） | simdjson と並ぶ速さの C ライブラリ。読み書き両方 |
+- [nlohmann/json](nlohmann-json.md): 書きやすさ優先。読み書き両方。遅い
+- RapidJSON: 速く、読み書き両方できる。書き方が冗長
+- Glaze: 構造体と JSON を自動で変換し、読み書きとも速い（C++23）
+- yyjson（C 言語）: simdjson と並ぶ速さの C ライブラリ。読み書き両方
 
 ## これだけ覚える
 

@@ -56,12 +56,10 @@ tags:
 <text x="300" y="245">三角形が増えるほど、細かい形を作れる</text>
 </svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| 頂点（vertex） | 形の角の点。座標 `(x, y, z)` を持つ |
-| 辺（edge） | 頂点と頂点を結ぶ線 |
-| 三角形 / ポリゴン（polygon） | 頂点 3 つで囲まれた面。3D 描画の基本単位 |
-| 面（face） | ポリゴンと同じ意味で使う |
+- 頂点（vertex）: 形の角の点。座標 `(x, y, z)` を持つ
+- 辺（edge）: 頂点と頂点を結ぶ線
+- 三角形 / ポリゴン（polygon）: 頂点 3 つで囲まれた面。3D 描画の基本単位
+- 面（face）: ポリゴンと同じ意味で使う
 
 !!! note "なぜ、三角形なのか"
     3 つの点は必ず 1 つの平面を作るからです。4 つ以上の点は、同じ平面にならないことがあります。GPU は三角形を高速に描くように作られています。四角形は三角形 2 つに分けて扱います。
@@ -93,10 +91,8 @@ tags:
 <text x="260" y="190">v0 と v2 は、2 つの三角形で共有される</text>
 </svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| 頂点リスト | 頂点を重複なしで並べたもの |
-| インデックス（index） | 「どの頂点をどの順で三角形にするか」を番号で書いたリスト（`0 1 2、0 2 3`） |
+- 頂点リスト: 頂点を重複なしで並べたもの
+- インデックス（index）: 「どの頂点をどの順で三角形にするか」を番号で書いたリスト（`0 1 2、0 2 3`）
 
 インデックスを使うと同じ頂点を何度も書かなくて済みます。立方体なら、頂点を 8 個に三角形（12 個）をインデックスで表せます。
 
@@ -123,12 +119,10 @@ tags:
 <text x="320" y="230">頂点ごとに「画像の座標」を持つ</text>
 </svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| UV 座標 | 画像の中の位置を表す、2 つの数字 `(u, v)`。`(0, 0)` ～ `(1, 1)` の範囲 |
-| U | 画像の横方向（左 → 右） |
-| V | 画像の縦方向（DirectX は、上 → 下） |
-| テクセル | テクスチャの1 マス（ピクセルの画像側の呼び方） |
+- UV 座標: 画像の中の位置を表す、2 つの数字 `(u, v)`。`(0, 0)` ～ `(1, 1)` の範囲
+- U: 画像の横方向（左 → 右）
+- V: 画像の縦方向（DirectX は、上 → 下）
+- テクセル: テクスチャの1 マス（ピクセルの画像側の呼び方）
 
 3 つの頂点の UV が決まれば、三角形の中の絵は、自動で補間されます。
 
@@ -140,11 +134,9 @@ tags:
 
 <svg class="fig illust" viewBox="0 0 800 300" role="img" aria-label="メッシュのデータを、GPU のバッファに置いてから、描画する"><defs><marker id="gb1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs><text x="20" y="26" class="fig-title">メッシュのデータは、起動時に 1 回だけ GPU のバッファへ。描画のたびに、使い回す</text><path d="M 24 96 L 76 96 L 96 116 L 96 196 L 24 196 Z" fill="rgba(150,150,150,0.2)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><text x="60" y="160" text-anchor="middle" style="font-size:14px;font-weight:700">モデル</text><text x="60" y="232" text-anchor="middle" style="font-size:14px;font-weight:700">ファイル</text><line x1="104" y1="146" x2="160" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="132" y="136" text-anchor="middle" style="font-size:12px;font-weight:600">読む</text><rect x="170" y="86" width="150" height="120" rx="10" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="3"/><line x1="190" y1="86" x2="190" y2="72" stroke="currentColor" stroke-width="3"/><line x1="190" y1="206" x2="190" y2="220" stroke="currentColor" stroke-width="3"/><line x1="214" y1="86" x2="214" y2="72" stroke="currentColor" stroke-width="3"/><line x1="214" y1="206" x2="214" y2="220" stroke="currentColor" stroke-width="3"/><line x1="238" y1="86" x2="238" y2="72" stroke="currentColor" stroke-width="3"/><line x1="238" y1="206" x2="238" y2="220" stroke="currentColor" stroke-width="3"/><line x1="262" y1="86" x2="262" y2="72" stroke="currentColor" stroke-width="3"/><line x1="262" y1="206" x2="262" y2="220" stroke="currentColor" stroke-width="3"/><line x1="286" y1="86" x2="286" y2="72" stroke="currentColor" stroke-width="3"/><line x1="286" y1="206" x2="286" y2="220" stroke="currentColor" stroke-width="3"/><text x="245" y="120" text-anchor="middle" style="font-size:14px;font-weight:700">CPU 側のメモリ</text><rect x="186" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="208" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="230" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="252" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="274" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="296" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><text x="245" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">頂点・インデックス</text><line x1="330" y1="146" x2="412" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="371" y="134" text-anchor="middle" style="font-size:13px;font-weight:700">転送</text><text x="371" y="170" text-anchor="middle" style="font-size:12px;font-weight:400">（1 回だけ）</text><rect x="420" y="86" width="170" height="120" rx="10" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="3"/><line x1="420" y1="106" x2="406" y2="106" stroke="currentColor" stroke-width="3"/><line x1="590" y1="106" x2="604" y2="106" stroke="currentColor" stroke-width="3"/><line x1="420" y1="128" x2="406" y2="128" stroke="currentColor" stroke-width="3"/><line x1="590" y1="128" x2="604" y2="128" stroke="currentColor" stroke-width="3"/><line x1="420" y1="150" x2="406" y2="150" stroke="currentColor" stroke-width="3"/><line x1="590" y1="150" x2="604" y2="150" stroke="currentColor" stroke-width="3"/><line x1="420" y1="172" x2="406" y2="172" stroke="currentColor" stroke-width="3"/><line x1="590" y1="172" x2="604" y2="172" stroke="currentColor" stroke-width="3"/><text x="505" y="120" text-anchor="middle" style="font-size:14px;font-weight:700">GPU のバッファ</text><rect x="440" y="136" width="130" height="50" rx="6" fill="rgba(255,255,255,0.25)" stroke="currentColor" stroke-width="2"/><rect x="448" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="468" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="488" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="508" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="528" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="548" y="146" width="14" height="30" rx="2" fill="#2ea043"/><text x="505" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">頂点バッファ・インデックスバッファ</text><line x1="600" y1="146" x2="672" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="636" y="134" text-anchor="middle" style="font-size:12px;font-weight:600">毎フレーム</text><text x="636" y="170" text-anchor="middle" style="font-size:12px;font-weight:400">使い回す</text><rect x="680" y="96" width="100" height="80" rx="8" fill="rgba(229,170,40,0.2)" stroke="currentColor" stroke-width="3"/><rect x="718" y="176" width="24" height="12" fill="currentColor" opacity="0.5"/><rect x="704" y="188" width="52" height="8" rx="3" fill="currentColor" opacity="0.5"/><polygon points="730.0,118.0 752.0,129.0 730.0,140.0 708.0,129.0" fill="#f6c244" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="708.0,129.0 730.0,140.0 730.0,162.0 708.0,151.0" fill="#e5484d" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="730.0,140.0 752.0,129.0 752.0,151.0 730.0,162.0" fill="#c93a3f" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><text x="730" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">画面</text></svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| 頂点バッファ | 頂点リストを入れる、GPU 側の置き場 |
-| インデックスバッファ | インデックス（三角形の番号リスト）を入れる、GPU 側の置き場 |
-| 定数バッファ | 行列や色など、少数の値をシェーダーに渡す置き場（[変換と MVP](transforms-mvp.md)） |
+- 頂点バッファ: 頂点リストを入れる、GPU 側の置き場
+- インデックスバッファ: インデックス（三角形の番号リスト）を入れる、GPU 側の置き場
+- 定数バッファ: 行列や色など、少数の値をシェーダーに渡す置き場（[変換と MVP](transforms-mvp.md)）
 
 !!! note "毎フレーム作らない"
     GPU への転送は時間がかかるので、ゲームの起動時やロード時に 1 回やります。毎フレームの描画では、置いてあるデータを使い回すだけです。
@@ -165,20 +157,18 @@ tags:
 
 ## ここまでの用語まとめ
 
-| 用語 | 一言で |
-| --- | --- |
-| **3D モデル** | 形・絵・質感のセット |
-| メッシュ | 3D モデルの形そのもの（三角形の集まり） |
-| 頂点 | 三角形の角の点。位置・法線・UV を持つ |
-| 三角形 / ポリゴン | 頂点 3 つの面。形の最小単位 |
-| インデックス | 三角形を頂点の番号で指定するリスト |
-| テクスチャ | 表面に貼る画像 |
-| UV | 画像のどこを使うかの座標 |
-| マテリアル | 質感の設定（色・ツヤ・金属度など） |
-| GPU | 描画専用の部品 |
-| バッファ | GPU に渡すデータを置く場所 |
-| 入力レイアウト | 頂点バッファの中身の並びを GPU に教える説明書 |
-| シェーダー | GPU 上で動く、頂点や色を計算する小さなプログラム |
+- **3D モデル**: 形・絵・質感のセット
+- メッシュ: 3D モデルの形そのもの（三角形の集まり）
+- 頂点: 三角形の角の点。位置・法線・UV を持つ
+- 三角形 / ポリゴン: 頂点 3 つの面。形の最小単位
+- インデックス: 三角形を頂点の番号で指定するリスト
+- テクスチャ: 表面に貼る画像
+- UV: 画像のどこを使うかの座標
+- マテリアル: 質感の設定（色・ツヤ・金属度など）
+- GPU: 描画専用の部品
+- バッファ: GPU に渡すデータを置く場所
+- 入力レイアウト: 頂点バッファの中身の並びを GPU に教える説明書
+- シェーダー: GPU 上で動く、頂点や色を計算する小さなプログラム
 
 ## これだけ覚える
 

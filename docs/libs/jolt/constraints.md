@@ -51,12 +51,10 @@ Constraint* hinge = settings.Create(door_body, Body::sFixedToWorld);
 physics_system.AddConstraint(hinge);
 ```
 
-| 手順 | 内容 |
-| --- | --- |
-| **1. 設定を作る** | 種類ごとの `ConstraintSettings`。接続点・軸・制限を設定 |
-| 2. `Create(body1, body2)` | 2 つの物体を渡して、制約を作る。`Body` への参照（`BodyID` ではない）を渡す |
-| 3. `AddConstraint` | 世界に追加 |
-| 削除 | `RemoveConstraint(c)` |
+1. **1. 設定を作る**: 種類ごとの `ConstraintSettings`。接続点・軸・制限を設定
+2. 2. `Create(body1, body2)`: 2 つの物体を渡して、制約を作る。`Body` への参照（`BodyID` ではない）を渡す
+3. 3. `AddConstraint`: 世界に追加
+4. 削除: `RemoveConstraint(c)`
 
 ### ワールドに固定する
 
@@ -70,10 +68,8 @@ Constraint* c = settings.Create(body, Body::sFixedToWorld);
 
 ### 接続点の座標系
 
-| `mSpace` | 意味 |
-| --- | --- |
-| `EConstraintSpace::WorldSpace`（既定） | 接続点をワールド座標で指定（今の配置から、自動で各物体のローカルに変換） |
-| `EConstraintSpace::LocalToBodyCOM` | 各物体の重心からのローカル座標で指定 |
+- `EConstraintSpace::WorldSpace`（既定）: 接続点をワールド座標で指定（今の配置から、自動で各物体のローカルに変換）
+- `EConstraintSpace::LocalToBodyCOM`: 各物体の重心からのローカル座標で指定
 
 ワールド座標で指定する方が簡単です（今、物体が置いてある場所にヒンジを置くだけ）。
 
@@ -89,10 +85,8 @@ settings.mAutoDetectPoint = true;
 Constraint* c = settings.Create(body1, body2);
 ```
 
-| 用途 | 説明 |
-| --- | --- |
-| 物体の組み立て | 車体にパーツをくっつける |
-| 壊れる接続 | 制約に強さの上限があれば、力を超えると外れる（`mMaxForce`）。壊れる橋・扉 |
+- 物体の組み立て: 車体にパーツをくっつける
+- 壊れる接続: 制約に強さの上限があれば、力を超えると外れる（`mMaxForce`）。壊れる橋・扉
 
 複合形状（Compound）で作る方が軽い場合もあります（壊さないなら）。
 
@@ -109,13 +103,11 @@ settings.mLimitsMin = Degrees(-90);
 settings.mLimitsMax = Degrees(90);
 ```
 
-| 設定 | 意味 |
-| --- | --- |
-| `mPoint1` / `mPoint2` | 接続点（2 つの物体で同じ場所） |
-| `mHingeAxis1` / `mHingeAxis2` | 回転の軸 |
-| `mNormalAxis1` / `mNormalAxis2` | 軸に垂直な基準方向（角度 0 の向き）。制限・モーターの角度の基準 |
-| `mLimitsMin` / `mLimitsMax` | 角度の範囲（ラジアン。`-π` 〜 `π`） |
-| `mMaxFrictionTorque` | 摩擦（動きにくさ） |
+- `mPoint1` / `mPoint2`: 接続点（2 つの物体で同じ場所）
+- `mHingeAxis1` / `mHingeAxis2`: 回転の軸
+- `mNormalAxis1` / `mNormalAxis2`: 軸に垂直な基準方向（角度 0 の向き）。制限・モーターの角度の基準
+- `mLimitsMin` / `mLimitsMax`: 角度の範囲（ラジアン。`-π` 〜 `π`）
+- `mMaxFrictionTorque`: 摩擦（動きにくさ）
 
 ドア・扉・振り子・車輪に使います。
 
@@ -145,10 +137,8 @@ settings.mLimitsSpringSettings.mFrequency = 2.0f;
 settings.mLimitsSpringSettings.mDamping = 0.5f;
 ```
 
-| 設定 | 意味 |
-| --- | --- |
-| `mMinDistance` / `mMaxDistance` | 距離の範囲（最小 = 最大 ＝ ロッド（硬い棒）、最大のみ ＝ ロープ） |
-| `mLimitsSpringSettings` | バネ（`mFrequency` ＝ 固さ（Hz）、`mDamping` ＝ 減衰）。設定しないと硬い制約 |
+- `mMinDistance` / `mMaxDistance`: 距離の範囲（最小 = 最大 ＝ ロッド（硬い棒）、最大のみ ＝ ロープ）
+- `mLimitsSpringSettings`: バネ（`mFrequency` ＝ 固さ（Hz）、`mDamping` ＝ 減衰）。設定しないと硬い制約
 
 ロープ・グラップリングフック・ゴムひも・サスペンションに使います。
 
@@ -193,16 +183,12 @@ hinge->SetMotorState(EMotorState::Velocity);
 hinge->SetTargetAngularVelocity(JPH_PI);
 ```
 
-| モーターの状態 | 動き |
-| --- | --- |
-| `EMotorState::Off` | モーターなし（自由に動く） |
-| `EMotorState::Velocity` | 目標の速度で回す |
-| `EMotorState::Position` | 目標の位置（角度）に向かう（バネのように） |
+- `EMotorState::Off`: モーターなし（自由に動く）
+- `EMotorState::Velocity`: 目標の速度で回す
+- `EMotorState::Position`: 目標の位置（角度）に向かう（バネのように）
 
-| 設定 | 意味 |
-| --- | --- |
-| `SetTargetAngularVelocity` / `SetTargetAngle` | 目標の角速度・角度 |
-| `GetMotorSettings()` | モーターの強さ（`mMaxTorqueLimit` ＝ 出せる力の上限）、バネの固さ |
+- `SetTargetAngularVelocity` / `SetTargetAngle`: 目標の角速度・角度
+- `GetMotorSettings()`: モーターの強さ（`mMaxTorqueLimit` ＝ 出せる力の上限）、バネの固さ
 
 `Position` モードにバネを使うと「目標の姿勢に引き戻される」関節になります（アニメーションに物理的に追従する、キャラクター）。
 
@@ -232,10 +218,8 @@ ragdoll->AddToPhysicsSystem(EActivation::Activate);
 
 **制約でつないだ 2 つの物体がお互いに衝突すると不安定**になります（関節の部分でめり込む）。
 
-| 方法 | 説明 |
-| --- | --- |
-| 衝突グループ（`CollisionGroup`） | 同じグループの物体どうしは、衝突しない（`mCollisionGroup`） |
-| レイヤーで分ける | 連結部の部位を別のレイヤーにして、衝突を無効に |
+- 衝突グループ（`CollisionGroup`）: 同じグループの物体どうしは、衝突しない（`mCollisionGroup`）
+- レイヤーで分ける: 連結部の部位を別のレイヤーにして、衝突を無効に
 
 ラグドールの隣り合う部位どうしは、衝突を無効にします（Jolt の `GroupFilterTable` で、部位ペアごとに設定できます）。
 
@@ -248,25 +232,21 @@ bodies.RemoveBody(id);
 bodies.DestroyBody(id);
 ```
 
-| 順番 | 理由 |
-| --- | --- |
-| **制約を先に削除** | 物体が消えた後の制約は、無効なポインタを持つ |
-| `Update` の外で | 物理の最中は変更しない |
+- **制約を先に削除**: 物体が消えた後の制約は、無効なポインタを持つ
+- `Update` の外で: 物理の最中は変更しない
 
 制約は参照カウント（`Ref<Constraint>`）で管理することもできます。
 
 ## 使いどころ
 
-| 場面 | 制約 |
-| --- | --- |
-| **ドア・扉・蓋** | ヒンジ（制限付き） |
-| エレベーター・引き出し | スライダー |
-| ロープ・鎖・ブランコ | 距離・点（鎖は点の連続） |
-| グラップリングフック・ゴムひも | 距離（バネ付き） |
-| 壊れる橋・建物 | 固定（力の上限付き） |
-| ラグドール | スイング ツイスト |
-| ロボット・乗り物の関節 | ヒンジ ＋ モーター |
-| 車のサスペンション | 距離（バネ）、または車両の機能（[車両](vehicles.md)） |
+- **ドア・扉・蓋**: ヒンジ（制限付き）
+- エレベーター・引き出し: スライダー
+- ロープ・鎖・ブランコ: 距離・点（鎖は点の連続）
+- グラップリングフック・ゴムひも: 距離（バネ付き）
+- 壊れる橋・建物: 固定（力の上限付き）
+- ラグドール: スイング ツイスト
+- ロボット・乗り物の関節: ヒンジ ＋ モーター
+- 車のサスペンション: 距離（バネ）、または車両の機能（[車両](vehicles.md)）
 
 <!-- fig:spring-damping:begin -->
 
