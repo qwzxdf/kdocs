@@ -10,11 +10,11 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D11 は描画が間違っていても、<strong>エラーを出さずに黙って何も、描かない</strong>ことがよくあります。「ビューポートを設定し忘れた」「入力レイアウトが合っていない」「リソースを読みながら、書いた」。これらの原因を <strong>文字で教えてくれる</strong>のが、<strong>デバッグ レイヤー</strong>です。D3D11 の開発では常に有効にして、おきます。
+D3D11 は描画が間違っていても、<strong>エラーを出さずに黙って何も描かない</strong>ことがよくあります。「ビューポートを設定し忘れた」「入力レイアウトが合っていない」「リソースを読みながら、書いた」。これらの原因を <strong>文字で教えてくれる</strong>のが、<strong>デバッグ レイヤー</strong>です。D3D11 の開発では常に有効にして、おきます。
 
 !!! tip "ポイント"
-    - デバイスを作るとき `D3D11_CREATE_DEVICE_DEBUG` を付ける。メッセージが <strong>Visual Studio の、出力ウィンドウ</strong>に出る。
-    - 使うには Windows の、オプション機能「<strong>グラフィックス ツール</strong>」が必要。
+    - デバイスを作るとき `D3D11_CREATE_DEVICE_DEBUG` を付ける。メッセージが <strong>Visual Studio の出力ウィンドウ</strong>に出る。
+    - 使うには Windows のオプション機能「<strong>グラフィックス ツール</strong>」が必要。
     - `ID3D11InfoQueue` でエラーの時にブレーク（止める）できる。メッセージをフィルタできる。
     - オブジェクトに <strong>名前</strong>を付けるとメッセージが読みやすくなる。
     - 終了時の `ReportLiveDeviceObjects` で解放し忘れを見つける。
@@ -37,11 +37,11 @@ D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, flags, levels, ARR
                   &device, nullptr, &context);
 ```
 
-作成が `DXGI_ERROR_SDK_COMPONENT_MISSING` で失敗するときは Windows の、設定 → アプリ → オプション機能 → 「グラフィックス ツール」を追加します（[ID3D11Device and Device Context](device.md)）。
+作成が `DXGI_ERROR_SDK_COMPONENT_MISSING` で失敗するときは Windows の設定 → アプリ → オプション機能 → 「グラフィックス ツール」を追加します（[ID3D11Device and Device Context](device.md)）。
 
 ## メッセージの見え方
 
-デバッグ レイヤーが有効だと、次のようなメッセージが出力ウィンドウに出ます。
+デバッグ レイヤーが有効だと次のようなメッセージが出力ウィンドウに出ます。
 
 ```text
 D3D11 ERROR: ID3D11DeviceContext::DrawIndexed: Input Assembler - Vertex Shader linkage error:
@@ -50,12 +50,10 @@ Signatures between stages are incompatible. The input stage requires Semantic/In
 
 読み方は「どの関数で」「何が」「なぜ」起きたかです。
 
-| 部分 | 内容 |
-| --- | --- |
-| `ERROR` / `WARNING` / `CORRUPTION` / `INFO` | 重さ。`CORRUPTION` はメモリ破壊の恐れ |
-| `ID3D11DeviceContext::DrawIndexed` | どの呼び出しか |
-| 本文 | 何が問題か（この例は、入力レイアウトと頂点シェーダーの、セマンティクスが合わない） |
-| `[ EXECUTION ERROR #342 ... ]` | メッセージ ID（検索用） |
+- `ERROR` / `WARNING` / `CORRUPTION` / `INFO`: 重さ。`CORRUPTION` はメモリ破壊の恐れ
+- `ID3D11DeviceContext::DrawIndexed`: どの呼び出しか
+- 本文: 何が問題か（この例は入力レイアウトと頂点シェーダーのセマンティクスが合わない）
+- `[ EXECUTION ERROR #342 ... ]`: メッセージ ID（検索用）
 
 ## InfoQueue：エラーで止める
 
@@ -70,7 +68,7 @@ if (SUCCEEDED(device.As(&info_queue))) {
 }
 ```
 
-`SetBreakOnSeverity` を有効にするとエラーの起きた、まさにその呼び出しでデバッガーが止まり、<strong>コール スタックが原因の行を指します</strong>。エラーが画面に出るはるか後で気づくことが、なくなります。
+`SetBreakOnSeverity` を有効にするとエラーの起きたまさにその呼び出しでデバッガーが止まり <strong>コール スタックが原因の行を指します</strong>。エラーが画面に出るはるか後で気づくことが、なくなります。
 
 ### メッセージを絞る
 
@@ -92,7 +90,7 @@ const char kName[] = "GBuffer Albedo";
 texture->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(kName) - 1, kName);   // #include <d3dcommon.h>
 ```
 
-名前を付けるとデバッグ レイヤーの、メッセージやグラフィックス デバッガー（PIX、RenderDoc）の画面にその名前が出ます。「`Texture2D` が 1 つリークしています」より、「`GBuffer Albedo` がリーク」の方がはるかに、探しやすくなります。
+名前を付けるとデバッグ レイヤーのメッセージやグラフィックス デバッガー（PIX、RenderDoc）の画面にその名前が出ます。「`Texture2D` が 1 つリークしています」より「`GBuffer Albedo` がリーク」の方がはるかに探しやすくなります。
 
 ```cpp
 // 名前を付ける関数。全オブジェクトに使う。
@@ -116,38 +114,32 @@ if (SUCCEEDED(device.As(&debug))) {
 }
 ```
 
-`ReportLiveDeviceObjects` を呼ぶと解放されていない、オブジェクトの名前と参照カウントが出力に出ます。`ComPtr` をグローバルや `static` に持つと、デバイスの解放より後に解放されて報告に出ます。
+`ReportLiveDeviceObjects` を呼ぶと解放されていない、オブジェクトの名前と参照カウントが出力に出ます。`ComPtr` をグローバルや `static` に持つとデバイスの解放より後に解放されて報告に出ます。
 
-| 結果の見方 | 内容 |
-| --- | --- |
-| `Refcount` が 0 でない | 誰かがまだ、参照している |
-| 名前つきのオブジェクト | 名前で、どれか分かる |
-| `ID3D11DeviceContext` が 1 つ残る | 通常（デバイスと、コンテキストは最後に解放される） |
+- `Refcount` が 0 でない: 誰かがまだ参照している
+- 名前つきのオブジェクト: 名前で、どれか分かる
+- `ID3D11DeviceContext` が 1 つ残る: 通常（デバイスとコンテキストは最後に解放される）
 
 ## よく出るメッセージ
 
-| メッセージ | 原因 |
-| --- | --- |
-| `Resource being set to OM RenderTarget slot 0 is still bound on input` | 同じリソースを SRV と RTV で同時に、束ねている（[Render Target View (RTV)](render-target-view.md)） |
-| `The Pixel Shader unit expects a Sampler to be set at Slot 0` | サンプラーをつないでいない |
-| `Vertex Shader linkage error` | 入力レイアウトと、頂点シェーダーのセマンティクスが合わない |
-| `The size of the Constant Buffer at slot 0 of the Vertex Shader unit is too small` | 定数バッファの大きさが、シェーダーの `cbuffer` より小さい |
-| `Index buffer has not been set` | `DrawIndexed` の前に `IASetIndexBuffer` を呼んでいない |
-| `Viewport 0 not set` | ビューポートを設定していない |
-| `Live ID3D11Texture2D at …` | 解放し忘れ（リーク） |
+- `Resource being set to OM RenderTarget slot 0 is still bound on input`: 同じリソースを SRV と RTV で同時に束ねている（[Render Target View (RTV)](render-target-view.md)）
+- `The Pixel Shader unit expects a Sampler to be set at Slot 0`: サンプラーをつないでいない
+- `Vertex Shader linkage error`: 入力レイアウトと頂点シェーダーのセマンティクスが合わない
+- `The size of the Constant Buffer at slot 0 of the Vertex Shader unit is too small`: 定数バッファの大きさが、シェーダーの `cbuffer` より小さい
+- `Index buffer has not been set`: `DrawIndexed` の前に `IASetIndexBuffer` を呼んでいない
+- `Viewport 0 not set`: ビューポートを設定していない
+- `Live ID3D11Texture2D at …`: 解放し忘れ（リーク）
 
-メッセージの本文が解決のほとんどの、手がかりになっています。<strong>「分からない」と思ったらまず、出力ウィンドウを見る</strong>のが鉄則です。
+メッセージの本文が解決のほとんどの手がかりになっています。<strong>「分からない」と思ったらまず出力ウィンドウを見る</strong>のが鉄則です。
 
 ## グラフィックス デバッガー
 
-デバッグ レイヤーのメッセージで、分からない <strong>見た目の問題</strong>（「何も、映らない」「色がおかしい」）は、グラフィックス デバッガーで、1 フレームを撮って各ドロー コールの、入出力を目で見ます。
+デバッグ レイヤーのメッセージで、分からない <strong>見た目の問題</strong>（「何も映らない」「色がおかしい」）は、グラフィックス デバッガーで、1 フレームを撮って各ドロー コールの入出力を目で見ます。
 
-| ツール | 特徴 |
-| --- | --- |
-| Visual Studio グラフィックス診断 | VS 内蔵。フレームをキャプチャしてピクセルの、履歴（なぜその色か）を追える |
-| PIX on Windows | 無料。GPU カウンター、タイミング、シェーダーのデバッグ |
-| RenderDoc | 無料。軽量で D3D11 に強い。1 フレームを撮って各テクスチャ・バッファを見る |
-| NVIDIA Nsight Graphics | ベンダー固有の詳細な、プロファイル |
+- Visual Studio グラフィックス診断: VS 内蔵。フレームをキャプチャしてピクセルの履歴（なぜその色か）を追える
+- PIX on Windows: 無料。GPU カウンター、タイミング、シェーダーのデバッグ
+- RenderDoc: 無料。軽量で D3D11 に強い。1 フレームを撮って各テクスチャ・バッファを見る
+- NVIDIA Nsight Graphics: ベンダー固有の詳細な、プロファイル
 
 ```cpp
 // 計測用のマーカー: グラフィックス デバッガーで、パスの名前が見える。
@@ -162,16 +154,16 @@ annotation->EndEvent();
 
 ## よくあるミス
 
-??? failure "何も、描かれないのにメッセージも出ない"
+??? failure "何も描かれないのにメッセージも出ない"
     デバッグ レイヤーを有効にしていない（`D3D11_CREATE_DEVICE_DEBUG`）。Release ビルドで動かしている。
 
 ??? failure "`D3D11CreateDevice` が、デバッグ フラグで失敗する"
-    「グラフィックス ツール」の、オプション機能が入っていない。入れるかフラグを外して再試行する。
+    「グラフィックス ツール」のオプション機能が入っていない。入れるかフラグを外して再試行する。
 
 ??? failure "メッセージが多すぎて読めない"
     警告の一部をフィルタで絞る。`SetBreakOnSeverity` をエラーだけにして 1 つずつ直す。
 
-??? failure "リークの報告に大量の、オブジェクトが出る"
+??? failure "リークの報告に大量のオブジェクトが出る"
     `ComPtr` をデバイスより長く、持っている（グローバル変数、`static`）。終了時にリソースを先に解放してから `ReportLiveDeviceObjects`。
 
 ## これだけ覚える
@@ -182,7 +174,7 @@ annotation->EndEvent();
     - [x] `ID3D11InfoQueue` でエラー時にブレークする
     - [x] オブジェクトに名前を付ける（`SetPrivateData(WKPDID_D3DDebugObjectName…)`）
     - [x] 終了時に `ReportLiveDeviceObjects` で、リークを見つける
-    - [x] 見た目の問題は、PIX・RenderDoc で、1 フレームを撮る
+    - [x] 見た目の問題は PIX・RenderDoc で、1 フレームを撮る
 
 ## 関連ページ
 

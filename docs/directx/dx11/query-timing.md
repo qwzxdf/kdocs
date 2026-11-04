@@ -46,10 +46,8 @@ GpuTimer CreateGpuTimer(ID3D11Device* device) {
 }
 ```
 
-| クエリ | 内容 |
-| --- | --- |
-| `TIMESTAMP_DISJOINT` | 周波数（1 秒あたりのチック数）と途切れた（`Disjoint`）かどうか。`Begin` と `End` で囲む |
-| `TIMESTAMP` | ある瞬間の GPU の時刻（チック数）。`End` だけ（`Begin` は不要） |
+- `TIMESTAMP_DISJOINT`: 周波数（1 秒あたりのチック数）と途切れた（`Disjoint`）かどうか。`Begin` と `End` で囲む
+- `TIMESTAMP`: ある瞬間の GPU の時刻（チック数）。`End` だけ（`Begin` は不要）
 
 ### 測る
 
@@ -154,12 +152,10 @@ while (context->GetData(event_query.Get(), &done, sizeof(done), 0) != S_OK || !d
 
 ## 速さを測る別の方法
 
-| 方法 | 内容 |
-| --- | --- |
-| タイムスタンプ クエリ（このページ） | コードに埋め込み各パスのミリ秒を画面に表示する |
-| PIX（Windows） | 1 フレームを撮って、各ドロー コールの時間を見る。GPU カウンター |
-| RenderDoc | 1 フレームを撮って各段の入出力を見る。無料 |
-| NVIDIA Nsight、AMD Radeon GPU Profiler | ベンダー固有の詳細な、カウンター |
+- タイムスタンプ クエリ（このページ）: コードに埋め込み各パスのミリ秒を画面に表示する
+- PIX（Windows）: 1 フレームを撮って、各ドロー コールの時間を見る。GPU カウンター
+- RenderDoc: 1 フレームを撮って各段の入出力を見る。無料
+- NVIDIA Nsight、AMD Radeon GPU Profiler: ベンダー固有の詳細な、カウンター
 
 製品のゲームではタイムスタンプ クエリをデバッグ表示に組み込んでおくとどのパスが重いかをすぐに確認できます（[Tools](../../graphics/pipeline/tools.md)）。
 

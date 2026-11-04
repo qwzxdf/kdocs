@@ -14,12 +14,12 @@ api:
 `#include <d3d12.h>`
 </div>
 
-D3D12 では、描画の設定（シェーダー、ブレンド、深度テスト、ラスタライザー、頂点の並び、出力先の形式）をばらばらに切り替えません。すべてを 1 つの構造体にまとめて PSO（パイプライン ステート オブジェクト）として作っておき、描画の直前に丸ごと差し替えます。切り替えの検証を作成時に済ませておくので、描画中の負荷が少なくなります。このページでは、その PSO を作るための構造体を説明します。
+D3D12 では描画の設定（シェーダー、ブレンド、深度テスト、ラスタライザー、頂点の並び出力先の形式）をばらばらに切り替えません。すべてを 1 つの構造体にまとめて PSO（パイプライン ステート オブジェクト）として作っておき、描画の直前に丸ごと差し替えます。切り替えの検証を作成時に済ませておくので、描画中の負荷が少なくなります。このページではその PSO を作るための構造体を説明します。
 
 !!! tip "ポイント"
     - グラフィックスの PSO は `D3D12_GRAPHICS_PIPELINE_STATE_DESC` 1 つに全部入りで、`= {}` で初期化してから埋める。
     - `SampleMask` は `UINT_MAX` にする。0 のままだと何も描かれない。
-    - `NumRenderTargets` と `RTVFormats`、`DSVFormat` は、実際の出力先と一致させる。
+    - `NumRenderTargets` と `RTVFormats`、`DSVFormat` は実際の出力先と一致させる。
     - `FrontCounterClockwise` は左手系・CW が表のこのサイトでは既定の `FALSE` のままにする。
     - ラスタライザー、ブレンド、深度の既定の設定は [`MakeDefaultRasterizerDesc`](../util.md#makedefaultrasterizerdesc) などで作る。
 
@@ -69,7 +69,7 @@ typedef struct D3D12_GRAPHICS_PIPELINE_STATE_DESC {
 } D3D12_GRAPHICS_PIPELINE_STATE_DESC;
 ```
 
-描画に必要な設定を全部まとめた構造体です。メンバーが多いのですが、普通の描画で埋めるのは半分ほどで、残りは 0 のままにします。
+描画に必要な設定を全部まとめた構造体です。メンバーが多いのですが普通の描画で埋めるのは半分ほどで、残りは 0 のままにします。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -92,19 +92,19 @@ typedef struct D3D12_GRAPHICS_PIPELINE_STATE_DESC {
 | `CachedPSO` | `D3D12_CACHED_PIPELINE_STATE` | 保存しておいたコンパイル済みの PSO |
 | `Flags` | `D3D12_PIPELINE_STATE_FLAGS` | 通常は `NONE` |
 
-`pRootSignature` は、シェーダーに渡すリソースの置き場を宣言したルート シグネチャで、PSO を作るときに必ず要ります。シェーダー内の宣言（`[RootSignature(...)]`）と一致していないと、PSO の作成は失敗します。
+`pRootSignature` はシェーダーに渡すリソースの置き場を宣言したルート シグネチャで、PSO を作るときに必ず要ります。シェーダー内の宣言（`[RootSignature(...)]`）と一致していないと PSO の作成は失敗します。
 
-シェーダーは `D3D12_SHADER_BYTECODE` で渡します。頂点シェーダーとピクセル シェーダーの 2 つがあれば、普通の描画ができます。使わないステージは、`pShaderBytecode = nullptr`、`BytecodeLength = 0` のまま（ゼロ初期化のまま）にします。
+シェーダーは `D3D12_SHADER_BYTECODE` で渡します。頂点シェーダーとピクセル シェーダーの 2 つがあれば、普通の描画ができます。使わないステージは `pShaderBytecode = nullptr`、`BytecodeLength = 0` のまま（ゼロ初期化のまま）にします。
 
-`SampleMask` は、MSAA で更新するサンプルを選ぶ 32 ビットのマスクです。`0xFFFFFFFF`（`UINT_MAX`）にします。ゼロ初期化のまま 0 にしてしまうと、どのサンプルも更新されず、何も描かれません。MSAA を使わない場合でも同じです。
+`SampleMask` は MSAA で更新するサンプルを選ぶ 32 ビットのマスクです。`0xFFFFFFFF`（`UINT_MAX`）にします。ゼロ初期化のまま 0 にしてしまうとどのサンプルも更新されず何も描かれません。MSAA を使わない場合でも同じです。
 
-`PrimitiveTopologyType` は、点、線、三角形、パッチの大分類です。三角形のリストもストリップも `TRIANGLE` で、リストかストリップかは、描画時に `IASetPrimitiveTopology` で決めます。ゼロ初期化のまま `UNDEFINED` にすると、作成に失敗します。
+`PrimitiveTopologyType` は点、線、三角形、パッチの大分類です。三角形のリストもストリップも `TRIANGLE` で、リストかストリップかは描画時に `IASetPrimitiveTopology` で決めます。ゼロ初期化のまま `UNDEFINED` にすると、作成に失敗します。
 
-レンダー ターゲットは、`NumRenderTargets` に数、`RTVFormats[0]` からその形式を書きます。使わない配列の要素は `DXGI_FORMAT_UNKNOWN` のままにします。ここに書いた形式は、実際に `OMSetRenderTargets` で使うレンダー ターゲットの形式と一致していなければなりません。ずれると、描画時にデバッグ レイヤーがエラーを出します。バック バッファが `R8G8B8A8_UNORM` なら、PSO も同じにします。RTV を `_SRGB` で作った場合は、PSO も `_SRGB` です。深度バッファを使わないときは `DSVFormat` を `UNKNOWN` にし、使うなら `D32_FLOAT` などをビューの形式と一致させます。
+レンダー ターゲットは `NumRenderTargets` に数、`RTVFormats[0]` からその形式を書きます。使わない配列の要素は `DXGI_FORMAT_UNKNOWN` のままにします。ここに書いた形式は実際に `OMSetRenderTargets` で使うレンダー ターゲットの形式と一致していなければなりません。ずれると描画時にデバッグ レイヤーがエラーを出します。バック バッファが `R8G8B8A8_UNORM` なら PSO も同じにします。RTV を `_SRGB` で作った場合は PSO も `_SRGB` です。深度バッファを使わないときは `DSVFormat` を `UNKNOWN` にし、使うなら `D32_FLOAT` などをビューの形式と一致させます。
 
-`SampleDesc` は、MSAA を使わなければ `Count = 1`、`Quality = 0` です。`Count = 0` にしたままだと作成が失敗します。
+`SampleDesc` は MSAA を使わなければ `Count = 1`、`Quality = 0` です。`Count = 0` にしたままだと作成が失敗します。
 
-`CachedPSO` に前回保存した PSO のデータを渡すと、起動時のコンパイル時間を短縮できます。使わなければ 0 です。
+`CachedPSO` に前回保存した PSO のデータを渡すと起動時のコンパイル時間を短縮できます。使わなければ 0 です。
 
 ```cpp
 D3D12_GRAPHICS_PIPELINE_STATE_DESC pso = {};
@@ -126,8 +126,8 @@ HRESULT hr = device->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipeline_st
 
 !!! failure "よくあるミス"
     - `SampleMask` が 0 のままで、何も描かれない。
-    - `PrimitiveTopologyType` を設定せず、作成に失敗する。
-    - `RTVFormats` や `DSVFormat` が、実際のターゲットと違う。
+    - `PrimitiveTopologyType` を設定せず作成に失敗する。
+    - `RTVFormats` や `DSVFormat` が実際のターゲットと違う。
     - 入力レイアウトとシェーダーの入力が合わない。
 
 ### D3D12_COMPUTE_PIPELINE_STATE_DESC {#d3d12_compute_pipeline_state_desc}
@@ -142,7 +142,7 @@ typedef struct D3D12_COMPUTE_PIPELINE_STATE_DESC {
 } D3D12_COMPUTE_PIPELINE_STATE_DESC;
 ```
 
-コンピュート シェーダー用の PSO です。描画の設定が要らないので、メンバーはずっと少なくなります。
+コンピュート シェーダー用の PSO です。描画の設定が要らないのでメンバーはずっと少なくなります。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -170,14 +170,14 @@ typedef struct D3D12_SHADER_BYTECODE {
 } D3D12_SHADER_BYTECODE;
 ```
 
-コンパイル済みのシェーダーの、先頭のポインタと長さの組です。
+コンパイル済みのシェーダーの先頭のポインタと長さの組です。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `pShaderBytecode` | `const void*` | バイト コードの先頭 |
 | `BytecodeLength` | `SIZE_T` | バイト数 |
 
-`ID3DBlob`（コンパイル結果）の `GetBufferPointer()` と `GetBufferSize()` をそのまま入れます。この構造体は中身をコピーしません。ポインタを持つだけなので、PSO を作り終わるまで、元の blob を解放してはいけません（作成が終われば、もう要りません）。長さが 0 のままだと「そのステージを使わない」という意味になるので、渡し忘れたシェーダーは黙って無視され、絵が出ない原因になります。
+`ID3DBlob`（コンパイル結果）の `GetBufferPointer()` と `GetBufferSize()` をそのまま入れます。この構造体は中身をコピーしません。ポインタを持つだけなので PSO を作り終わるまで、元の blob を解放してはいけません（作成が終われば、もう要りません）。長さが 0 のままだと「そのステージを使わない」という意味になるので、渡し忘れたシェーダーは黙って無視され絵が出ない原因になります。
 
 ## 頂点の入力
 
@@ -204,18 +204,18 @@ typedef struct D3D12_INPUT_ELEMENT_DESC {
 | `Format` | `DXGI_FORMAT` | 要素の形式 |
 | `InputSlot` | `UINT` | どの頂点バッファから読むか（0〜15） |
 | `AlignedByteOffset` | `UINT` | 頂点の先頭からのバイト数 |
-| `InputSlotClass` | `D3D12_INPUT_CLASSIFICATION` | 頂点ごとか、インスタンスごとか |
-| `InstanceDataStepRate` | `UINT` | インスタンスごとのとき、何インスタンスで進めるか |
+| `InputSlotClass` | `D3D12_INPUT_CLASSIFICATION` | 頂点ごとかインスタンスごとか |
+| `InstanceDataStepRate` | `UINT` | インスタンスごとのとき何インスタンスで進めるか |
 
-`SemanticName` と `SemanticIndex` は、HLSL の頂点シェーダーの入力に付けたセマンティクス（`float3 pos : POSITION;`）と一致させます。`TEXCOORD1` なら名前が `"TEXCOORD"`、番号が 1 です。名前が合わないと、PSO の作成が失敗します。
+`SemanticName` と `SemanticIndex` は HLSL の頂点シェーダーの入力に付けたセマンティクス（`float3 pos : POSITION;`）と一致させます。`TEXCOORD1` なら名前が `"TEXCOORD"`、番号が 1 です。名前が合わないと PSO の作成が失敗します。
 
-`Format` は、C++ 側のメンバーの型に合わせます。`XMFLOAT3` なら `R32G32B32_FLOAT`、`XMFLOAT2` なら `R32G32_FLOAT`、`XMFLOAT4` の色なら `R32G32B32A32_FLOAT` です。8 ビットの色を `uint32_t` で持つなら `R8G8B8A8_UNORM` で、シェーダーには 0〜1 の `float4` として渡されます。
+`Format` は C++ 側のメンバーの型に合わせます。`XMFLOAT3` なら `R32G32B32_FLOAT`、`XMFLOAT2` なら `R32G32_FLOAT`、`XMFLOAT4` の色なら `R32G32B32A32_FLOAT` です。8 ビットの色を `uint32_t` で持つなら `R8G8B8A8_UNORM` で、シェーダーには 0〜1 の `float4` として渡されます。
 
-`AlignedByteOffset` は、頂点構造体の中の位置（`offsetof`）です。`D3D12_APPEND_ALIGNED_ELEMENT`（`0xffffffff`）を入れると、直前の要素の次に自動で詰めてくれるので、オフセットを数えるミスを防げます。
+`AlignedByteOffset` は頂点構造体の中の位置（`offsetof`）です。`D3D12_APPEND_ALIGNED_ELEMENT`（`0xffffffff`）を入れると直前の要素の次に自動で詰めてくれるので、オフセットを数えるミスを防げます。
 
-`InputSlot` は、頂点バッファを複数使うときだけ変えます。位置を 1 本、UV を別の 1 本、のように分けた構成です。
+`InputSlot` は頂点バッファを複数使うときだけ変えます。位置を 1 本、UV を別の 1 本、のように分けた構成です。
 
-`InputSlotClass` が `PER_VERTEX_DATA` なら頂点ごと、`PER_INSTANCE_DATA` なら、インスタンスごとにデータが進みます。インスタンス描画では、位置のようなメッシュ共通のデータは頂点ごと、インスタンスごとの行列などはインスタンスごとにします。`PER_VERTEX_DATA` のとき、`InstanceDataStepRate` は 0、`PER_INSTANCE_DATA` のときは 1 にします。
+`InputSlotClass` が `PER_VERTEX_DATA` なら頂点ごと `PER_INSTANCE_DATA` ならインスタンスごとにデータが進みます。インスタンス描画では位置のようなメッシュ共通のデータは頂点ごとインスタンスごとの行列などはインスタンスごとにします。`PER_VERTEX_DATA` のとき `InstanceDataStepRate` は 0、`PER_INSTANCE_DATA` のときは 1 にします。
 
 ```cpp
 struct Vertex {
@@ -269,17 +269,17 @@ typedef struct D3D12_RASTERIZER_DESC {
 | `ForcedSampleCount` | `UINT` | 通常は 0 |
 | `ConservativeRaster` | `D3D12_CONSERVATIVE_RASTERIZATION_MODE` | 通常は `OFF` |
 
-`FrontCounterClockwise` は、ミスが多いメンバーです。D3D12 の既定は `FALSE`（時計回りが表）で、このサイトの座標系（左手系、時計回りが表）と同じです。`TRUE` にするのは、反時計回りが表のメッシュ（読み込み時に頂点の順序を入れ替えていない glTF など）を描くときだけです。メッシュの並びとこの設定が食い違ったまま `CullMode = BACK` にすると、表のはずの面が消えて、裏側だけが見えます。
+`FrontCounterClockwise` はミスが多いメンバーです。D3D12 の既定は `FALSE`（時計回りが表）で、このサイトの座標系（左手系、時計回りが表）と同じです。`TRUE` にするのは反時計回りが表のメッシュ（読み込み時に頂点の順序を入れ替えていない glTF など）を描くときだけです。メッシュの並びとこの設定が食い違ったまま `CullMode = BACK` にすると、表のはずの面が消えて裏側だけが見えます。
 
-`CullMode` は、描かない面です。`BACK` は裏面を捨てます。閉じたメッシュでは、これで描画量が半分近くになります。薄い板や、両面が見えるものは `NONE` にします。
+`CullMode` は描かない面です。`BACK` は裏面を捨てます。閉じたメッシュではこれで描画量が半分近くになります。薄い板や両面が見えるものは `NONE` にします。
 
-`DepthBias` 系の 3 つは、影のマップなどで、自分の影が出る「シャドウ アクネ」を抑えるときに使います。通常の描画では 0 です。
+`DepthBias` 系の 3 つは影のマップなどで、自分の影が出る「シャドウ アクネ」を抑えるときに使います。通常の描画では 0 です。
 
-`DepthClipEnable` は、近平面や遠平面の外の三角形を切るかどうかです。`FALSE` にするのは、影のマップで太陽の外側の物も描きたいときなど、特殊な場面だけです。
+`DepthClipEnable` は近平面や遠平面の外の三角形を切るかどうかです。`FALSE` にするのは影のマップで太陽の外側の物も描きたいときなど特殊な場面だけです。
 
-`ForcedSampleCount` と `ConservativeRaster` は特殊な機能で、通常は 0 と `OFF` です。
+`ForcedSampleCount` と `ConservativeRaster` は特殊な機能で通常は 0 と `OFF` です。
 
-0 でゼロ初期化すると `FillMode` が 0（無効）になり、作成が失敗します。そのため、既定の組を返す [`MakeDefaultRasterizerDesc`](../util.md#makedefaultrasterizerdesc) から始めて、変えたいメンバーだけ書き換えます。
+0 でゼロ初期化すると `FillMode` が 0（無効）になり作成が失敗します。そのため、既定の組を返す [`MakeDefaultRasterizerDesc`](../util.md#makedefaultrasterizerdesc) から始めて、変えたいメンバーだけ書き換えます。
 
 ```cpp
 D3D12_RASTERIZER_DESC rasterizer = MakeDefaultRasterizerDesc();
@@ -315,7 +315,7 @@ typedef struct D3D12_RENDER_TARGET_BLEND_DESC {
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `AlphaToCoverageEnable` | `BOOL` | アルファを MSAA のカバレッジに変える（草の葉など） |
-| `IndependentBlendEnable` | `BOOL` | `TRUE` なら、レンダー ターゲットごとに別の設定 |
+| `IndependentBlendEnable` | `BOOL` | `TRUE` ならレンダー ターゲットごとに別の設定 |
 | `RenderTarget[i].BlendEnable` | `BOOL` | ブレンドをするか |
 | `RenderTarget[i].LogicOpEnable` | `BOOL` | 論理演算を使うか。`BlendEnable` と同時には使えない |
 | `RenderTarget[i].SrcBlend` | `D3D12_BLEND` | 新しい色にかける係数 |
@@ -325,11 +325,11 @@ typedef struct D3D12_RENDER_TARGET_BLEND_DESC {
 | `RenderTarget[i].LogicOp` | `D3D12_LOGIC_OP` | 論理演算。使わなければ `NOOP` |
 | `RenderTarget[i].RenderTargetWriteMask` | `UINT8` | 書き込む成分。全部なら `D3D12_COLOR_WRITE_ENABLE_ALL` |
 
-普通の半透明は、`SrcBlend = SRC_ALPHA`、`DestBlend = INV_SRC_ALPHA`、`BlendOp = ADD` です。式にすると、`新しい色 × α + 既存の色 × (1 − α)` になります。加算合成（光や火花）は、`SrcBlend = SRC_ALPHA`、`DestBlend = ONE` です。
+普通の半透明は `SrcBlend = SRC_ALPHA`、`DestBlend = INV_SRC_ALPHA`、`BlendOp = ADD` です。式にすると `新しい色 × α + 既存の色 × (1 − α)` になります。加算合成（光や火花）は `SrcBlend = SRC_ALPHA`、`DestBlend = ONE` です。
 
-`IndependentBlendEnable` が `FALSE` の間は、`RenderTarget[0]` の設定だけが、すべてのレンダー ターゲットに使われます。G-Buffer のように、ターゲットごとに異なる設定をしたいときだけ `TRUE` にして、`RenderTarget[1]` 以降も埋めます。
+`IndependentBlendEnable` が `FALSE` の間は `RenderTarget[0]` の設定だけが、すべてのレンダー ターゲットに使われます。G-Buffer のようにターゲットごとに異なる設定をしたいときだけ `TRUE` にして、`RenderTarget[1]` 以降も埋めます。
 
-`RenderTargetWriteMask` は 0 にすると、何も書き込みません。ゼロ初期化のあとに、`D3D12_COLOR_WRITE_ENABLE_ALL` を入れるのを忘れると、何も描かれません。そのため、既定の設定を返す [`MakeDefaultBlendDesc`](../util.md#makedefaultblenddesc) から始めます。`BlendEnable = FALSE` のとき、`SrcBlend` などは無視されますが、値自体は有効な列挙値（`ONE`、`ZERO`、`ADD`）にしておきます。
+`RenderTargetWriteMask` は 0 にすると何も書き込みません。ゼロ初期化のあとに `D3D12_COLOR_WRITE_ENABLE_ALL` を入れるのを忘れると、何も描かれません。そのため、既定の設定を返す [`MakeDefaultBlendDesc`](../util.md#makedefaultblenddesc) から始めます。`BlendEnable = FALSE` のとき `SrcBlend` などは無視されますが、値自体は有効な列挙値（`ONE`、`ZERO`、`ADD`）にしておきます。
 
 ```cpp
 D3D12_BLEND_DESC blend = MakeDefaultBlendDesc();
@@ -354,7 +354,7 @@ typedef struct D3D12_DEPTH_STENCIL_DESC {
 } D3D12_DEPTH_STENCIL_DESC;
 ```
 
-手前にあるものが奥を隠すための、深度テストを決めます。
+手前にあるものが奥を隠すための深度テストを決めます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -366,11 +366,11 @@ typedef struct D3D12_DEPTH_STENCIL_DESC {
 | `StencilWriteMask` | `UINT8` | ステンシルを書くマスク。通常は `0xFF` |
 | `FrontFace`、`BackFace` | `D3D12_DEPTH_STENCILOP_DESC` | 表と裏の動作 |
 
-不透明な物は `DepthEnable = TRUE`、`DepthWriteMask = ALL`、`DepthFunc = LESS` です。半透明の物は、不透明な物の奥には隠れるが、自分は深度を書かない、という設定にするので、`DepthEnable = TRUE` と `DepthWriteMask = ZERO` の組み合わせです。空（スカイボックス）などを最後に描くときは、`DepthFunc = LESS_EQUAL` にして、深度が最も奥（1.0）のピクセルだけが通るようにします。
+不透明な物は `DepthEnable = TRUE`、`DepthWriteMask = ALL`、`DepthFunc = LESS` です。半透明の物は不透明な物の奥には隠れるが、自分は深度を書かないという設定にするので、`DepthEnable = TRUE` と `DepthWriteMask = ZERO` の組み合わせです。空（スカイボックス）などを最後に描くときは、`DepthFunc = LESS_EQUAL` にして深度が最も奥（1.0）のピクセルだけが通るようにします。
 
-`DepthEnable = FALSE` にすると、`DepthWriteMask` も効かず、深度バッファに何も書かれません。2D の UI やポスト プロセスは、深度を使わないので `FALSE` です。
+`DepthEnable = FALSE` にすると `DepthWriteMask` も効かず深度バッファに何も書かれません。2D の UI やポスト プロセスは、深度を使わないので `FALSE` です。
 
-ステンシルを使わないなら `StencilEnable = FALSE` のままにし、残りの 4 メンバーは既定の組に任せます。ゼロ初期化のままだと、`DepthFunc` が 0（無効）になって作成が失敗するので、[`MakeDefaultDepthStencilDesc`](../util.md#makedefaultdepthstencildesc) から始めます。
+ステンシルを使わないなら `StencilEnable = FALSE` のままにし、残りの 4 メンバーは既定の組に任せます。ゼロ初期化のままだと `DepthFunc` が 0（無効）になって作成が失敗するので、[`MakeDefaultDepthStencilDesc`](../util.md#makedefaultdepthstencildesc) から始めます。
 
 ### D3D12_DEPTH_STENCILOP_DESC {#d3d12_depth_stencilop_desc}
 
@@ -392,9 +392,9 @@ typedef struct D3D12_DEPTH_STENCILOP_DESC {
 | `StencilPassOp` | `D3D12_STENCIL_OP` | 両方通ったときの動作 |
 | `StencilFunc` | `D3D12_COMPARISON_FUNC` | ステンシル値と参照値の比較 |
 
-動作は `KEEP`（そのまま）、`REPLACE`（参照値に置き換える）、`INCR`、`DECR` などです。ステンシルを使わない場合は、3 つを `KEEP`、`StencilFunc` を `ALWAYS` にします（これが既定の値です）。
+動作は `KEEP`（そのまま）、`REPLACE`（参照値に置き換える）、`INCR`、`DECR` などです。ステンシルを使わない場合は 3 つを `KEEP`、`StencilFunc` を `ALWAYS` にします（これが既定の値です）。
 
-たとえば「輪郭を描く」「鏡の中だけ描く」などの用途では、先に `StencilPassOp = REPLACE` で目印の 1 を書き、次に `StencilFunc = EQUAL`、`KEEP` で、目印のあるところだけを描きます。参照値は `OMSetStencilRef` で渡します。
+たとえば「輪郭を描く」「鏡の中だけ描く」などの用途では、先に `StencilPassOp = REPLACE` で目印の 1 を書き次に `StencilFunc = EQUAL`、`KEEP` で目印のあるところだけを描きます。参照値は `OMSetStencilRef` で渡します。
 
 ## 関連ページ
 

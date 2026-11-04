@@ -6,16 +6,16 @@ tags:
 
 # Terrain Generation
 
-<strong>地形を手で作るのは大変なので、ノイズなどから自動で生成します</strong>。<strong>ノイズを重ねて山を作り、侵食で自然な谷を刻み、川を流す</strong>のが標準的な流れです。このセクションでは、ノイズ・fBm・リッジ ノイズ・ドメイン ワーピング・高さへの変換・侵食・川と湖・生成のタイミング・配置の生成を 1 つずつ別のページで説明します。
+<strong>地形を手で作るのは大変なので、ノイズなどから自動で生成します</strong>。<strong>ノイズを重ねて山を作り侵食で自然な谷を刻み川を流す</strong>のが標準的な流れです。このセクションではノイズ・fBm・リッジ ノイズ・ドメイン ワーピング・高さへの変換・侵食・川と湖・生成のタイミング・配置の生成を 1 つずつ別のページで説明します。
 
 ## ノイズとは
 <strong>ノイズ関数</strong>は<strong>位置を入れると滑らかに変化するランダムな値を返す</strong>関数です。同じ位置はいつも同じ値（決定的）で、近い位置は近い値になります。
 
-ノイズには 3 種類あります。値ノイズ（Value noise）は、格子点にランダムな値を置き、間を補間します。簡単ですが、格子の向きが目立ちます。勾配ノイズ（Perlin / Simplex）は、格子点にランダムな勾配（向き）を置き、その内積を補間します。自然で滑らかです。ワーリー ノイズ（Worley / セル）は、ランダムな点からの距離で、石・細胞・ひび割れのような模様になります。
+ノイズには 3 種類あります。値ノイズ（Value noise）は、格子点にランダムな値を置き間を補間します。簡単ですが格子の向きが目立ちます。勾配ノイズ（Perlin / Simplex）は、格子点にランダムな勾配（向き）を置きその内積を補間します。自然で滑らかです。ワーリー ノイズ（Worley / セル）は、ランダムな点からの距離で石・細胞・ひび割れのような模様になります。
 
 ### 値ノイズ
 
-<strong>2D の値ノイズ</strong>は、<strong>位置の整数部が属する格子の 4 隅の値を小数部で補間</strong>します。
+<strong>2D の値ノイズ</strong>は <strong>位置の整数部が属する格子の 4 隅の値を小数部で補間</strong>します。
 
 ```hlsl
 float Hash(int2 p) {
@@ -37,11 +37,11 @@ float ValueNoise(float2 p) {
 }
 ```
 
-値ノイズのコードの要点です。`f·f·(3 − 2f)` は smoothstep で補間の重みを滑らかにし、格子の境で傾きが連続になります。ハッシュ関数は、整数の格子座標から再現性のある乱数を作ります。値の範囲は 0〜1 で、使うときは −1〜1 に直すこともあります。
+値ノイズのコードの要点です。`f·f·(3 − 2f)` は smoothstep で補間の重みを滑らかにし、格子の境で傾きが連続になります。ハッシュ関数は整数の格子座標から再現性のある乱数を作ります。値の範囲は 0〜1 で使うときは −1〜1 に直すこともあります。
 
 ### 勾配ノイズ（Perlin）
 
-<strong>勾配ノイズ</strong>は<strong>各格子点にランダムな単位ベクトル（勾配）</strong>を持ち、<strong>点から位置までのベクトルとの内積</strong>を補間します。値ノイズより、向きの偏りが少なく、自然な見た目です。
+<strong>勾配ノイズ</strong>は<strong>各格子点にランダムな単位ベクトル（勾配）</strong>を持ち <strong>点から位置までのベクトルとの内積</strong>を補間します。値ノイズより向きの偏りが少なく、自然な見た目です。
 
 ```hlsl
 float2 GradientAt(int2 p) {
@@ -62,9 +62,9 @@ float PerlinNoise(float2 p) {
 }
 ```
 
-Perlin ノイズのコードの要点です。補間の重みは `6f⁵ − 15f⁴ + 10f³` で、改良版の Perlin ノイズです。2 階微分も連続で、法線の見た目が滑らかになります。値の範囲はおおよそ −0.7〜0.7 です。Simplex ノイズは、正方格子でなく三角格子を使い、方向の偏りと計算量が少なくなります。
+Perlin ノイズのコードの要点です。補間の重みは `6f⁵ − 15f⁴ + 10f³` で改良版の Perlin ノイズです。2 階微分も連続で法線の見た目が滑らかになります。値の範囲はおおよそ −0.7〜0.7 です。Simplex ノイズは正方格子でなく三角格子を使い方向の偏りと計算量が少なくなります。
 
-原典は、Perlin の "An Image Synthesizer"（SIGGRAPH 1985）と、改良版の "Improving Noise"（SIGGRAPH 2002）、Worley の "A Cellular Texture Basis Function"（SIGGRAPH 1996）です。
+原典は Perlin の "An Image Synthesizer"（SIGGRAPH 1985）と、改良版の "Improving Noise"（SIGGRAPH 2002）、Worley の "A Cellular Texture Basis Function"（SIGGRAPH 1996）です。
 
 ## ページ一覧
 
@@ -76,7 +76,7 @@ Perlin ノイズのコードの要点です。補間の重みは `6f⁵ − 15f�
 | [Converting Noise to Height](height-conversion.md) | ノイズを地形の高さに |
 | [Erosion](erosion.md) | 雨と流れによる地形変化 |
 | [Rivers and Lakes](rivers.md) | 水の流れの生成 |
-| [When to Generate](timing.md) | 事前か、実行時か |
+| [When to Generate](timing.md) | 事前か実行時か |
 | [Placement Generation](placement.md) | 木・岩の自動配置 |
 
 ## これだけ覚える

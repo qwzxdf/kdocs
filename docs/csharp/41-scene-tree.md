@@ -6,36 +6,36 @@ tags:
 
 # 第 41 章 シーン ツリー
 
-この章では、`SceneDocument` を木（ツリー）として表示して、物の選択、名前の変更、追加、削除、そしてドラッグ アンド ドロップによる親子づけができるようにします。`TreeView`、`HierarchicalDataTemplate`、右クリック メニュー、キー操作、ドラッグ アンド ドロップが一度に出てくる章です。
+この章では `SceneDocument` を木（ツリー）として表示して、物の選択、名前の変更、追加、削除、そしてドラッグ アンド ドロップによる親子づけができるようにします。`TreeView`、`HierarchicalDataTemplate`、右クリック メニュー、キー操作、ドラッグ アンド ドロップが一度に出てくる章です。
 
 !!! info "このページを読む前に"
     - [第 40 章 シーンのデータと API](40-scene-api.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
     | `Scene/ISelectionService.cs`（新規） | 選択を持つサービスの窓口 |
-    | `Scene/SelectionService.cs`（変更） | 1 つだけ選べる簡易版を、複数選択に作り直す |
+    | `Scene/SelectionService.cs`（変更） | 1 つだけ選べる簡易版を複数選択に作り直す |
     | `SceneTree/SceneTreeViewModel.cs`（変更） | ダミーの一覧を捨てて、`SceneDocument` を見る |
     | `SceneTree/SceneTreeView.xaml`（変更） | ツリー（`TreeView`）の画面に作り直す |
-    | `SceneTree/SceneTreeView.xaml.cs`（新規） | ツリーの選択と、ドラッグ アンド ドロップを受ける |
+    | `SceneTree/SceneTreeView.xaml.cs`（新規） | ツリーの選択とドラッグ アンド ドロップを受ける |
 
 !!! note "第 23〜24 章のダミーからの置き換え"
-    Editor のシーン ツリーは、第 23 章でダミーの物（`SceneObjectViewModel`）を持つ `SceneTreeViewModel` として作り、第 24 章で選択サービス（`SelectionService`）をつなぎました。この章で、次のように置き換えます。
+    Editor のシーン ツリーは、第 23 章でダミーの物（`SceneObjectViewModel`）を持つ `SceneTreeViewModel` として作り第 24 章で選択サービス（`SelectionService`）をつなぎました。この章で次のように置き換えます。
 
-    - `SceneObjectViewModel` は使わなくなります（ファイルは消します）。ツリーは、第 40 章の `SceneDocument.Roots` にある `SceneObject` を、直接見ます。
-    - `SelectionService` は、1 つだけ選べる簡易版から、複数選べる形に作り直します。
-    - `SceneTreeViewModel` と `SceneTreeView.xaml` は、ダミーの一覧を捨てて、`SceneDocument` と `ISelectionService` を受け取る形に書き換えます。
+    - `SceneObjectViewModel` は使わなくなります（ファイルは消します）。ツリーは第 40 章の `SceneDocument.Roots` にある `SceneObject` を直接見ます。
+    - `SelectionService` は 1 つだけ選べる簡易版から、複数選べる形に作り直します。
+    - `SceneTreeViewModel` と `SceneTreeView.xaml` はダミーの一覧を捨てて、`SceneDocument` と `ISelectionService` を受け取る形に書き換えます。
     - `PropertyViewModel` も選択を読んでいるので、次の章で作り直します。
 
 
 ## ツリーはドキュメントの見た目にすぎない
 
-シーン ツリーの原則は、第 14 章の MVVM と同じです。ツリーは、`SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見て、ツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることは、しません。
+シーン ツリーの原則は第 14 章の MVVM と同じです。ツリーは `SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見てツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることはしません。
 
-選択も同じ考え方です。「いま何が選ばれているか」は、ツリーだけの話ではありません。ビューポート（黄色い枠）も、プロパティ パネルも知りたい情報です。そこで、選択を持つサービス（`ISelectionService`）を作って、ツリー、ビューポート、プロパティの 3 者がそのサービスを介してやり取りする形にします（第 24 章の考え方です）。
+選択も同じ考え方です。「いま何が選ばれているか」はツリーだけの話ではありません。ビューポート（黄色い枠）もプロパティ パネルも知りたい情報です。そこで、選択を持つサービス（`ISelectionService`）を作ってツリー、ビューポート、プロパティの 3 者がそのサービスを介してやり取りする形にします（第 24 章の考え方です）。
 
 ```text
 ツリーで選ぶ ─▶ ISelectionService ─▶ プロパティ パネルが切り替わる
@@ -45,7 +45,7 @@ tags:
 
 ## 選択サービス
 
-第 24 章では、1 つだけ選べる簡易版（`SceneObjectViewModel` を 1 つ持つ）を書きました。ここで、シーンの物（`SceneObject`）を、複数持てる形に作り直します。
+第 24 章では 1 つだけ選べる簡易版（`SceneObjectViewModel` を 1 つ持つ）を書きました。ここでシーンの物（`SceneObject`）を複数持てる形に作り直します。
 
 ```csharp title="Scene/ISelectionService.cs（新規）"
 namespace Editor.Scene;
@@ -139,11 +139,11 @@ public sealed class SelectionService : ISelectionService
 }
 ```
 
-`IReadOnlyList<T>` は、読み取り専用のリストです。`List<T>` をこの型で見せれば、外から `Add` される心配がありません。最後に選んだ物を `Insert(0, obj)` で先頭に入れて、それを `Primary`（主の選択）と呼びます。
+`IReadOnlyList<T>` は読み取り専用のリストです。`List<T>` をこの型で見せれば外から `Add` される心配がありません。最後に選んだ物を `Insert(0, obj)` で先頭に入れて、それを `Primary`（主の選択）と呼びます。
 
-`RaiseChanged` の `_selection.Select(o => o.Id).ToArray()` の `Select` は、LINQ の変換用の関数で、クラス自身の `Select` メソッドとは別物です。ここで ID の配列を作ってから `Post` している点にも注目してください。描画スレッドで実行される時点の選択ではなく、今の選択のコピーを送るためです（第 40 章と同じ理由です）。
+`RaiseChanged` の `_selection.Select(o => o.Id).ToArray()` の `Select` は LINQ の変換用の関数で、クラス自身の `Select` メソッドとは別物です。ここで ID の配列を作ってから `Post` している点にも注目してください。描画スレッドで実行される時点の選択ではなく、今の選択のコピーを送るためです（第 40 章と同じ理由です）。
 
-`SceneObject` には、画面の状態を持たせるプロパティを足します。保存はしない値です。
+`SceneObject` には画面の状態を持たせるプロパティを足します。保存はしない値です。
 
 ```csharp
 // SceneObject.cs に追加
@@ -157,7 +157,7 @@ private bool _isExpanded = true;
 private bool _isEditing;
 ```
 
-エンジンに選択を伝えるために、`IEngineService` に `SceneSetSelection(uint[] ids)` を足して、P/Invoke の宣言も書きます。
+エンジンに選択を伝えるために `IEngineService` に `SceneSetSelection(uint[] ids)` を足して、P/Invoke の宣言も書きます。
 
 ```csharp
 [LibraryImport(Dll)]
@@ -178,7 +178,7 @@ public void SceneSetSelection(uint[] ids)
 }
 ```
 
-`fixed (uint* p = ids)` は、配列をピン留めして（GC に動かされないようにして）先頭のポインターを得る書き方です。ブロックを出ると解除されます。配列を C++ に渡すときの定番です。長さ 0 の配列だと `p` が `null` になりますが、C++ 側が `count == 0` のとき `ids` を読まない作りにしてあるので（第 40 章）、問題ありません。
+`fixed (uint* p = ids)` は配列をピン留めして（GC に動かされないようにして）先頭のポインターを得る書き方です。ブロックを出ると解除されます。配列を C++ に渡すときの定番です。長さ 0 の配列だと `p` が `null` になりますが、C++ 側が `count == 0` のとき `ids` を読まない作りにしてあるので（第 40 章）、問題ありません。
 
 ## ビューモデル
 
@@ -261,9 +261,9 @@ public partial class SceneTreeViewModel
 }
 ```
 
-選択が必要なコマンド（子を追加、削除、名前の変更）は、`[RelayCommand(CanExecute = nameof(HasPrimary))]` で、選択があるときだけ押せるようにしています。選択が変わったら `NotifyCanExecuteChanged()` で、押せるかどうかを聞き直させます（第 14 章）。`SelectionChanged` は、ビューモデルのプロパティではなく、サービスの C# のイベントなので、`[NotifyCanExecuteChangedFor]` は使えません。イベントを受けて、手で呼びます。`Roots` は、ドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
+選択が必要なコマンド（子を追加、削除、名前の変更）は `[RelayCommand(CanExecute = nameof(HasPrimary))]` で選択があるときだけ押せるようにしています。選択が変わったら `NotifyCanExecuteChanged()` で押せるかどうかを聞き直させます（第 14 章）。`SelectionChanged` はビューモデルのプロパティではなく、サービスの C# のイベントなので、`[NotifyCanExecuteChangedFor]` は使えません。イベントを受けて手で呼びます。`Roots` はドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
 
-`Reparent` の空の `catch` に注目してください。輪になる移動は、想定内の失敗なので、静かに無視します。ただし、握りつぶすのは `InvalidOperationException` だけです。想定外の例外まで握りつぶさないように、型を限定しています。
+`Reparent` の空の `catch` に注目してください。輪になる移動は想定内の失敗なので、静かに無視します。ただし、握りつぶすのは `InvalidOperationException` だけです。想定外の例外まで握りつぶさないように型を限定しています。
 
 ## ビュー（XAML）
 
@@ -296,11 +296,11 @@ public partial class SceneTreeViewModel
 </UserControl>
 ```
 
-`TreeView` の `ItemsSource` には、最上位の要素の集まりを渡します。`AllowDrop="True"` は、ドラッグ アンド ドロップを受ける側になれる指定です。`InputBindings` の `KeyBinding` は、キー操作をコマンドに結びます（`Modifiers="Control" Key="D"` のように、修飾キー付きも書けます）。
+`TreeView` の `ItemsSource` には最上位の要素の集まりを渡します。`AllowDrop="True"` はドラッグ アンド ドロップを受ける側になれる指定です。`InputBindings` の `KeyBinding` はキー操作をコマンドに結びます（`Modifiers="Control" Key="D"` のように修飾キー付きも書けます）。
 
 ### 木の見た目：HierarchicalDataTemplate
 
-木の各要素の見た目と、子の取り出し方を指定します。
+木の各要素の見た目と子の取り出し方を指定します。
 
 ```xml
 <TreeView.Resources>
@@ -336,9 +336,9 @@ public partial class SceneTreeViewModel
 </TreeView.Resources>
 ```
 
-`HierarchicalDataTemplate` は、`DataTemplate` に「子の集まりをどこから取るか」（`ItemsSource="{Binding Children}"`）を加えたものです。子も同じテンプレートで、再帰的に表示されます。`DataType="{x:Type models:SceneObject}"` と書くと、「この型のデータには、自動でこのテンプレートを使う」という意味になり、`ItemTemplate` を書かなくても、型で選ばれます。
+`HierarchicalDataTemplate` は `DataTemplate` に「子の集まりをどこから取るか」（`ItemsSource="{Binding Children}"`）を加えたものです。子も同じテンプレートで再帰的に表示されます。`DataType="{x:Type models:SceneObject}"` と書くと「この型のデータには自動でこのテンプレートを使う」という意味になり、`ItemTemplate` を書かなくても型で選ばれます。
 
-名前の部分は、通常は `TextBlock` で表示して、`F2` で `IsEditing` が `true` になったら、`TextBlock` を隠して `TextBox` を出す、という切り替えをしています。切り替えには `DataTrigger`（データの値に応じて見た目を変えるトリガー。第 11 章）を使いました。
+名前の部分は通常は `TextBlock` で表示して、`F2` で `IsEditing` が `true` になったら、`TextBlock` を隠して `TextBox` を出すという切り替えをしています。切り替えには `DataTrigger`（データの値に応じて見た目を変えるトリガー。第 11 章）を使いました。
 
 ### 選択と展開をバインドする
 
@@ -351,9 +351,9 @@ public partial class SceneTreeViewModel
 </TreeView.ItemContainerStyle>
 ```
 
-`TreeView.SelectedItem` は読み取り専用なので、バインディングできません。そこで、各 `TreeViewItem` の `IsSelected` をデータの `IsSelected` にバインドします。これで、ツリーでクリックすると `SceneObject.IsSelected = true` になり、コードで `IsSelected = true` にすると（ビューポートで選んだときなど）ツリーの選択も追従します。
+`TreeView.SelectedItem` は読み取り専用なのでバインディングできません。そこで、各 `TreeViewItem` の `IsSelected` をデータの `IsSelected` にバインドします。これでツリーでクリックすると `SceneObject.IsSelected = true` になりコードで `IsSelected = true` にすると（ビューポートで選んだときなど）ツリーの選択も追従します。
 
-ただし、これだけでは、ツリーのクリックが `ISelectionService` に届きません。クリックを伝える橋をコードビハインドに作ります。
+ただし、これだけではツリーのクリックが `ISelectionService` に届きません。クリックを伝える橋をコードビハインドに作ります。
 
 ### ツリーの選択をサービスに伝える
 
@@ -384,10 +384,10 @@ public partial class SceneTreeView : UserControl
 }
 ```
 
-`e.NewValue is SceneObject obj` で、型の確認と取り出しを一度にやっています。
+`e.NewValue is SceneObject obj` で型の確認と取り出しを一度にやっています。
 
 !!! note "無限ループにならないか？"
-    `Select(obj)` が `obj.IsSelected = true` にする → ツリーが更新される → `SelectedItemChanged` が呼ばれる → `OnItemSelected` → `Select(obj)`、と、ぐるぐる回りそうに見えます。実際は、「すでに同じ物が先頭にあるなら何もしない」ことで止まります。念のため、`Select` の先頭に同じ選択なら何もせず戻る検査を入れておくと安全です。
+    `Select(obj)` が `obj.IsSelected = true` にする → ツリーが更新される → `SelectedItemChanged` が呼ばれる → `OnItemSelected` → `Select(obj)`、とぐるぐる回りそうに見えます。実際は、「すでに同じ物が先頭にあるなら何もしない」ことで止まります。念のため `Select` の先頭に同じ選択なら何もせず戻る検査を入れておくと安全です。
 
 ## 右クリック メニュー
 
@@ -403,7 +403,7 @@ public partial class SceneTreeView : UserControl
 </TreeView.ContextMenu>
 ```
 
-`ContextMenu` は、部品の木の外にある独立したウィンドウなので、`{Binding}` が `DataContext` を引き継ぎません。メニューのコマンドが効かないときは、`PlacementTarget`（`ContextMenu` を開いた元の部品、ここでは `TreeView`）を経由して、その `DataContext`（ビューモデル）を指します。
+`ContextMenu` は部品の木の外にある独立したウィンドウなので、`{Binding}` が `DataContext` を引き継ぎません。メニューのコマンドが効かないときは `PlacementTarget`（`ContextMenu` を開いた元の部品、ここでは `TreeView`）を経由してその `DataContext`（ビューモデル）を指します。
 
 ```xml
 <MenuItem Header="削除"
@@ -411,7 +411,7 @@ public partial class SceneTreeView : UserControl
                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
 ```
 
-`RelativeSource={RelativeSource AncestorType=ContextMenu}` は、「祖先の `ContextMenu`」をバインディングの元にする書き方です（第 15 章）。
+`RelativeSource={RelativeSource AncestorType=ContextMenu}` は「祖先の `ContextMenu`」をバインディングの元にする書き方です（第 15 章）。
 
 ## ドラッグ アンド ドロップで親子を変える
 
@@ -457,11 +457,11 @@ private static SceneObject? FindObjectAt(DependencyObject? source)
 }
 ```
 
-`Preview` で始まるイベント（`PreviewMouseLeftButtonDown`）は、トンネリングといって、親から子へ向かって伝わるので、通常のイベントより先に、親で受け取れます（第 10 章）。
+`Preview` で始まるイベント（`PreviewMouseLeftButtonDown`）はトンネリングといって、親から子へ向かって伝わるので、通常のイベントより先に親で受け取れます（第 10 章）。
 
-マウスを少し動かしただけでドラッグを始めてしまうと、クリックで選択できなくなります。そこで、OS が決めている「ドラッグとみなす最小の距離」（`SystemParameters.MinimumHorizontalDragDistance`、通常 4 ピクセル）を超えるまでは、クリック扱いにしています。距離を超えたら `DragDrop.DoDragDrop` でドラッグを始めます。ドロップされるまで、この関数は戻りません。
+マウスを少し動かしただけでドラッグを始めてしまうとクリックで選択できなくなります。そこで、OS が決めている「ドラッグとみなす最小の距離」（`SystemParameters.MinimumHorizontalDragDistance`、通常 4 ピクセル）を超えるまではクリック扱いにしています。距離を超えたら `DragDrop.DoDragDrop` でドラッグを始めます。ドロップされるまでこの関数は戻りません。
 
-クリックされた場所の部品（`e.OriginalSource`）は、たいてい中の `TextBlock` などです。そこから `VisualTreeHelper.GetParent` で親をたどって、`TreeViewItem` を探し、そのデータ（`SceneObject`）を取り出しています。
+クリックされた場所の部品（`e.OriginalSource`）はたいてい中の `TextBlock` などです。そこから `VisualTreeHelper.GetParent` で親をたどって、`TreeViewItem` を探しそのデータ（`SceneObject`）を取り出しています。
 
 ### ドロップを受ける
 
@@ -484,22 +484,22 @@ private void OnDrop(object sender, DragEventArgs e)
 }
 ```
 
-`DragOver` は、ドラッグ中に部品の上を通るたびに呼ばれ、ここで「ドロップを許可するか」を `e.Effects` で答えます。`Drop` で、ドラッグされてきたデータを取り出して、ビューモデルの `Reparent` を呼びます。空白にドロップしたときは `FindObjectAt` が `null` を返すので、最上位に戻す操作になります。
+`DragOver` はドラッグ中に部品の上を通るたびに呼ばれここで「ドロップを許可するか」を `e.Effects` で答えます。`Drop` でドラッグされてきたデータを取り出して、ビューモデルの `Reparent` を呼びます。空白にドロップしたときは `FindObjectAt` が `null` を返すので、最上位に戻す操作になります。
 
 ## 動かして確かめる
 
-- 「＋ 追加」で、ツリーに項目が増え、ビューポートに箱が出て、黄色になる。
-- 項目をクリックすると、その箱が黄色になって、ほかは灰色になる。
-- 「＋ 子」で、選択中の物の下に子ができる（ツリーでは入れ子になる）。
+- 「＋ 追加」でツリーに項目が増えビューポートに箱が出て、黄色になる。
+- 項目をクリックするとその箱が黄色になって、ほかは灰色になる。
+- 「＋ 子」で選択中の物の下に子ができる（ツリーでは入れ子になる）。
 - `F2` で名前を編集できる。`Enter` かフォーカスを外すと確定する。
-- `Delete` で、選択中の物と子が消える。ビューポートからも消える。
-- 別の項目の上にドロップすると、その子になる。空白へのドロップで最上位に戻る。自分の子孫の下へのドロップは、何も起きない。
+- `Delete` で選択中の物と子が消える。ビューポートからも消える。
+- 別の項目の上にドロップすると、その子になる。空白へのドロップで最上位に戻る。自分の子孫の下へのドロップは何も起きない。
 
 ??? failure "ツリーに何も出ない"
-    `ItemsSource` のバインディングが失敗しています（出力ウィンドウを見ます）。`HierarchicalDataTemplate` の `DataType` が合っていないか、`xmlns:models` の指定が違っているかもしれません。
+    `ItemsSource` のバインディングが失敗しています（出力ウィンドウを見ます）。`HierarchicalDataTemplate` の `DataType` が合っていないか `xmlns:models` の指定が違っているかもしれません。
 
 ??? failure "展開や選択の状態がおかしくなる"
-    `TreeViewItem` は画面外に出ると再利用されます。状態を `TreeViewItem` ではなく、データの `IsExpanded` / `IsSelected` に持たせていれば、再利用されても崩れません。
+    `TreeViewItem` は画面外に出ると再利用されます。状態を `TreeViewItem` ではなくデータの `IsExpanded` / `IsSelected` に持たせていれば、再利用されても崩れません。
 
 ??? failure "`F2` を押しても、編集にならない"
     `TextBox` にフォーカスが移っていません。`IsEditing` が `true` になった直後に `TextBox` に `Focus()` を呼ぶ処理が要ります。`TextBox.Loaded` で `Focus` と `SelectAll` を呼ぶのが簡単です。
@@ -508,19 +508,19 @@ private void OnDrop(object sender, DragEventArgs e)
     `MinimumHorizontalDragDistance` の検査が抜けています。
 
 ??? failure "右クリックのメニューが反応しない"
-    `ContextMenu` は `DataContext` を引き継ぎません。`PlacementTarget.DataContext` 経由で、コマンドを指します。
+    `ContextMenu` は `DataContext` を引き継ぎません。`PlacementTarget.DataContext` 経由でコマンドを指します。
 
 ??? failure "削除したのに、ツリーに残る"
-    `Destroy` で `Children` / `Roots` から `Remove` していません。`ObservableCollection` から消さないと、画面は変わりません。
+    `Destroy` で `Children` / `Roots` から `Remove` していません。`ObservableCollection` から消さないと画面は変わりません。
 
 ## この章のまとめ
 
 - ツリーはドキュメントを見るだけ。変更はコマンドでドキュメントを変える。
-- 選択は `ISelectionService` を介して、ツリー、ビューポート、プロパティで共有する。
-- 木の見た目と子の取り出し方は、`HierarchicalDataTemplate` で決める。
+- 選択は `ISelectionService` を介してツリー、ビューポート、プロパティで共有する。
+- 木の見た目と子の取り出し方は `HierarchicalDataTemplate` で決める。
 - `TreeViewItem` の `IsSelected` と `IsExpanded` をデータにバインドする。
-- ドラッグ アンド ドロップは、`DoDragDrop`、`DragOver`、`Drop` の組み合わせ。
+- ドラッグ アンド ドロップは `DoDragDrop`、`DragOver`、`Drop` の組み合わせ。
 
-次の章では、選択中の物の位置、回転、拡大、色を入力欄で編集できるようにします。
+次の章では選択中の物の位置、回転、拡大、色を入力欄で編集できるようにします。
 
 [第 42 章 プロパティ パネル](42-property-panel.md) へ進みます。

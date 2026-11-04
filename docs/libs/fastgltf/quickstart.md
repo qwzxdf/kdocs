@@ -52,13 +52,11 @@ bool LoadModel(const std::filesystem::path& path, fastgltf::Asset& out) {
 }
 ```
 
-| 部分 | 意味 |
-| --- | --- |
-| **`Parser(Extensions)`** | 使う拡張をビットフラグで指定（指定しないと、その拡張を使うファイルはエラー） |
-| `GltfDataBuffer::FromPath` | ファイルをメモリに読む（`Expected`）。古い版は `loadFromFile` など別の書き方 |
-| `loadGltf(data, 基準フォルダ, Options)` | 解析して、`Asset` を作る。基準フォルダは外部ファイル（`.bin`・画像）を探す場所 |
-| `Options::LoadExternalBuffers` | `.bin` を読み込む（指定しないと場所（URI）だけを持つ） |
-| `Error` | エラーの種類（`Error::None` なら成功）。`getErrorMessage` で説明 |
+- **`Parser(Extensions)`**: 使う拡張をビットフラグで指定（指定しないと、その拡張を使うファイルはエラー）
+- `GltfDataBuffer::FromPath`: ファイルをメモリに読む（`Expected`）。古い版は `loadFromFile` など別の書き方
+- `loadGltf(data, 基準フォルダ, Options)`: 解析して、`Asset` を作る。基準フォルダは外部ファイル（`.bin`・画像）を探す場所
+- `Options::LoadExternalBuffers`: `.bin` を読み込む（指定しないと場所（URI）だけを持つ）
+- `Error`: エラーの種類（`Error::None` なら成功）。`getErrorMessage` で説明
 
 !!! note ".glb と .gltf"
     `.glb` も`.gltf` も`loadGltf` が、自動判別します（ファイルの種類を確認して、それぞれの読み方で処理）。tinygltf のように関数を分ける必要は、ありません。
@@ -67,13 +65,11 @@ bool LoadModel(const std::filesystem::path& path, fastgltf::Asset& out) {
 
 **`fastgltf::Asset`** はglTF の内容をそのまま構造体にしたものです。
 
-| メンバ | 内容 |
-| --- | --- |
-| `scenes`・`nodes`・`meshes` | シーン・ノード・メッシュ |
-| `accessors`・`bufferViews`・`buffers` | 数値データの読み方・範囲・実体 |
-| `materials`・`textures`・`images`・`samplers` | 見た目 |
-| `skins`・`animations` | ボーン・アニメーション |
-| `defaultScene` | 既定のシーン（`std::optional<size_t>`） |
+- `scenes`・`nodes`・`meshes`: シーン・ノード・メッシュ
+- `accessors`・`bufferViews`・`buffers`: 数値データの読み方・範囲・実体
+- `materials`・`textures`・`images`・`samplers`: 見た目
+- `skins`・`animations`: ボーン・アニメーション
+- `defaultScene`: 既定のシーン（`std::optional<size_t>`）
 
 ```cpp
 const fastgltf::Mesh& mesh = asset.meshes[node.meshIndex.value()];
@@ -100,12 +96,10 @@ const fastgltf::Accessor& accessor = asset.accessors[primitive.indicesAccessor.v
 
 **fastgltf はバッファ（バイナリ）の実体を `std::variant` で、持ちます**。
 
-| 種類 | 意味 |
-| --- | --- |
-| `sources::Array` | メモリ上のバイト配列（読み込み済み） |
-| `sources::URI` | ファイルの場所（まだ読んでいない） |
-| `sources::BufferView` | 別のバッファの一部（`.glb` に埋め込まれた画像など） |
-| `sources::ByteView` | 外部のメモリを指す（コピーしない。呼び出し側が生存を保証） |
+- `sources::Array`: メモリ上のバイト配列（読み込み済み）
+- `sources::URI`: ファイルの場所（まだ読んでいない）
+- `sources::BufferView`: 別のバッファの一部（`.glb` に埋め込まれた画像など）
+- `sources::ByteView`: 外部のメモリを指す（コピーしない。呼び出し側が生存を保証）
 
 `LoadExternalBuffers` を指定すると`Array` に読み込まれます。指定しない場合は自分で、`URI` を読んで読み込みます（非同期ロード・ストリーミングに便利）。
 
@@ -116,14 +110,12 @@ fastgltf::Parser parser(fastgltf::Extensions::KHR_materials_emissive_strength |
                         fastgltf::Extensions::KHR_texture_basisu);
 ```
 
-| 拡張 | 対応 |
-| --- | --- |
-| `KHR_mesh_quantization` | **頂点を小さい型で持つ**（fastgltf は、読める） |
-| `KHR_texture_transform` | UV の変換 |
-| `KHR_materials_*` | マテリアルの拡張（emissive strength・clearcoat など） |
-| `KHR_draco_mesh_compression` | デコードはしない（別のライブラリ） |
-| `EXT_meshopt_compression` | 対応（meshoptimizer を使って、展開するオプション） |
-| `KHR_texture_basisu` | 画像の場所を返す（KTX2 の展開は、自分で） |
+- `KHR_mesh_quantization`: **頂点を小さい型で持つ**（fastgltf は、読める）
+- `KHR_texture_transform`: UV の変換
+- `KHR_materials_*`: マテリアルの拡張（emissive strength・clearcoat など）
+- `KHR_draco_mesh_compression`: デコードはしない（別のライブラリ）
+- `EXT_meshopt_compression`: 対応（meshoptimizer を使って、展開するオプション）
+- `KHR_texture_basisu`: 画像の場所を返す（KTX2 の展開は、自分で）
 
 使う拡張を `Parser` に教えておく必要があります（教えないとそのファイルを拒否します）。
 

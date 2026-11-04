@@ -42,12 +42,10 @@ if (ImGui::IsItemHovered()) ImGui::SetTooltip("単位：m/秒");
 if (ImGui::IsItemDeactivatedAfterEdit()) PushUndo();
 ```
 
-| 状態 | 説明 |
-| --- | --- |
-| Hovered | マウスが乗っている |
-| Active | ボタンが押されている間・ドラッグ中 |
-| Focused | キーボード入力の対象（Tab・矢印で移動） |
-| Edited | 値が変わった（そのフレーム） |
+- Hovered: マウスが乗っている
+- Active: ボタンが押されている間・ドラッグ中
+- Focused: キーボード入力の対象（Tab・矢印で移動）
+- Edited: 値が変わった（そのフレーム）
 
 `IsItemDeactivatedAfterEdit` は、スライダーをドラッグしている間は false、離した瞬間に trueになるので、「編集が確定した」時点で、Undo 履歴に積むのにぴったりです。
 
@@ -108,40 +106,34 @@ if (!io.WantCaptureKeyboard) {
 }
 ```
 
-| フラグ | true になる条件 |
-| --- | --- |
-| `WantCaptureMouse` | マウスが ImGui のウィンドウ上にある／ImGui がドラッグ中 |
-| `WantCaptureKeyboard` | `InputText` などが、フォーカスされている |
-| `WantTextInput` | 文字入力が必要（IME・画面キーボードを出す合図） |
-| `WantSetMousePos` | マウス カーソルを動かしたい（ゲームパッド ナビゲーション時） |
+- `WantCaptureMouse`: マウスが ImGui のウィンドウ上にある／ImGui がドラッグ中
+- `WantCaptureKeyboard`: `InputText` などが、フォーカスされている
+- `WantTextInput`: 文字入力が必要（IME・画面キーボードを出す合図）
+- `WantSetMousePos`: マウス カーソルを動かしたい（ゲームパッド ナビゲーション時）
 
 Win32 のメッセージ ループでは、`ImGui_ImplWin32_WndProcHandler` に先に渡すことで、入力が ImGui に届きます（[基礎](../basics.md)）。
 
 ## ImGuiIO（毎フレームの情報）
 
-| メンバー | 内容 |
-| --- | --- |
-| `io.DeltaTime` | <strong>前フレームからの時間（秒）</strong>（自分で設定する場合もある） |
-| `io.Framerate` | FPS（移動平均） |
-| `io.DisplaySize` | 画面の大きさ |
-| `io.MousePos` | マウス座標 |
-| `io.MouseWheel` / `MouseWheelH` | ホイール（縦・横） |
-| `io.ConfigFlags` | 設定フラグ（`NavEnableKeyboard`・`DockingEnable` など） |
-| `io.IniFilename` | レイアウト保存ファイル（`nullptr` で保存しない） |
-| `io.Fonts` | フォント アトラス |
-| `io.FontGlobalScale` | 全体のフォント倍率 |
-| `io.MetricsRenderVertices` / `MetricsRenderIndices` / `MetricsRenderWindows` | 描画した頂点・インデックス・ウィンドウの数 |
+- `io.DeltaTime`: <strong>前フレームからの時間（秒）</strong>（自分で設定する場合もある）
+- `io.Framerate`: FPS（移動平均）
+- `io.DisplaySize`: 画面の大きさ
+- `io.MousePos`: マウス座標
+- `io.MouseWheel` / `MouseWheelH`: ホイール（縦・横）
+- `io.ConfigFlags`: 設定フラグ（`NavEnableKeyboard`・`DockingEnable` など）
+- `io.IniFilename`: レイアウト保存ファイル（`nullptr` で保存しない）
+- `io.Fonts`: フォント アトラス
+- `io.FontGlobalScale`: 全体のフォント倍率
+- `io.MetricsRenderVertices` / `MetricsRenderIndices` / `MetricsRenderWindows`: 描画した頂点・インデックス・ウィンドウの数
 
 ## 設定フラグ（ImGuiConfigFlags）
 
-| フラグ | 内容 |
-| --- | --- |
-| `NavEnableKeyboard` | **キーボードで操作**（矢印・Tab・Enter） |
-| `NavEnableGamepad` | ゲームパッドで操作 |
-| `NoMouse` | マウスを無視 |
-| `NoMouseCursorChange` | カーソル形状を変えない |
-| `DockingEnable` | ドッキングを有効（docking ブランチ） |
-| `ViewportsEnable` | ウィンドウを OS の外に出せる（マルチビューポート） |
+- `NavEnableKeyboard`: **キーボードで操作**（矢印・Tab・Enter）
+- `NavEnableGamepad`: ゲームパッドで操作
+- `NoMouse`: マウスを無視
+- `NoMouseCursorChange`: カーソル形状を変えない
+- `DockingEnable`: ドッキングを有効（docking ブランチ）
+- `ViewportsEnable`: ウィンドウを OS の外に出せる（マルチビューポート）
 
 ```cpp
 ImGuiIO& io = ImGui::GetIO();

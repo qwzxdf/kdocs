@@ -44,12 +44,10 @@ tags:
 <g stroke="#e5484d" stroke-width="2" fill="none"><path d="M140,192 C140,222 420,222 420,192" marker-end="url(#rfa)"/><path d="M420,192 C420,214 140,214 140,192" stroke-opacity="0"/></g>
 </svg>
 
-| 用語 | 意味 |
-| --- | --- |
-| フロント バッファ | 今、画面に表示されている画像 |
-| バック バッファ | 次に表示する画像（描画中） |
-| Present | 完成したバック バッファを画面に出す命令（入れ替え） |
-| スワップチェーン | バック バッファの列（2 枚や 3 枚を順番に回す） |
+- フロント バッファ: 今、画面に表示されている画像
+- バック バッファ: 次に表示する画像（描画中）
+- Present: 完成したバック バッファを画面に出す命令（入れ替え）
+- スワップチェーン: バック バッファの列（2 枚や 3 枚を順番に回す）
 
 <!-- fig:double-buffer-swap:begin -->
 
@@ -108,12 +106,10 @@ desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 factory->CreateSwapChainForHwnd(device.Get(), hwnd, &desc, nullptr, nullptr, swap_chain.GetAddressOf());
 ```
 
-| 項目 | 内容 |
-| --- | --- |
-| `Format` | バック バッファの形式。`_SRGB` にすると書き込み時に自動でガンマ補正 |
-| `BufferCount` | バック バッファの数。2（ダブル）か 3（トリプル） |
-| `SwapEffect` | `FLIP_DISCARD`（最新の高速な方式）を使う |
-| バックバッファへの書き込み | バック バッファから `RenderTargetView` を作って、描画先にする |
+- `Format`: バック バッファの形式。`_SRGB` にすると書き込み時に自動でガンマ補正
+- `BufferCount`: バック バッファの数。2（ダブル）か 3（トリプル）
+- `SwapEffect`: `FLIP_DISCARD`（最新の高速な方式）を使う
+- バックバッファへの書き込み: バック バッファから `RenderTargetView` を作って、描画先にする
 
 ## Present と VSync
 
@@ -142,11 +138,9 @@ UINT flags = (!vsync_enabled && tearing_supported) ? DXGI_PRESENT_ALLOW_TEARING 
 swap_chain->Present(sync_interval, flags);
 ```
 
-| `SyncInterval` | 意味 |
-| --- | --- |
-| 0 | 待たずに Present（VSync なし） |
-| 1 | 1 回の更新ごとに（60 Hz なら 60 FPS 上限） |
-| 2 | 2 回に 1 回（30 FPS 上限） |
+- 0: 待たずに Present（VSync なし）
+- 1: 1 回の更新ごとに（60 Hz なら 60 FPS 上限）
+- 2: 2 回に 1 回（30 FPS 上限）
 
 ## 60 Hz のディスプレイで
 
@@ -206,21 +200,17 @@ swap_chain->Present(sync_interval, flags);
 <text x="20" y="145" style="font-size:12px">バッファが多い・先読みが多い・VSync がある、ほど遅延が増える。格闘ゲームなどでは重要。</text>
 </svg>
 
-| 遅延を減らす方法 | 内容 |
-| --- | --- |
-| VSync を切る／可変リフレッシュ | 待ち時間を減らす |
-| 先読みフレーム数を減らす | CPU が先に積むフレームを 1〜2 に |
-| バック バッファを減らす | 3 → 2 枚（FPS が不安定になりやすい） |
-| 入力を遅く読む | 描画直前に入力を取る |
+- VSync を切る／可変リフレッシュ: 待ち時間を減らす
+- 先読みフレーム数を減らす: CPU が先に積むフレームを 1〜2 に
+- バック バッファを減らす: 3 → 2 枚（FPS が不安定になりやすい）
+- 入力を遅く読む: 描画直前に入力を取る
 
 ## ウィンドウのリサイズと全画面
 
-| 場面 | 処理 |
-| --- | --- |
-| **ウィンドウのサイズ変更** | バック バッファを作り直す（`ResizeBuffers`）。深度バッファ・レンダー ターゲットも作り直す |
-| 全画面（フルスクリーン） | 排他的全画面・ボーダーレス ウィンドウ。今は後者が主流 |
-| 解像度とスケール | 内部解像度を下げて描いて、画面の大きさに拡大（[アップスケール](../../graphics/postprocess/taa-upscaling-cost.md)） |
-| HDR 出力 | バック バッファを HDR 形式（R10G10B10A2 など） にする |
+- **ウィンドウのサイズ変更**: バック バッファを作り直す（`ResizeBuffers`）。深度バッファ・レンダー ターゲットも作り直す
+- 全画面（フルスクリーン）: 排他的全画面・ボーダーレス ウィンドウ。今は後者が主流
+- 解像度とスケール: 内部解像度を下げて描いて、画面の大きさに拡大（[アップスケール](../../graphics/postprocess/taa-upscaling-cost.md)）
+- HDR 出力: バック バッファを HDR 形式（R10G10B10A2 など） にする
 
 ## よくあるミス
 

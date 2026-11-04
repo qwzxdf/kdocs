@@ -186,13 +186,11 @@ constexpr bool kCollisionMatrix[Layers::NUM_LAYERS][Layers::NUM_LAYERS] = {
 };
 ```
 
-| 設計のコツ | 説明 |
-| --- | --- |
-| 対称にする | `[a][b]` と `[b][a]` を同じ値に（Jolt は、対称を前提） |
-| 動かない物体どうしは `false` | 無駄な判定を避ける |
-| 自分の弾は自分に当たらない | プレイヤーの弾 × プレイヤー ＝ `false` |
-| トリガー（センサー） | 反応させたい相手とだけ `true` |
-| ビット マスクで書く方法も | 各レイヤーが「衝突する相手」のビットを持つ（`1 << layer`）。マトリクスよりコンパクト |
+- 対称にする: `[a][b]` と `[b][a]` を同じ値に（Jolt は、対称を前提）
+- 動かない物体どうしは `false`: 無駄な判定を避ける
+- 自分の弾は自分に当たらない: プレイヤーの弾 × プレイヤー ＝ `false`
+- トリガー（センサー）: 反応させたい相手とだけ `true`
+- ビット マスクで書く方法も: 各レイヤーが「衝突する相手」のビットを持つ（`1 << layer`）。マトリクスよりコンパクト
 
 !!! note "ビット マスク版"
     `uint32_t mask[NUM_LAYERS]` に当たる相手のビットを立て、`ShouldCollide(a, b)` は `(mask[a] & (1u << b)) != 0` と書く方法もあります。レイヤーが 32 個以内のときに便利です。
@@ -206,11 +204,9 @@ BodyID id = bodies.CreateAndAddBody(settings, EActivation::Activate);
 bodies.SetObjectLayer(id, Layers::ENEMY_BULLET);
 ```
 
-| 操作 | 説明 |
-| --- | --- |
-| **作成時に渡す** | `BodyCreationSettings` の最後の引数が `ObjectLayer` |
-| あとから変更 | `SetObjectLayer`。ブロードフェーズ レイヤーも自動で更新 |
-| 用途 | ダメージを受けている間は、無敵（レイヤー変更）、ゴースト化 |
+- **作成時に渡す**: `BodyCreationSettings` の最後の引数が `ObjectLayer`
+- あとから変更: `SetObjectLayer`。ブロードフェーズ レイヤーも自動で更新
+- 用途: ダメージを受けている間は、無敵（レイヤー変更）、ゴースト化
 
 ## レイヤーとクエリ（レイキャスト）
 

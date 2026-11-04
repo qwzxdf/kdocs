@@ -56,10 +56,8 @@ const float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 context->ClearRenderTargetView(rtv.Get(), color);
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pRenderTargetView` | 塗る RTV |
-| `ColorRGBA` | 4 つの `float`（R、G、B、A） |
+- `pRenderTargetView`: 塗る RTV
+- `ColorRGBA`: 4 つの `float`（R、G、B、A）
 
 RTV のフォーマットが `_SRGB` のとき `color` は、<strong>リニア</strong>の値と解釈され sRGB に変換されて書かれます。見た目の色（0.5 グレー）を出したいときは `pow(0.5, 2.2) ≈ 0.22` を渡します。
 
@@ -79,15 +77,11 @@ context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCI
 HRESULT hr = swap_chain->Present(sync_interval, flags);
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `SyncInterval` | 0 = 垂直同期を待たずすぐ表示（ティアリングの恐れ）。1 = モニターの更新を 1 回待つ（60Hz なら 1/60 秒）。2 = 2 回待つ |
-| `Flags` | 0、または `DXGI_PRESENT_ALLOW_TEARING`（ティアリング許可のスワップ チェーンで `SyncInterval = 0` のとき） |
+- `SyncInterval`: 0 = 垂直同期を待たずすぐ表示（ティアリングの恐れ）。1 = モニターの更新を 1 回待つ（60Hz なら 1/60 秒）。2 = 2 回待つ
+- `Flags`: 0、または `DXGI_PRESENT_ALLOW_TEARING`（ティアリング許可のスワップ チェーンで `SyncInterval = 0` のとき）
 
-| 設定 | 動き |
-| --- | --- |
-| `Present(1, 0)` | 垂直同期。フレームレートがモニターに合う。ティアリング無し。遅延はやや大きい |
-| `Present(0, DXGI_PRESENT_ALLOW_TEARING)` | 最速。ティアリング有り。可変リフレッシュレートのモニターで、有用 |
+- `Present(1, 0)`: 垂直同期。フレームレートがモニターに合う。ティアリング無し。遅延はやや大きい
+- `Present(0, DXGI_PRESENT_ALLOW_TEARING)`: 最速。ティアリング有り。可変リフレッシュレートのモニターで、有用
 
 ### Present が返すエラー
 
@@ -105,11 +99,9 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 
 D3D11 は「状態を持つ」API で一度、設定した束縛は次の設定まで残ります。ただし、次の場面では設定し直します。
 
-| 場面 | 理由 |
-| --- | --- |
-| フリップ モデルの `Present` の後 | レンダー ターゲットの束縛が外れる |
-| 別のパスの前 | 別のパスは別のシェーダー・リソース・ステートが必要 |
-| リソースの読み書きを切り替えるとき | 読みながら、書けない（[Render Target View (RTV)](render-target-view.md)） |
+- フリップ モデルの `Present` の後: レンダー ターゲットの束縛が外れる
+- 別のパスの前: 別のパスは別のシェーダー・リソース・ステートが必要
+- リソースの読み書きを切り替えるとき: 読みながら、書けない（[Render Target View (RTV)](render-target-view.md)）
 
 `context->ClearState()` で全束縛を外せますが毎フレーム呼ぶと遅いのでフレームの最初と最後には、使いません。
 

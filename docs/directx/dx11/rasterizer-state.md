@@ -10,13 +10,13 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>ラスタライザー ステート</strong>は、三角形を <strong>ピクセルに変換する</strong>段（ラスタライザー）の、設定です。「どちら向きの面を表とするか」「裏面を捨てるか」「塗りつぶすかワイヤフレームか」「深度にバイアスを掛けるか」「画面の外を切るか」を決めます。三角形が見えないときまず疑うのが、ここです。
+<strong>ラスタライザー ステート</strong>は三角形を <strong>ピクセルに変換する</strong>段（ラスタライザー）の、設定です。「どちら向きの面を表とするか」「裏面を捨てるか」「塗りつぶすかワイヤフレームか」「深度にバイアスを掛けるか」「画面の外を切るか」を決めます。三角形が見えないときまず疑うのが、ここです。
 
 !!! tip "ポイント"
-    - 面の向きの既定は、<strong>時計回り（CW）が表</strong>。このサイトの規約も同じなので `FrontCounterClockwise = FALSE`（既定）のまま。
+    - 面の向きの既定は <strong>時計回り（CW）が表</strong>。このサイトの規約も同じなので `FrontCounterClockwise = FALSE`（既定）のまま。
     - `CullMode`: `BACK`（裏を捨てる既定）、`FRONT`、`NONE`（両面）。
     - 作成は `CreateRasterizerState`、つなぐのは `RSSetState`。作ったステートは使い回す。
-    - シャドウ マップでは、`DepthBias` と `SlopeScaledDepthBias` で影のにじみ・縞（シャドウ アクネ）を抑える。
+    - シャドウ マップでは `DepthBias` と `SlopeScaledDepthBias` で影のにじみ・縞（シャドウ アクネ）を抑える。
     - 既定のステート（`RSSetState(nullptr)`）は `CullMode = BACK`、`FrontCounterClockwise = FALSE`。
 
 !!! info "このページを読む前に"
@@ -45,18 +45,16 @@ device->CreateRasterizerState(&desc, &state);
 context->RSSetState(state.Get());
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `FillMode` | `SOLID`（塗りつぶし）、`WIREFRAME`（辺だけ） |
-| `CullMode` | `NONE`（両面を描く）、`FRONT`（表を捨てる）、`BACK`（裏を捨てる） |
-| `FrontCounterClockwise` | `TRUE` で反時計回りが表、`FALSE` で時計回りが表（既定） |
-| `DepthBias` | 深度に足す整数のバイアス |
-| `DepthBiasClamp` | バイアスの上限 |
-| `SlopeScaledDepthBias` | 面の傾きに比例した、バイアス |
-| `DepthClipEnable` | 近・遠クリップを有効にするか |
-| `ScissorEnable` | シザー矩形を有効にするか |
-| `MultisampleEnable` | MSAA のとき、マルチサンプルの四角形のエッジ処理 |
-| `AntialiasedLineEnable` | 線のアンチエイリアス |
+- `FillMode`: `SOLID`（塗りつぶし）、`WIREFRAME`（辺だけ）
+- `CullMode`: `NONE`（両面を描く）、`FRONT`（表を捨てる）、`BACK`（裏を捨てる）
+- `FrontCounterClockwise`: `TRUE` で反時計回りが表、`FALSE` で時計回りが表（既定）
+- `DepthBias`: 深度に足す整数のバイアス
+- `DepthBiasClamp`: バイアスの上限
+- `SlopeScaledDepthBias`: 面の傾きに比例したバイアス
+- `DepthClipEnable`: 近・遠クリップを有効にするか
+- `ScissorEnable`: シザー矩形を有効にするか
+- `MultisampleEnable`: MSAA のときマルチサンプルの四角形のエッジ処理
+- `AntialiasedLineEnable`: 線のアンチエイリアス
 
 ## 面の向きとカリング
 
@@ -76,13 +74,11 @@ context->RSSetState(state.Get());
 
 ### カリングを切る場面
 
-| 場面 | `CullMode` |
-| --- | --- |
-| 普通の、閉じたメッシュ | `BACK` |
-| 薄い板（草、旗、葉）、両面を見せたい | `NONE` |
-| シャドウ マップの描画 | `BACK`（影の、アクネを減らす）か `FRONT`（前面を捨てて裏面を描く方式） |
-| 内側から見る（部屋のスカイボックス） | `FRONT`（または、頂点の並びを反転） |
-| ワイヤフレーム | `FillMode = WIREFRAME`、`CullMode = NONE` |
+- 普通の、閉じたメッシュ: `BACK`
+- 薄い板（草、旗、葉）、両面を見せたい: `NONE`
+- シャドウ マップの描画: `BACK`（影のアクネを減らす）か `FRONT`（前面を捨てて裏面を描く方式）
+- 内側から見る（部屋のスカイボックス）: `FRONT`（または、頂点の並びを反転）
+- ワイヤフレーム: `FillMode = WIREFRAME`、`CullMode = NONE`
 
 両面を描く物（`NONE`）は裏面の法線が逆向きになるのでピクセル シェーダーで `SV_IsFrontFace` を使って法線を反転します。
 
@@ -109,16 +105,14 @@ shadow.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&shadow, &shadow_state);
 ```
 
-`DepthBias` の単位は深度フォーマットに依存します（`D32_FLOAT` と `D16_UNORM` で同じ値でも、ずれる量が違う）。値は見ながら調整します（[Shadow Bias](../../graphics/shadows/bias/index.md)）。バイアスが大きすぎると影が物から、離れて見えます（ピーターパニング）。
+`DepthBias` の単位は深度フォーマットに依存します（`D32_FLOAT` と `D16_UNORM` で同じ値でもずれる量が違う）。値は見ながら調整します（[Shadow Bias](../../graphics/shadows/bias/index.md)）。バイアスが大きすぎると影が物から、離れて見えます（ピーターパニング）。
 
 ## DepthClipEnable
 
 <strong>DepthClipEnable = TRUE</strong>（既定）で、近・遠クリップ面の外にあるピクセルは、切られます。`FALSE` にすると深度が 0〜1 の範囲にクランプされ <strong>切られません</strong>。
 
-| 使いどころ | 内容 |
-| --- | --- |
-| カスケード シャドウ マップ | 光の近クリップ面の手前の影を落とす物（光の後ろの物）を切らずに、深度 0 に固定して描く |
-| 無限遠の深度 | 遠クリップ面で、切れないようにする |
+- カスケード シャドウ マップ: 光の近クリップ面の手前の影を落とす物（光の後ろの物）を切らずに、深度 0 に固定して描く
+- 無限遠の深度: 遠クリップ面で、切れないようにする
 
 ## ワイヤフレーム
 
@@ -167,7 +161,7 @@ struct RasterizerStates {
     `DepthBias`、`SlopeScaledDepthBias` が小さすぎるまたは大きすぎる。調整する。
 
 ??? failure "モデルの内側が見えて外側が見えない（逆に見える）"
-    座標系の変換（鏡像）で並びが、反転している。スケールが負（ミラー）の物は、カリングを反転するまたはステートを切り替える。
+    座標系の変換（鏡像）で並びが、反転している。スケールが負（ミラー）の物はカリングを反転するまたはステートを切り替える。
 
 ## これだけ覚える
 

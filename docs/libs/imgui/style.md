@@ -29,11 +29,9 @@ ImGui::StyleColorsLight();
 ImGui::StyleColorsClassic();
 ```
 
-| テーマ | 見た目 |
-| --- | --- |
-| **`StyleColorsDark`** | 暗い背景（既定）。ゲーム・ツールによく使われる |
-| `StyleColorsLight` | 明るい背景 |
-| `StyleColorsClassic` | 昔ながらの青灰色 |
+- **`StyleColorsDark`**: 暗い背景（既定）。ゲーム・ツールによく使われる
+- `StyleColorsLight`: 明るい背景
+- `StyleColorsClassic`: 昔ながらの青灰色
 
 `ImGui::CreateContext()` の後、ループの前に 1 回呼びます。
 
@@ -53,23 +51,21 @@ style.ItemSpacing = ImVec2(8, 6);
 
 ### 主な項目（大きさ）
 
-| 項目 | 意味 |
-| --- | --- |
-| **`WindowPadding`** | ウィンドウの内側の余白 |
-| `WindowRounding` | ウィンドウの角丸（0 で四角） |
-| `WindowBorderSize` | ウィンドウの枠線の太さ（0 でなし） |
-| `FramePadding` | 部品（ボタン・入力欄）の内側の余白 |
-| `FrameRounding` | 部品の角丸 |
-| `FrameBorderSize` | 部品の枠線の太さ |
-| `ItemSpacing` | 部品と部品の間隔 |
-| `ItemInnerSpacing` | 部品の中の要素間隔（ラベルとの間など） |
-| `IndentSpacing` | 字下げ・ツリーの幅 |
-| `ScrollbarSize` / `ScrollbarRounding` | スクロールバーの太さ・角丸 |
-| `GrabMinSize` / `GrabRounding` | スライダーのつまみの大きさ・角丸 |
-| `TabRounding` | タブの角丸 |
-| `WindowTitleAlign` | タイトルの揃え（`ImVec2(0.5f, 0.5f)` で中央） |
-| `Alpha` | 全体の透明度 |
-| `AntiAliasedLines` / `AntiAliasedFill` | 線・塗りのぎざぎざ防止 |
+- **`WindowPadding`**: ウィンドウの内側の余白
+- `WindowRounding`: ウィンドウの角丸（0 で四角）
+- `WindowBorderSize`: ウィンドウの枠線の太さ（0 でなし）
+- `FramePadding`: 部品（ボタン・入力欄）の内側の余白
+- `FrameRounding`: 部品の角丸
+- `FrameBorderSize`: 部品の枠線の太さ
+- `ItemSpacing`: 部品と部品の間隔
+- `ItemInnerSpacing`: 部品の中の要素間隔（ラベルとの間など）
+- `IndentSpacing`: 字下げ・ツリーの幅
+- `ScrollbarSize` / `ScrollbarRounding`: スクロールバーの太さ・角丸
+- `GrabMinSize` / `GrabRounding`: スライダーのつまみの大きさ・角丸
+- `TabRounding`: タブの角丸
+- `WindowTitleAlign`: タイトルの揃え（`ImVec2(0.5f, 0.5f)` で中央）
+- `Alpha`: 全体の透明度
+- `AntiAliasedLines` / `AntiAliasedFill`: 線・塗りのぎざぎざ防止
 
 ### 色の変更
 
@@ -166,12 +162,10 @@ void ApplyMyTheme() {
 
 ### 色の調整のコツ
 
-| コツ | 説明 |
-| --- | --- |
-| 基準の色を 1 つ決める | ボタン・ヘッダ・つまみなどをその色の明るさ違いにする |
-| ホバーは少し明るく | 押下は、少し暗く |
-| 文字と背景のコントラスト | 読めることが、最優先 |
-| ImGui のスタイル エディタ | `ImGui::ShowStyleEditor()` を開くとリアルタイムで、全項目を調整できる |
+- 基準の色を 1 つ決める: ボタン・ヘッダ・つまみなどをその色の明るさ違いにする
+- ホバーは少し明るく: 押下は、少し暗く
+- 文字と背景のコントラスト: 読めることが、最優先
+- ImGui のスタイル エディタ: `ImGui::ShowStyleEditor()` を開くとリアルタイムで、全項目を調整できる
 
 ```cpp
 ImGui::ShowStyleEditor();
@@ -181,11 +175,9 @@ ImGui::ShowStyleEditor();
 
 ### 保存と読み込み
 
-| 方法 | 説明 |
-| --- | --- |
-| コードに書く | テーマ関数（上の例）。最もシンプル |
-| JSON などのファイル | 色・大きさをファイルに保存して、起動時に読む。再ビルドなしで調整できる（[nlohmann/json](../serialization/nlohmann-json.md)） |
-| `ShowStyleEditor` の「Export」 | 色の配列を C++ コードとして、出力できる |
+- コードに書く: テーマ関数（上の例）。最もシンプル
+- JSON などのファイル: 色・大きさをファイルに保存して、起動時に読む。再ビルドなしで調整できる（[nlohmann/json](../serialization/nlohmann-json.md)）
+- `ShowStyleEditor` の「Export」: 色の配列を C++ コードとして、出力できる
 
 ## 高 DPI（ディスプレイの拡大率）への対応 {#dpi}
 
@@ -200,12 +192,10 @@ style.ScaleAllSizes(dpi_scale);
 io.Fonts->AddFontFromFileTTF("font.ttf", 16.0f * dpi_scale);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `style.ScaleAllSizes(scale)` | 余白・角丸・スクロールバーなどすべての大きさを `scale` 倍する |
-| フォントも拡大して読み込む | `io.FontGlobalScale` で拡大すると、ぼやける。フォントの大きさを DPI に合わせて作る（[フォント](fonts.md)） |
-| スケールは 1 回だけ | `ScaleAllSizes` を何度も呼ぶと掛け算が重なって、大きくなりすぎる |
-| DPI の変化 | ウィンドウを別のモニターに動かしたとき、スタイルを元に戻して再度スケールする |
+- `style.ScaleAllSizes(scale)`: 余白・角丸・スクロールバーなどすべての大きさを `scale` 倍する
+- フォントも拡大して読み込む: `io.FontGlobalScale` で拡大すると、ぼやける。フォントの大きさを DPI に合わせて作る（[フォント](fonts.md)）
+- スケールは 1 回だけ: `ScaleAllSizes` を何度も呼ぶと掛け算が重なって、大きくなりすぎる
+- DPI の変化: ウィンドウを別のモニターに動かしたとき、スタイルを元に戻して再度スケールする
 
 !!! note "スタイルを元に戻してから、スケールする"
     `ScaleAllSizes` は今の値に掛けるので、DPI が変わるたびに呼ぶと積み重なります。元のスタイルを保存しておきコピーして、スケールします。

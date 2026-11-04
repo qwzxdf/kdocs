@@ -49,13 +49,11 @@ glTF の要素は**配列の中に並んでいます**。ほかの要素を指�
 
 ### なぜ「番号」なのか
 
-| 理由 | 説明 |
-| --- | --- |
-| ファイルに書ける | ポインタ（アドレス）は、ファイルに保存しても意味がない。番号ならそのまま保存できる |
-| 読み込み側で自由に配置できる | メモリのどこに置くかは、読み込む側が決める。番号は配列の位置さえ分かれば、引ける |
-| 共有しやすい | 1 つのメッシュを複数のノードから参照（インスタンス）できる。同じ番号を書くだけ |
-| コンパクト | 数字 1 つで済む |
-| どの言語でも読める | JSON の数字なので、言語に依存しない |
+- ファイルに書ける: ポインタ（アドレス）は、ファイルに保存しても意味がない。番号ならそのまま保存できる
+- 読み込み側で自由に配置できる: メモリのどこに置くかは、読み込む側が決める。番号は配列の位置さえ分かれば、引ける
+- 共有しやすい: 1 つのメッシュを複数のノードから参照（インスタンス）できる。同じ番号を書くだけ
+- コンパクト: 数字 1 つで済む
+- どの言語でも読める: JSON の数字なので、言語に依存しない
 
 [ハンドル](../../engine/handle.md)や[ポインタをインデックスにする](../../optimize/data-layout.md)のと同じ考え方です。
 
@@ -68,10 +66,8 @@ glTF の要素は**配列の中に並んでいます**。ほかの要素を指�
 }
 ```
 
-| 書き方 | 意味 |
-| --- | --- |
-| `nodes[1]` の `"mesh": 0` | `meshes` 配列の 0 番目（`Enemy`）を使う |
-| `-1`（tinygltf の既定値） | 参照なし（その要素は、使わない） |
+- `nodes[1]` の `"mesh": 0`: `meshes` 配列の 0 番目（`Enemy`）を使う
+- `-1`（tinygltf の既定値）: 参照なし（その要素は、使わない）
 
 tinygltf では「参照なし」は `-1` で表されます（`int` の既定値が `-1`）。使う前に `-1` かどうかを必ず調べます。
 
@@ -278,10 +274,8 @@ glTF の最も小さな例（三角形 1 つ）です。**番号でどうつな�
 交互：  [位置 法線 UV][位置 法線 UV] ...     （1 頂点ずつ、まとまる）  → byteStride = 32 など
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| `byteStride` が無い | 要素は隙間なく並ぶ |
-| `byteStride` がある | 次の要素までの距離。要素の大きさより大きい |
+- `byteStride` が無い: 要素は隙間なく並ぶ
+- `byteStride` がある: 次の要素までの距離。要素の大きさより大きい
 
 tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返します（隙間なしなら要素のサイズ）。
 
@@ -299,16 +293,14 @@ tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返し
 
 <svg class="fig flow" viewBox="0 0 655 280" role="img" aria-label="ノードは親子の木。子の位置は、親の位置を基準にした相対値"><defs><marker id="fl22118" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノードは親子の木。子の位置は、親の位置を基準にした相対値</text><line x1="126.0" y1="148.0" x2="184.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="155.0" y="142.0" text-anchor="middle" style="font-size:12px">nodes=[0]</text><line x1="338.5" y1="125.0" x2="452.5" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="395.5" y="100.0" text-anchor="middle" style="font-size:12px">children</text><line x1="338.5" y1="171.0" x2="452.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="395.5" y="184.0" text-anchor="middle" style="font-size:12px">children</text><rect x="28.0" y="128.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="75.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scenes[0]</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="187.0" y="128.0" width="165" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="269.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[0] Character</text><circle cx="189.0" cy="130.0" r="10" fill="#2ea043"/><text x="189.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="424.0" y="44.0" width="195" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="521.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[1] Body (mesh 0)</text><circle cx="426.0" cy="46.0" r="10" fill="#e5a828"/><text x="426.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="416.0" y="212.0" width="211" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="521.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[2] Weapon (mesh 1)</text><circle cx="418.0" cy="214.0" r="10" fill="#e5a828"/><text x="418.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
-| キー | 意味 |
-| --- | --- |
-| `children` | 子ノードの番号のリスト。子の位置・回転は親からの相対値 |
-| `mesh` | このノードに表示するメッシュの番号 |
-| `translation` | 位置 `[x, y, z]` |
-| `rotation` | 回転 `[x, y, z, w]`（クォータニオン） |
-| `scale` | 拡大 `[x, y, z]` |
-| `matrix` | 上の 3 つの代わりに4×4 行列（16 個、列優先）で指定 |
-| `skin` | ボーンを使うときスキンの番号 |
-| `camera` | カメラを使うときカメラの番号 |
+- `children`: 子ノードの番号のリスト。子の位置・回転は親からの相対値
+- `mesh`: このノードに表示するメッシュの番号
+- `translation`: 位置 `[x, y, z]`
+- `rotation`: 回転 `[x, y, z, w]`（クォータニオン）
+- `scale`: 拡大 `[x, y, z]`
+- `matrix`: 上の 3 つの代わりに4×4 行列（16 個、列優先）で指定
+- `skin`: ボーンを使うときスキンの番号
+- `camera`: カメラを使うときカメラの番号
 
 !!! warning "TRS と matrix は、どちらか一方"
     `translation` / `rotation` / `scale` と `matrix` は、どちらか一方で指定されます。tinygltf では`matrix` が空かどうかで、判断します（[データの取り出し方](reading.md)）。
@@ -331,12 +323,10 @@ tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返し
 ]
 ```
 
-| キー | 意味 |
-| --- | --- |
-| `attributes` | 頂点の項目名 → accessor の番号の対応 |
-| `indices` | 三角形のインデックスの accessor の番号（無ければ、頂点を順に並べる） |
-| `material` | マテリアルの番号（省略すると、既定のマテリアル） |
-| `mode` | 描画の種類（`4`＝三角形のリスト。通常） |
+- `attributes`: 頂点の項目名 → accessor の番号の対応
+- `indices`: 三角形のインデックスの accessor の番号（無ければ、頂点を順に並べる）
+- `material`: マテリアルの番号（省略すると、既定のマテリアル）
+- `mode`: 描画の種類（`4`＝三角形のリスト。通常）
 
 ### 頂点属性の名前
 
@@ -393,10 +383,8 @@ tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返し
 
 ### テクスチャの参照は 2 段階
 
-| 段階 | 内容 |
-| --- | --- |
-| マテリアル → テクスチャ | `{ "index": 0 }` ＝ `textures[0]` |
-| テクスチャ → 画像・サンプラー | `source` ＝ `images[…]`、`sampler` ＝ `samplers[…]` |
+1. マテリアル → テクスチャ: `{ "index": 0 }` ＝ `textures[0]`
+2. テクスチャ → 画像・サンプラー: `source` ＝ `images[…]`、`sampler` ＝ `samplers[…]`
 
 同じ画像を別のサンプラーで使うときは、`textures` の要素が増えます（画像は 1 つテクスチャが 2 つ）。
 
@@ -424,11 +412,9 @@ tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返し
 ]
 ```
 
-| キー | 意味 |
-| --- | --- |
-| `joints` | ボーンになるノードの番号のリスト。順番が `JOINTS_0` の番号に対応 |
-| `inverseBindMatrices` | 逆バインド行列の accessor の番号（`MAT4`）。ボーンごとに 1 つ（[スキニング](../../3d/skinning-animation.md)のオフセット行列） |
-| `skeleton` | ボーンの根のノードの番号 |
+- `joints`: ボーンになるノードの番号のリスト。順番が `JOINTS_0` の番号に対応
+- `inverseBindMatrices`: 逆バインド行列の accessor の番号（`MAT4`）。ボーンごとに 1 つ（[スキニング](../../3d/skinning-animation.md)のオフセット行列）
+- `skeleton`: ボーンの根のノードの番号
 
 頂点の `JOINTS_0` の値 `2` は「`skins[0].joints[2]` のボーン」という意味です（ノードの番号そのものではなく、`joints` 配列の位置）。ここも番号のもう 1 段の参照です。
 
@@ -450,28 +436,24 @@ tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返し
 
 <svg class="fig flow" viewBox="0 0 868 305" role="img" aria-label="アニメーション：channel が、sampler と、動かすノードを指す"><defs><marker id="fl6720" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アニメーション：channel が、sampler と、動かすノードを指す</text><line x1="157.0" y1="173.2" x2="215.0" y2="173.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><line x1="328.8" y1="150.2" x2="420.2" y2="112.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="374.5" y="125.2" text-anchor="middle" style="font-size:12px">sampler=0</text><line x1="328.8" y1="196.2" x2="420.2" y2="234.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="374.5" y="209.2" text-anchor="middle" style="font-size:12px">target.node=5</text><line x1="534.0" y1="83.4" x2="633.0" y2="73.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="583.5" y="72.5" text-anchor="middle" style="font-size:12px">input</text><line x1="534.0" y1="102.7" x2="631.1" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="582.5" y="107.8" text-anchor="middle" style="font-size:12px">output</text><rect x="28.0" y="153.2" width="126" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="91.0" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">animations[0]</text><circle cx="30.0" cy="155.2" r="10" fill="#4c8bf5"/><text x="30.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="218.0" y="153.2" width="111" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="273.5" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">channels[0]</text><circle cx="220.0" cy="155.2" r="10" fill="#2ea043"/><text x="220.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="420.0" y="69.2" width="111" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="475.5" y="89.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">samplers[0]</text><circle cx="422.0" cy="71.2" r="10" fill="#e5a828"/><text x="422.0" y="71.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="393.0" y="237.2" width="165" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="475.5" y="257.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] .rotation</text><circle cx="395.0" cy="239.2" r="10" fill="#e5a828"/><text x="395.0" y="239.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="636.0" y="44.0" width="190" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="731.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[10] （時刻）</text><circle cx="638.0" cy="46.0" r="10" fill="#e5484d"/><text x="638.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="622.0" y="128.0" width="218" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="731.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[11] （回転の値）</text><circle cx="624.0" cy="130.0" r="10" fill="#e5484d"/><text x="624.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
-| 要素 | 意味 |
-| --- | --- |
-| `channels[j].target.node` | 動かすノードの番号 |
-| `channels[j].target.path` | 何を動かすか：`translation` / `rotation` / `scale` / `weights` |
-| `channels[j].sampler` | `samplers` の番号（値の出所） |
-| `samplers[j].input` | 時刻の accessor の番号（`SCALAR` float） |
-| `samplers[j].output` | 値の accessor の番号（`VEC3` / `VEC4`） |
-| `interpolation` | 補間：`LINEAR`、`STEP`、`CUBICSPLINE` |
+- `channels[j].target.node`: 動かすノードの番号
+- `channels[j].target.path`: 何を動かすか：`translation` / `rotation` / `scale` / `weights`
+- `channels[j].sampler`: `samplers` の番号（値の出所）
+- `samplers[j].input`: 時刻の accessor の番号（`SCALAR` float）
+- `samplers[j].output`: 値の accessor の番号（`VEC3` / `VEC4`）
+- `interpolation`: 補間：`LINEAR`、`STEP`、`CUBICSPLINE`
 
 時刻の配列と値の配列は同じ数で、時刻 `input[k]` のときの値が `output[k]` です（[スキニング](../../3d/skinning-animation.md)のキーフレーム）。
 
 ## 構造の覚え方
 
-| 質問 | 答え |
-| --- | --- |
-| 何を表示するか | `scenes` → `nodes`（親子の木） |
-| ノードは何を持つか | 位置・回転・拡大（TRS）と、`mesh` / `skin` / `camera` の番号 |
-| メッシュの形は | `meshes` → `primitives` → `attributes` / `indices`（accessor の番号） |
-| 数値の実体は | `accessors` → `bufferViews` → `buffers`（3 段階で、番号をたどる） |
-| 見た目は | `primitives[].material` → `materials` → `textures` → `images` + `samplers` |
-| ボーンは | `skins[].joints`（ノードの番号の一覧）、頂点の `JOINTS_0` はjoints の位置 |
-| 動きは | `animations` → `channels`（どのノードを）、`samplers`（時刻と値の accessor） |
+- 何を表示するか: `scenes` → `nodes`（親子の木）
+- ノードは何を持つか: 位置・回転・拡大（TRS）と、`mesh` / `skin` / `camera` の番号
+- メッシュの形は: `meshes` → `primitives` → `attributes` / `indices`（accessor の番号）
+- 数値の実体は: `accessors` → `bufferViews` → `buffers`（3 段階で、番号をたどる）
+- 見た目は: `primitives[].material` → `materials` → `textures` → `images` + `samplers`
+- ボーンは: `skins[].joints`（ノードの番号の一覧）、頂点の `JOINTS_0` はjoints の位置
+- 動きは: `animations` → `channels`（どのノードを）、`samplers`（時刻と値の accessor）
 
 すべて「配列の何番目か」で、つながっています。
 

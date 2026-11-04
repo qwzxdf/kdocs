@@ -20,12 +20,10 @@ Visual Studio での Dear ImGui の入れ方です。Dear ImGui は**ソース�
 1. [GitHub の ImGui](https://github.com/ocornut/imgui) から取得する（`git clone`、または Releases の ZIP）。`third_party/imgui/` に置く
 2. 次のファイルをソリューション エクスプローラーで**プロジェクトに追加**（追加 → 既存の項目）
 
-| ファイル | 内容 |
-| --- | --- |
-| `imgui.cpp`, `imgui_draw.cpp`, `imgui_tables.cpp`, `imgui_widgets.cpp` | ImGui 本体 |
-| `imgui_demo.cpp` | **デモ ウィンドウ**（全部の部品の見本。勉強に最適） |
-| `backends/imgui_impl_win32.cpp` | プラットフォーム：Win32 |
-| `backends/imgui_impl_dx11.cpp` | 描画：DirectX 11 |
+- `imgui.cpp`, `imgui_draw.cpp`, `imgui_tables.cpp`, `imgui_widgets.cpp`: ImGui 本体
+- `imgui_demo.cpp`: **デモ ウィンドウ**（全部の部品の見本。勉強に最適）
+- `backends/imgui_impl_win32.cpp`: プラットフォーム：Win32
+- `backends/imgui_impl_dx11.cpp`: 描画：DirectX 11
 
 3. プロジェクトのプロパティ → **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、次を追加
 

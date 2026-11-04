@@ -210,18 +210,16 @@ ImGui::PlotLines("Frame ms", frame_times, 120, offset, nullptr, 0.0f, 33.0f, ImV
 
 ## まとめ：どの関数を選ぶか
 
-| やりたいこと | 使う関数 |
-| --- | --- |
-| 文字を表示 | `Text` |
-| 実行する | `Button` |
-| ON / OFF | `Checkbox` |
-| 選択肢から 1 つ | `Combo`（多いとき）・`RadioButton`（少ないとき） |
-| 0〜1 の割合 | `SliderFloat` |
-| 位置・スケール | `DragFloat3` |
-| 名前の入力 | `InputText` |
-| 色 | `ColorEdit3 / 4` |
-| 進捗 | `ProgressBar` |
-| グラフ | `PlotLines` |
+- 文字を表示: `Text`
+- 実行する: `Button`
+- ON / OFF: `Checkbox`
+- 選択肢から 1 つ: `Combo`（多いとき）・`RadioButton`（少ないとき）
+- 0〜1 の割合: `SliderFloat`
+- 位置・スケール: `DragFloat3`
+- 名前の入力: `InputText`
+- 色: `ColorEdit3 / 4`
+- 進捗: `ProgressBar`
+- グラフ: `PlotLines`
 
 ## 関連ページ
 

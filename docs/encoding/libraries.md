@@ -73,12 +73,10 @@ tags:
 
 <svg class="fig flow" viewBox="0 0 578 280" role="img" aria-label="ライブラリには、メモリ上のデータを渡す"><defs><marker id="fl90924" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ライブラリには、メモリ上のデータを渡す</text><line x1="218.7" y1="125.0" x2="351.3" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="100.0" text-anchor="middle" style="font-size:12px">自分で読む</text><line x1="218.7" y1="171.0" x2="351.3" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="184.0" text-anchor="middle" style="font-size:12px">ファイル名は渡さない</text><rect x="28.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="138.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">パス （UTF-8 std::string）</text><rect x="313.0" y="44.0" width="237" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::filesystem::path で開く</text><rect x="316.5" y="212.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ライブラリへ メモリ上のデータ</text></svg>
 
-| 方針 | 理由 |
-| --- | --- |
-| ファイルは自分で読む | パスの文字コードの問題がライブラリに入らない |
-| **ライブラリにはメモリ（`const void*` + サイズ）を渡す** | `stbi_load_from_memory`、`FT_New_Memory_Face`、`FMOD_CREATESOUNDEXINFO` など |
-| アセットのパスは ASCII にする | `data/textures/hero.png`。日本語のファイル名は避ける |
-| ユーザーが選ぶパス（セーブ、スクリーンショット）だけ日本語を考慮する | `std::filesystem::path` と W 版 |
+- ファイルは自分で読む: パスの文字コードの問題がライブラリに入らない
+- **ライブラリにはメモリ（`const void*` + サイズ）を渡す**: `stbi_load_from_memory`、`FT_New_Memory_Face`、`FMOD_CREATESOUNDEXINFO` など
+- アセットのパスは ASCII にする: `data/textures/hero.png`。日本語のファイル名は避ける
+- ユーザーが選ぶパス（セーブ、スクリーンショット）だけ日本語を考慮する: `std::filesystem::path` と W 版
 
 ## 文字コードを扱うライブラリ
 
@@ -144,14 +142,12 @@ u16.resize(written);            // 失敗すると 0 が返る
 
 ### ICU でできること
 
-| 機能 | 使いどころ |
-| --- | --- |
-| 書記素クラスタの分割（`BreakIterator`） | 「ユーザーが見る 1 文字」で、切り取る・数える（絵文字、結合文字） |
-| 正規化（`Normalizer2`） | NFC にそろえて、比較する |
-| 照合（`Collator`） | 五十音順などの言語に合った並べ替え |
-| 大文字・小文字変換（`toUpper`、`toLower`） | 全角英字やギリシャ文字を含む |
-| 文字の性質（`u_charType`、`u_isalpha`） | ひらがな・カタカナ・漢字・絵文字の判定 |
-| 文字コード変換（`ucnv`） | Shift_JIS、EUC-JP、ISO-2022-JP を含む数百の文字コード |
+- 書記素クラスタの分割（`BreakIterator`）: 「ユーザーが見る 1 文字」で、切り取る・数える（絵文字、結合文字）
+- 正規化（`Normalizer2`）: NFC にそろえて、比較する
+- 照合（`Collator`）: 五十音順などの言語に合った並べ替え
+- 大文字・小文字変換（`toUpper`、`toLower`）: 全角英字やギリシャ文字を含む
+- 文字の性質（`u_charType`、`u_isalpha`）: ひらがな・カタカナ・漢字・絵文字の判定
+- 文字コード変換（`ucnv`）: Shift_JIS、EUC-JP、ISO-2022-JP を含む数百の文字コード
 
 導入のコストが大きいので必要になったとき（文字数制限、並べ替え検索の正規化）だけ入れます。
 
@@ -159,16 +155,14 @@ u16.resize(written);            // 失敗すると 0 が返る
 
 ここまでの内容をゲームを作る場面に当てはめると次のようになります。基本は「内部は UTF-8」「境界で変換」「パスはアセットなら ASCII」の 3 つで、場面ごとにどれが効くかを表にしました。
 
-| 場面 | 使うもの |
-| --- | --- |
-| UI の文字列を表示（ImGui） | UTF-8 の `std::string`。日本語フォントを読み込む |
-| JSON のセーブ・設定 | nlohmann/json（UTF-8） |
-| 名前入力の文字数制限（8 文字まで） | utfcpp でコードポイント数。絵文字まで厳密にするなら ICU |
-| 吹き出しに 1 文字ずつ表示 | utfcpp で、コードポイントごとに進む |
-| 名前の五十音順ソート | ICU の Collator。または、読み仮名のデータを別に持つ |
-| ユーザーが貼った MOD のテキスト | simdutf で検証。不正なら CP932 として変換 |
-| 画像・音の読み込み | 自分でファイルを読んで、メモリをライブラリに渡す |
-| DirectX のテクスチャ読み込み | UTF-8 → UTF-16 に変換して、`wchar_t*` のパスを渡す |
+- UI の文字列を表示（ImGui）: UTF-8 の `std::string`。日本語フォントを読み込む
+- JSON のセーブ・設定: nlohmann/json（UTF-8）
+- 名前入力の文字数制限（8 文字まで）: utfcpp でコードポイント数。絵文字まで厳密にするなら ICU
+- 吹き出しに 1 文字ずつ表示: utfcpp で、コードポイントごとに進む
+- 名前の五十音順ソート: ICU の Collator。または、読み仮名のデータを別に持つ
+- ユーザーが貼った MOD のテキスト: simdutf で検証。不正なら CP932 として変換
+- 画像・音の読み込み: 自分でファイルを読んで、メモリをライブラリに渡す
+- DirectX のテクスチャ読み込み: UTF-8 → UTF-16 に変換して、`wchar_t*` のパスを渡す
 
 ## よくあるミス
 

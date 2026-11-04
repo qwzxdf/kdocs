@@ -24,11 +24,9 @@ Visual Studio での入れ方を先に説明します。Jolt はソースから�
 4. 構成を Debug と Release の両方でビルドして、`Jolt.lib` を作る
 5. 自分のプロジェクトで次の 3 つを設定する（[手動の設定](../../vs/libraries.md#lib_dll)）
 
-| 設定 | 値 |
-| --- | --- |
-| 追加のインクルード ディレクトリ | `$(SolutionDir)third_party\JoltPhysics`（`Jolt/Jolt.h` が見える親フォルダー） |
-| 追加のライブラリ ディレクトリ | `Jolt.lib` のあるフォルダー（`$(Configuration)` を使って Debug / Release を分ける） |
-| 追加の依存ファイル | `Jolt.lib` |
+- 追加のインクルード ディレクトリ: `$(SolutionDir)third_party\JoltPhysics`（`Jolt/Jolt.h` が見える親フォルダー）
+- 追加のライブラリ ディレクトリ: `Jolt.lib` のあるフォルダー（`$(Configuration)` を使って Debug / Release を分ける）
+- 追加の依存ファイル: `Jolt.lib`
 
 !!! warning "ビルド設定を一致させる（重要）"
     Jolt はビルドのときのプリプロセッサの定義によって、クラスの中身（メンバ）が変わります。ライブラリを作ったときと自分のプロジェクトで `#include` するときで、次の定義が食い違うと実行時に原因のわからないクラッシュが起きます。
@@ -122,22 +120,18 @@ int main() {
 
 Jolt は C++17 以降が必要です。プロジェクトの <strong>C++ 言語標準</strong>を `/std:c++17` 以上（このサイトでは `/std:c++latest`）にします（[C++23 を使えるようにする設定](../../vs/settings.md)）。
 
-| 設定 | 値 |
-| --- | --- |
-| C++ 言語標準 | `/std:c++17` 以上 |
-| 浮動小数点モデル | `/fp:precise`（既定）。`/fp:fast` は再現性を壊すことがある |
-| 例外 | 無効でも有効でも動く（Jolt は、例外を使わない）。ライブラリとそろえる |
-| RTTI | Jolt は独自の型情報を使うので、不要 |
+- C++ 言語標準: `/std:c++17` 以上
+- 浮動小数点モデル: `/fp:precise`（既定）。`/fp:fast` は再現性を壊すことがある
+- 例外: 無効でも有効でも動く（Jolt は、例外を使わない）。ライブラリとそろえる
+- RTTI: Jolt は独自の型情報を使うので、不要
 
 ## バージョンを固定する
 
 物理演算はバージョンで <strong>挙動の細部</strong>（接触の解決の順序、数値の誤差）が変わります。リプレイやネットワークの同期（決定論）を使うならバージョンを固定します。
 
-| 方法 | 内容 |
-| --- | --- |
-| Git のタグ | `v5.3.0` などタグを指定して、`git checkout` する |
-| vcpkg（マニフェスト） | `vcpkg.json` の `builtin-baseline` で、固定 |
-| FetchContent | `GIT_TAG` にタグ（またはコミット ハッシュ） |
+- Git のタグ: `v5.3.0` などタグを指定して、`git checkout` する
+- vcpkg（マニフェスト）: `vcpkg.json` の `builtin-baseline` で、固定
+- FetchContent: `GIT_TAG` にタグ（またはコミット ハッシュ）
 
 ## 関連ページ
 

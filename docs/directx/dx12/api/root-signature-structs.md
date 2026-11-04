@@ -14,11 +14,11 @@ api:
 `#include <d3d12.h>`
 </div>
 
-シェーダーは `register(t0)` や `register(b0)` と書くだけで、どのテクスチャや定数バッファを使うのかを知りません。実際にそのレジスタへ何を結びつけるかは、描画の前にアプリが決めます。その対応表がルート シグネチャで、表の形を構造体で書き、バイナリに変換（シリアライズ）してから `CreateRootSignature` に渡します。このページでは、その表を書く構造体を説明します。
+シェーダーは `register(t0)` や `register(b0)` と書くだけで、どのテクスチャや定数バッファを使うのかを知りません。実際にそのレジスタへ何を結びつけるかは、描画の前にアプリが決めます。その対応表がルート シグネチャで、表の形を構造体で書きバイナリに変換（シリアライズ）してから `CreateRootSignature` に渡します。このページではその表を書く構造体を説明します。
 
 !!! tip "ポイント"
-    - ルート シグネチャは `D3D12_ROOT_SIGNATURE_DESC` に、`D3D12_ROOT_PARAMETER` の配列と静的サンプラーを入れて作る。
-    - `D3D12_ROOT_PARAMETER` は `ParameterType` で、共用体のどれを使うかが決まる。
+    - ルート シグネチャは `D3D12_ROOT_SIGNATURE_DESC` に `D3D12_ROOT_PARAMETER` の配列と静的サンプラーを入れて作る。
+    - `D3D12_ROOT_PARAMETER` は `ParameterType` で共用体のどれを使うかが決まる。
     - ディスクリプタ テーブルは `D3D12_DESCRIPTOR_RANGE` の配列で書く。
     - ルート パラメーターは少ないほど速い。32 ビット定数は 1 つにつき 1 DWORD。
     - 入力レイアウトを使う描画では `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` を付ける。
@@ -61,11 +61,11 @@ typedef struct D3D12_ROOT_SIGNATURE_DESC {
 | `pStaticSamplers` | `const D3D12_STATIC_SAMPLER_DESC*` | サンプラーの配列 |
 | `Flags` | `D3D12_ROOT_SIGNATURE_FLAGS` | 追加の指定 |
 
-`pParameters` は、`NumParameters` 個の配列です。配列の何番目か（ルート パラメーターのインデックス）は、のちに `SetGraphicsRootDescriptorTable(index, ...)` などで使う番号になるため、並べる順番を決めて、コードにも書いておきます。パラメーターが 0 個なら `nullptr` と 0 にします。
+`pParameters` は `NumParameters` 個の配列です。配列の何番目か（ルート パラメーターのインデックス）は、のちに `SetGraphicsRootDescriptorTable(index, ...)` などで使う番号になるため、並べる順番を決めてコードにも書いておきます。パラメーターが 0 個なら `nullptr` と 0 にします。
 
-`Flags` の `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` は、頂点バッファから頂点を読む通常の描画に必要です。付け忘れると、入力レイアウトを使う PSO で、描画時にエラーになります。反対に、頂点バッファを使わない（頂点を `SV_VertexID` で生成する）パスや、コンピュート シェーダーだけのときは付けなくて済みます。`DENY_VERTEX_SHADER_ROOT_ACCESS` などの `DENY_*` は、使わないステージにルートを見せないことで、一部のハードウェアでの最適化に役立てるものです。
+`Flags` の `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` は頂点バッファから頂点を読む通常の描画に必要です。付け忘れると入力レイアウトを使う PSO で、描画時にエラーになります。反対に頂点バッファを使わない（頂点を `SV_VertexID` で生成する）パスやコンピュート シェーダーだけのときは付けなくて済みます。`DENY_VERTEX_SHADER_ROOT_ACCESS` などの `DENY_*` は使わないステージにルートを見せないことで、一部のハードウェアでの最適化に役立てるものです。
 
-シリアライズは `D3D12SerializeRootSignature` で行い、その結果の blob を `CreateRootSignature` に渡します。バージョン 1.0 の構造体は上のとおりで、`D3D_ROOT_SIGNATURE_VERSION_1` を指定します。
+シリアライズは `D3D12SerializeRootSignature` で行いその結果の blob を `CreateRootSignature` に渡します。バージョン 1.0 の構造体は上のとおりで、`D3D_ROOT_SIGNATURE_VERSION_1` を指定します。
 
 ```cpp
 D3D12_ROOT_SIGNATURE_DESC desc = {};
@@ -83,7 +83,7 @@ if (FAILED(hr) && error) {
 }
 ```
 
-`error` に、失敗の理由が文字列で入ります。シリアライズに失敗したら、必ず中身を出力してください。
+`error` に失敗の理由が文字列で入ります。シリアライズに失敗したら必ず中身を出力してください。
 
 ## D3D12_ROOT_PARAMETER {#d3d12_root_parameter}
 
@@ -99,7 +99,7 @@ typedef struct D3D12_ROOT_PARAMETER {
 } D3D12_ROOT_PARAMETER;
 ```
 
-ルート シグネチャの「1 つの口」です。口の種類は 3 つで、`ParameterType` で選びます。
+ルート シグネチャの「1 つの口」です。口の種類は 3 つで `ParameterType` で選びます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -109,13 +109,13 @@ typedef struct D3D12_ROOT_PARAMETER {
 | `Descriptor` | `D3D12_ROOT_DESCRIPTOR` | 種類が `CBV`、`SRV`、`UAV` のとき |
 | `ShaderVisibility` | `D3D12_SHADER_VISIBILITY` | この口が見えるステージ |
 
-`DESCRIPTOR_TABLE` は、ディスクリプタ ヒープの連続した区間を指す 1 DWORD のポインタです。テクスチャを何枚も使うときの標準の方法です。`32BIT_CONSTANTS` は、数 DWORD の値をコマンド リストに直接書き込む方法で、毎フレーム変わる小さな値（行列 1 つなど）に向きます。`CBV` / `SRV` / `UAV` は、ヒープを介さず、バッファの GPU アドレスを直接渡します。アドレスなので 2 DWORD を使います。
+`DESCRIPTOR_TABLE` はディスクリプタ ヒープの連続した区間を指す 1 DWORD のポインタです。テクスチャを何枚も使うときの標準の方法です。`32BIT_CONSTANTS` は数 DWORD の値をコマンド リストに直接書き込む方法で、毎フレーム変わる小さな値（行列 1 つなど）に向きます。`CBV` / `SRV` / `UAV` はヒープを介さずバッファの GPU アドレスを直接渡します。アドレスなので 2 DWORD を使います。
 
-ルート シグネチャの大きさは 64 DWORD までです。テーブルが 1、定数が値の数、直接のディスクリプタが 2 を消費します。多く使うと、ドライバーがルート引数をメモリへ退避するようになり、遅くなります。
+ルート シグネチャの大きさは 64 DWORD までです。テーブルが 1、定数が値の数、直接のディスクリプタが 2 を消費します。多く使うとドライバーがルート引数をメモリへ退避するようになり遅くなります。
 
-`ShaderVisibility` は、`ALL` ならすべてのステージから見え、`PIXEL` などに絞ると、そのステージだけになります。絞ったほうが無駄が減りますが、頂点シェーダーとピクセル シェーダーの両方で使うリソースを `PIXEL` にすると、頂点側で読めません。迷ったら `ALL` です。
+`ShaderVisibility` は `ALL` ならすべてのステージから見え `PIXEL` などに絞ると、そのステージだけになります。絞ったほうが無駄が減りますが、頂点シェーダーとピクセル シェーダーの両方で使うリソースを `PIXEL` にすると、頂点側で読めません。迷ったら `ALL` です。
 
-`ParameterType` が違うのに別の共用体のメンバーを埋めてしまうミスがあります。たとえば `CBV` なのに `DescriptorTable` に書くと、ルートの値が 0 のままで、デバッグ レイヤーのエラーになります。
+`ParameterType` が違うのに別の共用体のメンバーを埋めてしまうミスがあります。たとえば `CBV` なのに `DescriptorTable` に書くとルートの値が 0 のままで、デバッグ レイヤーのエラーになります。
 
 ```cpp
 std::array<D3D12_ROOT_PARAMETER, 2> parameters = {};
@@ -135,8 +135,8 @@ parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 !!! failure "よくあるミス"
     - ルート パラメーターのインデックスを間違えて、別のリソースが結びつく。
-    - 範囲の配列（`D3D12_DESCRIPTOR_RANGE`）をローカル変数のまま関数を抜けて、ポインタが無効になる。シリアライズが終わるまで、配列を生かしておく。
-    - シェーダーの `register(t0)` と、`BaseShaderRegister` が合わない。
+    - 範囲の配列（`D3D12_DESCRIPTOR_RANGE`）をローカル変数のまま関数を抜けて、ポインタが無効になる。シリアライズが終わるまで配列を生かしておく。
+    - シェーダーの `register(t0)` と `BaseShaderRegister` が合わない。
 
 ## D3D12_DESCRIPTOR_RANGE {#d3d12_descriptor_range}
 
@@ -160,11 +160,11 @@ typedef struct D3D12_DESCRIPTOR_RANGE {
 | `RegisterSpace` | `UINT` | レジスタ スペース。通常は 0 |
 | `OffsetInDescriptorsFromTableStart` | `UINT` | テーブルの先頭からの位置。`D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND` で直前の続き |
 
-`RangeType` は、HLSL の `t`（SRV）、`u`（UAV）、`b`（CBV）、`s`（サンプラー）に対応します。`t0` から 4 枚のテクスチャを使うなら、`RangeType = SRV`、`NumDescriptors = 4`、`BaseShaderRegister = 0` です。`NumDescriptors` に `UINT_MAX` を入れると、無制限（バインドレス）として扱われます。
+`RangeType` は HLSL の `t`（SRV）、`u`（UAV）、`b`（CBV）、`s`（サンプラー）に対応します。`t0` から 4 枚のテクスチャを使うなら `RangeType = SRV`、`NumDescriptors = 4`、`BaseShaderRegister = 0` です。`NumDescriptors` に `UINT_MAX` を入れると無制限（バインドレス）として扱われます。
 
-`RegisterSpace` を変えると、同じ `t0` でも別の領域として扱えます。ライブラリごとに空間を分けたいときに使い、普通は 0 です。
+`RegisterSpace` を変えると同じ `t0` でも別の領域として扱えます。ライブラリごとに空間を分けたいときに使い普通は 0 です。
 
-`OffsetInDescriptorsFromTableStart` に `D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND` を入れると、前の区間の直後に続きます。これを使えば、位置を自分で数えなくて済みます。
+`OffsetInDescriptorsFromTableStart` に `D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND` を入れると前の区間の直後に続きます。これを使えば位置を自分で数えなくて済みます。
 
 ```cpp
 D3D12_DESCRIPTOR_RANGE srv_range = {};
@@ -191,7 +191,7 @@ typedef struct D3D12_ROOT_DESCRIPTOR_TABLE {
 | `NumDescriptorRanges` | `UINT` | 区間の数 |
 | `pDescriptorRanges` | `const D3D12_DESCRIPTOR_RANGE*` | 区間の配列 |
 
-1 つのテーブルに `CBV` の区間と `SRV` の区間を並べることもできます。1 回の `SetGraphicsRootDescriptorTable` で、その全部のヒープの区間を結びつけられます。ただし、サンプラーは別のヒープなので、同じテーブルには混ぜられません。
+1 つのテーブルに `CBV` の区間と `SRV` の区間を並べることもできます。1 回の `SetGraphicsRootDescriptorTable` でその全部のヒープの区間を結びつけられます。ただし、サンプラーは別のヒープなので、同じテーブルには混ぜられません。
 
 ## D3D12_ROOT_CONSTANTS {#d3d12_root_constants}
 
@@ -203,7 +203,7 @@ typedef struct D3D12_ROOT_CONSTANTS {
 } D3D12_ROOT_CONSTANTS;
 ```
 
-定数をディスクリプタを介さずルートに直接置く指定です。シェーダーからは、`cbuffer` の定数バッファとして見えます。
+定数をディスクリプタを介さずルートに直接置く指定です。シェーダーからは `cbuffer` の定数バッファとして見えます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ typedef struct D3D12_ROOT_CONSTANTS {
 | `RegisterSpace` | `UINT` | 通常は 0 |
 | `Num32BitValues` | `UINT` | 32 ビット値の個数 |
 
-`Num32BitValues` は DWORD の数です。4×4 行列 1 つなら 16、`float4` 1 つなら 4 です。値は `SetGraphicsRoot32BitConstants` で、コマンド リストに直接書き込みます。コマンド リストに値が埋め込まれるため、毎回ヒープを更新する必要がなく、速いのですが、ルートの 64 DWORD の枠を使うので、大きいデータには向きません。
+`Num32BitValues` は DWORD の数です。4×4 行列 1 つなら 16、`float4` 1 つなら 4 です。値は `SetGraphicsRoot32BitConstants` でコマンド リストに直接書き込みます。コマンド リストに値が埋め込まれるため、毎回ヒープを更新する必要がなく、速いのですがルートの 64 DWORD の枠を使うので、大きいデータには向きません。
 
 ## D3D12_ROOT_DESCRIPTOR {#d3d12_root_descriptor}
 
@@ -229,7 +229,7 @@ CBV / SRV / UAV をヒープを介さず GPU アドレスで直接結びつけ�
 | `ShaderRegister` | `UINT` | レジスタ番号（`b0` なら 0） |
 | `RegisterSpace` | `UINT` | 通常は 0 |
 
-実際のアドレスは、コマンド リストの `SetGraphicsRootConstantBufferView` などに `GetGPUVirtualAddress()` の値を渡して設定します。ヒープのディスクリプタを作る手間がなく、毎フレーム変わる定数バッファに便利です。ただし、バッファとしてしか結びつけられず、テクスチャは指せません。直接の SRV や UAV は、構造化バッファや、バイト アドレス バッファに限られます。
+実際のアドレスはコマンド リストの `SetGraphicsRootConstantBufferView` などに `GetGPUVirtualAddress()` の値を渡して設定します。ヒープのディスクリプタを作る手間がなく、毎フレーム変わる定数バッファに便利です。ただし、バッファとしてしか結びつけられずテクスチャは指せません。直接の SRV や UAV は構造化バッファやバイト アドレス バッファに限られます。
 
 ## D3D12_ROOT_SIGNATURE_FLAGS {#d3d12_root_signature_flags}
 
@@ -251,23 +251,23 @@ typedef enum D3D12_ROOT_SIGNATURE_FLAGS {
 } D3D12_ROOT_SIGNATURE_FLAGS;
 ```
 
-`D3D12_ROOT_SIGNATURE_DESC::Flags` に入れる、ビットの組み合わせです。大きく分けると、「入力アセンブラを使うか」「どのステージにルートを見せないか」「ストリーム出力を使うか」「ローカルか」「ヒープを番号で直接引くか」の 5 種類です。
+`D3D12_ROOT_SIGNATURE_DESC::Flags` に入れるビットの組み合わせです。大きく分けると「入力アセンブラを使うか」「どのステージにルートを見せないか」「ストリーム出力を使うか」「ローカルか」「ヒープを番号で直接引くか」の 5 種類です。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_NONE {#d3d12_root_signature_flag_none}
 
-何も指定しません。コンピュート シェーダーだけのルート シグネチャや、頂点バッファを使わず `SV_VertexID` で頂点を作る描画なら、これで足ります。頂点バッファの入力レイアウトを持つ PSO と組み合わせると、描画時にエラーになります。
+何も指定しません。コンピュート シェーダーだけのルート シグネチャや頂点バッファを使わず `SV_VertexID` で頂点を作る描画なら、これで足ります。頂点バッファの入力レイアウトを持つ PSO と組み合わせると、描画時にエラーになります。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT {#d3d12_root_signature_flag_allow_input_assembler_input_layout}
 
-入力アセンブラ（頂点バッファとインデックス バッファ）を使う描画に必要です。付け忘れると、入力レイアウトを持つ PSO を作る段階か、描画する段階でエラーになります。頂点バッファを使わないメッシュ シェーダーの経路では、付けません。付けたままでも動きますが、ドライバーが IA 用の準備をするぶん、わずかに無駄です。
+入力アセンブラ（頂点バッファとインデックス バッファ）を使う描画に必要です。付け忘れると入力レイアウトを持つ PSO を作る段階か描画する段階でエラーになります。頂点バッファを使わないメッシュ シェーダーの経路では、付けません。付けたままでも動きますがドライバーが IA 用の準備をするぶんわずかに無駄です。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS {#d3d12_root_signature_flag_deny_vertex_shader_root_access}
 
-頂点シェーダーからルート引数を見えなくします。DENY 系は、「このステージはルートを使わない」と宣言する最適化のヒントです。ドライバーは、そのステージのためにルート引数の枠を確保しなくて済みます。ただし、ルート パラメーターの `ShaderVisibility` で個別に絞るほうが細かく指定できるので、実際には全体で足りることが多く、必須の指定ではありません。
+頂点シェーダーからルート引数を見えなくします。DENY 系は「このステージはルートを使わない」と宣言する最適化のヒントです。ドライバーはそのステージのためにルート引数の枠を確保しなくて済みます。ただし、ルート パラメーターの `ShaderVisibility` で個別に絞るほうが細かく指定できるので、実際には全体で足りることが多く、必須の指定ではありません。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS {#d3d12_root_signature_flag_deny_hull_shader_root_access}
 
-ハル シェーダー（テッセレーションの制御点を扱うステージ）から見えなくします。テッセレーションを使わないなら、付けておくとドライバーの手間が減ります。
+ハル シェーダー（テッセレーションの制御点を扱うステージ）から見えなくします。テッセレーションを使わないなら付けておくとドライバーの手間が減ります。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS {#d3d12_root_signature_flag_deny_domain_shader_root_access}
 
@@ -287,7 +287,7 @@ typedef enum D3D12_ROOT_SIGNATURE_FLAGS {
 
 #### D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE {#d3d12_root_signature_flag_local_root_signature}
 
-DirectX Raytracing のローカル ルート シグネチャであることを表します。シェーダー テーブルのレコードごとに違う引数を持たせるときに使い、通常のグラフィックスやコンピュートには付けません。
+DirectX Raytracing のローカル ルート シグネチャであることを表します。シェーダー テーブルのレコードごとに違う引数を持たせるときに使い通常のグラフィックスやコンピュートには付けません。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS {#d3d12_root_signature_flag_deny_amplification_shader_root_access}
 
@@ -299,9 +299,9 @@ DirectX Raytracing のローカル ルート シグネチャであることを�
 
 #### D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED {#d3d12_root_signature_flag_cbv_srv_uav_heap_directly_indexed}
 
-Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェーダーは、バインドされている CBV/SRV/UAV ヒープを番号で直接引けるようになります。バインドレスの土台です。付けずに `ResourceDescriptorHeap` を使うシェーダーで PSO を作ると失敗します。このフラグはバージョン 1.1 の記述でシリアライズします。
+Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェーダーはバインドされている CBV/SRV/UAV ヒープを番号で直接引けるようになります。バインドレスの土台です。付けずに `ResourceDescriptorHeap` を使うシェーダーで PSO を作ると失敗します。このフラグはバージョン 1.1 の記述でシリアライズします。
 
-もう 1 つ決まりがあります。このフラグを付けたルート シグネチャは、`SetGraphicsRootSignature` を呼ぶ時点で、ヒープがすでに `SetDescriptorHeaps` で結ばれている必要があります。順序が逆だと、デバッグ レイヤーがエラーを出します（[バインドレス](../../../graphics/pipeline/gpu-driven-dx12/bindless.md)）。
+もう 1 つ決まりがあります。このフラグを付けたルート シグネチャは、`SetGraphicsRootSignature` を呼ぶ時点でヒープがすでに `SetDescriptorHeaps` で結ばれている必要があります。順序が逆だとデバッグ レイヤーがエラーを出します（[バインドレス](../../../graphics/pipeline/gpu-driven-dx12/bindless.md)）。
 
 #### D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED {#d3d12_root_signature_flag_sampler_heap_directly_indexed}
 
@@ -309,7 +309,7 @@ Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェー�
 
 ## バージョン 1.1 の構造体 {#root-signature-v1-1}
 
-バージョン 1.1 では、構造体のほとんどに `1` の付いた版（`D3D12_ROOT_SIGNATURE_DESC1`、`D3D12_ROOT_PARAMETER1`、`D3D12_DESCRIPTOR_RANGE1`、`D3D12_ROOT_DESCRIPTOR1`）があります。1.0 との違いは、ドライバーへの「約束」を書く `Flags` メンバーが増えたことだけです。約束を書くと、ドライバーはヒープの中身や、バッファの中身が実行中に変わらないことを前提にして、ルート引数を最適に扱えます。
+バージョン 1.1 では構造体のほとんどに `1` の付いた版（`D3D12_ROOT_SIGNATURE_DESC1`、`D3D12_ROOT_PARAMETER1`、`D3D12_DESCRIPTOR_RANGE1`、`D3D12_ROOT_DESCRIPTOR1`）があります。1.0 との違いはドライバーへの「約束」を書く `Flags` メンバーが増えたことだけです。約束を書くとドライバーはヒープの中身やバッファの中身が実行中に変わらないことを前提にして、ルート引数を最適に扱えます。
 
 ```cpp
 typedef struct D3D12_DESCRIPTOR_RANGE1 {
@@ -328,23 +328,23 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 } D3D12_ROOT_DESCRIPTOR1;
 ```
 
-バージョン 1.0 と 1.1 の構造体を 1 つの入れ物で扱うのが `D3D12_VERSIONED_ROOT_SIGNATURE_DESC` です。`Version` で `D3D_ROOT_SIGNATURE_VERSION_1_0` か `_1_1` を選び、対応する `Desc_1_0` か `Desc_1_1` を埋めます。シリアライズは `D3D12SerializeVersionedRootSignature` で行います（[D3D12SerializeRootSignature](d3d12serializerootsignature.md)）。
+バージョン 1.0 と 1.1 の構造体を 1 つの入れ物で扱うのが `D3D12_VERSIONED_ROOT_SIGNATURE_DESC` です。`Version` で `D3D_ROOT_SIGNATURE_VERSION_1_0` か `_1_1` を選び対応する `Desc_1_0` か `Desc_1_1` を埋めます。シリアライズは `D3D12SerializeVersionedRootSignature` で行います（[D3D12SerializeRootSignature](d3d12serializerootsignature.md)）。
 
 ### D3D12_DESCRIPTOR_RANGE_FLAGS {#d3d12_descriptor_range_flags}
 
-`D3D12_DESCRIPTOR_RANGE1::Flags` に入れる、ディスクリプタ テーブルの 1 区間への約束です。2 種類の約束があります。1 つは「ヒープに書かれたディスクリプタ自体」が変わるか、もう 1 つは「ディスクリプタが指すデータ（バッファやテクスチャの中身）」が変わるかです。
+`D3D12_DESCRIPTOR_RANGE1::Flags` に入れるディスクリプタ テーブルの 1 区間への約束です。2 種類の約束があります。1 つは「ヒープに書かれたディスクリプタ自体」が変わるかもう 1 つは「ディスクリプタが指すデータ（バッファやテクスチャの中身）」が変わるかです。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_NONE {#d3d12_descriptor_range_flag_none}
 
-既定の約束です。CBV と SRV の区間なら、「ディスクリプタは、テーブルが設定されてから実行が終わるまで変わらない。データも、同じ間は変わらない」という約束になります。UAV の区間は、UAV がシェーダーから書かれるので、データは変わりうる（`DATA_VOLATILE`）ことになります。バージョン 1.0 は、すべてが変わりうる（volatile）という最も緩い約束でした。
+既定の約束です。CBV と SRV の区間なら「ディスクリプタは、テーブルが設定されてから実行が終わるまで変わらない。データも同じ間は変わらない」という約束になります。UAV の区間は UAV がシェーダーから書かれるので、データは変わりうる（`DATA_VOLATILE`）ことになります。バージョン 1.0 はすべてが変わりうる（volatile）という最も緩い約束でした。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE {#d3d12_descriptor_range_flag_descriptors_volatile}
 
-ディスクリプタがコマンド リストの実行中に書き換えられるかもしれないと伝えます。バインドレスで、テクスチャを後から読み込んで空き番号を埋める使い方では、この指定が必要です。ドライバーは、ディスクリプタを先読みしたり、キャッシュしたりできなくなるので、必要な区間だけに付けます。
+ディスクリプタがコマンド リストの実行中に書き換えられるかもしれないと伝えます。バインドレスでテクスチャを後から読み込んで空き番号を埋める使い方では、この指定が必要です。ドライバーはディスクリプタを先読みしたりキャッシュしたりできなくなるので、必要な区間だけに付けます。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE {#d3d12_descriptor_range_flag_data_volatile}
 
-ディスクリプタが指すデータが実行中に書き換えられるかもしれないと伝えます。UAV で書く区間は、これが既定です。CBV や SRV の区間に付けると、ドライバーはデータをキャッシュできなくなります。
+ディスクリプタが指すデータが実行中に書き換えられるかもしれないと伝えます。UAV で書く区間はこれが既定です。CBV や SRV の区間に付けると、ドライバーはデータをキャッシュできなくなります。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE {#d3d12_descriptor_range_flag_data_static_while_set_at_execute}
 
@@ -352,15 +352,15 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC {#d3d12_descriptor_range_flag_data_static}
 
-データがディスクリプタが設定された時点から、二度と変わらないと約束します。最も強い約束で、読み込んだあとに書き換えない静的なテクスチャに向きます。この約束を破ると、描画結果は未定義です。
+データがディスクリプタが設定された時点から、二度と変わらないと約束します。最も強い約束で読み込んだあとに書き換えない静的なテクスチャに向きます。この約束を破ると描画結果は未定義です。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_STATIC_KEEPING_BUFFER_BOUNDS_CHECKS {#d3d12_descriptor_range_flag_descriptors_static_keeping_buffer_bounds_checks}
 
-ディスクリプタは変わらないと約束しつつ、バッファの範囲外アクセスの検査は残します。ディスクリプタが静的なら範囲検査を省けるドライバーがあるので、検査を省かせたくない（範囲外アクセスを 0 として扱う挙動を保ちたい）ときに使います。
+ディスクリプタは変わらないと約束しつつバッファの範囲外アクセスの検査は残します。ディスクリプタが静的なら範囲検査を省けるドライバーがあるので、検査を省かせたくない（範囲外アクセスを 0 として扱う挙動を保ちたい）ときに使います。
 
 ### D3D12_ROOT_DESCRIPTOR_FLAGS {#d3d12_root_descriptor_flags}
 
-`D3D12_ROOT_DESCRIPTOR1::Flags` に入れる、ルート CBV / SRV / UAV への約束です。ルート ディスクリプタはアドレスそのものなので、ディスクリプタが変わるという概念がなく、データが変わるかどうかだけを約束します。
+`D3D12_ROOT_DESCRIPTOR1::Flags` に入れるルート CBV / SRV / UAV への約束です。ルート ディスクリプタはアドレスそのものなので、ディスクリプタが変わるという概念がなく、データが変わるかどうかだけを約束します。
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_NONE {#d3d12_root_descriptor_flag_none}
 
@@ -372,15 +372,15 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE {#d3d12_root_descriptor_flag_data_static_while_set_at_execute}
 
-データがルート引数として設定されている間は変わらないと約束します。フレームの頭にアップロードしたあと、そのフレームでは書き換えないインスタンス バッファやマテリアル バッファに向いています。
+データがルート引数として設定されている間は変わらないと約束します。フレームの頭にアップロードしたあとそのフレームでは書き換えないインスタンス バッファやマテリアル バッファに向いています。
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC {#d3d12_root_descriptor_flag_data_static}
 
-データが設定された時点から二度と変わらないと約束します。起動時に作って、そのまま使い続ける定数バッファなどです。
+データが設定された時点から二度と変わらないと約束します。起動時に作ってそのまま使い続ける定数バッファなどです。
 
 ### D3D12_SHADER_VISIBILITY {#d3d12_shader_visibility}
 
-`D3D12_ROOT_PARAMETER::ShaderVisibility` と `D3D12_STATIC_SAMPLER_DESC::ShaderVisibility` に入れる値です。`ALL`、`VERTEX`、`HULL`、`DOMAIN`、`GEOMETRY`、`PIXEL`、`AMPLIFICATION`、`MESH` があります。ステージを 1 つだけ指定すると、そのステージからだけ見えます。複数のステージで同じリソースを使うなら `ALL` にします。絞ったほうが、ドライバーが不要なステージへの受け渡しを省けます。
+`D3D12_ROOT_PARAMETER::ShaderVisibility` と `D3D12_STATIC_SAMPLER_DESC::ShaderVisibility` に入れる値です。`ALL`、`VERTEX`、`HULL`、`DOMAIN`、`GEOMETRY`、`PIXEL`、`AMPLIFICATION`、`MESH` があります。ステージを 1 つだけ指定すると、そのステージからだけ見えます。複数のステージで同じリソースを使うなら `ALL` にします。絞ったほうがドライバーが不要なステージへの受け渡しを省けます。
 
 ## 関連ページ
 

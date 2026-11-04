@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>深度ステンシル ステート</strong>は、<strong>深度テストとステンシル テストをどう行うか</strong>の設定です。「深度を比べるか」「テストに通ったら深度を書くか」「ステンシルをどう使うか」を決めます。不透明な物、半透明の物、ポスト プロセス、シャドウでそれぞれ設定が違うので、用途ごとにステートを作って切り替えます。
+<strong>深度ステンシル ステート</strong>は <strong>深度テストとステンシル テストをどう行うか</strong>の設定です。「深度を比べるか」「テストに通ったら深度を書くか」「ステンシルをどう使うか」を決めます。不透明な物、半透明の物、ポスト プロセス、シャドウでそれぞれ設定が違うので、用途ごとにステートを作って切り替えます。
 
 !!! tip "ポイント"
-    - 深度ステート ＝ 深度テストの、有効・無効、比較関数、書き込みの有無。
+    - 深度ステート ＝ 深度テストの有効・無効、比較関数、書き込みの有無。
     - <strong>不透明</strong>: テスト有り・書き込み有り・`LESS`。<strong>半透明</strong>: テスト有り・書き込み<strong>無し</strong>。<strong>ポスト プロセス</strong>: テスト無し・書き込み無し。
     - ステートは `CreateDepthStencilState` で作り `OMSetDepthStencilState` で、つなぐ。
-    - 作ったステートは、使い回す（毎フレーム、作らない）。
-    - ステンシルはマスク（皮膚だけ、ポータルの中だけ）に使う。
+    - 作ったステートは使い回す（毎フレーム、作らない）。
+    - ステンシルはマスク（皮膚だけポータルの中だけ）に使う。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -39,22 +39,20 @@ device->CreateDepthStencilState(&desc, &state);
 context->OMSetDepthStencilState(state.Get(), 0);            // 第 2 引数: ステンシルの、参照値
 ```
 
-| メンバー | 内容 |
-| --- | --- |
-| `DepthEnable` | 深度テストを行うか |
-| `DepthWriteMask` | `ALL`（書く）、`ZERO`（書かない） |
-| `DepthFunc` | 比較関数（下の表） |
-| `StencilEnable` | ステンシルを使うか |
-| `StencilReadMask`・`StencilWriteMask` | ステンシルの、読み書きのビット マスク |
-| `FrontFace`・`BackFace` | 表面・裏面の、ステンシルの動作 |
+- `DepthEnable`: 深度テストを行うか
+- `DepthWriteMask`: `ALL`（書く）、`ZERO`（書かない）
+- `DepthFunc`: 比較関数（下の表）
+- `StencilEnable`: ステンシルを使うか
+- `StencilReadMask`・`StencilWriteMask`: ステンシルの読み書きのビット マスク
+- `FrontFace`・`BackFace`: 表面・裏面のステンシルの動作
 
-D3D11 の既定のステート（何も、設定しないとき）は `DepthEnable = TRUE`、`WriteMask = ALL`、`DepthFunc = LESS`、`StencilEnable = FALSE` です。
+D3D11 の既定のステート（何も設定しないとき）は `DepthEnable = TRUE`、`WriteMask = ALL`、`DepthFunc = LESS`、`StencilEnable = FALSE` です。
 
 ## 比較関数
 
 | `DepthFunc` | 通る条件（新しい深度 `<op>` バッファの深度） | 使いどころ |
 | --- | --- | --- |
-| `LESS` | より小さい（近い） | 通常の、不透明 |
+| `LESS` | より小さい（近い） | 通常の不透明 |
 | `LESS_EQUAL` | 以下 | 深度を事前に描いた後の本描画（同じ深度を通す） |
 | `GREATER` | より大きい | reverse-Z で、通常の描画 |
 | `GREATER_EQUAL` | 以上 | reverse-Z で、事前深度の後 |
@@ -62,7 +60,7 @@ D3D11 の既定のステート（何も、設定しないとき）は `DepthEnab
 | `ALWAYS` | 常に通る | 深度に関係なく描く（UI） |
 | `NEVER` | 通らない | 使わない |
 
-<strong>reverse-Z</strong>（近い面が 1、遠い面が 0）を使うときは `LESS` を `GREATER` に `LESS_EQUAL` を `GREATER_EQUAL` に、読み替えます。クリア値も `1.0` から `0.0` に変えます。
+<strong>reverse-Z</strong>（近い面が 1、遠い面が 0）を使うときは `LESS` を `GREATER` に `LESS_EQUAL` を `GREATER_EQUAL` に読み替えます。クリア値も `1.0` から `0.0` に変えます。
 
 ## 用途別のステート
 
@@ -84,7 +82,7 @@ D3D11_DEPTH_STENCIL_DESC desc = {};
 desc.DepthEnable = FALSE;                                   // 深度テストなし・書き込みなし
 ```
 
-画面全体にパスを走らせるときは、深度テストを無効にします。
+画面全体にパスを走らせるときは深度テストを無効にします。
 
 ### 事前深度パス（Z プリパス）
 
@@ -159,7 +157,7 @@ context->OMSetDepthStencilState(skin_test_state.Get(), 1);
 
 ## ステートの使い回し
 
-ステートは <strong>不変（イミュータブル）</strong>な、オブジェクトで作ったら変更できません。用途ごとに起動時に作り毎フレーム、`OMSetDepthStencilState` で切り替えます。
+ステートは <strong>不変（イミュータブル）</strong>なオブジェクトで作ったら変更できません。用途ごとに起動時に作り毎フレーム、`OMSetDepthStencilState` で切り替えます。
 
 ```cpp
 struct DepthStates {
@@ -181,18 +179,18 @@ struct DepthStates {
 ??? failure "事前深度の後、本描画でちらつく（Z ファイティング）"
     `LESS` で同じ深度を通そうとして、はじかれている。`EQUAL`、または `LESS_EQUAL` を使う。頂点シェーダーの計算が 2 つのパスで、同じ結果になるように `invariant` を考える。
 
-??? failure "reverse-Z にしたのに何も、描かれない"
+??? failure "reverse-Z にしたのに何も描かれない"
     `DepthFunc` が `LESS` のまま。クリア値が `1.0` のまま。`GREATER` と `0.0` にそろえる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 深度ステート ＝ 深度テストの、設定（有効・書き込み・比較関数）
-    - [x] 不透明は、テスト有り・書き込み有り。半透明は書き込み無し。ポスト プロセスは無し
-    - [x] 事前深度の後は、`EQUAL`（または `LESS_EQUAL`）
+    - [x] 深度ステート ＝ 深度テストの設定（有効・書き込み・比較関数）
+    - [x] 不透明はテスト有り・書き込み有り。半透明は書き込み無し。ポスト プロセスは無し
+    - [x] 事前深度の後は `EQUAL`（または `LESS_EQUAL`）
     - [x] reverse-Z は `GREATER`、クリア 0.0
-    - [x] ステンシルは、マスク（皮膚、ポータル）
-    - [x] ステートは、起動時に作り使い回す
+    - [x] ステンシルはマスク（皮膚、ポータル）
+    - [x] ステートは起動時に作り使い回す
 
 ## 関連ページ
 

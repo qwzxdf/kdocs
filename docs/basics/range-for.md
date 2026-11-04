@@ -11,7 +11,7 @@ tags:
 <span class="ver ver-11">C++11</span>
 </div>
 
-**範囲 for** は、**コンテナの要素を先頭から順に 1 つずつ取り出して処理するループ**です。`for (要素の変数 : コンテナ)` と書くだけで、添字やイテレータを自分で管理しなくても全要素を回せます。vector、array、string、map、C の配列、ビューなど、`begin()` と `end()` があるものなら何でも回せます。
+**範囲 for** は**コンテナの要素を先頭から順に 1 つずつ取り出して処理するループ**です。`for (要素の変数 : コンテナ)` と書くだけで添字やイテレータを自分で管理しなくても全要素を回せます。vector、array、string、map、C の配列、ビューなど `begin()` と `end()` があるものなら何でも回せます。
 
 !!! tip "ポイント"
     - <strong>読むだけなら `for (const auto& x : v)`、書き換えるなら `for (auto& x : v)`。</strong>
@@ -126,7 +126,7 @@ for (auto& x : v) {
 }
 ```
 
-は、だいたい次と同じ意味です。
+はだいたい次と同じ意味です。
 
 ```cpp
 for (auto it = v.begin(); it != v.end(); ++it) {
@@ -135,7 +135,7 @@ for (auto it = v.begin(); it != v.end(); ++it) {
 }
 ```
 
-なので、`begin()` / `end()` を持つ自作のクラスも範囲 for で回せます（[イテレータ](iterator.md)）。
+なので `begin()` / `end()` を持つ自作のクラスも範囲 for で回せます（[イテレータ](iterator.md)）。
 
 ### 後ろから・一部だけ回す
 
@@ -191,7 +191,7 @@ for (const auto& sprite : sprites) {
     }
     ```
 
-    追加するものは別の vector に溜めておき、ループの後で `append_range` します。削除は [`std::erase_if`](../stl/algorithms/erase_if.md) を使います。
+    追加するものは別の vector に溜めておきループの後で `append_range` します。削除は [`std::erase_if`](../stl/algorithms/erase_if.md) を使います。
 
 ??? failure "一時オブジェクトのメンバを回す"
     ```cpp

@@ -261,16 +261,14 @@ items:
 
 rapidyaml の中では、**すべての値は文字列**として持っています（`level: 12` の `12` も、文字列 `"12"`）。`>>` で読むときに、受け取る変数の型に合わせて変換します。
 
-| 受け取る型 | 変換 |
-| --- | --- |
-| `int`、`unsigned`、`std::int64_t` など | 整数として読む。`0x1F`（16 進）なども読める |
-| `float`、`double` | 小数として読む |
-| `bool` | `true` / `false` などを読む |
-| `std::string`（`ryml_std.hpp` が必要） | 文字列をコピー |
-| `ryml::csubstr` | コピーせずに指すだけ（木が消えると使えない） |
-| `std::vector<T>`（`ryml_std.hpp` が必要） | シーケンスを読む |
-| `std::map<K, V>`（`ryml_std.hpp` が必要） | マップを読む |
-| 自作の型 | `read` 関数を書く（[自作の型](#custom)） |
+- `int`、`unsigned`、`std::int64_t` など: 整数として読む。`0x1F`（16 進）なども読める
+- `float`、`double`: 小数として読む
+- `bool`: `true` / `false` などを読む
+- `std::string`（`ryml_std.hpp` が必要）: 文字列をコピー
+- `ryml::csubstr`: コピーせずに指すだけ（木が消えると使えない）
+- `std::vector<T>`（`ryml_std.hpp` が必要）: シーケンスを読む
+- `std::map<K, V>`（`ryml_std.hpp` が必要）: マップを読む
+- 自作の型: `read` 関数を書く（[自作の型](#custom)）
 
 この仕組みのおかげで、`version: 1.10` を文字列として読めば `"1.10"` のまま取れます（数値として先に解釈してしまうライブラリでは `1.1` になってしまうことがあります）。
 
@@ -371,12 +369,10 @@ try {
 
 自分のエラー処理関数（ログに出す、エディタにエラーを表示する、など）を使いたいときは、[set_callbacks](#set_callbacks) で登録します。
 
-| よくあるエラー | 原因 |
-| --- | --- |
-| 文法エラー（parse error） | 字下げのずれ、タブ、閉じていない括弧や引用符 |
-| 無いキーを読んだ | `ConstNodeRef` の `[]` で存在しないキーを取った |
-| 変換できない | `hp: たくさん` を `int` で読んだ |
-| 種類が違う | マップのノードを `std::vector` で読んだ |
+- 文法エラー（parse error）: 字下げのずれ、タブ、閉じていない括弧や引用符
+- 無いキーを読んだ: `ConstNodeRef` の `[]` で存在しないキーを取った
+- 変換できない: `hp: たくさん` を `int` で読んだ
+- 種類が違う: マップのノードを `std::vector` で読んだ
 
 !!! note "無いキーの扱い"
     `ConstNodeRef` に対して存在しないキーで `[]` を使うと、エラーになります（設定によっては assert で止まります）。無いかもしれないキーは、必ず `has_child` か `find_child` で確認してから読みます。
@@ -403,12 +399,10 @@ for (ryml::ConstNodeRef child : node.children()) {
 
 ## 速さの特徴
 
-| 項目 | 特徴 |
-| --- | --- |
-| 読み込みの速さ | YAML としては速い。yaml-cpp より数十倍以上速いことが多い |
-| JSON を読むとき | nlohmann/json より速いことが多いが、[simdjson](simdjson.md) ほどではない |
-| メモリ | ノードを 1 つの配列で持つので、確保の回数がとても少ない |
-| 一番速い使い方 | `parse_in_place` で入力を直接使う。`Tree` を使い回す（`clear()` して再利用） |
+- 読み込みの速さ: YAML としては速い。yaml-cpp より数十倍以上速いことが多い
+- JSON を読むとき: nlohmann/json より速いことが多いが、[simdjson](simdjson.md) ほどではない
+- メモリ: ノードを 1 つの配列で持つので、確保の回数がとても少ない
+- 一番速い使い方: `parse_in_place` で入力を直接使う。`Tree` を使い回す（`clear()` して再利用）
 
 ## 関数の詳しい説明
 
@@ -807,11 +801,9 @@ Callbacks const& get_callbacks();
 
 ### 設定マクロ
 
-| マクロ | 意味 |
-| --- | --- |
-| `RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS` | エラーで abort せず `std::runtime_error` を投げる |
-| `RYML_SINGLE_HDR_DEFINE_NOW` | 1 ファイル版で、関数の本体をこの `.cpp` に作る |
-| `RYML_USE_ASSERT` | ライブラリ内部の assert を有効にする（デバッグ用） |
+- `RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS`: エラーで abort せず `std::runtime_error` を投げる
+- `RYML_SINGLE_HDR_DEFINE_NOW`: 1 ファイル版で、関数の本体をこの `.cpp` に作る
+- `RYML_USE_ASSERT`: ライブラリ内部の assert を有効にする（デバッグ用）
 
 ## ゲームでの使いどころ
 

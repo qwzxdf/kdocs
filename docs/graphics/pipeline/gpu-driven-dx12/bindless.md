@@ -6,17 +6,17 @@ tags:
 
 # Bindless
 
-従来の描画では、物体を 1 つ描くたびに、CPU が「このドローはこのテクスチャ」とバインドしていました。GPU Driven では、何を描くかを決めるのがカリングのコンピュート シェーダーなので、CPU はどの物体が生き残るのか知りません。ドローの前にテクスチャをバインドしようにも、バインドする本人がいないのです。
+従来の描画では物体を 1 つ描くたびに CPU が「このドローはこのテクスチャ」とバインドしていました。GPU Driven では何を描くかを決めるのがカリングのコンピュート シェーダーなので、CPU はどの物体が生き残るのか知りません。ドローの前にテクスチャをバインドしようにもバインドする本人がいないのです。
 
-そこで発想を逆にします。全テクスチャの記述子を 1 つの大きなヒープに並べておき、シェーダーが「ヒープの何番目」と番号で直接引きます。この方式がバインドレスです。マテリアルが持つのは、テクスチャそのものではなくテクスチャの番号です。番号なら普通のバッファに入れておけるので、GPU が自分で読んで使えます。
+そこで発想を逆にします。全テクスチャの記述子を 1 つの大きなヒープに並べておきシェーダーが「ヒープの何番目」と番号で直接引きます。この方式がバインドレスです。マテリアルが持つのはテクスチャそのものではなくテクスチャの番号です。番号なら普通のバッファに入れておけるので、GPU が自分で読んで使えます。
 
-「結局どうバインドするのか」を先に答えると、毎ドローのバインドはゼロになり、フレームの頭で 1 回だけ、ヒープとルート シグネチャとバッファを結びます。
+「結局どうバインドするのか」を先に答えると、毎ドローのバインドはゼロになりフレームの頭で 1 回だけヒープとルート シグネチャとバッファを結びます。
 
 !!! tip "ポイント"
     - フレームの頭に結ぶのは、記述子ヒープ、ルート シグネチャ、インスタンス バッファ、マテリアル バッファの 4 つだけ。ドローごとの切り替えはない。
-    - ドローごとに変わる値は、`ExecuteIndirect` がルート定数として書き込む（インスタンス番号とマテリアル番号）。
+    - ドローごとに変わる値は `ExecuteIndirect` がルート定数として書き込む（インスタンス番号とマテリアル番号）。
     - シェーダーは「ルート定数 → マテリアル → テクスチャ番号 → `ResourceDescriptorHeap`」とたどる。
-    - SM 6.6 の `ResourceDescriptorHeap` を使うには、ルート シグネチャの専用フラグと、`SetDescriptorHeaps` を先に呼ぶ順序が要る。
+    - SM 6.6 の `ResourceDescriptorHeap` を使うには、ルート シグネチャの専用フラグと `SetDescriptorHeaps` を先に呼ぶ順序が要る。
     - ピクセルの中で番号が変わりうるなら `NonUniformResourceIndex` が必須。
     - 記述子を再利用するときは、GPU が使い終わるまで待つ（遅延解放）。
 
@@ -25,25 +25,25 @@ tags:
 
 ## 発想
 
-従来のバインド型とバインドレスの違いは、テクスチャを指定する主体が CPU か、シェーダーかという点です。
+従来のバインド型とバインドレスの違いは、テクスチャを指定する主体が CPU かシェーダーかという点です。
 
 | 方式 | テクスチャの指定 | GPU Driven との相性 |
 | --- | --- | --- |
 | バインド型 | ドローごとに CPU がテーブルを設定する | 合わない（CPU が何を描くか知らない） |
 | バインドレス | シェーダーが番号でヒープを直接引く | 合う（番号はバッファに入れておける） |
 
-1 回の `ExecuteIndirect` で、数万個の物体をそれぞれ違うテクスチャで描くには、この方式が前提になります。
+1 回の `ExecuteIndirect` で数万個の物体をそれぞれ違うテクスチャで描くには、この方式が前提になります。
 
-## 全体像：誰がいつ、何を結ぶか
+## 全体像：誰がいつ何を結ぶか
 
 話がいくつもの層にまたがるので、先に全部を並べます。
 
-1. アプリ起動時に 1 回、巨大な記述子ヒープを作ります。テクスチャを読み込むたびに、空いている番号へ SRV を書きます。
-2. フレームの頭に 1 回、`SetDescriptorHeaps` でヒープを結び、ルート シグネチャを設定し、インスタンス バッファとマテリアル バッファのアドレス（ルート SRV）と、フレーム定数（ルート CBV）を設定します。
-3. ドローごとの値は、`ExecuteIndirect` が引数バッファの中身をルート定数に書き込んでから描きます。CPU は何もしません。
-4. シェーダーの中では、ルート定数の番号でマテリアルを引き、マテリアルのテクスチャ番号でヒープを引きます。
+1. アプリ起動時に 1 回、巨大な記述子ヒープを作ります。テクスチャを読み込むたびに空いている番号へ SRV を書きます。
+2. フレームの頭に 1 回、`SetDescriptorHeaps` でヒープを結びルート シグネチャを設定し、インスタンス バッファとマテリアル バッファのアドレス（ルート SRV）と、フレーム定数（ルート CBV）を設定します。
+3. ドローごとの値は `ExecuteIndirect` が引数バッファの中身をルート定数に書き込んでから描きます。CPU は何もしません。
+4. シェーダーの中ではルート定数の番号でマテリアルを引きマテリアルのテクスチャ番号でヒープを引きます。
 
-たとえば岩のドローなら、次のようにたどります。
+たとえば岩のドローなら次のようにたどります。
 
 | 段階 | 値 | 引く先 |
 | --- | --- | --- |
@@ -72,9 +72,9 @@ struct MaterialData {
 static_assert(sizeof(MaterialData) == 48);
 ```
 
-先頭の 4 つの `uint32_t` が、ヒープの番号です。`orm_index` は、Occlusion、Roughness、Metallic を 1 枚の R、G、B に詰めたテクスチャで、サンプル回数を減らすための工夫です。残りは、テクスチャがないときの係数（`base_color` など）と、分岐用のフラグです。
+先頭の 4 つの `uint32_t` がヒープの番号です。`orm_index` は Occlusion、Roughness、Metallic を 1 枚の R、G、B に詰めたテクスチャでサンプル回数を減らすための工夫です。残りはテクスチャがないときの係数（`base_color` など）と分岐用のフラグです。
 
-HLSL 側は、同じ並びで宣言します。C++ の `static_assert` とそろえておかないと、番号がずれて別のテクスチャが引かれます。
+HLSL 側は同じ並びで宣言します。C++ の `static_assert` とそろえておかないと番号がずれて別のテクスチャが引かれます。
 
 ```hlsl
 struct Material {
@@ -97,7 +97,7 @@ static const uint kInvalidTexture = 0xFFFFFFFF;
 
 ## 記述子ヒープを作る
 
-バインドレスの土台は、シェーダーから見える（shader-visible）CBV/SRV/UAV ヒープを 1 つ、大きく作ることです。作り方は [ID3D12Device の `CreateDescriptorHeap`](../../../directx/dx12/api/id3d12device.md#createdescriptorheap) と [D3D12_DESCRIPTOR_HEAP_DESC](../../../directx/dx12/api/view-structs.md#d3d12_descriptor_heap_desc) で説明しているとおりで、ここでは容量の決め方を押さえます。
+バインドレスの土台はシェーダーから見える（shader-visible）CBV/SRV/UAV ヒープを 1 つ、大きく作ることです。作り方は [ID3D12Device の `CreateDescriptorHeap`](../../../directx/dx12/api/id3d12device.md#createdescriptorheap) と [D3D12_DESCRIPTOR_HEAP_DESC](../../../directx/dx12/api/view-structs.md#d3d12_descriptor_heap_desc) で説明しているとおりで、ここでは容量の決め方を押さえます。
 
 ```cpp
 D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
@@ -107,15 +107,15 @@ heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 heap_desc.NodeMask = 0;
 ```
 
-`NumDescriptors` は、ゲームで同時に読み込むテクスチャ数に余裕を見た値にします。シェーダーから見えるヒープの上限は、ResourceBindingTier によって変わります。Tier 1 と Tier 2 では 1,000,000 個までで、Tier 3 はこれを超えて確保できます。実際には数万個で足りることがほとんどなので、最初は 65536 のような値で始めます。
+`NumDescriptors` はゲームで同時に読み込むテクスチャ数に余裕を見た値にします。シェーダーから見えるヒープの上限は ResourceBindingTier によって変わります。Tier 1 と Tier 2 では 1,000,000 個までで、Tier 3 はこれを超えて確保できます。実際には数万個で足りることがほとんどなので、最初は 65536 のような値で始めます。
 
-`Flags` の `SHADER_VISIBLE` は、このヒープをシェーダーから引くために必須です。付けないヒープは CPU が書くための置き場でしかなく、`SetDescriptorHeaps` に渡せません。
+`Flags` の `SHADER_VISIBLE` はこのヒープをシェーダーから引くために必須です。付けないヒープは CPU が書くための置き場でしかなく、`SetDescriptorHeaps` に渡せません。
 
-サンプラーも番号で引きたいときは、別にサンプラー ヒープを作ります。こちらの上限は 2048 個です。数種類のフィルターしか使わないなら、サンプラーは静的サンプラー（ルート シグネチャに埋め込む）で十分で、バインドレスにする必要はありません。
+サンプラーも番号で引きたいときは別にサンプラー ヒープを作ります。こちらの上限は 2048 個です。数種類のフィルターしか使わないならサンプラーは静的サンプラー（ルート シグネチャに埋め込む）で十分で、バインドレスにする必要はありません。
 
 ## 記述子を登録する
 
-テクスチャを読み込んだら、空いている番号を 1 つもらい、その位置に SRV を書きます。番号の管理は、フリー リストで行います。
+テクスチャを読み込んだら空いている番号を 1 つもらいその位置に SRV を書きます。番号の管理はフリー リストで行います。
 
 ```cpp
 class BindlessHeap {
@@ -136,7 +136,7 @@ class BindlessHeap {
   }
 ```
 
-`GetDescriptorHandleIncrementSize` は、記述子 1 つの幅（バイト）で、GPU の種類によって違います。n 番目の位置を求めるのに使います。
+`GetDescriptorHandleIncrementSize` は記述子 1 つの幅（バイト）で、GPU の種類によって違います。n 番目の位置を求めるのに使います。
 
 ```cpp
   uint32_t Register(ID3D12Device* device, ID3D12Resource* texture,
@@ -150,9 +150,9 @@ class BindlessHeap {
   }
 ```
 
-`Register` は、空き番号を 1 つ取り出し、その番号の位置に SRV を書いて、番号を返します。返された番号が `MaterialData::albedo_index` などに入ります。
+`Register` は空き番号を 1 つ取り出し、その番号の位置に SRV を書いて、番号を返します。返された番号が `MaterialData::albedo_index` などに入ります。
 
-SRV の記述（`D3D12_SHADER_RESOURCE_VIEW_DESC`）は、バインドレスで事故が起きやすい所です。色テクスチャの例を示します。
+SRV の記述（`D3D12_SHADER_RESOURCE_VIEW_DESC`）はバインドレスで事故が起きやすい所です。色テクスチャの例を示します。
 
 ```cpp
 D3D12_SHADER_RESOURCE_VIEW_DESC MakeColorTextureSrv(const D3D12_RESOURCE_DESC& desc) {
@@ -168,17 +168,17 @@ D3D12_SHADER_RESOURCE_VIEW_DESC MakeColorTextureSrv(const D3D12_RESOURCE_DESC& d
 }
 ```
 
-メンバーごとに、バインドレスでの意味を説明します。全メンバーの一般的な意味は [D3D12_SHADER_RESOURCE_VIEW_DESC](../../../directx/dx12/api/view-structs.md#d3d12_shader_resource_view_desc) にあります。
+メンバーごとにバインドレスでの意味を説明します。全メンバーの一般的な意味は [D3D12_SHADER_RESOURCE_VIEW_DESC](../../../directx/dx12/api/view-structs.md#d3d12_shader_resource_view_desc) にあります。
 
-`Format` は、ビューの形式です。アルベドのような色のテクスチャは `_SRGB` の形式で読みます。`_SRGB` にすると、サンプルするときにハードウェアがリニアへ変換してくれるので、シェーダーで `pow(c, 2.2)` と書く必要がなくなります。法線マップや ORM のようなデータ用のテクスチャは `_SRGB` にしてはいけません。値が曲げられてしまいます。リソースを `R8G8B8A8_TYPELESS` で作っておけば、同じリソースから `_SRGB` のビューと `_UNORM` のビューを両方作れます。
+`Format` はビューの形式です。アルベドのような色のテクスチャは `_SRGB` の形式で読みます。`_SRGB` にするとサンプルするときにハードウェアがリニアへ変換してくれるので、シェーダーで `pow(c, 2.2)` と書く必要がなくなります。法線マップや ORM のようなデータ用のテクスチャは `_SRGB` にしてはいけません。値が曲げられてしまいます。リソースを `R8G8B8A8_TYPELESS` で作っておけば、同じリソースから `_SRGB` のビューと `_UNORM` のビューを両方作れます。
 
-`ViewDimension` は、シェーダーでの型と一致させます。`TEXTURE2D` で作った記述子は `Texture2D` として、`TEXTURECUBE` は `TextureCube` として引きます。ヒープの番号の指す SRV の種類と、シェーダーで宣言する型が食い違うと、読み出しは未定義になります。
+`ViewDimension` はシェーダーでの型と一致させます。`TEXTURE2D` で作った記述子は `Texture2D` として、`TEXTURECUBE` は `TextureCube` として引きます。ヒープの番号の指す SRV の種類とシェーダーで宣言する型が食い違うと読み出しは未定義になります。
 
-`Shader4ComponentMapping` は、R、G、B、A をどの成分から読むかを決めます。0 のままだと、全成分が成分 0 から読まれて、1 色の塗りつぶしに見えます。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING` を入れます。1 チャンネルのテクスチャ（高さマップなど）を R だけでなく G、B にも広げたいときは、`D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(0, 0, 0, 1)` のように組み立てます。
+`Shader4ComponentMapping` は R、G、B、A をどの成分から読むかを決めます。0 のままだと全成分が成分 0 から読まれて、1 色の塗りつぶしに見えます。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING` を入れます。1 チャンネルのテクスチャ（高さマップなど）を R だけでなく G、B にも広げたいときは `D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(0, 0, 0, 1)` のように組み立てます。
 
-`Texture2D.MostDetailedMip` と `MipLevels` は、ビューから見えるミップの範囲です。`MipLevels` に 0 を入れると作成に失敗するので、リソース側の値か、`-1`（すべて）を入れます。テクスチャ ストリーミングで、低解像度のミップしかまだ読み込んでいない場合は、`MostDetailedMip` を上げたビューを作ります。
+`Texture2D.MostDetailedMip` と `MipLevels` はビューから見えるミップの範囲です。`MipLevels` に 0 を入れると作成に失敗するので、リソース側の値か `-1`（すべて）を入れます。テクスチャ ストリーミングで、低解像度のミップしかまだ読み込んでいない場合は、`MostDetailedMip` を上げたビューを作ります。
 
-`ResourceMinLODClamp` は、これ未満の詳細度（小さい値ほど詳細）へは下げない下限です。通常は 0 です。ストリーミング中に読み込み前のミップを誤って引かないようにするために使います。
+`ResourceMinLODClamp` はこれ未満の詳細度（小さい値ほど詳細）へは下げない下限です。通常は 0 です。ストリーミング中に読み込み前のミップを誤って引かないようにするために使います。
 
 最後に、SRV を `nullptr` で作る方法があります。
 
@@ -186,11 +186,11 @@ D3D12_SHADER_RESOURCE_VIEW_DESC MakeColorTextureSrv(const D3D12_RESOURCE_DESC& d
 device->CreateShaderResourceView(texture, nullptr, handle);  // リソースの既定のビュー
 ```
 
-`nullptr` を渡すと、リソースの形式と全ミップをそのまま使う既定のビューになります。ただし `TYPELESS` の形式で作ったリソースには使えません（形式が決まらないため）。バインドレスでは、`_SRGB` にするかどうかを明示したいので、`D3D12_SHADER_RESOURCE_VIEW_DESC` を渡すほうが安全です。
+`nullptr` を渡すとリソースの形式と全ミップをそのまま使う既定のビューになります。ただし `TYPELESS` の形式で作ったリソースには使えません（形式が決まらないため）。バインドレスでは `_SRGB` にするかどうかを明示したいので、`D3D12_SHADER_RESOURCE_VIEW_DESC` を渡すほうが安全です。
 
 ### 解放は遅らせる
 
-テクスチャを捨てるとき、その番号をすぐ空き番号に戻してはいけません。GPU がまだ前のフレームの描画で、その記述子を引いているかもしれないからです。そのフレームのフェンス値を記録しておき、GPU が完了したあとで番号を返します。
+テクスチャを捨てるときその番号をすぐ空き番号に戻してはいけません。GPU がまだ前のフレームの描画で、その記述子を引いているかもしれないからです。そのフレームのフェンス値を記録しておき GPU が完了したあとで番号を返します。
 
 ```cpp
   void ScheduleRelease(uint32_t index, uint64_t fence_value) {
@@ -225,13 +225,13 @@ device->CreateShaderResourceView(texture, nullptr, handle);  // リソースの�
 };
 ```
 
-`ScheduleRelease` はテクスチャを破棄する側で呼び、`CollectGarbage` は毎フレームの頭で、フェンスの完了値（`ID3D12Fence::GetCompletedValue`）を渡して呼びます。
+`ScheduleRelease` はテクスチャを破棄する側で呼び `CollectGarbage` は毎フレームの頭で、フェンスの完了値（`ID3D12Fence::GetCompletedValue`）を渡して呼びます。
 
-番号 0 には、白いテクスチャなどのフォールバックを必ず登録しておきます。マテリアルの番号が初期化されていなかったときでも、真っ白に見えるだけで済み、クラッシュしません。
+番号 0 には白いテクスチャなどのフォールバックを必ず登録しておきます。マテリアルの番号が初期化されていなかったときでも真っ白に見えるだけで済み、クラッシュしません。
 
 ## ルート シグネチャ
 
-SM 6.6 の `ResourceDescriptorHeap` を使うには、ルート シグネチャにそのためのフラグを付けます。このフラグはバージョン 1.1 の記述（`D3D12_ROOT_SIGNATURE_DESC1`）で使うので、`D3D12SerializeVersionedRootSignature` で変換します。
+SM 6.6 の `ResourceDescriptorHeap` を使うにはルート シグネチャにそのためのフラグを付けます。このフラグはバージョン 1.1 の記述（`D3D12_ROOT_SIGNATURE_DESC1`）で使うので、`D3D12SerializeVersionedRootSignature` で変換します。
 
 ```cpp
 constexpr UINT kRootFrame = 0;      // b0: フレーム定数（ルート CBV）
@@ -249,7 +249,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   params[kRootFrame].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 ```
 
-ルート CBV は、定数バッファの GPU アドレスをそのまま渡す口です。記述子ヒープには何も置かないので、ヒープの番号を消費しません。
+ルート CBV は定数バッファの GPU アドレスをそのまま渡す口です。記述子ヒープには何も置かないので、ヒープの番号を消費しません。
 
 ```cpp
   params[kRootDraw].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -259,7 +259,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   params[kRootDraw].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 ```
 
-この 32 ビット定数がドローごとに変わる値の入り口です。`ExecuteIndirect` がコマンドごとにここへ値を書き込みます。頂点シェーダーでもピクセル シェーダーでも読むので、`ShaderVisibility` は `ALL` にします。`PIXEL` だけにすると、頂点シェーダーからは見えません。
+この 32 ビット定数がドローごとに変わる値の入り口です。`ExecuteIndirect` がコマンドごとにここへ値を書き込みます。頂点シェーダーでもピクセル シェーダーでも読むので、`ShaderVisibility` は `ALL` にします。`PIXEL` だけにすると頂点シェーダーからは見えません。
 
 ```cpp
   params[kRootInstances].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
@@ -277,7 +277,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   params[kRootMaterials].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 ```
 
-インスタンスとマテリアルのバッファは、ルート SRV で渡します。ルート SRV は構造化バッファか生のバッファにしか使えません（型付きのバッファは不可）。`Flags` の `DATA_STATIC_WHILE_SET_AT_EXECUTE` は、「このバッファの中身は、ルート引数として設定されている間は変わらない」とドライバーに約束する指定です。約束を守れるなら、ドライバーが最適化しやすくなります。描画中に書き換える（UAV で書く）バッファには付けられません。
+インスタンスとマテリアルのバッファは、ルート SRV で渡します。ルート SRV は構造化バッファか生のバッファにしか使えません（型付きのバッファは不可）。`Flags` の `DATA_STATIC_WHILE_SET_AT_EXECUTE` は「このバッファの中身は、ルート引数として設定されている間は変わらない」とドライバーに約束する指定です。約束を守れるならドライバーが最適化しやすくなります。描画中に書き換える（UAV で書く）バッファには付けられません。
 
 ```cpp
   D3D12_STATIC_SAMPLER_DESC sampler = {};
@@ -294,7 +294,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 ```
 
-サンプラーは静的サンプラーにして、ルート シグネチャに埋め込みます。ヒープの番号を使わず、サンプラー ヒープも要りません。`MaxLOD` を `D3D12_FLOAT32_MAX` にするのは、全ミップを使えるようにするためで、0 のままだと一番詳細なミップしか使われません。
+サンプラーは静的サンプラーにして、ルート シグネチャに埋め込みます。ヒープの番号を使わずサンプラー ヒープも要りません。`MaxLOD` を `D3D12_FLOAT32_MAX` にするのは全ミップを使えるようにするためで、0 のままだと一番詳細なミップしか使われません。
 
 ```cpp
   D3D12_VERSIONED_ROOT_SIGNATURE_DESC desc = {};
@@ -310,9 +310,9 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
 
 ここが肝心の `Flags` です。
 
-`CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` は、シェーダーが `ResourceDescriptorHeap[i]` で、バインドされている CBV/SRV/UAV ヒープを直接引くことを許可します。付けずに `ResourceDescriptorHeap` を使ったシェーダーで PSO を作ると、失敗します。サンプラーも番号で引くなら `SAMPLER_HEAP_DIRECTLY_INDEXED` も付けます。このページの例は静的サンプラーなので付けません。
+`CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` はシェーダーが `ResourceDescriptorHeap[i]` でバインドされている CBV/SRV/UAV ヒープを直接引くことを許可します。付けずに `ResourceDescriptorHeap` を使ったシェーダーで PSO を作ると、失敗します。サンプラーも番号で引くなら `SAMPLER_HEAP_DIRECTLY_INDEXED` も付けます。このページの例は静的サンプラーなので付けません。
 
-`ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` は、頂点バッファから頂点を読む通常のドローに必要です。メッシュ シェーダー（[メッシュレット](meshlets.md)）の経路では付けません。
+`ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` は頂点バッファから頂点を読む通常のドローに必要です。メッシュ シェーダー（[メッシュレット](meshlets.md)）の経路では付けません。
 
 ```cpp
   ComPtr<ID3DBlob> blob, error;
@@ -329,7 +329,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
 }
 ```
 
-構造体のメンバーの意味と、フラグの全種類は [Root Signature Structs](../../../directx/dx12/api/root-signature-structs.md) にあります。
+構造体のメンバーの意味とフラグの全種類は [Root Signature Structs](../../../directx/dx12/api/root-signature-structs.md) にあります。
 
 ## フレームの頭で結ぶ
 
@@ -349,9 +349,9 @@ void Renderer::BeginBindless(ID3D12GraphicsCommandList* list, D3D12_GPU_VIRTUAL_
 }
 ```
 
-`DIRECTLY_INDEXED` のフラグを付けたルート シグネチャは、設定する時点でヒープがバインドされている必要があります。そのため、`SetDescriptorHeaps` を `SetGraphicsRootSignature` よりも先に呼びます。順序が逆だと、デバッグ レイヤーがエラーを出します。
+`DIRECTLY_INDEXED` のフラグを付けたルート シグネチャは、設定する時点でヒープがバインドされている必要があります。そのため、`SetDescriptorHeaps` を `SetGraphicsRootSignature` よりも先に呼びます。順序が逆だとデバッグ レイヤーがエラーを出します。
 
-`SetDescriptorHeaps` に渡せるのは、CBV/SRV/UAV ヒープとサンプラー ヒープを 1 つずつです。フレームの途中で別のヒープに切り替えると、GPU のパイプラインが止まることがあります。バインドレス ヒープをフレーム全体で 1 つにして、最初に結んだら変えないのが基本です。
+`SetDescriptorHeaps` に渡せるのは CBV/SRV/UAV ヒープとサンプラー ヒープを 1 つずつです。フレームの途中で別のヒープに切り替えると、GPU のパイプラインが止まることがあります。バインドレス ヒープをフレーム全体で 1 つにして、最初に結んだら変えないのが基本です。
 
 ### ドローごとの値は ExecuteIndirect が書く
 
@@ -385,22 +385,22 @@ ComPtr<ID3D12CommandSignature> CreateCommandSignature(ID3D12Device* device,
 }
 ```
 
-`args[0]` は、コマンドの先頭 8 バイトをルート パラメーター `kRootDraw` の 0 番目から 2 ワードに書き込むという意味です。続く `args[1]` が、`DrawIndexedInstanced` の 20 バイトの引数です。ルート定数を書き換える引数を含むので、`CreateCommandSignature` の第 2 引数にルート シグネチャを渡す必要があります。
+`args[0]` はコマンドの先頭 8 バイトをルート パラメーター `kRootDraw` の 0 番目から 2 ワードに書き込むという意味です。続く `args[1]` が `DrawIndexedInstanced` の 20 バイトの引数です。ルート定数を書き換える引数を含むので、`CreateCommandSignature` の第 2 引数にルート シグネチャを渡す必要があります。
 
-マテリアル番号をインスタンス バッファから引くのではなく、コマンドに直接入れているのがここの工夫です。カリングの CS が、ドローを書くときに `instances[i].material_index` をコピーして書くだけで、シェーダーが 1 回引く手間を省けます。インスタンス番号だけを渡して、シェーダーで `instances[draw_instance_index].material_index` と引く方法でも動きます。コマンドが大きくなるのと、シェーダーの読み出しが 1 回増えるのを天秤にかけて選びます。
+マテリアル番号をインスタンス バッファから引くのではなく、コマンドに直接入れているのがここの工夫です。カリングの CS がドローを書くときに `instances[i].material_index` をコピーして書くだけで、シェーダーが 1 回引く手間を省けます。インスタンス番号だけを渡して、シェーダーで `instances[draw_instance_index].material_index` と引く方法でも動きます。コマンドが大きくなるのとシェーダーの読み出しが 1 回増えるのを天秤にかけて選びます。
 
-描画の呼び出しは、これだけです。
+描画の呼び出しはこれだけです。
 
 ```cpp
 list->ExecuteIndirect(command_signature_.Get(), kMaxDraws, command_buffer_.Get(), 0,
                       count_buffer_.Get(), 0);
 ```
 
-テクスチャのバインドは、1 つもありません。どのマテリアルのドローが何個あっても、この 1 行で終わります。
+テクスチャのバインドは 1 つもありません。どのマテリアルのドローが何個あっても、この 1 行で終わります。
 
 ## シェーダーで引く
 
-シェーダーは、ルート定数、マテリアル、ヒープの順にたどります。
+シェーダーはルート定数、マテリアル、ヒープの順にたどります。
 
 ```hlsl
 cbuffer FrameConstants : register(b0) {
@@ -432,7 +432,7 @@ VsOutput VSMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : 
 }
 ```
 
-頂点シェーダーは、ルート定数の `draw_instance_index` でインスタンスの行列を引き、位置を変換します。マテリアル番号は頂点シェーダーから渡さなくてかまいません。ルート定数はドロー全体で同じ値なので、頂点ごとの出力に入れて補間する必要がないからです。
+頂点シェーダーはルート定数の `draw_instance_index` でインスタンスの行列を引き位置を変換します。マテリアル番号は頂点シェーダーから渡さなくてかまいません。ルート定数はドロー全体で同じ値なので、頂点ごとの出力に入れて補間する必要がないからです。
 
 ```hlsl
 float4 PSMain(VsOutput input) : SV_Target {
@@ -447,9 +447,9 @@ float4 PSMain(VsOutput input) : SV_Target {
 }
 ```
 
-ピクセル シェーダーで、`materials[draw_material_index]` からマテリアルを引き、その `albedo_index` で `ResourceDescriptorHeap` を引きます。左辺の型 `Texture2D<float4>` が、ヒープの記述子をどのビューとして解釈するかを決めます。ここで宣言した型と、登録した SRV の `ViewDimension` を一致させるのが約束です。
+ピクセル シェーダーで `materials[draw_material_index]` からマテリアルを引きその `albedo_index` で `ResourceDescriptorHeap` を引きます。左辺の型 `Texture2D<float4>` がヒープの記述子をどのビューとして解釈するかを決めます。ここで宣言した型と登録した SRV の `ViewDimension` を一致させるのが約束です。
 
-このシェーダーは、`ps_6_6` 以上でコンパイルします（dxc の `-T ps_6_6`）。
+このシェーダーは `ps_6_6` 以上でコンパイルします（dxc の `-T ps_6_6`）。
 
 ## 対応しているか確かめる
 
@@ -465,11 +465,11 @@ device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(option
 bool supports_tier3 = options.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
 ```
 
-`HighestShaderModel` は、入力として渡した値が使えるかを確かめ、使える最大の値に書き換えて返す入出力のメンバーです。6.6 を入れて呼び、返ってきた値が 6.6 以上なら対応しています。ResourceBindingTier が 3 であることは、ヒープ全体を制限なく使うための条件で、SM 6.6 の直接参照を使う環境では、Tier 3 相当を前提にして設計するのが無難です。
+`HighestShaderModel` は入力として渡した値が使えるかを確かめ使える最大の値に書き換えて返す入出力のメンバーです。6.6 を入れて呼び返ってきた値が 6.6 以上なら対応しています。ResourceBindingTier が 3 であることは、ヒープ全体を制限なく使うための条件で、SM 6.6 の直接参照を使う環境では、Tier 3 相当を前提にして設計するのが無難です。
 
 ## SM 6.6 より前：無制限の記述子テーブル
 
-SM 6.6 が使えない環境では、ルート シグネチャにサイズが無制限の記述子テーブルを 1 つ置きます。シェーダーでは、テクスチャの配列として宣言します。
+SM 6.6 が使えない環境ではルート シグネチャにサイズが無制限の記述子テーブルを 1 つ置きます。シェーダーではテクスチャの配列として宣言します。
 
 ```cpp
 D3D12_DESCRIPTOR_RANGE1 range = {};
@@ -493,9 +493,9 @@ Texture2D<float4> textures[] : register(t0, space1);
 float4 c = textures[NonUniformResourceIndex(material.albedo_index)].Sample(linear_sampler, uv);
 ```
 
-`NumDescriptors = UINT_MAX` は「ヒープの終わりまで」という意味の無制限です。`RegisterSpace = 1` は、他の `t0` のバインディングと衝突しないように、レジスタ空間を分けています。無制限の範囲は、その空間の `t` レジスタを全部使い切るので、同じ空間に別の SRV を置けません。
+`NumDescriptors = UINT_MAX` は「ヒープの終わりまで」という意味の無制限です。`RegisterSpace = 1` は他の `t0` のバインディングと衝突しないようにレジスタ空間を分けています。無制限の範囲はその空間の `t` レジスタを全部使い切るので、同じ空間に別の SRV を置けません。
 
-`DESCRIPTORS_VOLATILE` は、「コマンド リストの実行中にこの範囲の記述子が書き換えられるかもしれない」とドライバーに伝えます。テクスチャを後から読み込んで、空いている番号を埋めていく使い方では必要です。
+`DESCRIPTORS_VOLATILE` は「コマンド リストの実行中にこの範囲の記述子が書き換えられるかもしれない」とドライバーに伝えます。テクスチャを後から読み込んで、空いている番号を埋めていく使い方では必要です。
 
 ドローの前にヒープの先頭の GPU ハンドルを 1 回だけ渡します。
 
@@ -503,13 +503,13 @@ float4 c = textures[NonUniformResourceIndex(material.albedo_index)].Sample(linea
 list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());
 ```
 
-この方式では、テクスチャの種類ごと（`Texture2D`、`TextureCube`、`Texture2DArray`）に別の空間で配列を宣言します。SM 6.6 の `ResourceDescriptorHeap` は、型を左辺で自由に決められるので、そのような分割が不要です。
+この方式ではテクスチャの種類ごと（`Texture2D`、`TextureCube`、`Texture2DArray`）に別の空間で配列を宣言します。SM 6.6 の `ResourceDescriptorHeap` は型を左辺で自由に決められるので、そのような分割が不要です。
 
 ## NonUniformResourceIndex
 
-バインドレスの最大の落とし穴です。GPU は、32 個や 64 個のスレッド（レーン）を 1 つのウェーブにまとめて、同じ命令を同時に実行します。記述子の読み出しは、ウェーブ全体で同じ番号を使うことを前提に最適化されている場合があります。
+バインドレスの最大の落とし穴です。GPU は 32 個や 64 個のスレッド（レーン）を 1 つのウェーブにまとめて、同じ命令を同時に実行します。記述子の読み出しはウェーブ全体で同じ番号を使うことを前提に最適化されている場合があります。
 
-1 つのウェーブの中で、レーンごとに違う番号が入りうるのに `NonUniformResourceIndex` を付けないと、動作は未定義です。たとえば、先頭のレーンの番号が全レーンに使われて、隣のピクセルに別のテクスチャが貼られます。
+1 つのウェーブの中でレーンごとに違う番号が入りうるのに `NonUniformResourceIndex` を付けないと、動作は未定義です。たとえば、先頭のレーンの番号が全レーンに使われて、隣のピクセルに別のテクスチャが貼られます。
 
 - ドローごとのルート定数で渡したマテリアル番号: 一様（付けなくてよい）
 - インスタンスごとにマテリアルが 1 つで、1 ドロー 1 インスタンス: ほぼ一様。実装に依存するので付けるのが安全
@@ -520,11 +520,11 @@ list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());
 Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.albedo_index)];
 ```
 
-付けると、ハードウェアが「ウェーブの中の異なる番号ごとにループして処理する」命令に切り替えます。番号が全レーンで同じなら、ループは 1 回で済み、ほとんど遅くなりません。番号が何種類もあるときは、その種類の数だけ繰り返すので遅くなります。判断の基準は、「同じウェーブに違う番号が入りうるか」です。迷ったら付けます。
+付けるとハードウェアが「ウェーブの中の異なる番号ごとにループして処理する」命令に切り替えます。番号が全レーンで同じならループは 1 回で済みほとんど遅くなりません。番号が何種類もあるときはその種類の数だけ繰り返すので遅くなります。判断の基準は「同じウェーブに違う番号が入りうるか」です。迷ったら付けます。
 
 ### 分岐の中の Sample
 
-「テクスチャがあるときだけサンプルする」と書くと、もう 1 つ別の落とし穴にはまります。
+「テクスチャがあるときだけサンプルする」と書くともう 1 つ別の落とし穴にはまります。
 
 ```hlsl
 // 危ない: 画素ごとに条件が違うと、Sample の微分（ddx/ddy）が未定義になる。
@@ -533,7 +533,7 @@ if (material.albedo_index != kInvalidTexture) {
 }
 ```
 
-`Sample` は、隣のピクセルとの UV の差から、ミップ レベルを決めます。ウェーブの中で、サンプルするピクセルとしないピクセルが混ざる分岐の中では、この差が使えません。ドローごとの定数でマテリアルを決めているこのページの構成なら、分岐はドローの中で一様なので問題ありませんが、画素ごとにマテリアルが違う場合は、微分を分岐の外で先に求めて `SampleGrad` に渡します。
+`Sample` は隣のピクセルとの UV の差から、ミップ レベルを決めます。ウェーブの中でサンプルするピクセルとしないピクセルが混ざる分岐の中では、この差が使えません。ドローごとの定数でマテリアルを決めているこのページの構成なら分岐はドローの中で一様なので問題ありませんが、画素ごとにマテリアルが違う場合は微分を分岐の外で先に求めて `SampleGrad` に渡します。
 
 ```hlsl
 float2 dx = ddx(uv);  // 分岐の外で先に計算する
@@ -545,9 +545,9 @@ if (material.albedo_index != kInvalidTexture) {
 
 ## マテリアルごとの分岐を減らす
 
-テクスチャを番号で引けるので、マテリアルが違っても同じ PSO、同じシェーダーで描けます。マテリアルの数だけ PSO が増える心配がなくなり、PSO のバケット数（`ExecuteIndirect` の呼び出し回数）が減ります。
+テクスチャを番号で引けるので、マテリアルが違っても同じ PSO、同じシェーダーで描けます。マテリアルの数だけ PSO が増える心配がなくなり PSO のバケット数（`ExecuteIndirect` の呼び出し回数）が減ります。
 
-シェーダーを 1 本にまとめるウーバー シェーダーでは、`flags` で分岐します。バケットを分けるのは、PSO の状態が本当に違うものだけです。不透明、アルファ テスト、両面、半透明（ブレンド）の違いは、ラスタライザー ステートやブレンド ステートが違うので、PSO を分けます。
+シェーダーを 1 本にまとめるウーバー シェーダーでは、`flags` で分岐します。バケットを分けるのは PSO の状態が本当に違うものだけです。不透明、アルファ テスト、両面、半透明（ブレンド）の違いはラスタライザー ステートやブレンド ステートが違うので、PSO を分けます。
 
 <!-- fig:bindless-index:begin -->
 
@@ -596,17 +596,17 @@ if (material.albedo_index != kInvalidTexture) {
 
 ## デバッグ
 
-バインドレスは、間違えたときの症状が分かりにくい方式です。範囲外の番号を引くと、デバイスが消えることもあります。次の準備をしておくと、原因を絞り込めます。
+バインドレスは間違えたときの症状が分かりにくい方式です。範囲外の番号を引くとデバイスが消えることもあります。次の準備をしておくと原因を絞り込めます。
 
-開発中は、シェーダーで番号を範囲に収めます。`min(index, kBindlessCapacity - 1)` と書けば、クラッシュの代わりに、違うテクスチャが貼られるという目に見える症状になります。GPU-Based Validation（デバッグ レイヤーの `SetEnableGPUBasedValidation`）は、描画時に実際に引いた記述子の中身を検査してくれるので、「未初期化の番号を引いた」「型が違う」を見つけられます。PIX では、ドローごとに、ヒープのどの記述子が使われたかを見られます。
+開発中はシェーダーで番号を範囲に収めます。`min(index, kBindlessCapacity - 1)` と書けばクラッシュの代わりに違うテクスチャが貼られるという目に見える症状になります。GPU-Based Validation（デバッグ レイヤーの `SetEnableGPUBasedValidation`）は、描画時に実際に引いた記述子の中身を検査してくれるので、「未初期化の番号を引いた」「型が違う」を見つけられます。PIX ではドローごとにヒープのどの記述子が使われたかを見られます。
 
 ## よくあるミス
 
 ??? failure "NonUniformResourceIndex を付けず、画素ごとに違うはずのテクスチャが全部同じになる"
-    非一様な番号には、必ず `NonUniformResourceIndex` を付ける。
+    非一様な番号には必ず `NonUniformResourceIndex` を付ける。
 
 ??? failure "ルート シグネチャに DIRECTLY_INDEXED フラグを付けず、PSO の作成に失敗する"
-    `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` を付けて、バージョン 1.1 の記述でシリアライズする。
+    `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` を付けてバージョン 1.1 の記述でシリアライズする。
 
 ??? failure "SetGraphicsRootSignature のあとに SetDescriptorHeaps を呼び、エラーになる"
     DIRECTLY_INDEXED のルート シグネチャは、ヒープを先に結んでから設定する。
@@ -615,7 +615,7 @@ if (material.albedo_index != kInvalidTexture) {
     フェンスの完了を待って番号を返す（遅延解放）。
 
 ??? failure "SRV の種類（Texture2D と TextureCube など）がシェーダーの型と合わない"
-    登録時の `ViewDimension` と、シェーダーの型を一致させる。
+    登録時の `ViewDimension` とシェーダーの型を一致させる。
 
 ??? failure "SRV の Shader4ComponentMapping を 0 のままにして、テクスチャが 1 色に見える"
     `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING` を入れる。
@@ -626,10 +626,10 @@ if (material.albedo_index != kInvalidTexture) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] バインドレスは、全テクスチャの記述子を 1 つのヒープに並べ、シェーダーが番号で引く方式
+    - [x] バインドレスは全テクスチャの記述子を 1 つのヒープに並べ、シェーダーが番号で引く方式
     - [x] マテリアルはテクスチャの番号を持つ。ドローごとの値は `ExecuteIndirect` がルート定数として書く
-    - [x] フレームの頭にバインドするのは、ヒープ、ルート シグネチャ、インスタンス、マテリアルだけ
-    - [x] SM 6.6 では `ResourceDescriptorHeap[i]` と、ルート シグネチャの `DIRECTLY_INDEXED` フラグ。`SetDescriptorHeaps` が先
+    - [x] フレームの頭にバインドするのはヒープ、ルート シグネチャ、インスタンス、マテリアルだけ
+    - [x] SM 6.6 では `ResourceDescriptorHeap[i]` とルート シグネチャの `DIRECTLY_INDEXED` フラグ。`SetDescriptorHeaps` が先
     - [x] 画素ごとに番号が変わりうるなら `NonUniformResourceIndex`
     - [x] 記述子の再利用は、GPU が使い終わってから
 

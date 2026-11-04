@@ -17,7 +17,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
     - 同じ HLSL・フォーマット・DXGI は、どちらでも同じ。
 
 !!! info "このページを読む前に"
-    - [DirectX](index.md)（このセクション全体の地図と、読む順番）
+    - [DirectX](index.md)（このセクション全体の地図と読む順番）
 
 ## 全体の違い
 
@@ -121,13 +121,11 @@ DX12 は DX11 より <strong>必ずしも速くなるわけではありません
 
 ## 共通の部分
 
-| 共通 | 内容 |
-| --- | --- |
-| HLSL | どちらも HLSL（SM は、DX11 が 5.0、DX12 が 5.1〜6.x） |
-| DXGI | アダプター、スワップ チェーン、フォーマット（`DXGI_FORMAT`） |
-| DirectXMath | 数学ライブラリ（[DirectXMath](../gamemath/directxmath.md)） |
-| 座標系・規約 | [Coordinate Conventions](concepts/conventions.md) |
-| パイプラインの考え方 | [GPU Pipeline Overview](concepts/gpu-pipeline.md) |
+- HLSL: どちらも HLSL（SM は、DX11 が 5.0、DX12 が 5.1〜6.x）
+- DXGI: アダプター、スワップ チェーン、フォーマット（`DXGI_FORMAT`）
+- DirectXMath: 数学ライブラリ（[DirectXMath](../gamemath/directxmath.md)）
+- 座標系・規約: [Coordinate Conventions](concepts/conventions.md)
+- パイプラインの考え方: [GPU Pipeline Overview](concepts/gpu-pipeline.md)
 
 ## 関連ページ
 

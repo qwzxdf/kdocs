@@ -63,20 +63,16 @@ HRESULT IDXGISwapChain::Present(UINT SyncInterval, UINT Flags);
 
 `Flags` のうち、よく使うのは次のものです。
 
-| フラグ | 意味 |
-| --- | --- |
-| `0` | 通常 |
-| `DXGI_PRESENT_ALLOW_TEARING` | ティアリングを許す（可変リフレッシュ レート向け）。`SyncInterval` は 0 |
-| `DXGI_PRESENT_TEST` | 実際には出さず、出せる状態かだけを確かめる |
+- `0`: 通常
+- `DXGI_PRESENT_ALLOW_TEARING`: ティアリングを許す（可変リフレッシュ レート向け）。`SyncInterval` は 0
+- `DXGI_PRESENT_TEST`: 実際には出さず、出せる状態かだけを確かめる
 
 戻り値は次のとおりです。
 
-| 戻り値 | 意味と対処 |
-| --- | --- |
-| `S_OK` | 成功 |
-| `DXGI_STATUS_OCCLUDED` | 成功の一種。ウィンドウが隠れていて表示されない。描画を止めるか間引くとよい |
-| `DXGI_ERROR_DEVICE_REMOVED` | GPU が取り外された、ドライバーが更新された、GPU がハングした、など。`ID3D12Device::GetDeviceRemovedReason` で理由を調べる |
-| `DXGI_ERROR_DEVICE_RESET` | GPU のリセット。デバイスを作り直す |
+- `S_OK`: 成功
+- `DXGI_STATUS_OCCLUDED`: 成功の一種。ウィンドウが隠れていて表示されない。描画を止めるか間引くとよい
+- `DXGI_ERROR_DEVICE_REMOVED`: GPU が取り外された、ドライバーが更新された、GPU がハングした、など。`ID3D12Device::GetDeviceRemovedReason` で理由を調べる
+- `DXGI_ERROR_DEVICE_RESET`: GPU のリセット。デバイスを作り直す
 
 `DXGI_STATUS_OCCLUDED` は `SUCCEEDED` が真になる値なので、`FAILED` だけで判定すると見逃します。`FAILED(hr)` のときに `GetDeviceRemovedReason` を呼ぶのが定石です。
 

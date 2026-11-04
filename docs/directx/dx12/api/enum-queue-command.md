@@ -22,7 +22,7 @@ api:
 `#include <d3d12.h>`
 </div>
 
-D3D12 の GPU への命令は、コマンド リストに記録して、コマンド キューへ渡して実行します。このとき「どの種類のリスト」「どの優先度のキュー」「どの種類のクエリ」と、種類を選ぶ場面が何度も出てきます。このページは、その選択肢をまとめた辞書です。
+D3D12 の GPU への命令はコマンド リストに記録して、コマンド キューへ渡して実行します。このとき「どの種類のリスト」「どの優先度のキュー」「どの種類のクエリ」と、種類を選ぶ場面が何度も出てきます。このページはその選択肢をまとめた辞書です。
 
 !!! tip "ポイント"
     - 描画のコマンド リストとキューは `DIRECT`。ふつうのゲームはこれ 1 本で足りる。
@@ -48,23 +48,23 @@ typedef enum D3D12_COMMAND_LIST_TYPE {
 } D3D12_COMMAND_LIST_TYPE;
 ```
 
-GPU は、描画ができるエンジン、計算だけのエンジン、コピー専用のエンジンと、役割の違うエンジンを持っています。この値は、コマンド アロケーター、コマンド リスト、コマンド キューを作るときに「どのエンジン向けか」を決めます。アロケーターとリストとキューは、種類をそろえます。種類が違うリストをキューへ渡したり、アロケーターでリストを `Reset` したりすると失敗します。
+GPU は描画ができるエンジン、計算だけのエンジン、コピー専用のエンジンと役割の違うエンジンを持っています。この値はコマンド アロケーター、コマンド リスト、コマンド キューを作るときに「どのエンジン向けか」を決めます。アロケーターとリストとキューは種類をそろえます。種類が違うリストをキューへ渡したりアロケーターでリストを `Reset` したりすると失敗します。
 
 #### D3D12_COMMAND_LIST_TYPE_DIRECT {#d3d12_command_list_type_direct}
 
-値は 0 です。描画、計算、コピーのすべてを記録できる最も多機能な種類です。描画に使うキューとリストは、これを選びます。
+値は 0 です。描画、計算、コピーのすべてを記録できる最も多機能な種類です。描画に使うキューとリストはこれを選びます。
 
 #### D3D12_COMMAND_LIST_TYPE_BUNDLE {#d3d12_command_list_type_bundle}
 
-値は 1 です。何度も使う短い命令の並びを前もって記録しておくための種類です。キューには直接渡さず、`DIRECT` のリストの中から `ExecuteBundle` で呼びます。ドライバーが記録の時点で最適化しやすくなる反面、使える命令に制限があり、実際のゲームで使う場面は多くありません。
+値は 1 です。何度も使う短い命令の並びを前もって記録しておくための種類です。キューには直接渡さず `DIRECT` のリストの中から `ExecuteBundle` で呼びます。ドライバーが記録の時点で最適化しやすくなる反面、使える命令に制限があり実際のゲームで使う場面は多くありません。
 
 #### D3D12_COMMAND_LIST_TYPE_COMPUTE {#d3d12_command_list_type_compute}
 
-値は 2 です。`Dispatch` とコピーを記録できます。描画（`DrawInstanced` など）はできません。描画と並行して計算だけを走らせる「非同期コンピュート」を作るときに、専用のキューとセットで使います。
+値は 2 です。`Dispatch` とコピーを記録できます。描画（`DrawInstanced` など）はできません。描画と並行して計算だけを走らせる「非同期コンピュート」を作るときに専用のキューとセットで使います。
 
 #### D3D12_COMMAND_LIST_TYPE_COPY {#d3d12_command_list_type_copy}
 
-値は 3 です。コピーだけを記録できます。GPU のコピー専用エンジンを使うので、描画を止めずに、アセットの読み込みを裏で進められます。使えるのはコピー系の命令だけで、シェーダーの実行やバリアは制限されます。
+値は 3 です。コピーだけを記録できます。GPU のコピー専用エンジンを使うので、描画を止めずにアセットの読み込みを裏で進められます。使えるのはコピー系の命令だけで、シェーダーの実行やバリアは制限されます。
 
 #### D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE {#d3d12_command_list_type_video_decode}
 
@@ -80,7 +80,7 @@ GPU は、描画ができるエンジン、計算だけのエンジン、コピ�
 
 #### D3D12_COMMAND_LIST_TYPE_NONE {#d3d12_command_list_type_none}
 
-値は -1 で、「種類なし」を表します。構造体の初期値として使われる値で、リストやキューを作る引数には渡せません。
+値は -1 で「種類なし」を表します。構造体の初期値として使われる値で、リストやキューを作る引数には渡せません。
 
 ## D3D12_COMMAND_QUEUE_FLAGS {#d3d12_command_queue_flags}
 
@@ -95,11 +95,11 @@ typedef enum D3D12_COMMAND_QUEUE_FLAGS {
 
 #### D3D12_COMMAND_QUEUE_FLAG_NONE {#d3d12_command_queue_flag_none}
 
-値は 0 で、通常のキューです。ほとんどの場合これを使います。
+値は 0 で通常のキューです。ほとんどの場合これを使います。
 
 #### D3D12_COMMAND_QUEUE_FLAG_DISABLE_GPU_TIMEOUT {#d3d12_command_queue_flag_disable_gpu_timeout}
 
-値は 0x1 です。GPU タイムアウトの検出を無効にします。Windows は、1 つの命令が約 2 秒を超えても終わらないと、GPU のハングとみなしてデバイスをリセット（TDR）します。この指定で、その検出を止められます。長時間かかる計算を回す特殊な用途のためで、描画のキューには付けません。付けるとハングしたときに、画面が戻らなくなります。
+値は 0x1 です。GPU タイムアウトの検出を無効にします。Windows は 1 つの命令が約 2 秒を超えても終わらないと GPU のハングとみなしてデバイスをリセット（TDR）します。この指定でその検出を止められます。長時間かかる計算を回す特殊な用途のためで、描画のキューには付けません。付けるとハングしたときに画面が戻らなくなります。
 
 ## D3D12_COMMAND_QUEUE_PRIORITY {#d3d12_command_queue_priority}
 
@@ -111,19 +111,19 @@ typedef enum D3D12_COMMAND_QUEUE_PRIORITY {
 } D3D12_COMMAND_QUEUE_PRIORITY;
 ```
 
-`D3D12_COMMAND_QUEUE_DESC` の `Priority` に入れる値で、型は `INT` です。同じ種類のキューが複数あるとき、GPU がどちらを先に実行するかの目安になります。
+`D3D12_COMMAND_QUEUE_DESC` の `Priority` に入れる値で型は `INT` です。同じ種類のキューが複数あるとき GPU がどちらを先に実行するかの目安になります。
 
 #### D3D12_COMMAND_QUEUE_PRIORITY_NORMAL {#d3d12_command_queue_priority_normal}
 
-値は 0 で、通常の優先度です。ほとんどのキューはこれです。
+値は 0 で通常の優先度です。ほとんどのキューはこれです。
 
 #### D3D12_COMMAND_QUEUE_PRIORITY_HIGH {#d3d12_command_queue_priority_high}
 
-値は 100 で、高い優先度です。遅れると体感が悪くなる処理（VR のタイムワープなど）を別のキューで先に走らせたいときに使います。
+値は 100 で高い優先度です。遅れると体感が悪くなる処理（VR のタイムワープなど）を別のキューで先に走らせたいときに使います。
 
 #### D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME {#d3d12_command_queue_priority_global_realtime}
 
-値は 10000 で、システム全体でも最優先のキューです。使うには管理者に近い権限が必要で、失敗する場合があります。一般的なゲームでは使いません。
+値は 10000 でシステム全体でも最優先のキューです。使うには管理者に近い権限が必要で、失敗する場合があります。一般的なゲームでは使いません。
 
 ## D3D12_FENCE_FLAGS {#d3d12_fence_flags}
 
@@ -140,7 +140,7 @@ typedef enum D3D12_FENCE_FLAGS {
 
 #### D3D12_FENCE_FLAG_NONE {#d3d12_fence_flag_none}
 
-値は 0 で、そのプロセスの中だけで使う通常のフェンスです。CPU と GPU の同期は、これで足ります。
+値は 0 でそのプロセスの中だけで使う通常のフェンスです。CPU と GPU の同期はこれで足ります。
 
 #### D3D12_FENCE_FLAG_SHARED {#d3d12_fence_flag_shared}
 
@@ -148,11 +148,11 @@ typedef enum D3D12_FENCE_FLAGS {
 
 #### D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER {#d3d12_fence_flag_shared_cross_adapter}
 
-値は 0x2 です。複数のアダプター（GPU）の間でフェンスを共有します。`D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER` のヒープと組にして、マルチ GPU の同期に使います。
+値は 0x2 です。複数のアダプター（GPU）の間でフェンスを共有します。`D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER` のヒープと組にしてマルチ GPU の同期に使います。
 
 #### D3D12_FENCE_FLAG_NON_MONITORED {#d3d12_fence_flag_non_monitored}
 
-値は 0x4 です。フェンスを OS が監視しないようにします。Windows が行うフェンスの値の検証を省くので、特殊な用途のフェンスで使い、通常は付けません。
+値は 0x4 です。フェンスを OS が監視しないようにします。Windows が行うフェンスの値の検証を省くので、特殊な用途のフェンスで使い通常は付けません。
 
 ## D3D12_CLEAR_FLAGS {#d3d12_clear_flags}
 
@@ -163,15 +163,15 @@ typedef enum D3D12_CLEAR_FLAGS {
 } D3D12_CLEAR_FLAGS;
 ```
 
-`ClearDepthStencilView` の第 2 引数で、深度とステンシルのどちらをクリアするかを選びます。両方なら `|` で重ねます。0 にすると何もクリアされません。
+`ClearDepthStencilView` の第 2 引数で深度とステンシルのどちらをクリアするかを選びます。両方なら `|` で重ねます。0 にすると何もクリアされません。
 
 #### D3D12_CLEAR_FLAG_DEPTH {#d3d12_clear_flag_depth}
 
-値は 0x1 で、深度をクリアします。`Depth` 引数の値（通常 1.0f）で埋めます。毎フレームの描画の最初に呼ぶものです。
+値は 0x1 で深度をクリアします。`Depth` 引数の値（通常 1.0f）で埋めます。毎フレームの描画の最初に呼ぶものです。
 
 #### D3D12_CLEAR_FLAG_STENCIL {#d3d12_clear_flag_stencil}
 
-値は 0x2 で、ステンシルをクリアします。`Stencil` 引数の値（通常 0）で埋めます。ステンシルを持たないフォーマット（`D32_FLOAT` など）に付けると、デバッグ レイヤーがエラーを出します。
+値は 0x2 でステンシルをクリアします。`Stencil` 引数の値（通常 0）で埋めます。ステンシルを持たないフォーマット（`D32_FLOAT` など）に付けると、デバッグ レイヤーがエラーを出します。
 
 ## D3D12_QUERY_TYPE {#d3d12_query_type}
 
@@ -188,27 +188,27 @@ typedef enum D3D12_QUERY_TYPE {
 } D3D12_QUERY_TYPE;
 ```
 
-`BeginQuery`、`EndQuery`、`ResolveQueryData` で、何を測るかを選びます。結果は `ResolveQueryData` で `READBACK` ヒープのバッファへ書き出して、CPU が読みます（[Query and Timing](../query-timing.md)）。
+`BeginQuery`、`EndQuery`、`ResolveQueryData` で何を測るかを選びます。結果は `ResolveQueryData` で `READBACK` ヒープのバッファへ書き出して、CPU が読みます（[Query and Timing](../query-timing.md)）。
 
 #### D3D12_QUERY_TYPE_OCCLUSION {#d3d12_query_type_occlusion}
 
-値は 0 です。`BeginQuery` と `EndQuery` で挟んだ描画で、深度テストを通ったサンプル（ピクセル）の数を返します。結果は `UINT64` です。ある物体が隠れているかを調べる、オクルージョン カリングに使います。
+値は 0 です。`BeginQuery` と `EndQuery` で挟んだ描画で深度テストを通ったサンプル（ピクセル）の数を返します。結果は `UINT64` です。ある物体が隠れているかを調べるオクルージョン カリングに使います。
 
 #### D3D12_QUERY_TYPE_BINARY_OCCLUSION {#d3d12_query_type_binary_occlusion}
 
-値は 1 です。`OCCLUSION` の簡易版で、1 つでも通ったかどうか（0 か 1）だけを返します。数を数えなくてよい分、速く、述語（`SetPredication`）で描画を自動的にスキップするのに向いています。
+値は 1 です。`OCCLUSION` の簡易版で 1 つでも通ったかどうか（0 か 1）だけを返します。数を数えなくてよい分、速く述語（`SetPredication`）で描画を自動的にスキップするのに向いています。
 
 #### D3D12_QUERY_TYPE_TIMESTAMP {#d3d12_query_type_timestamp}
 
-値は 2 です。`EndQuery` を呼んだ時点の GPU のタイムスタンプを返します。2 つの時刻の差を `GetTimestampFrequency` で割ると秒になります。GPU の処理時間を測る標準の方法です。`BeginQuery` は使えず、`EndQuery` だけを呼びます。
+値は 2 です。`EndQuery` を呼んだ時点の GPU のタイムスタンプを返します。2 つの時刻の差を `GetTimestampFrequency` で割ると秒になります。GPU の処理時間を測る標準の方法です。`BeginQuery` は使えず `EndQuery` だけを呼びます。
 
 #### D3D12_QUERY_TYPE_PIPELINE_STATISTICS {#d3d12_query_type_pipeline_statistics}
 
-値は 3 です。頂点の数、プリミティブの数、ピクセル シェーダーの呼び出し数など、パイプラインの各段の統計を `D3D12_QUERY_DATA_PIPELINE_STATISTICS` で返します。描画が重い原因を探るプロファイル用です。
+値は 3 です。頂点の数、プリミティブの数、ピクセル シェーダーの呼び出し数などパイプラインの各段の統計を `D3D12_QUERY_DATA_PIPELINE_STATISTICS` で返します。描画が重い原因を探るプロファイル用です。
 
 #### D3D12_QUERY_TYPE_SO_STATISTICS_STREAM0 {#d3d12_query_type_so_statistics_stream0}
 
-値は 4 です。ストリーム出力のストリーム 0 について、書き出したプリミティブ数とバッファが足りなかった数を返します。`STREAM1`〜`STREAM3`（値 5〜7）は、同じものを別のストリームについて測ります。ストリーム出力を使う場合だけ必要です。
+値は 4 です。ストリーム出力のストリーム 0 について、書き出したプリミティブ数とバッファが足りなかった数を返します。`STREAM1`〜`STREAM3`（値 5〜7）は同じものを別のストリームについて測ります。ストリーム出力を使う場合だけ必要です。
 
 #### D3D12_QUERY_TYPE_VIDEO_DECODE_STATISTICS {#d3d12_query_type_video_decode_statistics}
 
@@ -216,7 +216,7 @@ typedef enum D3D12_QUERY_TYPE {
 
 #### D3D12_QUERY_TYPE_PIPELINE_STATISTICS1 {#d3d12_query_type_pipeline_statistics1}
 
-値は 10 です。`PIPELINE_STATISTICS` に、メッシュ シェーダーとアンプリフィケーション シェーダーの統計を足した新しい版です。結果は `D3D12_QUERY_DATA_PIPELINE_STATISTICS1` で、`D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS1` のクエリ ヒープが必要です。
+値は 10 です。`PIPELINE_STATISTICS` にメッシュ シェーダーとアンプリフィケーション シェーダーの統計を足した新しい版です。結果は `D3D12_QUERY_DATA_PIPELINE_STATISTICS1` で `D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS1` のクエリ ヒープが必要です。
 
 ## D3D12_QUERY_HEAP_TYPE {#d3d12_query_heap_type}
 
@@ -232,7 +232,7 @@ typedef enum D3D12_QUERY_HEAP_TYPE {
 } D3D12_QUERY_HEAP_TYPE;
 ```
 
-`CreateQueryHeap` で作るクエリ ヒープの種類です。ヒープの種類と、その中で使えるクエリの種類は対応しています。
+`CreateQueryHeap` で作るクエリ ヒープの種類です。ヒープの種類とその中で使えるクエリの種類は対応しています。
 
 #### D3D12_QUERY_HEAP_TYPE_OCCLUSION {#d3d12_query_heap_type_occlusion}
 
@@ -240,7 +240,7 @@ typedef enum D3D12_QUERY_HEAP_TYPE {
 
 #### D3D12_QUERY_HEAP_TYPE_TIMESTAMP {#d3d12_query_heap_type_timestamp}
 
-値は 1 です。`QUERY_TYPE_TIMESTAMP` のためのヒープです。GPU の処理時間を測るなら、最初に作るのはこれです。
+値は 1 です。`QUERY_TYPE_TIMESTAMP` のためのヒープです。GPU の処理時間を測るなら最初に作るのはこれです。
 
 #### D3D12_QUERY_HEAP_TYPE_PIPELINE_STATISTICS {#d3d12_query_heap_type_pipeline_statistics}
 
@@ -274,27 +274,27 @@ typedef enum D3D12_PRIMITIVE_TOPOLOGY_TYPE {
 } D3D12_PRIMITIVE_TOPOLOGY_TYPE;
 ```
 
-`D3D12_GRAPHICS_PIPELINE_STATE_DESC` の `PrimitiveTopologyType` に入れる値です。PSO には、点・線・三角形・パッチのどの系統かだけを伝えます。ストリップかリストかのような細かい並べ方は、コマンド リストの `IASetPrimitiveTopology` で選びます。
+`D3D12_GRAPHICS_PIPELINE_STATE_DESC` の `PrimitiveTopologyType` に入れる値です。PSO には点・線・三角形・パッチのどの系統かだけを伝えます。ストリップかリストかのような細かい並べ方は、コマンド リストの `IASetPrimitiveTopology` で選びます。
 
 #### D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED {#d3d12_primitive_topology_type_undefined}
 
-値は 0 で、未指定です。この値のままだと PSO の作成が失敗します。
+値は 0 で未指定です。この値のままだと PSO の作成が失敗します。
 
 #### D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT {#d3d12_primitive_topology_type_point}
 
-値は 1 で、点です。パーティクルを点で描く場合などに使い、あとで `POINTLIST` を指定します。
+値は 1 で点です。パーティクルを点で描く場合などに使いあとで `POINTLIST` を指定します。
 
 #### D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE {#d3d12_primitive_topology_type_line}
 
-値は 2 で、線です。デバッグ描画の線分や枠線に使い、あとで `LINELIST` か `LINESTRIP` を指定します。
+値は 2 で線です。デバッグ描画の線分や枠線に使いあとで `LINELIST` か `LINESTRIP` を指定します。
 
 #### D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE {#d3d12_primitive_topology_type_triangle}
 
-値は 3 で、三角形です。メッシュの描画は、ほとんどこれです。あとで `TRIANGLELIST` か `TRIANGLESTRIP` を指定します。
+値は 3 で三角形です。メッシュの描画はほとんどこれです。あとで `TRIANGLELIST` か `TRIANGLESTRIP` を指定します。
 
 #### D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH {#d3d12_primitive_topology_type_patch}
 
-値は 4 で、テッセレーション用のパッチです。ハル シェーダーとドメイン シェーダーを使うときに指定し、あとで `n_CONTROL_POINT_PATCHLIST` を指定します。
+値は 4 でテッセレーション用のパッチです。ハル シェーダーとドメイン シェーダーを使うときに指定し、あとで `n_CONTROL_POINT_PATCHLIST` を指定します。
 
 ## D3D_PRIMITIVE_TOPOLOGY {#d3d_primitive_topology}
 
@@ -307,7 +307,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 
 #### D3D_PRIMITIVE_TOPOLOGY_UNDEFINED {#d3d_primitive_topology_undefined}
 
-値は 0 で、未指定です。`IASetPrimitiveTopology` を呼び忘れると、この値のまま描画してしまい、デバッグ レイヤーが警告します。
+値は 0 で未指定です。`IASetPrimitiveTopology` を呼び忘れるとこの値のまま描画してしまいデバッグ レイヤーが警告します。
 
 #### D3D_PRIMITIVE_TOPOLOGY_POINTLIST {#d3d_primitive_topology_pointlist}
 
@@ -319,15 +319,15 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 
 #### D3D_PRIMITIVE_TOPOLOGY_LINESTRIP {#d3d_primitive_topology_linestrip}
 
-値は 3 です。頂点を順に結んで、つながった折れ線にします。N 個の頂点で N−1 本の線分ができます。
+値は 3 です。頂点を順に結んでつながった折れ線にします。N 個の頂点で N−1 本の線分ができます。
 
 #### D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST {#d3d_primitive_topology_trianglelist}
 
-値は 4 です。頂点 3 つで三角形 1 つになります。頂点の順序は、左手系・CW が表です。三角形同士はつながっていないので、メッシュはこれにインデックス バッファを組み合わせて、頂点を共有します。最もよく使う値です。
+値は 4 です。頂点 3 つで三角形 1 つになります。頂点の順序は左手系・CW が表です。三角形同士はつながっていないので、メッシュはこれにインデックス バッファを組み合わせて、頂点を共有します。最もよく使う値です。
 
 #### D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP {#d3d_primitive_topology_trianglestrip}
 
-値は 5 です。直前の 2 頂点に 1 頂点ずつ足して、三角形を連ねます。N 個の頂点で N−2 個の三角形ができ、頂点数が少なくて済みます。ただし、三角形ごとに表裏の向きが入れ替わる決まりがあります。ストリップを途中で切るには、インデックスに特別な値（0xFFFF や 0xFFFFFFFF）を置くカット値が必要で、`D3D12_INDEX_BUFFER_STRIP_CUT_VALUE` で PSO に伝えます。
+値は 5 です。直前の 2 頂点に 1 頂点ずつ足して、三角形を連ねます。N 個の頂点で N−2 個の三角形ができ頂点数が少なくて済みます。ただし、三角形ごとに表裏の向きが入れ替わる決まりがあります。ストリップを途中で切るにはインデックスに特別な値（0xFFFF や 0xFFFFFFFF）を置くカット値が必要で、`D3D12_INDEX_BUFFER_STRIP_CUT_VALUE` で PSO に伝えます。
 
 #### D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN {#d3d_primitive_topology_trianglefan}
 
@@ -335,7 +335,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 
 #### D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ {#d3d_primitive_topology_linelist_adj}
 
-値は 10 です。隣接情報つきの線分リストで、ジオメトリ シェーダーが前後の頂点を参照するために使います。
+値は 10 です。隣接情報つきの線分リストでジオメトリ シェーダーが前後の頂点を参照するために使います。
 
 #### D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ {#d3d_primitive_topology_linestrip_adj}
 
@@ -360,7 +360,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 ## よくあるミス
 
 ??? failure "リストとキューの種類が合っていない"
-    `COPY` のリストを `DIRECT` のアロケーターで `Reset` する、`COMPUTE` のリストに `DrawInstanced` を記録する、といった食い違いは、リストの作成や `Close`、`ExecuteCommandLists` で失敗します。作るときに 3 つの種類をそろえます。
+    `COPY` のリストを `DIRECT` のアロケーターで `Reset` する、`COMPUTE` のリストに `DrawInstanced` を記録する、といった食い違いはリストの作成や `Close`、`ExecuteCommandLists` で失敗します。作るときに 3 つの種類をそろえます。
 
 ??? failure "PSO のトポロジ タイプと IASetPrimitiveTopology が合っていない"
     PSO を `TRIANGLE` で作ったのに `LINELIST` を設定して描く、という組み合わせはデバッグ レイヤーがエラーにします。PSO が持つのは系統だけで、細かい並べ方は描画の直前に決めます。

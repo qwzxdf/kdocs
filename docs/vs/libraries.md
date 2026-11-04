@@ -50,13 +50,11 @@ MyGame/
 
 `$(SolutionDir)` は、ソリューション（`.sln`）があるフォルダーを表すマクロです。絶対パスを書かなくてよいので、チームで共有しても動きます。
 
-| よく使うマクロ | 意味 |
-| --- | --- |
-| `$(SolutionDir)` | ソリューションのフォルダー（最後に `\` が付く） |
-| `$(ProjectDir)` | プロジェクトのフォルダー |
-| `$(Configuration)` | `Debug` または `Release` |
-| `$(Platform)` | `x64` など |
-| `$(OutDir)` | 出力ディレクトリ |
+- `$(SolutionDir)`: ソリューションのフォルダー（最後に `\` が付く）
+- `$(ProjectDir)`: プロジェクトのフォルダー
+- `$(Configuration)`: `Debug` または `Release`
+- `$(Platform)`: `x64` など
+- `$(OutDir)`: 出力ディレクトリ
 
 ### 外部ヘッダの警告を消す {#external_include}
 
@@ -116,31 +114,27 @@ vcpkg install nlohmann-json:x64-windows
 2. プロジェクトのプロパティに「vcpkg」のページがあれば、Use Vcpkg Manifest を はい にする（`vcpkg integrate install` 済みなら、自動で有効なことが多い）。プロパティの一覧に「vcpkg」が出ない環境もあります（この画面の `C/C++`・`リンカー` などの並びに、無ければ、そのままビルドして、出力に vcpkg の経過が出るかで確かめます）
 3. ビルドすると、`vcpkg.json` に書いたライブラリが自動でダウンロード・ビルドされる（最初は時間がかかる）
 
-| 設定（プロパティ → vcpkg） | 意味 |
-| --- | --- |
-| Use Vcpkg | vcpkg を使う（はい） |
-| Use Vcpkg Manifest | `vcpkg.json` を使う（はい） |
-| Triplet | `x64-windows` など。空なら自動 |
-| Use Static Libraries | `x64-windows-static` 系を使う（DLL を配らなくてよくなる） |
+- Use Vcpkg: vcpkg を使う（はい）
+- Use Vcpkg Manifest: `vcpkg.json` を使う（はい）
+- Triplet: `x64-windows` など。空なら自動
+- Use Static Libraries: `x64-windows-static` 系を使う（DLL を配らなくてよくなる）
 
 !!! warning "ランタイム ライブラリをそろえる"
     `x64-windows-static` を使うなら、プロジェクトの C/C++ → コード生成 → ランタイム ライブラリ を `/MT`（Debug は `/MTd`）にします。`x64-windows`（DLL）なら `/MD`（Debug は `/MDd`）です。そろっていないと `LNK2038`（RuntimeLibrary の不一致）が出ます（[よくあるエラー](errors.md#runtime_library)）。
 
 ### vcpkg に入っているライブラリの名前
 
-| このサイトで解説しているもの | vcpkg の名前 |
-| --- | --- |
-| nlohmann/json | `nlohmann-json` |
-| simdjson | `simdjson` |
-| rapidyaml | `ryml` |
-| cereal | `cereal` |
-| zpp_bits | `zpp-bits` |
-| yalantinglibs（struct_pack） | `yalantinglibs` |
-| cista | `cista` |
-| Dear ImGui | `imgui`（バックエンドは `imgui[win32-binding,dx11-binding]` のように指定） |
-| ImGuizmo | `imguizmo` |
-| imgui-node-editor | `imgui-node-editor`（ポート名は `vcpkg search` で確認） |
-| Jolt Physics | `joltphysics` |
+- nlohmann/json: `nlohmann-json`
+- simdjson: `simdjson`
+- rapidyaml: `ryml`
+- cereal: `cereal`
+- zpp_bits: `zpp-bits`
+- yalantinglibs（struct_pack）: `yalantinglibs`
+- cista: `cista`
+- Dear ImGui: `imgui`（バックエンドは `imgui[win32-binding,dx11-binding]` のように指定）
+- ImGuizmo: `imguizmo`
+- imgui-node-editor: `imgui-node-editor`（ポート名は `vcpkg search` で確認）
+- Jolt Physics: `joltphysics`
 
 名前は `vcpkg search キーワード` で確認します。ポートによってバージョンが違うことがあります。
 
@@ -148,11 +142,9 @@ vcpkg install nlohmann-json:x64-windows
 
 ビルド済みのライブラリ（`.lib` と `.dll` が配られているもの、自分でビルドしたもの）は、**3 つの設定**が必要です。
 
-| ファイルの種類 | 役割 |
-| --- | --- |
-| ヘッダ（`.h`） | 関数や型の宣言。コンパイル時に必要 |
-| `.lib`（インポート ライブラリ / 静的ライブラリ） | リンク時に必要。静的ライブラリなら中身が `.exe` に入る |
-| `.dll` | 実行時に必要。`.exe` と同じフォルダーに置く |
+- ヘッダ（`.h`）: 関数や型の宣言。コンパイル時に必要
+- `.lib`（インポート ライブラリ / 静的ライブラリ）: リンク時に必要。静的ライブラリなら中身が `.exe` に入る
+- `.dll`: 実行時に必要。`.exe` と同じフォルダーに置く
 
 ```text
 third_party/
@@ -198,9 +190,7 @@ third_party/
 
 `.dll` は、実行したときに見つからないと `〜.dll が見つからないため、コードの実行を続行できません` というエラーになります。ビルド後にコピーする設定をしておくと楽です。
 
-| 場所 | 入れる値 |
-| --- | --- |
-| ビルド イベント → ビルド後イベント → コマンド ライン | `xcopy /y /d "$(SolutionDir)third_party\mylib\lib\x64\$(Configuration)\*.dll" "$(OutDir)"` |
+- ビルド イベント → ビルド後イベント → コマンド ライン: `xcopy /y /d "$(SolutionDir)third_party\mylib\lib\x64\$(Configuration)\*.dll" "$(OutDir)"`
 
 ### ソースコードで .lib を指定する方法
 
@@ -238,24 +228,20 @@ int main() {
 }
 ```
 
-| 出るエラー | 原因 |
-| --- | --- |
-| `C1083: include ファイルを開けません` | インクルードのパスが違う / ライブラリが入っていない |
-| `LNK2019: 外部シンボルが未解決` | `.lib` を指定していない / プラットフォームや構成が違う |
-| `LNK1104: ファイル 'xxx.lib' を開けません` | ライブラリのディレクトリが違う / ファイル名が違う |
-| `〜.dll が見つかりません`（実行時） | DLL を exe の横にコピーしていない |
+- `C1083: include ファイルを開けません`: インクルードのパスが違う / ライブラリが入っていない
+- `LNK2019: 外部シンボルが未解決`: `.lib` を指定していない / プラットフォームや構成が違う
+- `LNK1104: ファイル 'xxx.lib' を開けません`: ライブラリのディレクトリが違う / ファイル名が違う
+- `〜.dll が見つかりません`（実行時）: DLL を exe の横にコピーしていない
 
 詳しくは [よくあるエラー](errors.md) を見てください。
 
 ## ライブラリの入れ方の目安
 
-| ライブラリの形 | 一番楽な方法 |
-| --- | --- |
-| vcpkg にある | **vcpkg**（マニフェスト モード） |
-| ヘッダだけ | `third_party/` に置いて、インクルードのパスを足す |
-| `.cpp` が 1〜数個 | ソースごとプロジェクトに追加 |
-| ビルド済みの `.lib` / `.dll` | 3 つの設定 + ビルド後イベントで DLL をコピー |
-| 大きくて CMake で配布されている（Jolt Physics など） | vcpkg、または CMake でビルドして `.lib` を使う |
+- vcpkg にある: **vcpkg**（マニフェスト モード）
+- ヘッダだけ: `third_party/` に置いて、インクルードのパスを足す
+- `.cpp` が 1〜数個: ソースごとプロジェクトに追加
+- ビルド済みの `.lib` / `.dll`: 3 つの設定 + ビルド後イベントで DLL をコピー
+- 大きくて CMake で配布されている（Jolt Physics など）: vcpkg、または CMake でビルドして `.lib` を使う
 
 ## 関連ページ
 

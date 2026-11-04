@@ -7,19 +7,19 @@ tags:
 
 # クエリ（レイキャストなど）
 
-**クエリ**は、物理の世界に問い合わせる操作です。「この線上に何がある？」（レイキャスト）、「この球を動かしたら、何に当たる？」（形状キャスト）、「この範囲に何がある？」（重なり判定）など。物体を動かさずに、当たりの情報だけを得られます。射撃（ヒットスキャン）・視線が通るか・地面の高さ・ピッキングなどに使います（[ピッキングとレイキャスト](../../3d/picking-raycast.md)）。このページは、主なクエリの種類、書き方、レイヤーによる絞り込み、結果の読み方をまとめます。
+**クエリ**は物理の世界に問い合わせる操作です。「この線上に何がある？」（レイキャスト）、「この球を動かしたら何に当たる？」（形状キャスト）、「この範囲に何がある？」（重なり判定）など。物体を動かさずに当たりの情報だけを得られます。射撃（ヒットスキャン）・視線が通るか・地面の高さ・ピッキングなどに使います（[ピッキングとレイキャスト](../../3d/picking-raycast.md)）。このページは主なクエリの種類、書き方、レイヤーによる絞り込み結果の読み方をまとめます。
 
 !!! tip "ポイント"
     - クエリは <strong>`physics_system.GetNarrowPhaseQuery()`</strong>（正確な判定）と <strong>`GetBroadPhaseQuery()`</strong>（大まかな範囲の判定）から呼ぶ。
-    - `CastRay` は線（レイ）が最初に当たる物体を調べる。`RRayCast(始点, 向き)` の「向き」は、長さを持つ方向ベクトル（終点 − 始点）。
+    - `CastRay` は線（レイ）が最初に当たる物体を調べる。`RRayCast(始点, 向き)` の「向き」は長さを持つ方向ベクトル（終点 − 始点）。
     - 結果は `mFraction`（0〜1：レイのどの位置で当たったか）と `mBodyID`。当たった点 ＝ 始点 ＋ 向き × `mFraction`。
     - 形状キャスト（`CastShape`）は球・カプセルなどを動かしてみて、当たるかを調べる（太い線）。
-    - レイヤーのフィルターで、どの物体を対象にするかを絞る。自分自身は、除外する。
+    - レイヤーのフィルターで、どの物体を対象にするかを絞る。自分自身は除外する。
     - 複数の当たりをすべて知りたいならコレクター（`CastRayCollector`）。
-    - クエリは `Update` の外で呼ぶ（スレッド安全だが、`Update` と同時に、物体が変わるため）。
+    - クエリは `Update` の外で呼ぶ（スレッド安全だが、`Update` と同時に物体が変わるため）。
 
 !!! info "このページを読む前に"
-    - [Jolt Physics](index.md)（このセクション全体の地図と、読む順番）
+    - [Jolt Physics](index.md)（このセクション全体の地図と読む順番）
     - [物理演算の全体像](overview.md)（Jolt の全体像）
 
 ## クエリの種類
@@ -28,8 +28,8 @@ tags:
 | --- | --- | --- |
 | **`CastRay`** | この線の上に何があるか | 射撃・視線・地面の高さ・マウスのピッキング |
 | `CastShape` | この形を動かしたら、何に当たるか | キャラクターの移動の予測・太い光線・スイープ |
-| `CollideShape` | この形は、今、何と重なっているか | 近接攻撃の判定・範囲ダメージ・エリアの内外 |
-| `CollidePoint` | この点は、どの物体の中にあるか | 点の内外判定 |
+| `CollideShape` | この形は今、何と重なっているか | 近接攻撃の判定・範囲ダメージ・エリアの内外 |
+| `CollidePoint` | この点はどの物体の中にあるか | 点の内外判定 |
 | `CollideAABox` / `CollideSphere`（ブロードフェーズ） | この範囲にどの物体がいるか（大まかに） | 周囲の物体の列挙・爆発の範囲 |
 
 ```cpp
@@ -56,21 +56,19 @@ if (did_hit) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`RRayCast(origin, direction)`** | 始点と、方向ベクトル（長さ付き）。終点 ＝ `origin + direction` |
-| **`direction * max_distance` | 方向（正規化済み）× 最大の距離で、届く距離**を決める |
-| `RayCastResult` | 最初に当たった 1 つの結果 |
-| `hit.mFraction` | レイの何割の位置で当たったか（0 で始点、1 で終点） |
-| `ray.GetPointOnRay(fraction)` | 当たった点（`origin + direction * fraction`） |
-| `hit.mBodyID` | 当たった物体 |
-| `hit.mSubShapeID2` | 複合形状の、どの部品に当たったか |
+- **`RRayCast(origin, direction)`**: 始点と方向ベクトル（長さ付き）。終点 ＝ `origin + direction`
+- **`direction * max_distance`: 方向（正規化済み）× 最大の距離で、届く距離**を決める
+- `RayCastResult`: 最初に当たった 1 つの結果
+- `hit.mFraction`: レイの何割の位置で当たったか（0 で始点、1 で終点）
+- `ray.GetPointOnRay(fraction)`: 当たった点（`origin + direction * fraction`）
+- `hit.mBodyID`: 当たった物体
+- `hit.mSubShapeID2`: 複合形状のどの部品に当たったか
 
-距離を知りたい場合は、**`hit.mFraction * max_distance`** です。
+距離を知りたい場合は**`hit.mFraction * max_distance`** です。
 
 ### 当たった面の法線
 
-法線（当たった面の向き）が欲しいときは、物体のロックを取って、形に問い合わせます。
+法線（当たった面の向き）が欲しいときは、物体のロックを取って形に問い合わせます。
 
 ```cpp
 BodyLockRead lock(physics_system.GetBodyLockInterface(), hit.mBodyID);
@@ -84,7 +82,7 @@ if (lock.Succeeded()) {
 
 ### 全部の当たりを集める（コレクター）
 
-最初の 1 つだけでなく、レイ上の全部（貫通する弾）を知りたいときは、コレクターを使います。
+最初の 1 つだけでなくレイ上の全部（貫通する弾）を知りたいときは、コレクターを使います。
 
 ```cpp
 AllHitCollisionCollector<CastRayCollector> collector;
@@ -97,11 +95,9 @@ for (const RayCastResult& r : collector.mHits) {
 }
 ```
 
-| コレクター | 動き |
-| --- | --- |
-| `ClosestHitCollisionCollector` | 最も近い 1 つだけ |
-| `AllHitCollisionCollector` | すべての当たりを溜める（`Sort()` で、近い順に） |
-| `AnyHitCollisionCollector` | 1 つでも当たれば、すぐ終了（視線が通るかだけ知りたいとき。最速） |
+- `ClosestHitCollisionCollector`: 最も近い 1 つだけ
+- `AllHitCollisionCollector`: すべての当たりを溜める（`Sort()` で、近い順に）
+- `AnyHitCollisionCollector`: 1 つでも当たれば、すぐ終了（視線が通るかだけ知りたいとき。最速）
 
 ### 視線が通るか（遮蔽の判定）
 
@@ -114,7 +110,7 @@ bool CanSee(RVec3 from, RVec3 to) {
 }
 ```
 
-敵がプレイヤーを見えるか（壁に遮られていないか）に使います。`AnyHit` なので、速いです。
+敵がプレイヤーを見えるか（壁に遮られていないか）に使います。`AnyHit` なので速いです。
 
 ## 形状キャスト（CastShape）
 
@@ -134,18 +130,16 @@ if (collector.HadHit()) {
 }
 ```
 
-| 用途 | 説明 |
-| --- | --- |
-| キャラクターが前に進めるか | カプセルを進行方向にキャスト |
-| カメラの壁抜け防止 | 球を注視点からカメラへキャスト（[カメラ](../../3d/camera.md)） |
-| 太い弾・ビーム | 球・カプセルを飛ばす |
-| 段差の検出 | 足元に向けて、キャスト |
+- キャラクターが前に進めるか: カプセルを進行方向にキャスト
+- カメラの壁抜け防止: 球を注視点からカメラへキャスト（[カメラ](../../3d/camera.md)）
+- 太い弾・ビーム: 球・カプセルを飛ばす
+- 段差の検出: 足元に向けて、キャスト
 
-細いレイ（`CastRay`）では、すり抜けるような隙間・段差にも、形状キャストは、正しく反応します。
+細いレイ（`CastRay`）ではすり抜けるような隙間・段差にも形状キャストは、正しく反応します。
 
 ## 重なり判定（CollideShape・CollidePoint）
 
-**動かさず、今の位置で、何と重なっているか**を調べます。
+**動かさず今の位置で何と重なっているか**を調べます。
 
 ```cpp
 ShapeRefC sphere = new SphereShape(radius);
@@ -162,30 +156,28 @@ for (const CollideShapeResult& r : collector.mHits) {
 
 | 用途 | 説明 |
 | --- | --- |
-| 近接攻撃の判定 | 剣の振りの範囲と、重なっている敵 |
+| 近接攻撃の判定 | 剣の振りの範囲と重なっている敵 |
 | 爆発の範囲ダメージ | 球で、重なっている物体を取る |
 | エリア内の敵の数 | 範囲に何がいるか |
 | スポーン位置の確認 | その位置が何かと重なっていないか |
 
-範囲だけで十分（形の正確さが、いらない）なら、ブロードフェーズのクエリ（`CollideAABox`・`CollideSphere`）が速いです。
+範囲だけで十分（形の正確さが、いらない）ならブロードフェーズのクエリ（`CollideAABox`・`CollideSphere`）が速いです。
 
 ```cpp
 AllHitCollisionCollector<CollideShapeBodyCollector> collector;
 broad_query.CollideSphere(center, radius, collector, bp_filter, obj_filter);
 ```
 
-物体の境界ボックスとの重なりを返すだけで、形の正確な判定は、しません。
+物体の境界ボックスとの重なりを返すだけで、形の正確な判定はしません。
 
 ## レイヤーとフィルター
 
 **クエリの対象を絞ります**。
 
-| フィルター | 役割 |
-| --- | --- |
-| `BroadPhaseLayerFilter` | どのブロードフェーズ レイヤーを対象にするか |
-| `ObjectLayerFilter` | どのオブジェクト レイヤーを対象にするか |
-| `BodyFilter` | 特定の物体を除外・指定する |
-| `ShapeFilter` | 複合形状の、特定の部品を除外 |
+- `BroadPhaseLayerFilter`: どのブロードフェーズ レイヤーを対象にするか
+- `ObjectLayerFilter`: どのオブジェクト レイヤーを対象にするか
+- `BodyFilter`: 特定の物体を除外・指定する
+- `ShapeFilter`: 複合形状の特定の部品を除外
 
 ### よく使うフィルター
 
@@ -196,46 +188,38 @@ DefaultObjectLayerFilter obj_filter(object_pair_filter, Layers::PLAYER_BULLET);
 IgnoreSingleBodyFilter body_filter(shooter_id);
 ```
 
-| フィルター | 意味 |
-| --- | --- |
-| `DefaultBroadPhaseLayerFilter` / `DefaultObjectLayerFilter` | 「このレイヤーの物体が衝突する相手」だけを対象（衝突のルールをそのまま使う） |
-| `SpecifiedObjectLayerFilter(layer)` | 指定した 1 つのレイヤーだけ |
-| `IgnoreSingleBodyFilter(id)` | 指定した物体を除外（撃った本人、自分自身） |
-| `IgnoreMultipleBodiesFilter` | 複数を除外 |
+- `DefaultBroadPhaseLayerFilter` / `DefaultObjectLayerFilter`: 「このレイヤーの物体が衝突する相手」だけを対象（衝突のルールをそのまま使う）
+- `SpecifiedObjectLayerFilter(layer)`: 指定した 1 つのレイヤーだけ
+- `IgnoreSingleBodyFilter(id)`: 指定した物体を除外（撃った本人、自分自身）
+- `IgnoreMultipleBodiesFilter`: 複数を除外
 
 !!! warning "自分自身を除外する"
-    プレイヤーの位置から、レイを飛ばすと、自分自身にすぐ当たります。`IgnoreSingleBodyFilter` で、自分を除外します。始点を体の外に少しずらす方法もあります。
+    プレイヤーの位置から、レイを飛ばすと自分自身にすぐ当たります。`IgnoreSingleBodyFilter` で自分を除外します。始点を体の外に少しずらす方法もあります。
 
 ## 結果の使い方
 
-| 結果 | 使い方 |
-| --- | --- |
-| **`mBodyID`** | `BodyInterface::GetUserData(id)` で、ゲームのエンティティを取得（[統合](integration.md)） |
-| 当たった点 | `ray.GetPointOnRay(fraction)` → 着弾の効果・弾痕 |
-| 法線 | 反射・弾痕の向き |
-| 距離 | `fraction × 長さ` → ダメージの距離減衰 |
+- **`mBodyID`**: `BodyInterface::GetUserData(id)` でゲームのエンティティを取得（[統合](integration.md)）
+- 当たった点: `ray.GetPointOnRay(fraction)` → 着弾の効果・弾痕
+- 法線: 反射・弾痕の向き
+- 距離: `fraction × 長さ` → ダメージの距離減衰
 
 ## 使いどころ
 
-| 場面 | クエリ |
-| --- | --- |
-| **ヒットスキャンの射撃** | `CastRay`（最も近い 1 つ） |
-| 貫通する弾 | `CastRay`（全部の当たり） |
-| 敵の視線判定 | `CastRay`（`AnyHit`） |
-| 地面の高さ・接地判定 | 足元から、真下へ `CastRay` |
-| マウスのクリックで、物体を選ぶ | カメラからのレイ（[ピッキング](../../3d/picking-raycast.md)） |
-| カメラの壁抜け防止 | 球の `CastShape` |
-| 近接攻撃・範囲攻撃 | `CollideShape` |
-| 周囲の物体の列挙 | ブロードフェーズの `CollideSphere` |
+- **ヒットスキャンの射撃**: `CastRay`（最も近い 1 つ）
+- 貫通する弾: `CastRay`（全部の当たり）
+- 敵の視線判定: `CastRay`（`AnyHit`）
+- 地面の高さ・接地判定: 足元から、真下へ `CastRay`
+- マウスのクリックで物体を選ぶ: カメラからのレイ（[ピッキング](../../3d/picking-raycast.md)）
+- カメラの壁抜け防止: 球の `CastShape`
+- 近接攻撃・範囲攻撃: `CollideShape`
+- 周囲の物体の列挙: ブロードフェーズの `CollideSphere`
 
 ## 性能
 
-| 点 | 説明 |
-| --- | --- |
-| **`AnyHit` は最速** | 1 つ見つかれば、すぐ終了 |
-| 範囲・レイヤーを絞る | 対象が少ないほど速い |
-| 毎フレームの大量のクエリ | 数百本までは軽い。数千本以上は、まとめて・頻度を下げる（[フレーム時間の設計](../../optimize/frame-budget.md)） |
-| 結果を溜める | コレクターの、確保を使い回す（[毎フレームのヒープ確保を避ける](../../optimize/frame-allocation.md)） |
+- **`AnyHit` は最速**: 1 つ見つかれば、すぐ終了
+- 範囲・レイヤーを絞る: 対象が少ないほど速い
+- 毎フレームの大量のクエリ: 数百本までは軽い。数千本以上はまとめて・頻度を下げる（[フレーム時間の設計](../../optimize/frame-budget.md)）
+- 結果を溜める: コレクターの確保を使い回す（[毎フレームのヒープ確保を避ける](../../optimize/frame-allocation.md)）
 
 <!-- fig:raycast-hit:begin -->
 
@@ -264,13 +248,13 @@ IgnoreSingleBodyFilter body_filter(shooter_id);
 ## よくあるミス
 
 ??? failure "`RRayCast` の第 2 引数に正規化した方向をそのまま渡して、短すぎる"
-    <strong>第 2 引数は、「長さのある、方向ベクトル」</strong>です。**`direction * max_distance`** にします。
+    <strong>第 2 引数は「長さのある、方向ベクトル」</strong>です。**`direction * max_distance`** にします。
 
 ??? failure "自分自身にレイが当たる"
-    `IgnoreSingleBodyFilter` で、除外します。
+    `IgnoreSingleBodyFilter` で除外します。
 
 ??? failure "レイキャストが何にも当たらない"
-    レイヤーのフィルターが対象を除外していないか、`NarrowPhaseQuery` に、物体が追加されて（`OptimizeBroadPhase` の後）いるか、確認します。
+    レイヤーのフィルターが対象を除外していないか `NarrowPhaseQuery` に物体が追加されて（`OptimizeBroadPhase` の後）いるか、確認します。
 
 ??? failure "`mFraction` をそのまま距離として使う"
     0〜1 の割合です。距離 ＝ `mFraction` × レイの長さ。

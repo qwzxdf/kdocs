@@ -55,14 +55,12 @@ AccessorData GetAccessorData(const tinygltf::Model& model, int accessor_index) {
 }
 ```
 
-| 行 | 意味 |
-| --- | --- |
-| `model.accessors[accessor_index]` | accessor の番号で、配列を引く |
-| `model.bufferViews[accessor.bufferView]` | accessor が持つ bufferView の番号で、引く |
-| `model.buffers[view.buffer]` | bufferView が持つ buffer の番号で、引く |
-| `buffer.data` | バイナリ本体（`std::vector<unsigned char>`） |
-| 先頭 | `buffer.data` ＋ `view.byteOffset` ＋ `accessor.byteOffset` |
-| `ByteStride(view)` | 要素と要素の間隔（インターリーブなら `byteStride`。隙間なしなら要素のサイズ） |
+- `model.accessors[accessor_index]`: accessor の番号で、配列を引く
+- `model.bufferViews[accessor.bufferView]`: accessor が持つ bufferView の番号で、引く
+- `model.buffers[view.buffer]`: bufferView が持つ buffer の番号で、引く
+- `buffer.data`: バイナリ本体（`std::vector<unsigned char>`）
+- 先頭: `buffer.data` ＋ `view.byteOffset` ＋ `accessor.byteOffset`
+- `ByteStride(view)`: 要素と要素の間隔（インターリーブなら `byteStride`。隙間なしなら要素のサイズ）
 
 !!! warning "accessor.bufferView が -1 のとき"
     `bufferView` が `-1`（無い）の accessor は、すべてゼロの配列を意味します（スパース accessor の土台など）。頂点の位置ではまず起きませんが、念のため確認します。
@@ -148,13 +146,11 @@ MeshData ReadPrimitive(const tinygltf::Model& model, const tinygltf::Primitive& 
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `prim.attributes` | `std::map<std::string, int>`。キー（`"POSITION"`）→ accessor の番号 |
-| `find` で調べる | 無い属性（法線がない、UV がない）は既定値で埋める |
-| `prim.indices` | インデックスの accessor の番号。`-1` なら無い（頂点を順に並べて三角形にする） |
-| `prim.material` | マテリアルの番号（`-1` なら既定） |
-| 描画の単位 | プリミティブごとに 1 回の `DrawIndexed`（[メッシュとテクスチャ](../../3d/mesh-textures.md)） |
+- `prim.attributes`: `std::map<std::string, int>`。キー（`"POSITION"`）→ accessor の番号
+- `find` で調べる: 無い属性（法線がない、UV がない）は既定値で埋める
+- `prim.indices`: インデックスの accessor の番号。`-1` なら無い（頂点を順に並べて三角形にする）
+- `prim.material`: マテリアルの番号（`-1` なら既定）
+- 描画の単位: プリミティブごとに 1 回の `DrawIndexed`（[メッシュとテクスチャ](../../3d/mesh-textures.md)）
 
 ### インデックス（3 種類の型）
 
@@ -230,13 +226,11 @@ Matrix LocalMatrix(const tinygltf::Node& node) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`node.matrix`** | `std::vector<double>`。16 個あれば行列で指定されている。空なら TRS |
-| TRS が無い項目 | 既定値（拡大 1、回転なし移動 0） |
-| `rotation` の順 | `[x, y, z, w]`。SimpleMath の `Quaternion(x, y, z, w)` と同じ並び。ノードの回転は変換せず、ルートの行列でまとめて反転する |
-| `S × R × T` | SimpleMath の行ベクトル規約で、この順に掛ける（[行列](../../gamemath/matrices.md)） |
-| `matrix` の並び | glTF は列優先。行ベクトル規約の行優先に同じ並びで読める（転置と同じ並びのため） |
+- **`node.matrix`**: `std::vector<double>`。16 個あれば行列で指定されている。空なら TRS
+- TRS が無い項目: 既定値（拡大 1、回転なし移動 0）
+- `rotation` の順: `[x, y, z, w]`。SimpleMath の `Quaternion(x, y, z, w)` と同じ並び。ノードの回転は変換せず、ルートの行列でまとめて反転する
+- `S × R × T`: SimpleMath の行ベクトル規約で、この順に掛ける（[行列](../../gamemath/matrices.md)）
+- `matrix` の並び: glTF は列優先。行ベクトル規約の行優先に同じ並びで読める（転置と同じ並びのため）
 
 ### 親から子へたどる
 
@@ -265,14 +259,12 @@ void LoadScene(const tinygltf::Model& model, std::vector<DrawItem>& out) {
 
 <svg class="fig flow" viewBox="0 0 609 112" role="img" aria-label="ノードの木をたどって、ワールド行列を求める（子 ＝ ローカル × 親のワールド）"><defs><marker id="fl7970" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノードの木をたどって、ワールド行列を求める（子 ＝ ローカル × 親のワールド）</text><line x1="168.0" y1="64.0" x2="226.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7970)"/><text x="197.0" y="58.0" text-anchor="middle" style="font-size:12px">children</text><line x1="364.0" y1="64.0" x2="422.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7970)"/><text x="393.0" y="58.0" text-anchor="middle" style="font-size:12px">children</text><rect x="28.0" y="44.0" width="137" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="96.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ルート world=L0</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="229.0" y="44.0" width="132" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="295.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">子 world=L1×L0</text><circle cx="231.0" cy="46.0" r="10" fill="#2ea043"/><text x="231.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="425.0" y="44.0" width="156" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="503.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">孫 world=L2×L1×L0</text><circle cx="427.0" cy="46.0" r="10" fill="#e5a828"/><text x="427.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
-| 点 | 説明 |
-| --- | --- |
-| `model.defaultScene` | 既定のシーンの番号（`-1` なら 0 番を使う） |
-| `scene.nodes` | ルートのノードの番号の一覧 |
-| `node.children` | 子ノードの番号（`std::vector<int>`） |
-| **`world = local * parent_world` | 子の行列を先に。行ベクトル規約**（[行列](../../gamemath/matrices.md)） |
-| `node.mesh >= 0` | メッシュを持つノードだけ描画の対象にする |
-| 再帰 | 木が深いと深くなる。数千ノードの巨大なモデルはスタックを使った繰り返しにする |
+- `model.defaultScene`: 既定のシーンの番号（`-1` なら 0 番を使う）
+- `scene.nodes`: ルートのノードの番号の一覧
+- `node.children`: 子ノードの番号（`std::vector<int>`）
+- **`world = local * parent_world`: 子の行列を先に。行ベクトル規約**（[行列](../../gamemath/matrices.md)）
+- `node.mesh >= 0`: メッシュを持つノードだけ描画の対象にする
+- 再帰: 木が深いと深くなる。数千ノードの巨大なモデルはスタックを使った繰り返しにする
 
 ノードの数とメッシュの数は別です。同じメッシュを複数のノードが参照できます（インスタンス）。メッシュのバッファは 1 つ作りノードごとにワールド行列だけを変えて描画します。
 
@@ -312,14 +304,12 @@ MaterialData ReadMaterial(const tinygltf::Material& m) {
 }
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| **`.index`** | `textures` の番号。`-1` ならテクスチャなし（`Factor` の値だけを使う） |
-| `baseColorFactor` | ベースカラーの倍率（テクスチャの色に掛ける） |
-| `metallicFactor` / `roughnessFactor` | テクスチャの値に掛ける倍率。テクスチャがなければこの値そのもの |
-| 既定値 | metallic = 1、roughness = 1（仕様の既定値）。tinygltf もこれで初期化される |
-| `alphaMode` | `"OPAQUE"`（不透明）、`"MASK"`（抜き）、`"BLEND"`（半透明） |
-| `doubleSided` | 両面描画（カリングを切る） |
+- **`.index`**: `textures` の番号。`-1` ならテクスチャなし（`Factor` の値だけを使う）
+- `baseColorFactor`: ベースカラーの倍率（テクスチャの色に掛ける）
+- `metallicFactor` / `roughnessFactor`: テクスチャの値に掛ける倍率。テクスチャがなければこの値そのもの
+- 既定値: metallic = 1、roughness = 1（仕様の既定値）。tinygltf もこれで初期化される
+- `alphaMode`: `"OPAQUE"`（不透明）、`"MASK"`（抜き）、`"BLEND"`（半透明）
+- `doubleSided`: 両面描画（カリングを切る）
 
 ### テクスチャ → 画像
 
@@ -332,14 +322,12 @@ int height = image.height;
 const unsigned char* pixels = image.image.data();
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| `texture.source` | `images` の番号 |
-| `texture.sampler` | `samplers` の番号（`-1` なら既定のサンプラー） |
-| `image.image` | 読み込み済みのピクセル（`std::vector<unsigned char>`）。tinygltf が `stb_image` でデコードしている |
-| `image.width` / `height` | 画像の大きさ |
-| `image.component` | チャンネル数（通常は RGBA の 4。確認する） |
-| `image.bits` | 1 チャンネルのビット数（通常 8） |
+- `texture.source`: `images` の番号
+- `texture.sampler`: `samplers` の番号（`-1` なら既定のサンプラー）
+- `image.image`: 読み込み済みのピクセル（`std::vector<unsigned char>`）。tinygltf が `stb_image` でデコードしている
+- `image.width` / `height`: 画像の大きさ
+- `image.component`: チャンネル数（通常は RGBA の 4。確認する）
+- `image.bits`: 1 チャンネルのビット数（通常 8）
 
 ### DX11 のテクスチャにする
 
@@ -360,13 +348,11 @@ data.SysMemPitch = image.width * 4;
 device->CreateTexture2D(&desc, &data, &texture2d);
 ```
 
-| 注意 | 説明 |
-| --- | --- |
-| sRGB かリニアか | ベースカラー・エミッシブは sRGB（`_SRGB`）。法線・metallicRoughness・AO は、リニア（[PBR](../../3d/pbr.md#色空間とトーンマッピング)） |
-| 同じ画像を両方で使う | まれに同じ画像を sRGB とリニアの両方で使う。用途ごとにビューを作る |
-| ミップマップ | 作る場合は、`GenerateMips`（[メッシュとテクスチャ](../../3d/mesh-textures.md)） |
-| `SysMemPitch` | 1 行のバイト数（`幅 × 4`） |
-| 画像がファイルに残る | `image.image` は、GPU に転送したら解放してよい（`image.image.clear(); shrink_to_fit();`） |
+- sRGB かリニアか: ベースカラー・エミッシブは sRGB（`_SRGB`）。法線・metallicRoughness・AO は、リニア（[PBR](../../3d/pbr.md#色空間とトーンマッピング)）
+- 同じ画像を両方で使う: まれに同じ画像を sRGB とリニアの両方で使う。用途ごとにビューを作る
+- ミップマップ: 作る場合は、`GenerateMips`（[メッシュとテクスチャ](../../3d/mesh-textures.md)）
+- `SysMemPitch`: 1 行のバイト数（`幅 × 4`）
+- 画像がファイルに残る: `image.image` は、GPU に転送したら解放してよい（`image.image.clear(); shrink_to_fit();`）
 
 ### サンプラー
 
@@ -376,11 +362,9 @@ if (texture.sampler >= 0) {
 }
 ```
 
-| キー | 値の例 |
-| --- | --- |
-| `magFilter` | `9728`＝NEAREST、`9729`＝LINEAR |
-| `minFilter` | `9984〜9987`（ミップマップの組み合わせ。`9987`＝LINEAR_MIPMAP_LINEAR） |
-| `wrapS` / `wrapT` | `10497`＝REPEAT、`33071`＝CLAMP_TO_EDGE、`33648`＝MIRRORED_REPEAT |
+- `magFilter`: `9728`＝NEAREST、`9729`＝LINEAR
+- `minFilter`: `9984〜9987`（ミップマップの組み合わせ。`9987`＝LINEAR_MIPMAP_LINEAR）
+- `wrapS` / `wrapT`: `10497`＝REPEAT、`33071`＝CLAMP_TO_EDGE、`33648`＝MIRRORED_REPEAT
 
 数字は OpenGL の定数です。DX11 の `D3D11_SAMPLER_DESC`（`D3D11_TEXTURE_ADDRESS_WRAP` など）に変換します（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
 
@@ -400,12 +384,10 @@ for (size_t i = 0; i < ibm.count; ++i) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`skin.joints`** | ボーンになるノードの番号の一覧 |
-| `skin.inverseBindMatrices` | 逆バインド行列の accessor の番号（ボーンごとに 1 つ） |
-| 頂点の `JOINTS_0` | `skin.joints` の位置（ノード番号ではない） |
-| スキニング行列 | `inverse_bind[i] × (ボーンのノードのワールド行列)`（[スキニング](../../3d/skinning-animation.md)） |
+- **`skin.joints`**: ボーンになるノードの番号の一覧
+- `skin.inverseBindMatrices`: 逆バインド行列の accessor の番号（ボーンごとに 1 つ）
+- 頂点の `JOINTS_0`: `skin.joints` の位置（ノード番号ではない）
+- スキニング行列: `inverse_bind[i] × (ボーンのノードのワールド行列)`（[スキニング](../../3d/skinning-animation.md)）
 
 ### アニメーション
 
@@ -422,27 +404,23 @@ for (const tinygltf::AnimationChannel& channel : anim.channels) {
 }
 ```
 
-| 項目 | 説明 |
-| --- | --- |
-| `channel.sampler` | `anim.samplers` の番号（`model.animations` ではなく、アニメーションの中の配列） |
-| `channel.target_node` | 動かすノードの番号（`model.nodes`） |
-| `channel.target_path` | `"translation"`、`"rotation"`、`"scale"`、`"weights"` |
-| `sampler.input` | 時刻の accessor の番号（`float`、秒） |
-| `sampler.output` | 値の accessor の番号（`VEC3` / `VEC4`） |
-| 補間 | `LINEAR` は位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)） |
+- `channel.sampler`: `anim.samplers` の番号（`model.animations` ではなく、アニメーションの中の配列）
+- `channel.target_node`: 動かすノードの番号（`model.nodes`）
+- `channel.target_path`: `"translation"`、`"rotation"`、`"scale"`、`"weights"`
+- `sampler.input`: 時刻の accessor の番号（`float`、秒）
+- `sampler.output`: 値の accessor の番号（`VEC3` / `VEC4`）
+- 補間: `LINEAR` は位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)）
 
 ここでも番号の参照先の配列が場所によって違います（`channel.sampler` はそのアニメーションの `samplers`）。
 
 ## 読み込み後のまとめ方
 
-| やること | 説明 |
-| --- | --- |
-| **メッシュをプリミティブごとの `MeshData` にする** | 1 プリミティブ ＝ 1 回の描画 |
-| マテリアルの番号をそのまま使う | `MeshData::material` から、自分のマテリアル配列を引く |
-| テクスチャは番号で重複を避ける | 同じ `textures[i]` を複数のマテリアルが参照するので、一度だけ作る（番号 → GPU テクスチャの表） |
-| ノードの木は自分の構造に変換 | ゲームのシーンのノード・エンティティにする |
-| 読み込んだら `Model` を解放 | `tinygltf::Model` は、大きい（画像・バイナリを持つ）。変換が終わったら捨てる |
-| ゲームで使う形式に変換 | 開発中は glTF、製品は独自の軽い形式にビルド時に変換（[ロード時間](../../optimize/loading.md)） |
+- **メッシュをプリミティブごとの `MeshData` にする**: 1 プリミティブ ＝ 1 回の描画
+- マテリアルの番号をそのまま使う: `MeshData::material` から、自分のマテリアル配列を引く
+- テクスチャは番号で重複を避ける: 同じ `textures[i]` を複数のマテリアルが参照するので、一度だけ作る（番号 → GPU テクスチャの表）
+- ノードの木は自分の構造に変換: ゲームのシーンのノード・エンティティにする
+- 読み込んだら `Model` を解放: `tinygltf::Model` は、大きい（画像・バイナリを持つ）。変換が終わったら捨てる
+- ゲームで使う形式に変換: 開発中は glTF、製品は独自の軽い形式にビルド時に変換（[ロード時間](../../optimize/loading.md)）
 
 ### 番号の表（重複を避ける）
 

@@ -6,11 +6,11 @@ tags:
 
 # 第 42 章 プロパティ パネル
 
-この章では、選択した物の名前、位置、回転、拡大、色を入力欄とスライダーで編集できるようにします。エディタの中でいちばんよく使う画面のひとつです。`TextBox` のバインディング、入力の検証、型ごとの `DataTemplate`、同じ部品の使い回しを学びます。
+この章では選択した物の名前、位置、回転、拡大、色を入力欄とスライダーで編集できるようにします。エディタの中でいちばんよく使う画面のひとつです。`TextBox` のバインディング、入力の検証、型ごとの `DataTemplate`、同じ部品の使い回しを学びます。
 
 !!! info "このページを読む前に"
     - [第 41 章 シーン ツリー](41-scene-tree.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
@@ -23,16 +23,16 @@ tags:
     | `Shared/Converters/ColorToBrushConverter.cs`（新規） | 色の見本を出すコンバーター |
 
 !!! note "第 24 章のダミーからの置き換え"
-    `PropertyViewModel` は、第 23 章でダミーの `SceneObjectViewModel` の名前と位置を表示するだけの形で作り、第 24 章で選択サービスとつなぎました。この章で、`ISelectionService` の選択に追従し、`ISceneEditor` を通して `SceneObject` を編集する形に作り直します。ファイルの場所（`Property/`）と、モジュールへの登録は、そのままです。
+    `PropertyViewModel` は第 23 章でダミーの `SceneObjectViewModel` の名前と位置を表示するだけの形で作り、第 24 章で選択サービスとつなぎました。この章で `ISelectionService` の選択に追従し `ISceneEditor` を通して `SceneObject` を編集する形に作り直します。ファイルの場所（`Property/`）とモジュールへの登録は、そのままです。
 
 
 作り始める前に決めておきたいことが 3 つあります。
 
-## 編集は、1 か所の窓口を通す
+## 編集は 1 か所の窓口を通す
 
-入力欄に数字を打ち込んだとき、`obj.Position = ...` と直接書いてもよいのですが、第 44 章で Undo/Redo を入れる予定です。Undo は、「何をどう変えたか」の記録が必要です。あとから全部の編集コードを書き直すのは大変なので、最初から、すべての編集を `ISceneEditor` という窓口を通すようにしておきます。
+入力欄に数字を打ち込んだとき `obj.Position = ...` と直接書いてもよいのですが、第 44 章で Undo/Redo を入れる予定です。Undo は「何をどう変えたか」の記録が必要です。あとから全部の編集コードを書き直すのは大変なので、最初からすべての編集を `ISceneEditor` という窓口を通すようにしておきます。
 
-今の窓口は、値を直接変えるだけです。第 44 章で、中身を「コマンドを記録する」形に差し替えます。呼ぶ側（プロパティ パネル）は、そのままで済みます。
+今の窓口は値を直接変えるだけです。第 44 章で中身を「コマンドを記録する」形に差し替えます。呼ぶ側（プロパティ パネル）はそのままで済みます。
 
 ```text
 入力欄 ─▶ PropertyViewModel ─▶ ISceneEditor.SetPosition(...) ─▶ SceneObject を変更 ─▶ SceneDocument.Changed ─▶ エンジンへ
@@ -42,15 +42,15 @@ tags:
 
 ## Vector3 の「成分」を編集する
 
-`Position` は `Vector3`（構造体）です。画面の `TextBox` が編集したいのは、その中の X、Y、Z のそれぞれです。第 40 章で触れたとおり、`Position.X = 5` はコピーを書き換えるだけで効きません。X が変わったら、新しい `Vector3` を作って丸ごと入れ替える必要があります。
+`Position` は `Vector3`（構造体）です。画面の `TextBox` が編集したいのは、その中の X、Y、Z のそれぞれです。第 40 章で触れたとおり `Position.X = 5` はコピーを書き換えるだけで効きません。X が変わったら新しい `Vector3` を作って丸ごと入れ替える必要があります。
 
-「`Vector3` を X、Y、Z に分けて編集する」仕事は、位置、回転、拡大の 3 か所で同じです。1 つのクラス（`Vector3EditorViewModel`）にして、使い回します。
+「`Vector3` を X、Y、Z に分けて編集する」仕事は位置、回転、拡大の 3 か所で同じです。1 つのクラス（`Vector3EditorViewModel`）にして使い回します。
 
 ## 画面は型で選ぶ
 
-位置、回転、拡大は、どれも「X Y Z を 3 つ並べる」同じ見た目です。WPF の `DataTemplate` は、データの型に対して自動で選ばれるので、`Vector3EditorViewModel` に 1 つ作れば、3 か所とも同じ見た目になります。
+位置、回転、拡大はどれも「X Y Z を 3 つ並べる」同じ見た目です。WPF の `DataTemplate` はデータの型に対して自動で選ばれるので、`Vector3EditorViewModel` に 1 つ作れば 3 か所とも同じ見た目になります。
 
-この章を終えると、選択中の物の値を編集して、ビューポートの箱が即座に変わり、選択を変えればパネルも切り替わります。何も選んでいなければパネルは無効になり、不正な入力（文字や 0 の拡大）も扱えます。
+この章を終えると選択中の物の値を編集して、ビューポートの箱が即座に変わり選択を変えればパネルも切り替わります。何も選んでいなければパネルは無効になり不正な入力（文字や 0 の拡大）も扱えます。
 
 ## 編集の窓口（ISceneEditor）
 
@@ -121,11 +121,11 @@ public sealed class SceneEditor : ISceneEditor
 }
 ```
 
-`App.xaml.cs` で、`containerRegistry.RegisterSingleton<ISceneEditor, SceneEditor>();` と登録します。
+`App.xaml.cs` で `containerRegistry.RegisterSingleton<ISceneEditor, SceneEditor>();` と登録します。
 
-`obj.Position == value` は、`Vector3` の 3 成分がすべて等しいかを比べます。同じ値なら何もしないことで、無駄な通知とエンジンへの命令を省いています。
+`obj.Position == value` は `Vector3` の 3 成分がすべて等しいかを比べます。同じ値なら何もしないことで無駄な通知とエンジンへの命令を省いています。
 
-ここでは、通知が 2 種類あることに気づいてほしいです。`SceneObject` のプロパティが出す `PropertyChanged` は、画面を更新するための通知です。一方、エンジンへの同期は `SceneDocument.Changed` イベントです。この窓口が両方の面倒を見ます。
+ここでは、通知が 2 種類あることに気づいてほしいです。`SceneObject` のプロパティが出す `PropertyChanged` は画面を更新するための通知です。一方、エンジンへの同期は `SceneDocument.Changed` イベントです。この窓口が両方の面倒を見ます。
 
 ## Vector3 を編集する部品
 
@@ -178,9 +178,9 @@ public sealed class Vector3EditorViewModel : ObservableObject
 }
 ```
 
-この部品は、「値を読む関数」と「値を書く関数」をコンストラクターで受け取ります。値が実際にどこにあるのかは知らないので、位置にも回転にも使えます。
+この部品は「値を読む関数」と「値を書く関数」をコンストラクターで受け取ります。値が実際にどこにあるのかは知らないので、位置にも回転にも使えます。
 
-`with { X = value }` は with 式といって、構造体（や `record`）をコピーして、一部の成分だけを変えた新しい値を作ります。元の値は変わりません。`Refresh()` は、Undo やエンジン側の変更で、元の値が外から変わったときに、画面を読み直させるために呼びます。この部品の `X`、`Y`、`Z` は、フィールドを持たず、元の `Vector3` を読み書きするだけなので、`[ObservableProperty]` は使えません。通知は、`OnPropertyChanged(nameof(X))` で自分で出します。
+`with { X = value }` は with 式といって、構造体（や `record`）をコピーして、一部の成分だけを変えた新しい値を作ります。元の値は変わりません。`Refresh()` は Undo やエンジン側の変更で、元の値が外から変わったときに画面を読み直させるために呼びます。この部品の `X`、`Y`、`Z` はフィールドを持たず元の `Vector3` を読み書きするだけなので、`[ObservableProperty]` は使えません。通知は `OnPropertyChanged(nameof(X))` で自分で出します。
 
 ## プロパティのビューモデル
 
@@ -279,21 +279,21 @@ public class PropertyViewModel : ObservableObject
 }
 ```
 
-`Position`、`Rotation`、`Scale` は、同じ `Vector3EditorViewModel` クラスの別のインスタンスです。読み書きの先だけをコンストラクターに渡す関数で変えています。同じ部品を設定（関数）だけ変えて使い回す設計の典型です。
+`Position`、`Rotation`、`Scale` は同じ `Vector3EditorViewModel` クラスの別のインスタンスです。読み書きの先だけをコンストラクターに渡す関数で変えています。同じ部品を設定（関数）だけ変えて使い回す設計の典型です。
 
 注意したいところをいくつか拾います。
 
-- `Target?.Position ?? Vector3.Zero` は、`Target` が `null` のときに `Vector3.Zero` を使う書き方です。
-- `Target` の `set` で、前の対象の `PropertyChanged` の購読を外して、新しい対象を購読し直しています。購読の外し忘れは、メモリリークや二重更新の原因になります。
-- `Name` の `set` で `OnPropertyChanged()` を引数なしで呼んでいます。空の名前のように拒否した値が入力欄に残らないよう、元の値に戻させるためです。
-- `ClampScale` は、拡大が 0 になるのを防ぎます。0 だと、箱が潰れて見えなくなり、行列も壊れます。
-- `SetColor(c => c with { X = value })` のように、変更の仕方を関数で渡しているので、R、G、B で `SetColor` を共有できます。
+- `Target?.Position ?? Vector3.Zero` は `Target` が `null` のときに `Vector3.Zero` を使う書き方です。
+- `Target` の `set` で前の対象の `PropertyChanged` の購読を外して、新しい対象を購読し直しています。購読の外し忘れはメモリリークや二重更新の原因になります。
+- `Name` の `set` で `OnPropertyChanged()` を引数なしで呼んでいます。空の名前のように拒否した値が入力欄に残らないよう元の値に戻させるためです。
+- `ClampScale` は拡大が 0 になるのを防ぎます。0 だと箱が潰れて見えなくなり行列も壊れます。
+- `SetColor(c => c with { X = value })` のように変更の仕方を関数で渡しているので R、G、B で `SetColor` を共有できます。
 
 ## ビュー
 
 ### Vector3 の見た目（DataTemplate）
 
-`PropertyView.xaml` の `Resources` に、`Vector3EditorViewModel` 用のテンプレートを書きます。
+`PropertyView.xaml` の `Resources` に `Vector3EditorViewModel` 用のテンプレートを書きます。
 
 ```xml
 <UserControl.Resources>
@@ -314,7 +314,7 @@ public class PropertyViewModel : ObservableObject
 </UserControl.Resources>
 ```
 
-`DataType` を指定した `DataTemplate` は、その型のデータを表示するときに、自動で選ばれます（`xmlns:vm` の宣言が必要です）。`StringFormat=F3` は、小数 3 桁で表示する指定です。`UpdateSourceTrigger=LostFocus` は、フォーカスが外れたとき（または `Enter`）に値を反映する指定で、1 文字ごとに反映すると、`1.` と打っている途中で `1` に戻されたりして、入力しにくいので、あえて既定の `LostFocus` にしています。`abc` のような変換できない文字を入れると、入力欄が赤枠になり、値は反映されません。
+`DataType` を指定した `DataTemplate` はその型のデータを表示するときに自動で選ばれます（`xmlns:vm` の宣言が必要です）。`StringFormat=F3` は小数 3 桁で表示する指定です。`UpdateSourceTrigger=LostFocus` はフォーカスが外れたとき（または `Enter`）に値を反映する指定で、1 文字ごとに反映すると `1.` と打っている途中で `1` に戻されたりして、入力しにくいのであえて既定の `LostFocus` にしています。`abc` のような変換できない文字を入れると、入力欄が赤枠になり値は反映されません。
 
 ### 本体
 
@@ -359,11 +359,11 @@ public class PropertyViewModel : ObservableObject
 </UserControl>
 ```
 
-`<ContentControl Content="{Binding Position}" />` は、中身に `Vector3EditorViewModel` を入れています。WPF が、型に合う `DataTemplate` を探して表示してくれるので、見た目を何度も書かずに済みます。`StackPanel` の `IsEnabled="{Binding HasTarget}"` は、選択がないときに、中の部品を全部まとめて無効（グレー）にします。`Slider` は、`Minimum`、`Maximum`、`Value` を持つ部品で、`Value` は既定で双方向、つまみを動かすたびに更新されます。
+`<ContentControl Content="{Binding Position}" />` は中身に `Vector3EditorViewModel` を入れています。WPF が型に合う `DataTemplate` を探して表示してくれるので、見た目を何度も書かずに済みます。`StackPanel` の `IsEnabled="{Binding HasTarget}"` は選択がないときに中の部品を全部まとめて無効（グレー）にします。`Slider` は `Minimum`、`Maximum`、`Value` を持つ部品で `Value` は既定で双方向、つまみを動かすたびに更新されます。
 
 ## 色の見本
 
-スライダーだけでは、どんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 14 章）を作ります。
+スライダーだけではどんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 14 章）を作ります。
 
 ```csharp title="Shared/Converters/ColorToBrushConverter.cs（新規）"
 using System.Globalization;
@@ -389,7 +389,7 @@ public class ColorToBrushConverter : IValueConverter
 }
 ```
 
-見本の `Border` は、`ColorR/G/B` が変わるたびに更新したいので、`PropertyViewModel` に `SwatchBrush` を足します。
+見本の `Border` は `ColorR/G/B` が変わるたびに更新したいので、`PropertyViewModel` に `SwatchBrush` を足します。
 
 ```csharp
 public Brush SwatchBrush
@@ -408,35 +408,35 @@ public Brush SwatchBrush
 <Border Height="24" Margin="0,4" BorderBrush="Gray" BorderThickness="1" Background="{Binding SwatchBrush}" />
 ```
 
-`byte R(float f) => ...` は、ローカル関数といって、メソッドの中に書ける小さな関数です。`Freeze()` は、「このブラシは、これ以上変更しません」と宣言して、WPF が効率よく扱えるようにします。
+`byte R(float f) => ...` はローカル関数といってメソッドの中に書ける小さな関数です。`Freeze()` は「このブラシはこれ以上変更しません」と宣言して、WPF が効率よく扱えるようにします。
 
-ビューモデルが `Brush`（画面の型）を返すのは、MVVM の純粋さでは好ましくありません。本来は、色の値を返して、コンバーターで `Brush` に変えるのが正しい形です。ここでは、簡単さを優先しました。
+ビューモデルが `Brush`（画面の型）を返すのは、MVVM の純粋さでは好ましくありません。本来は色の値を返してコンバーターで `Brush` に変えるのが正しい形です。ここでは、簡単さを優先しました。
 
-WPF の標準には、色を選ぶダイアログ（部品）がありません。実用的には、`Extended.Wpf.Toolkit` の `ColorPicker` のようなサードパーティのライブラリを NuGet で入れます。この教材では、スライダーで十分です。
+WPF の標準には色を選ぶダイアログ（部品）がありません。実用的には `Extended.Wpf.Toolkit` の `ColorPicker` のようなサードパーティのライブラリを NuGet で入れます。この教材ではスライダーで十分です。
 
 ## 複数の物を選んだとき
 
-第 41 章の選択は、複数を持てます。複数選択したときの方針は、いくつか考えられます。
+第 41 章の選択は複数を持てます。複数選択したときの方針はいくつか考えられます。
 
-- 主の選択（先頭の物）だけを編集する。いちばん簡単で、この教材はこれにしています。
-- 編集したら、選択中の全員に同じ値を設定する。値が違う項目は、空欄（`—`）で表示します。
-- 位置を動かしたら、全員が同じ差分だけ動くようにする。
+- 主の選択（先頭の物）だけを編集する。いちばん簡単でこの教材はこれにしています。
+- 編集したら選択中の全員に同じ値を設定する。値が違う項目は空欄（`—`）で表示します。
+- 位置を動かしたら全員が同じ差分だけ動くようにする。
 
-後者の 2 つも、`ISceneEditor` の呼び出しを `Selection` の全員に対して行うだけで実現できます。ただし、Undo では、全員の変更を 1 つの操作にまとめなければいけません（第 44 章）。
+後者の 2 つも `ISceneEditor` の呼び出しを `Selection` の全員に対して行うだけで実現できます。ただし、Undo では全員の変更を 1 つの操作にまとめなければいけません（第 44 章）。
 
 ## 動かして確かめる
 
-- 何も選ばなければ、パネルはグレーで、空欄になる。
-- ツリーで物を選ぶと、名前、位置、回転、拡大、色が出る。
-- 位置 X を `3` にして `Tab` を押すと、ビューポートの箱が X 方向に動く。回転 Y に `45` を入れると、箱が Y 軸まわりに 45 度回る。
-- 拡大に `0` を入れると、下限（0.001）に切り詰められ、箱が潰れすぎない。`abc` を入れると赤枠になり、値は反映されない。
-- R のスライダーを動かすと、箱の線の色がリアルタイムに変わる。名前を変えると、ツリーの表示も同時に変わる。
+- 何も選ばなければパネルはグレーで、空欄になる。
+- ツリーで物を選ぶと名前、位置、回転、拡大、色が出る。
+- 位置 X を `3` にして `Tab` を押すとビューポートの箱が X 方向に動く。回転 Y に `45` を入れると、箱が Y 軸まわりに 45 度回る。
+- 拡大に `0` を入れると下限（0.001）に切り詰められ箱が潰れすぎない。`abc` を入れると赤枠になり値は反映されない。
+- R のスライダーを動かすと箱の線の色がリアルタイムに変わる。名前を変えるとツリーの表示も同時に変わる。
 
 ??? failure "入力しても反映されない"
-    `UpdateSourceTrigger=LostFocus` なので、`Tab` か `Enter` でフォーカスを外すまで反映されません。または、`StringFormat=F3` のある欄に `1,5` のようなカンマ区切りを入れています（地域設定によって小数点が違います）。
+    `UpdateSourceTrigger=LostFocus` なので `Tab` か `Enter` でフォーカスを外すまで反映されません。または、`StringFormat=F3` のある欄に `1,5` のようなカンマ区切りを入れています（地域設定によって小数点が違います）。
 
 ??? failure "選択を変えても、パネルの内容が変わらない"
-    `RefreshAll` が `OnPropertyChanged` を忘れているか、`Target` の `set` で `PropertyChanged` の購読と解除が正しく行われていません。
+    `RefreshAll` が `OnPropertyChanged` を忘れているか `Target` の `set` で `PropertyChanged` の購読と解除が正しく行われていません。
 
 ??? failure "`with` 式がコンパイルエラー（`CS8858`）"
     古い C# の書き方になっています。.NET 8（C# 12）なら動きます。型が `System.Numerics.Vector3`（構造体）か `record` であることを確認します。
@@ -448,15 +448,15 @@ WPF の標準には、色を選ぶダイアログ（部品）がありません�
     `DataTemplate` の `DataType` の `xmlns:vm` が、正しい名前空間を指していません。または、`UserControl.Resources` ではなく別の場所に書いて、スコープ外になっています。
 
 ??? failure "回転の入れ方がねじれる（ジンバルロック）"
-    オイラー角の宿命で、X を 90 度にすると Y と Z の軸が重なります。実用的なエディタは、内部をクォータニオンで持ち、表示だけをオイラー角にします。この教材は、簡単さを優先して、オイラー角のまま持っています。
+    オイラー角の宿命で X を 90 度にすると Y と Z の軸が重なります。実用的なエディタは内部をクォータニオンで持ち表示だけをオイラー角にします。この教材は簡単さを優先してオイラー角のまま持っています。
 
 ## この章のまとめ
 
 - 編集は `ISceneEditor` を通す。第 44 章で Undo/Redo を差し込む。
-- 構造体の成分は、`with` 式で新しい値を作って入れ替える。
-- 型ごとの見た目は、`DataTemplate` の `DataType` で、自動で選ばれる。
-- 入力欄は `UpdateSourceTrigger=LostFocus` にして、1 文字ごとの更新を避ける。
+- 構造体の成分は `with` 式で新しい値を作って入れ替える。
+- 型ごとの見た目は `DataTemplate` の `DataType` で、自動で選ばれる。
+- 入力欄は `UpdateSourceTrigger=LostFocus` にして 1 文字ごとの更新を避ける。
 
-次の章では、ビューポートの物をクリックして選ぶ（ピッキング）機能と、選んだ物を矢印で動かす（ギズモ）機能を作ります。
+次の章ではビューポートの物をクリックして選ぶ（ピッキング）機能と選んだ物を矢印で動かす（ギズモ）機能を作ります。
 
 [第 43 章 ピッキングとギズモ](43-picking-gizmo.md) へ進みます。

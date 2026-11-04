@@ -34,12 +34,10 @@ NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)
 
 ![C/C++ → プリプロセッサ のページ。先頭がプリプロセッサの定義。既定で `_UNICODE;UNICODE` が入っている](img/props-preprocessor.jpg)
 
-| 設定 | 説明 |
-| --- | --- |
-| 値付きで定義 | `MY_LEVEL=3` のように `=` をつける（コードでは、`MY_LEVEL` が `3` になる） |
-| 値なしで定義 | `NOMINMAX` だけ（`1` として扱われる） |
-| 構成ごとの違い | Debug だけ `ENABLE_PROFILER`、のように構成を選んで設定する |
-| `%(PreprocessorDefinitions)` | 上位の設定（既定値・プロパティシート）を引き継ぐ。消さない |
+- 値付きで定義: `MY_LEVEL=3` のように `=` をつける（コードでは、`MY_LEVEL` が `3` になる）
+- 値なしで定義: `NOMINMAX` だけ（`1` として扱われる）
+- 構成ごとの違い: Debug だけ `ENABLE_PROFILER`、のように構成を選んで設定する
+- `%(PreprocessorDefinitions)`: 上位の設定（既定値・プロパティシート）を引き継ぐ。消さない
 
 ### コマンドラインでの指定（/D）
 
@@ -100,11 +98,9 @@ int a = std::min(1, 2);
 error C2589: '(': '::' の右側のトークンが正しくありません
 ```
 
-| 対策 | 説明 |
-| --- | --- |
-| `NOMINMAX` を定義（推奨） | `min` / `max` マクロを定義させない。`std::min` が普通に使える |
-| `(std::min)(a, b)` | カッコでマクロの展開を避ける。応急処置 |
-| `#undef min` | あとから消す。他のヘッダへの影響が読みにくい |
+- `NOMINMAX` を定義（推奨）: `min` / `max` マクロを定義させない。`std::min` が普通に使える
+- `(std::min)(a, b)`: カッコでマクロの展開を避ける。応急処置
+- `#undef min`: あとから消す。他のヘッダへの影響が読みにくい
 
 `NOMINMAX` は最初からプロパティに入れておくのが、定石です。
 
@@ -112,22 +108,18 @@ error C2589: '(': '::' の右側のトークンが正しくありません
 
 `<windows.h>` が読み込むあまり使わないヘッダ（`winsock.h`、`ole2.h`、`commdlg.h` など）を省略します。コンパイルが速くなり`winsock.h` と `winsock2.h` の衝突も防げます。
 
-| 効果 | 説明 |
-| --- | --- |
-| ビルドが速くなる | 読むヘッダが減る（[ビルド時間の最適化](../optimize/build-time.md)） |
-| Winsock の衝突を防ぐ | `winsock2.h` を使うとき `windows.h` が古い `winsock.h` を先に読むと、再定義エラーになる |
-| 注意 | `shellapi.h`、`ole2.h`、`commdlg.h` などが必要なら自分で include する |
+- ビルドが速くなる: 読むヘッダが減る（[ビルド時間の最適化](../optimize/build-time.md)）
+- Winsock の衝突を防ぐ: `winsock2.h` を使うとき `windows.h` が古い `winsock.h` を先に読むと、再定義エラーになる
+- 注意: `shellapi.h`、`ole2.h`、`commdlg.h` などが必要なら自分で include する
 
 ### そのほかの Windows 関連
 
-| マクロ | 効果 |
-| --- | --- |
-| `VC_EXTRALEAN` | `WIN32_LEAN_AND_MEAN` よりさらに省略（古い MFC 由来） |
-| `NOGDI` | GDI（描画 API）を読まない。`DrawText` などのマクロ衝突を避けられる |
-| `STRICT` | ハンドルの型を厳密にする（最近は、既定でオン） |
-| `UNICODE` / `_UNICODE` | `CreateWindow` などが、`W` 版（UTF-16）になる。Visual Studio は既定で定義。[Windows API と文字コード](../encoding/windows-api.md) |
-| `_WIN32_WINNT` / `WINVER` | 対象の Windows のバージョン。新しい API を使うときに必要。SDK の `sdkddkver.h` で設定 |
-| `WIN32` / `_WIN32` / `_WIN64` | コンパイラや Visual Studio が、自動で定義。OS の判定に使う |
+- `VC_EXTRALEAN`: `WIN32_LEAN_AND_MEAN` よりさらに省略（古い MFC 由来）
+- `NOGDI`: GDI（描画 API）を読まない。`DrawText` などのマクロ衝突を避けられる
+- `STRICT`: ハンドルの型を厳密にする（最近は、既定でオン）
+- `UNICODE` / `_UNICODE`: `CreateWindow` などが、`W` 版（UTF-16）になる。Visual Studio は既定で定義。[Windows API と文字コード](../encoding/windows-api.md)
+- `_WIN32_WINNT` / `WINVER`: 対象の Windows のバージョン。新しい API を使うときに必要。SDK の `sdkddkver.h` で設定
+- `WIN32` / `_WIN32` / `_WIN64`: コンパイラや Visual Studio が、自動で定義。OS の判定に使う
 
 ## CRT・標準ライブラリ
 
@@ -135,10 +127,8 @@ error C2589: '(': '::' の右側のトークンが正しくありません
 
 `strcpy`、`sprintf`、`fopen` などの**古い C の関数**を使うと MSVC が、警告 C4996（「`strcpy_s` を使いなさい」）を出します。
 
-| 対策 | 説明 |
-| --- | --- |
-| `_CRT_SECURE_NO_WARNINGS` を定義 | 警告を消す。ただし、危険な関数のままなので注意 |
-| 安全な関数に置き換える | `std::string`、`std::format`、`std::filesystem`、`std::fstream` などC++ の機能を使う |
+- `_CRT_SECURE_NO_WARNINGS` を定義: 警告を消す。ただし、危険な関数のままなので注意
+- 安全な関数に置き換える: `std::string`、`std::format`、`std::filesystem`、`std::fstream` などC++ の機能を使う
 
 警告を消すだけにせずそもそも古い C の関数を使わないのが、本来の対応です。
 
@@ -168,14 +158,12 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 
 ### そのほか
 
-| マクロ | 効果 |
-| --- | --- |
-| `_HAS_EXCEPTIONS=0` | 標準ライブラリの例外を無効にする（`/EHs-c-` と組み合わせ）。例外を使わないゲームで |
-| `_SILENCE_*_DEPRECATION_WARNING` | 特定の非推奨の警告を消す。警告を消す前に置き換えを検討 |
-| `_CRTDBG_MAP_ALLOC` | メモリリークの行番号つきの報告（[デバッグ](debugging.md)） |
-| `_HAS_CXX23` など | 標準ライブラリの対応状況（通常は、`/std:c++latest` で自動） |
-| `NDEBUG` | assert を無効にする（Release で、自動定義） |
-| `_DEBUG` | Debug で、自動定義。デバッグ専用のコードの切り替え |
+- `_HAS_EXCEPTIONS=0`: 標準ライブラリの例外を無効にする（`/EHs-c-` と組み合わせ）。例外を使わないゲームで
+- `_SILENCE_*_DEPRECATION_WARNING`: 特定の非推奨の警告を消す。警告を消す前に置き換えを検討
+- `_CRTDBG_MAP_ALLOC`: メモリリークの行番号つきの報告（[デバッグ](debugging.md)）
+- `_HAS_CXX23` など: 標準ライブラリの対応状況（通常は、`/std:c++latest` で自動）
+- `NDEBUG`: assert を無効にする（Release で、自動定義）
+- `_DEBUG`: Debug で、自動定義。デバッグ専用のコードの切り替え
 
 ## Debug と Release の切り替え
 
@@ -194,11 +182,9 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 #endif
 ```
 
-| 注意 | 説明 |
-| --- | --- |
-| `_DEBUG` と `NDEBUG` は両方とも未定義にもできる | 構成を自作した場合は、どちらを定義するかを決める |
-| `#ifdef` の中身はコンパイルされない | Release でビルドエラーになる、Debug だけにある変数に注意 |
-| assert | `NDEBUG` で、消える。副作用のある式を入れない |
+- `_DEBUG` と `NDEBUG` は両方とも未定義にもできる: 構成を自作した場合は、どちらを定義するかを決める
+- `#ifdef` の中身はコンパイルされない: Release でビルドエラーになる、Debug だけにある変数に注意
+- assert: `NDEBUG` で、消える。副作用のある式を入れない
 
 ## 自分で作る機能スイッチ
 
@@ -212,24 +198,20 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 #endif
 ```
 
-| 用途 | マクロの例 |
-| --- | --- |
-| プロファイラーの有効化 | `ENABLE_PROFILER`（Debug と Profile 構成だけ） |
-| デバッグ描画 | `ENABLE_DEBUG_DRAW` |
-| チートコマンド・開発メニュー | `ENABLE_DEV_MENU`（製品では、無効） |
-| ログのレベル | `LOG_LEVEL=2` |
-| プラットフォームの切り替え | `PLATFORM_WINDOWS`、`PLATFORM_SWITCH` |
+- プロファイラーの有効化: `ENABLE_PROFILER`（Debug と Profile 構成だけ）
+- デバッグ描画: `ENABLE_DEBUG_DRAW`
+- チートコマンド・開発メニュー: `ENABLE_DEV_MENU`（製品では、無効）
+- ログのレベル: `LOG_LEVEL=2`
+- プラットフォームの切り替え: `PLATFORM_WINDOWS`、`PLATFORM_SWITCH`
 
 ビルド構成を 3 つ（Debug / Profile / Release）にして、Profile には最適化 + プロファイラーだけを有効にする、という使い方がよくあります（[プロファイラー](profiler.md)）。
 
 ### 注意
 
-| 注意 | 説明 |
-| --- | --- |
-| マクロの名前の衝突 | `DEBUG`、`ERROR`、`min` などの短い名前は他のライブラリと衝突。プレフィックス（`MYGAME_`）をつける |
-| `#if` と `#ifdef` | `#ifdef X` は「定義されているか」。`#if X` は「値が 0 でないか」（`X=0` で定義したときの挙動が違う） |
-| マクロより `constexpr` / `if constexpr` | 型チェックが効く。可能ならそちら |
-| 使いすぎ | `#ifdef` だらけは、読みにくい。切り替えは1 か所（インターフェース）にまとめる |
+- マクロの名前の衝突: `DEBUG`、`ERROR`、`min` などの短い名前は他のライブラリと衝突。プレフィックス（`MYGAME_`）をつける
+- `#if` と `#ifdef`: `#ifdef X` は「定義されているか」。`#if X` は「値が 0 でないか」（`X=0` で定義したときの挙動が違う）
+- マクロより `constexpr` / `if constexpr`: 型チェックが効く。可能ならそちら
+- 使いすぎ: `#ifdef` だらけは、読みにくい。切り替えは1 か所（インターフェース）にまとめる
 
 ## ライブラリのマクロ
 
@@ -243,12 +225,10 @@ IMGUI_API bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
 
 既定では `IMGUI_API` は空です。ImGui を DLL にして、エクスポート・インポートしたいときに使います。
 
-| 状況 | 設定 |
-| --- | --- |
-| 普通にソースをプロジェクトに入れる | 何も設定しない（空のまま） |
-| ImGui を DLL にする（DLL 側） | `IMGUI_API=__declspec(dllexport)` を定義 |
-| ImGui の DLL を使う（利用側） | `IMGUI_API=__declspec(dllimport)` を定義 |
-| ゲーム本体（exe）とツール（DLL）で、ImGui を共有 | 同じ ImGui を共有し、`ImGui::SetCurrentContext` でコンテキストを渡す |
+- 普通にソースをプロジェクトに入れる: 何も設定しない（空のまま）
+- ImGui を DLL にする（DLL 側）: `IMGUI_API=__declspec(dllexport)` を定義
+- ImGui の DLL を使う（利用側）: `IMGUI_API=__declspec(dllimport)` を定義
+- ゲーム本体（exe）とツール（DLL）で、ImGui を共有: 同じ ImGui を共有し、`ImGui::SetCurrentContext` でコンテキストを渡す
 
 !!! warning "DLL をまたぐとき"
     DLL 側で作った `ImGuiContext` を exe 側から使うには、`ImGui::SetCurrentContext` と `SetAllocatorFunctions` を両方で呼ぶ必要があります（ImGui のグローバル状態が DLL ごとに別になるため）。詳しくは[Dear ImGui](../libs/imgui/index.md) を見てください。
@@ -257,14 +237,12 @@ IMGUI_API bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
 
 `imconfig.h` に書くかプロジェクトの定義で指定します。
 
-| マクロ | 効果 |
-| --- | --- |
-| `IMGUI_DEFINE_MATH_OPERATORS` | `ImVec2` の `+`、`-`、`*` などの演算子を使えるようにする（`imgui_internal.h` を include する前に定義）。ImGuizmo・ImNodes などで必要 |
-| `IMGUI_DISABLE_OBSOLETE_FUNCTIONS` | 古い関数を使えなくする（移行の確認に） |
-| `IMGUI_DISABLE_DEMO_WINDOWS` | デモをビルドから除く（サイズ削減） |
-| `IMGUI_USER_CONFIG` | `imconfig.h` の代わりに自分の設定ファイルを指定 |
-| `ImDrawIdx`（`imconfig.h`） | 頂点インデックスの型（`unsigned short` が既定。65536 頂点を超える描画に `unsigned int`） |
-| `IMGUI_IMPL_*` | バックエンドの切り替え（`IMGUI_IMPL_WIN32_DISABLE_GAMEPAD` など） |
+- `IMGUI_DEFINE_MATH_OPERATORS`: `ImVec2` の `+`、`-`、`*` などの演算子を使えるようにする（`imgui_internal.h` を include する前に定義）。ImGuizmo・ImNodes などで必要
+- `IMGUI_DISABLE_OBSOLETE_FUNCTIONS`: 古い関数を使えなくする（移行の確認に）
+- `IMGUI_DISABLE_DEMO_WINDOWS`: デモをビルドから除く（サイズ削減）
+- `IMGUI_USER_CONFIG`: `imconfig.h` の代わりに自分の設定ファイルを指定
+- `ImDrawIdx`（`imconfig.h`）: 頂点インデックスの型（`unsigned short` が既定。65536 頂点を超える描画に `unsigned int`）
+- `IMGUI_IMPL_*`: バックエンドの切り替え（`IMGUI_IMPL_WIN32_DISABLE_GAMEPAD` など）
 
 ```text
 IMGUI_DEFINE_MATH_OPERATORS;IMGUI_DISABLE_OBSOLETE_FUNCTIONS;%(PreprocessorDefinitions)
@@ -289,10 +267,8 @@ class MYGAME_API Engine {
 };
 ```
 
-| 側 | 設定 |
-| --- | --- |
-| DLL をビルドするプロジェクト | `MYGAME_BUILD_DLL` を定義（プロパティで） |
-| DLL を使うプロジェクト | 定義しない（`dllimport` になる） |
+- DLL をビルドするプロジェクト: `MYGAME_BUILD_DLL` を定義（プロパティで）
+- DLL を使うプロジェクト: 定義しない（`dllimport` になる）
 
 Visual Studio の DLL プロジェクトには `プロジェクト名_EXPORTS` が、自動で定義されます。これを使う方法もあります。
 
@@ -312,15 +288,13 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 
 ## コンパイラが定義する定義済みマクロ
 
-| マクロ | 意味 |
-| --- | --- |
-| **`_MSC_VER`** | MSVC のバージョン（Visual Studio 2026 は `1950` 台） |
-| `_MSVC_LANG` | MSVC の C++ の標準（`202302L` など）。`__cplusplus` は `/Zc:__cplusplus` がないと古い値のまま |
-| `_M_X64` / `_M_ARM64` | CPU の種類（64 ビット x86 / ARM） |
-| `_WIN32` / `_WIN64` | Windows。64 ビットでも `_WIN32` は定義される |
-| `__FILE__` / `__LINE__` | ファイル名と行番号（ログ・assert に） |
-| `__has_include(<header>)` | ヘッダが存在するか（C++17）。`#if __has_include(<print>)` |
-| **`__cpp_lib_*`** | 標準ライブラリの機能が使えるか（`__cpp_lib_print`、`__cpp_lib_flat_map` など） |
+- **`_MSC_VER`**: MSVC のバージョン（Visual Studio 2026 は `1950` 台）
+- `_MSVC_LANG`: MSVC の C++ の標準（`202302L` など）。`__cplusplus` は `/Zc:__cplusplus` がないと古い値のまま
+- `_M_X64` / `_M_ARM64`: CPU の種類（64 ビット x86 / ARM）
+- `_WIN32` / `_WIN64`: Windows。64 ビットでも `_WIN32` は定義される
+- `__FILE__` / `__LINE__`: ファイル名と行番号（ログ・assert に）
+- `__has_include(<header>)`: ヘッダが存在するか（C++17）。`#if __has_include(<print>)`
+- **`__cpp_lib_*`**: 標準ライブラリの機能が使えるか（`__cpp_lib_print`、`__cpp_lib_flat_map` など）
 
 ```cpp
 #if __has_include(<print>)
@@ -336,14 +310,12 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 
 ## 確認する方法
 
-| 方法 | 説明 |
-| --- | --- |
-| **プロパティの画面** | 構成・プラットフォームを選んで、値を直接確認 |
-| `/P`（プリプロセス結果をファイルに出力） | マクロ展開後のソースを `.i` ファイルに。どう展開されたかを見る |
-| `/showIncludes` | どのヘッダをどの順に読んだか |
-| `#pragma message("...")` | コンパイル時にメッセージを出す。`#pragma message("MYLEVEL = " _CRT_STRINGIZE(MY_LEVEL))` |
-| `/d1PP`（`/E` と併用） | 展開の様子を詳しく |
-| IntelliSense の淡色表示 | `#ifdef` で無効な部分が灰色になる |
+- **プロパティの画面**: 構成・プラットフォームを選んで、値を直接確認
+- `/P`（プリプロセス結果をファイルに出力）: マクロ展開後のソースを `.i` ファイルに。どう展開されたかを見る
+- `/showIncludes`: どのヘッダをどの順に読んだか
+- `#pragma message("...")`: コンパイル時にメッセージを出す。`#pragma message("MYLEVEL = " _CRT_STRINGIZE(MY_LEVEL))`
+- `/d1PP`（`/E` と併用）: 展開の様子を詳しく
+- IntelliSense の淡色表示: `#ifdef` で無効な部分が灰色になる
 
 !!! note "IntelliSense が、プロパティの設定を見ていないとき"
     プロパティで定義したマクロは、IntelliSense にも反映されますが、CMake プロジェクトなどでは、反映が遅れることがあります。ビルドして確認します。

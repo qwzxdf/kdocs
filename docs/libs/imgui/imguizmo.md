@@ -36,12 +36,10 @@ ImGuizmo は、**ソースを数ファイル、プロジェクトに追加する
 1. [GitHub の ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo) を取得して、`third_party/ImGuizmo/` に置く
 2. 次のファイルをプロジェクトに追加（追加 → 既存の項目）
 
-| ファイル | 内容 |
-| --- | --- |
-| `ImGuizmo.h` / `ImGuizmo.cpp` | ギズモ本体 |
-| `ImSequencer.h` / `ImSequencer.cpp` | タイムライン（[ImSequencer](imsequencer.md) でも使う） |
-| `ImCurveEdit.h` / `ImCurveEdit.cpp` | カーブ エディタ（使わなければ入れなくてよい） |
-| `GraphEditor.h` / `GraphEditor.cpp` | 簡易ノード エディタ（使わなければ入れなくてよい） |
+- `ImGuizmo.h` / `ImGuizmo.cpp`: ギズモ本体
+- `ImSequencer.h` / `ImSequencer.cpp`: タイムライン（[ImSequencer](imsequencer.md) でも使う）
+- `ImCurveEdit.h` / `ImCurveEdit.cpp`: カーブ エディタ（使わなければ入れなくてよい）
+- `GraphEditor.h` / `GraphEditor.cpp`: 簡易ノード エディタ（使わなければ入れなくてよい）
 
 3. 追加のインクルード ディレクトリ に `$(SolutionDir)third_party\ImGuizmo` を追加する
 4. ImGuizmo は ImGui の内部ヘッダ（`imgui_internal.h`）を使うので、ImGui のインクルード パスも通しておく
@@ -267,10 +265,8 @@ enum OPERATION {
 enum MODE { LOCAL, WORLD };
 ```
 
-| 値 | 意味 |
-| --- | --- |
-| `LOCAL` | オブジェクト自身の向きに軸を合わせる。回転したオブジェクトの「前」へ動かせる |
-| `WORLD` | 世界の軸（X が右、Y が上、Z が奥）に合わせる。常に同じ向きの矢印 |
+- `LOCAL`: オブジェクト自身の向きに軸を合わせる。回転したオブジェクトの「前」へ動かせる
+- `WORLD`: 世界の軸（X が右、Y が上、Z が奥）に合わせる。常に同じ向きの矢印
 
 - 回転のギズモは、`LOCAL` で使うと分かりやすいです。多くのエディタでは、キーで `LOCAL` と `WORLD` を切り替えられます（Unity の「Local / Global」）
 
@@ -454,13 +450,11 @@ model_matrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&model_dx));  
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| レベル エディタで、オブジェクトを配置する | 選択したオブジェクトに `TRANSLATE` / `ROTATE` / `SCALE` を出す |
-| ライトやカメラの位置を調整する | ギズモで動かして、インスペクターで細かい数値を確認 |
-| コリジョンの形を編集 | `BOUNDS` で箱の大きさを変える |
-| カメラの向きを変える | `ViewManipulate` のビュー キューブ |
-| 実行中のオブジェクトを調べる | ゲームを止めて、ギズモで位置を動かして試す |
+- レベル エディタで、オブジェクトを配置する: 選択したオブジェクトに `TRANSLATE` / `ROTATE` / `SCALE` を出す
+- ライトやカメラの位置を調整する: ギズモで動かして、インスペクターで細かい数値を確認
+- コリジョンの形を編集: `BOUNDS` で箱の大きさを変える
+- カメラの向きを変える: `ViewManipulate` のビュー キューブ
+- 実行中のオブジェクトを調べる: ゲームを止めて、ギズモで位置を動かして試す
 
 ## よくあるミス
 

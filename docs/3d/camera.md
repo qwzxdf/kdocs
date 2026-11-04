@@ -6,18 +6,18 @@ tags:
 
 # カメラ
 
-3D ゲームの**カメラ**は、「3D の世界をどこから、どの向きで見るか」を決める部品です。実は、3D のカメラは、描画の世界には存在しません。実際に動いているのは、世界のほうです。カメラが右に動くのは、「世界全体が左に動く」のと同じです。そこでビュー行列が「世界をカメラが原点・正面を向いた座標に直す」変換をします（[MVP 変換](transforms-mvp.md)）。このページはビュー行列の作り方（LookAt）と、ゲームでよく使うカメラの動かし方（FPS カメラ、軌道カメラ、追従カメラ）、カメラの演出（揺れ、滑らかな追従）を説明します。
+3D ゲームの**カメラ**は「3D の世界をどこから、どの向きで見るか」を決める部品です。実は 3D のカメラは描画の世界には存在しません。実際に動いているのは世界のほうです。カメラが右に動くのは「世界全体が左に動く」のと同じです。そこでビュー行列が「世界をカメラが原点・正面を向いた座標に直す」変換をします（[MVP 変換](transforms-mvp.md)）。このページはビュー行列の作り方（LookAt）とゲームでよく使うカメラの動かし方（FPS カメラ、軌道カメラ、追従カメラ）、カメラの演出（揺れ滑らかな追従）を説明します。
 
 !!! tip "ポイント"
     - <strong>カメラ ＝ 位置と向き</strong>。<strong>ビュー行列 ＝ カメラのワールド行列の逆行列</strong>。
     - 普通は`XMMatrixLookAtLH(位置, 見る点, 上方向)` で作る（左手系・前は +Z）。
-    - カメラの向きは、角度（yaw・pitch）で持つと操作しやすい。pitch は ±89° に制限する（真上・真下で上方向が定まらなくなる）。
-    - 三人称カメラは、ターゲットの後ろに置いて、補間（`Lerp`）で追従させる。壁を通り抜けないように、レイキャストで調整する。
-    - カメラの更新は、キャラクターの更新のあとに行う（1 フレーム遅れて、ガタつくのを防ぐ）。
-    - ビュー行列は、1 フレームに 1 回作って、全オブジェクトで共有する。
+    - カメラの向きは角度（yaw・pitch）で持つと操作しやすい。pitch は ±89° に制限する（真上・真下で上方向が定まらなくなる）。
+    - 三人称カメラはターゲットの後ろに置いて、補間（`Lerp`）で追従させる。壁を通り抜けないようにレイキャストで調整する。
+    - カメラの更新はキャラクターの更新のあとに行う（1 フレーム遅れて、ガタつくのを防ぐ）。
+    - ビュー行列は 1 フレームに 1 回作って、全オブジェクトで共有する。
 
 !!! info "このページを読む前に"
-    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [3d/index.md](index.md)（このセクション全体の地図と読む順番）
     - [行列](../gamemath/matrices.md)（行列の基礎）
     - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
 
@@ -47,10 +47,10 @@ Matrix view = XMMatrixLookAtLH(camera_position, camera_target, Vector3::Up);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `camera_position` | `Vector3` | カメラの位置（ワールド座標） |
-| `camera_target` | `Vector3` | 見ている点（ワールド座標）。向きではなく、点 |
+| `camera_target` | `Vector3` | 見ている点（ワールド座標）。向きではなく点 |
 | `Vector3::Up` | `Vector3` | 「上」の方向。ほとんどの場合 `(0, 1, 0)` |
 
-向き（前方向）から作るときは、「位置 + 前方向」を見る点にします。
+向き（前方向）から作るときは「位置 + 前方向」を見る点にします。
 
 ```cpp
 Vector3 forward = ...;   // 正規化した前方向
@@ -59,11 +59,11 @@ Matrix view = XMMatrixLookAtLH(position, position + forward, Vector3::Up);
 
 ### LookAt が内部でやっていること
 
-カメラの 3 本の軸（右・上・前）を作り、行列にします。
+カメラの 3 本の軸（右・上・前）を作り行列にします。
 
 <svg class="fig flow" viewBox="0 0 789 112" role="img" aria-label="ビュー行列を作る手順"><defs><marker id="fl2919" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列を作る手順</text><line x1="162.0" y1="64.0" x2="220.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="191.0" y="58.0" text-anchor="middle" style="font-size:12px">up×前</text><line x1="342.0" y1="64.0" x2="400.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="371.0" y="58.0" text-anchor="middle" style="font-size:12px">前×右</text><line x1="540.0" y1="64.0" x2="598.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="569.0" y="58.0" text-anchor="middle" style="font-size:12px">3軸と位置から</text><rect x="28.0" y="44.0" width="131" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="93.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① forward(前)</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="223.0" y="44.0" width="116" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="281.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② right(右)</text><circle cx="225.0" cy="46.0" r="10" fill="#2ea043"/><text x="225.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="403.0" y="44.0" width="134" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="470.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ up(本当の上)</text><circle cx="405.0" cy="46.0" r="10" fill="#e5a828"/><text x="405.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="601.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">④ 世界→カメラ行列</text><circle cx="603.0" cy="46.0" r="10" fill="#e5484d"/><text x="603.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
-上方向（`up`）と、前方向が平行（真上・真下を見る）だと外積が 0 になり、右方向が決まりません。これが真上を見たときに画面が不安定になる原因です（ジンバルロックに似た現象）。
+上方向（`up`）と前方向が平行（真上・真下を見る）だと外積が 0 になり右方向が決まりません。これが真上を見たときに画面が不安定になる原因です（ジンバルロックに似た現象）。
 
 ## FPS カメラ（一人称）
 
@@ -99,16 +99,14 @@ class FpsCamera {
 };
 ```
 
-| ポイント | 説明 |
-| --- | --- |
-| yaw と pitch で持つ | 行列やクォータニオンに累積させるより、角度を持つほうが傾き（roll）が溜まらず安定する |
-| pitch を ±89° に制限 | 真上・真下（±90°）では上方向が定まらず、画面が反転する |
-| マウスの移動量 × 感度 | 移動量（ピクセル）を角度に変える。フレームレートに依存しない（マウスの移動量は、すでに差分） |
-| 前方向は、yaw と pitch から計算 | 左手系・前 +Z なら `forward = (sin y × cos p, sin p, cos y × cos p)`（座標系で式が変わる） |
+- yaw と pitch で持つ: 行列やクォータニオンに累積させるより、角度を持つほうが傾き（roll）が溜まらず安定する
+- pitch を ±89° に制限: 真上・真下（±90°）では上方向が定まらず、画面が反転する
+- マウスの移動量 × 感度: 移動量（ピクセル）を角度に変える。フレームレートに依存しない（マウスの移動量は、すでに差分）
+- 前方向は yaw と pitch から計算: 左手系・前 +Z なら `forward = (sin y × cos p, sin p, cos y × cos p)`（座標系で式が変わる）
 
 ### 移動
 
-カメラの向きに対して、前後左右に動きます。上下の向き（pitch）は、地面を歩く移動には、含めません。
+カメラの向きに対して前後左右に動きます。上下の向き（pitch）は地面を歩く移動には、含めません。
 
 ```cpp
 Vector3 flat_forward(Forward().x, 0.0f, Forward().z);      // pitch を無視した、水平方向の前
@@ -156,15 +154,13 @@ class OrbitCamera {
 };
 ```
 
-| 操作 | 実装 |
-| --- | --- |
-| 回転（マウス ドラッグ） | yaw、pitch を増減 |
-| ズーム（ホイール） | distance を増減（最小・最大を制限） |
-| パン（平行移動） | カメラの右・上方向に注視点を動かす |
+- 回転（マウス ドラッグ）: yaw、pitch を増減
+- ズーム（ホイール）: distance を増減（最小・最大を制限）
+- パン（平行移動）: カメラの右・上方向に注視点を動かす
 
 ## 三人称カメラ（追従）
 
-**キャラクターの後ろから、追いかける**カメラです。軌道カメラの注視点をキャラの位置（少し上）にします。
+**キャラクターの後ろから追いかける**カメラです。軌道カメラの注視点をキャラの位置（少し上）にします。
 
 ```cpp
 void ThirdPersonCamera::Update(float dt, const Vector3& player_position) {
@@ -177,7 +173,7 @@ void ThirdPersonCamera::Update(float dt, const Vector3& player_position) {
 
 ### 滑らかな追従
 
-カメラがキャラにぴったりくっつくと、動きが硬く、酔いやすくなります。少し遅れて追いかけると、滑らかに見えます。
+カメラがキャラにぴったりくっつくと動きが硬く、酔いやすくなります。少し遅れて追いかけると滑らかに見えます。
 
 | 方法 | 式 | 特徴 |
 | --- | --- | --- |
@@ -188,7 +184,7 @@ void ThirdPersonCamera::Update(float dt, const Vector3& player_position) {
 
 ### 壁をすり抜けない
 
-カメラが壁の後ろに回ると、壁の内側が映ったり、キャラが隠れたりします。注視点からカメラ位置へレイキャストして、壁に当たったら、その手前にカメラを置きます。
+カメラが壁の後ろに回ると壁の内側が映ったりキャラが隠れたりします。注視点からカメラ位置へレイキャストして、壁に当たったらその手前にカメラを置きます。
 
 ```cpp
 // 注視点からカメラの理想の位置に向かって、レイを飛ばす
@@ -209,14 +205,12 @@ if (RaycastWorld(target, dir, length, &hit_distance)) {
 
 ## カメラの演出
 
-| 演出 | 方法 |
-| --- | --- |
-| **画面の揺れ**（爆発・被ダメージ） | カメラの位置・向きに減衰するランダム（ノイズ）を足す。`shake *= exp(-decay * dt)` |
-| ズーム | FOV を変える（[投影](projection.md)）、または距離を変える |
-| ヘッド ボブ（歩くときの上下の揺れ） | 位置に `sin(時間 × 歩く速さ)` を足す。控えめに（酔いやすい） |
-| ロック オン（敵を注視） | 注視点を敵の位置に補間する |
-| カット シーン | スプライン（曲線）に沿って動かす。キーフレームを補間（[回転](../gamemath/rotation.md)） |
-| スローモーション | `dt` を小さくする（カメラは実時間の `dt` で動かすこともある） |
+- **画面の揺れ**（爆発・被ダメージ）: カメラの位置・向きに減衰するランダム（ノイズ）を足す。`shake *= exp(-decay * dt)`
+- ズーム: FOV を変える（[投影](projection.md)）、または距離を変える
+- ヘッド ボブ（歩くときの上下の揺れ）: 位置に `sin(時間 × 歩く速さ)` を足す。控えめに（酔いやすい）
+- ロック オン（敵を注視）: 注視点を敵の位置に補間する
+- カット シーン: スプライン（曲線）に沿って動かす。キーフレームを補間（[回転](../gamemath/rotation.md)）
+- スローモーション: `dt` を小さくする（カメラは実時間の `dt` で動かすこともある）
 
 ```cpp
 // 画面の揺れ：強さが、時間で減衰する
@@ -240,15 +234,13 @@ Vector3 Camera::ShakeOffset(float dt) {
 | 4 | ビュー行列を作る（1 回） |
 | 5 | 描画 |
 
-カメラの更新がキャラクターの更新より前だと、1 フレーム遅れた位置を追うので、キャラが画面の中でぶるぶる震えて見えます。必ず後に更新します。
+カメラの更新がキャラクターの更新より前だと 1 フレーム遅れた位置を追うので、キャラが画面の中でぶるぶる震えて見えます。必ず後に更新します。
 
 ## カメラのクラス設計
 
-| 部品 | 内容 |
-| --- | --- |
-| <strong>`Camera`（基本）</strong> | 位置、向き（クォータニオン）、FOV、near、far。`View()` と `Proj()` を返す |
-| カメラの制御（FPS、軌道、追従） | `Camera` を毎フレーム動かす。制御の種類を差し替えられる（[ストラテジー](../design/patterns/strategy.md)） |
-| カメラのデータ | ビュー行列、プロジェクション行列、`view * proj`、位置、視錐台（カリング用）。1 フレームに 1 回計算して、共有 |
+- <strong>`Camera`（基本）</strong>: 位置、向き（クォータニオン）、FOV、near、far。`View()` と `Proj()` を返す
+- カメラの制御（FPS、軌道、追従）: `Camera` を毎フレーム動かす。制御の種類を差し替えられる（[ストラテジー](../design/patterns/strategy.md)）
+- カメラのデータ: ビュー行列、プロジェクション行列、`view * proj`、位置、視錐台（カリング用）。1 フレームに 1 回計算して共有
 
 ```cpp
 struct CameraData {
@@ -261,19 +253,17 @@ struct CameraData {
 
 ## ゲームでの使いどころ
 
-| 場面 | カメラ |
-| --- | --- |
-| FPS | FPS カメラ（yaw、pitch）。マウス感度の設定 |
-| 三人称アクション | 軌道カメラ + 追従 + 壁のすり抜け防止 + ロック オン |
-| 見下ろし型（ARPG・RTS） | 固定角度のカメラ。キャラを追従。パン・ズーム |
-| 2D 横スクロール（3D で表示） | 横に固定した、正射投影か、遠近感の弱いカメラ |
-| エディター（シーン ビュー） | 軌道カメラ + パン + ズーム + フライ（右クリックで WASD） |
-| カット シーン | スプラインとキーフレーム |
+- FPS: FPS カメラ（yaw、pitch）。マウス感度の設定
+- 三人称アクション: 軌道カメラ + 追従 + 壁のすり抜け防止 + ロック オン
+- 見下ろし型（ARPG・RTS）: 固定角度のカメラ。キャラを追従。パン・ズーム
+- 2D 横スクロール（3D で表示）: 横に固定した正射投影か遠近感の弱いカメラ
+- エディター（シーン ビュー）: 軌道カメラ + パン + ズーム + フライ（右クリックで WASD）
+- カット シーン: スプラインとキーフレーム
 
 ## よくあるミス
 
-??? failure "pitch を制限せず、真上を見たら画面が反転する"
-    上方向と前方向が平行になり、外積が 0 になります。pitch を ±89° に制限します。
+??? failure "pitch を制限せず真上を見たら画面が反転する"
+    上方向と前方向が平行になり外積が 0 になります。pitch を ±89° に制限します。
 
 ??? failure "追従を `Lerp(pos, target, 0.1f)` にして、フレームレートで速さが変わる"
     60 FPS と 144 FPS で、追従の速さが違います。`1 - exp(-k * dt)` を使います。
@@ -287,8 +277,8 @@ struct CameraData {
 ??? failure "斜め移動が速くなる"
     前後と左右の入力を足したベクトルを正規化してから、速さを掛けます。
 
-??? failure "向きをオイラー角の累積だけで管理して、傾く"
-    回転を行列やクォータニオンに累積すると、roll（傾き）が溜まります。FPS カメラは yaw と pitch を別々に持ち、毎回作り直します。
+??? failure "向きをオイラー角の累積だけで管理して傾く"
+    回転を行列やクォータニオンに累積すると、roll（傾き）が溜まります。FPS カメラは yaw と pitch を別々に持ち毎回作り直します。
 
 ## これだけ覚える
 

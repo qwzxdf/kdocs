@@ -67,12 +67,10 @@ std::vector<int> c = std::move(a);       // ムーブ：ポインタを移すだ
 
 ### ムーブを使う場面
 
-| 場面 | 書き方 |
-| --- | --- |
-| コンテナに入れる | `v.push_back(std::move(x));`、または `v.emplace_back(引数...)` |
-| 受け取って持つ | `Enemy(std::string name) : name_(std::move(name)) {}` |
-| 持ち主を移す | `owner = std::move(other);` |
-| 関数から返す | `return x;`（`std::move` を付けない。下の注意） |
+- コンテナに入れる: `v.push_back(std::move(x));`、または `v.emplace_back(引数...)`
+- 受け取って持つ: `Enemy(std::string name) : name_(std::move(name)) {}`
+- 持ち主を移す: `owner = std::move(other);`
+- 関数から返す: `return x;`（`std::move` を付けない。下の注意）
 
 ### emplace_back
 
@@ -86,13 +84,11 @@ v.emplace_back("slime", 10);
 
 ### ムーブの注意
 
-| 注意 | 説明 |
-| --- | --- |
-| `return std::move(x);` は書かない | ローカル変数を返すときは、コンパイラが自動で最適化（RVO・自動ムーブ）する。`std::move` を付けるとかえって最適化を妨げることがある |
-| `const` のオブジェクトはムーブできない | `const std::string s; std::move(s)` は、コピーになる |
-| ムーブしたあとの変数は使わない | 「有効だが中身は不定」な状態。再代入か破棄だけ |
-| ムーブが遅い型もある | 大きな配列を持つ `std::array<T, N>` は、要素をムーブする（O(N)） |
-| ムーブコンストラクタは `noexcept` にする | `noexcept` でないと `vector` の再確保のとき、ムーブせずにコピーされる |
+- `return std::move(x);` は書かない: ローカル変数を返すときは、コンパイラが自動で最適化（RVO・自動ムーブ）する。`std::move` を付けるとかえって最適化を妨げることがある
+- `const` のオブジェクトはムーブできない: `const std::string s; std::move(s)` は、コピーになる
+- ムーブしたあとの変数は使わない: 「有効だが中身は不定」な状態。再代入か破棄だけ
+- ムーブが遅い型もある: 大きな配列を持つ `std::array<T, N>` は、要素をムーブする（O(N)）
+- ムーブコンストラクタは `noexcept` にする: `noexcept` でないと `vector` の再確保のとき、ムーブせずにコピーされる
 
 ## 3. 戻り値
 
@@ -135,24 +131,20 @@ for (const auto& enemy : enemies) { // 読むだけなら const auto&
 
 ## 5. 文字列のコピーを減らす
 
-| 遅い | 速い |
-| --- | --- |
-| `void Log(std::string msg)` | `void Log(std::string_view msg)` |
-| `std::string name = GetName();`（毎回コピー） | `const std::string& name = GetName();`（`GetName` が参照を返すなら） |
-| `s.substr(0, 5)` を比べるだけに使う（確保が起きる） | `std::string_view(s).substr(0, 5)`（コピーなし） |
-| `std::string key = "player";` をループの中で毎回作る | `constexpr std::string_view kKey = "player";` |
-| `map<std::string, T>` を `const char*` で引く（一時 string が作られる） | 透過的ハッシュで `string_view` のまま引く（[std::hash](../stl/utilities/hash.md#transparent)） |
+- `void Log(std::string msg)`: `void Log(std::string_view msg)`
+- `std::string name = GetName();`（毎回コピー）: `const std::string& name = GetName();`（`GetName` が参照を返すなら）
+- `s.substr(0, 5)` を比べるだけに使う（確保が起きる）: `std::string_view(s).substr(0, 5)`（コピーなし）
+- `std::string key = "player";` をループの中で毎回作る: `constexpr std::string_view kKey = "player";`
+- `map<std::string, T>` を `const char*` で引く（一時 string が作られる）: 透過的ハッシュで `string_view` のまま引く（[std::hash](../stl/utilities/hash.md#transparent)）
 
 ## 6. 見えないコピーを見つける
 
 コピーは書いていなくても**暗黙に**起きます。見つける方法です。
 
-| 方法 | 説明 |
-| --- | --- |
-| コピーを禁止する（`= delete`） | 大きなクラスのコピーコンストラクタを `= delete` にすると、コピーしている場所がコンパイル エラーで分かる。必要なら明示的な `Clone()` を作る |
-| プロファイラーで `memcpy` や `operator new` の上位を探す | コピーの呼び出し元をたどる（[計測](measure.md)） |
-| 警告を有効にする | MSVC の `/W4`、Clang-Tidy の `performance-unnecessary-copy-initialization`、`performance-for-range-copy` |
-| コピーのカウンター | コピーコンストラクタにカウンターを仕込んで、回数を数える |
+- コピーを禁止する（`= delete`）: 大きなクラスのコピーコンストラクタを `= delete` にすると、コピーしている場所がコンパイル エラーで分かる。必要なら明示的な `Clone()` を作る
+- プロファイラーで `memcpy` や `operator new` の上位を探す: コピーの呼び出し元をたどる（[計測](measure.md)）
+- 警告を有効にする: MSVC の `/W4`、Clang-Tidy の `performance-unnecessary-copy-initialization`、`performance-for-range-copy`
+- コピーのカウンター: コピーコンストラクタにカウンターを仕込んで、回数を数える
 
 ```cpp
 class Mesh {
@@ -169,15 +161,13 @@ class Mesh {
 
 ## ゲームでの使いどころ
 
-| 場面 | 直し方 |
-| --- | --- |
-| 関数に大きな構造体を値渡ししている | `const&` にする |
-| ログやメッセージの文字列 | `string_view` で受け取る |
-| `for (auto e : entities)` | `for (auto& e : entities)` |
-| コンテナに構造体を追加 | `emplace_back`、`std::move` |
-| 設定の構造体を毎フレーム渡している | 参照・ポインタで、1 つを共有する |
-| ラムダに大きなものをコピーキャプチャ | 参照キャプチャ（寿命に注意）か、`shared_ptr` で共有 |
-| `vector<vector<T>>` を関数に値渡し | `const&` か `span` |
+- 関数に大きな構造体を値渡ししている: `const&` にする
+- ログやメッセージの文字列: `string_view` で受け取る
+- `for (auto e : entities)`: `for (auto& e : entities)`
+- コンテナに構造体を追加: `emplace_back`、`std::move`
+- 設定の構造体を毎フレーム渡している: 参照・ポインタで、1 つを共有する
+- ラムダに大きなものをコピーキャプチャ: 参照キャプチャ（寿命に注意）か、`shared_ptr` で共有
+- `vector<vector<T>>` を関数に値渡し: `const&` か `span`
 
 ## よくあるミス
 

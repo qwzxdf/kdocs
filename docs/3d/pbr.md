@@ -6,19 +6,19 @@ tags:
 
 # PBR（物理ベースレンダリング）
 
-**PBR**（ピー・ビー・アール、Physically Based Rendering）は、光の物理的な振る舞いに沿って、陰影を計算する描画の考え方です。[法線とライティング](lighting-normals.md)のブリン・フォンは、「それっぽく見える」式を見た目を見ながら調整する方法でした。PBR では材質を物理的な意味を持つ数字（色・金属度・粗さ）で表し、どんな光の中でも破綻しない見た目を目指します。現在のほとんどのゲームエンジン（Unreal、Unity、Godot）と、glTF の標準の材質が PBR です。このページはなぜその式になるのかという原理から、DX11 / HLSL での実装までをまとめます。
+**PBR**（ピー・ビー・アール、Physically Based Rendering）は、光の物理的な振る舞いに沿って、陰影を計算する描画の考え方です。[法線とライティング](lighting-normals.md)のブリン・フォンは、「それっぽく見える」式を見た目を見ながら調整する方法でした。PBR では材質を物理的な意味を持つ数字（色・金属度・粗さ）で表し、どんな光の中でも破綻しない見た目を目指します。現在のほとんどのゲームエンジン（Unreal、Unity、Godot）と glTF の標準の材質が PBR です。このページはなぜその式になるのかという原理から、DX11 / HLSL での実装までをまとめます。
 
 !!! tip "ポイント"
-    - PBR の<strong>原則は 3 つ</strong>：<strong>① エネルギー保存</strong>（出る光は入る光より多くならない）、② マイクロファセット（表面は微小な鏡の集まり）、③ フレネル（浅い角度ほど、よく反射する）。
+    - PBR の<strong>原則は 3 つ</strong>：<strong>① エネルギー保存</strong>（出る光は入る光より多くならない）、② マイクロファセット（表面は微小な鏡の集まり）、③ フレネル（浅い角度ほどよく反射する）。
     - 材質は「ベースカラー・金属度（metallic）・粗さ（roughness）」で表す（メタリック・ラフネス方式）。
     - 反射の式は Cook-Torrance：鏡面 ＝ D × G × F ÷ (4 × (N·L) × (N·V))、拡散はランバート。
     - D（法線分布）＝ハイライトの形、G（幾何減衰）＝微小な凹凸による影、F（フレネル）＝角度による反射率。
-    - 金属は拡散光がなく、反射が色付き。非金属の F0 は、約 0.04（ほぼ一定）。
-    - 間接光（空・周囲の景色）は、IBL（環境マップ）で。これがないと、PBR は真っ黒になる。
+    - 金属は拡散光がなく、反射が色付き。非金属の F0 は約 0.04（ほぼ一定）。
+    - 間接光（空・周囲の景色）は、IBL（環境マップ）で。これがないと PBR は真っ黒になる。
     - 計算はリニア空間、最後にトーンマッピング + ガンマ補正。色のテクスチャは sRGB、それ以外はリニア。
 
 !!! info "このページを読む前に"
-    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [3d/index.md](index.md)（このセクション全体の地図と読む順番）
     - [行列](../gamemath/matrices.md)（行列の基礎）
     - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
 
@@ -26,13 +26,11 @@ tags:
 
 ブリン・フォンには次の問題があります。
 
-| 問題 | 説明 |
-| --- | --- |
-| **エネルギー保存がない** | 光沢を上げるとハイライトが小さくなるだけで、明るさの総量が物理と合わない |
-| パラメータが見た目任せ | `shininess = 32` が、何を意味するのか、物理的な根拠がない。ライトや環境が変わると、調整し直し |
-| 材質がライトに依存 | 「この金属はこの光なら良く見える」の、職人技 |
-| 金属の表現が苦手 | 金属は拡散光がなく、反射が色付きという性質を式に持たない |
-| 斜めから見たときの反射が違う | 現実は浅い角度で反射が強くなる（フレネル） |
+- **エネルギー保存がない**: 光沢を上げるとハイライトが小さくなるだけで、明るさの総量が物理と合わない
+- パラメータが見た目任せ: `shininess = 32` が、何を意味するのか物理的な根拠がない。ライトや環境が変わると調整し直し
+- 材質がライトに依存: 「この金属はこの光なら良く見える」の職人技
+- 金属の表現が苦手: 金属は拡散光がなく、反射が色付きという性質を式に持たない
+- 斜めから見たときの反射が違う: 現実は浅い角度で反射が強くなる（フレネル）
 
 PBR は物理の式をそのまま近似するので材質の数字を決めれば、どんな光の下でもそれらしくなります。アーティストとプログラマが同じ言葉（粗さ・金属度）で、話せます。
 
@@ -40,28 +38,28 @@ PBR は物理の式をそのまま近似するので材質の数字を決めれ�
 
 ### 光が表面に当たると
 
-光が物体の表面に当たると、**2 つのこと**が起きます。
+光が物体の表面に当たると**2 つのこと**が起きます。
 
 <svg class="fig flow" viewBox="0 0 1065 364" role="img" aria-label="光が表面に当たったとき：表面で反射する光と、内部に入る光"><defs><marker id="fl24487" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">光が表面に当たったとき：表面で反射する光と、内部に入る光</text><line x1="127.0" y1="148.0" x2="185.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><line x1="267.0" y1="134.5" x2="410.8" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="338.9" y="104.7" text-anchor="middle" style="font-size:12px">一部が反射</text><line x1="267.0" y1="161.5" x2="410.8" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="338.9" y="179.3" text-anchor="middle" style="font-size:12px">残りが入る</text><line x1="559.5" y1="232.0" x2="694.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="626.8" y="226.0" text-anchor="middle" style="font-size:12px">散乱</text><line x1="559.5" y1="249.2" x2="791.0" y2="299.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="675.2" y="268.3" text-anchor="middle" style="font-size:12px">吸収</text><rect x="28.0" y="128.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入射する光</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="226.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">表面</text><circle cx="190.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="190.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="328.0" y="44.0" width="305" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="480.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">鏡面反射（specular） 表面ですぐ跳ね返る</text><circle cx="330.0" cy="46.0" r="10" fill="#2ea043"/><text x="330.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="404.5" y="212.0" width="152" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="480.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">内部へ入る（屈折）</text><circle cx="406.5" cy="214.0" r="10" fill="#e5a828"/><text x="406.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="697.0" y="212.0" width="340" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="867.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">拡散反射（diffuse） 内部で散乱して、出てくる</text><circle cx="699.0" cy="214.0" r="10" fill="#e5484d"/><text x="699.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="794.0" y="296.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2" opacity="0.55"/><text x="867.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">熱になる （吸収）</text><circle cx="796.0" cy="298.0" r="10" fill="#e5484d"/><text x="796.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 | 光 | 起きること | 見え方 |
 | --- | --- | --- |
 | 鏡面反射（specular） | 表面ですぐ跳ね返る。入射角と同じ角度で出る | ハイライト、映り込み。光の色のまま（金属以外） |
-| 拡散反射（diffuse） | 内部へ入り、散乱して、あらゆる方向へ出る。物体の色に染まる | 面の色・陰影 |
+| 拡散反射（diffuse） | 内部へ入り散乱して、あらゆる方向へ出る。物体の色に染まる | 面の色・陰影 |
 | 吸収 | 内部で熱になる | 色の暗さ（吸収されなかった波長が物体の色になる） |
 
-金属は特別です。内部に入った光がすぐに吸収されてしまうので、拡散反射がありません。すべての光が鏡面反射で、反射の色が金属の色（金は黄色、銅は赤みがかった色）になります。
+金属は特別です。内部に入った光がすぐに吸収されてしまうので、拡散反射がありません。すべての光が鏡面反射で反射の色が金属の色（金は黄色、銅は赤みがかった色）になります。
 
 ### エネルギー保存
 
-反射する光の合計は、入ってきた光より、多くならない——これが、エネルギー保存です。鏡面反射が増えれば、拡散反射は減ります。
+反射する光の合計は入ってきた光より多くならない——これが、エネルギー保存です。鏡面反射が増えれば拡散反射は減ります。
 
 ```text
 入ってきた光 ＝ 鏡面反射 ＋ 拡散反射 ＋ 吸収
     1.0     ＝   F      ＋ (1 − F) × 色 ＋ 残り
 ```
 
-PBR の式は、鏡面と拡散の比率をフレネル `F` で決めます（`kS = F`、`kD = 1 − F`）。
+PBR の式は鏡面と拡散の比率をフレネル `F` で決めます（`kS = F`、`kD = 1 − F`）。
 
 ## 光の量の言葉（放射量）
 
@@ -69,15 +67,15 @@ PBR の式は、鏡面と拡散の比率をフレネル `F` で決めます（`k
 
 | 名前 | 意味 | 例えると |
 | --- | --- | --- |
-| 放射束（Flux）Φ | 光源が出す、光の総量（W） | 電球の明るさ（ワット数） |
+| 放射束（Flux）Φ | 光源が出す光の総量（W） | 電球の明るさ（ワット数） |
 | 放射照度（Irradiance）E | 面が受け取る光の量。単位面積あたり（W/m²） | 机の上の明るさ |
-| 放射輝度（Radiance）L | ある方向に進む光の量。単位面積・単位立体角あたり | 目やカメラに入る光。ピクセルの色は、これ |
+| 放射輝度（Radiance）L | ある方向に進む光の量。単位面積・単位立体角あたり | 目やカメラに入る光。ピクセルの色はこれ |
 
 ピクセルの色 ＝ そのピクセルから、カメラに向かう光の放射輝度 `Lo` です。
 
 ### 半球と入射光
 
-面に当たる光は、面の上の半球のあらゆる方向から、来ます。
+面に当たる光は面の上の半球のあらゆる方向から、来ます。
 
 <svg class="fig" viewBox="0 0 601 250" role="img" aria-label="半球と入射・出射方向">
 <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -97,30 +95,26 @@ PBR の式は、鏡面と拡散の比率をフレネル `F` で決めます（`k
 
 <div class="formula">Lo(p, ωo) ＝ Le(p, ωo) ＋ ∫ fr(p, ωi, ωo) · Li(p, ωi) · (N · ωi) dωi</div>
 
-| 記号 | 意味 |
-| --- | --- |
-| Lo(p, ωo) | 点 p から、方向 ωo（カメラ）へ出る光＝ピクセルの色 |
-| Le | 物体自身が発する光（発光。エミッシブ） |
-| ∫ … dωi | 面の上の半球のすべての入射方向について、足し合わせる（積分） |
-| fr(p, ωi, ωo) | BRDF。方向 ωi から入った光のうち、方向 ωo へ反射する割合 |
-| Li(p, ωi) | 方向 ωi から、やってくる光 |
-| (N · ωi) | 入射角による、面の明るさ（ランバートの `cosθ`。斜めの光は同じ面積に薄く当たる） |
+- Lo(p, ωo): 点 p から、方向 ωo（カメラ）へ出る光＝ピクセルの色
+- Le: 物体自身が発する光（発光。エミッシブ）
+- ∫ … dωi: 面の上の半球のすべての入射方向について、足し合わせる（積分）
+- fr(p, ωi, ωo): BRDF。方向 ωi から入った光のうち方向 ωo へ反射する割合
+- Li(p, ωi): 方向 ωi から、やってくる光
+- (N · ωi): 入射角による面の明るさ（ランバートの `cosθ`。斜めの光は同じ面積に薄く当たる）
 
-ゲームではこの積分をそのまま計算できません。そこで光源が数個なら、積分をライトごとの足し算にし（直接光）、空や周囲の景色からの光は、事前計算（IBL）で扱います。
+ゲームではこの積分をそのまま計算できません。そこで光源が数個なら積分をライトごとの足し算にし（直接光）、空や周囲の景色からの光は事前計算（IBL）で扱います。
 
 ## BRDF（反射の割合）
 
-**BRDF**（Bidirectional Reflectance Distribution Function：双方向反射率分布関数）は、「ある方向から入った光がある方向へどれだけ反射するか」を表す関数です。PBR は、BRDF を物理的に正しい形で作ることです。
+**BRDF**（Bidirectional Reflectance Distribution Function：双方向反射率分布関数）は、「ある方向から入った光がある方向へどれだけ反射するか」を表す関数です。PBR は BRDF を物理的に正しい形で作ることです。
 
-| 性質 | 説明 |
-| --- | --- |
-| エネルギー保存 | すべての方向に反射する光の合計が入ってきた光を超えない |
-| 相反性 | 入る方向と出る方向を入れ替えても、値が同じ（光の経路は逆にたどれる） |
-| 非負 | 反射が負になることはない |
+- エネルギー保存: すべての方向に反射する光の合計が入ってきた光を超えない
+- 相反性: 入る方向と出る方向を入れ替えても、値が同じ（光の経路は逆にたどれる）
+- 非負: 反射が負になることはない
 
 ## マイクロファセット理論
 
-**表面は肉眼では平らでも顕微鏡で見れば、微小な凸凹**の集まりです。ひとつひとつは、完全な鏡（マイクロファセット）と考えます。
+**表面は肉眼では平らでも顕微鏡で見れば、微小な凸凹**の集まりです。ひとつひとつは完全な鏡（マイクロファセット）と考えます。
 
 <svg class="fig" viewBox="0 0 600 230" role="img" aria-label="滑らかな面と粗い面のマイクロファセット">
 <defs><marker id="pb" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -141,26 +135,24 @@ PBR の式は、鏡面と拡散の比率をフレネル `F` で決めます（`k
 <text x="320" y="190">反射がばらばらの方向へ散る</text><text x="320" y="212">→ 広くぼんやりしたハイライト</text>
 </svg>
 
-ある方向へ光を反射できるのは、「法線がちょうど、光と視線の真ん中（ハーフベクトル H）を向いている」微小な面だけです。そこで、BRDF は次の 3 つを組み合わせて作ります。
+ある方向へ光を反射できるのは、「法線がちょうど光と視線の真ん中（ハーフベクトル H）を向いている」微小な面だけです。そこで、BRDF は次の 3 つを組み合わせて作ります。
 
 | 項 | 名前 | 何を表すか |
 | --- | --- | --- |
-| D | 法線分布関数 | 微小な面のうち、法線が H を向いているものの割合。粗さで形が変わる |
+| D | 法線分布関数 | 微小な面のうち法線が H を向いているものの割合。粗さで形が変わる |
 | G | 幾何減衰（シャドウイング・マスキング） | 微小な凸凹に光が遮られる（入る光）、反射が遮られる（出る光）割合 |
-| F | フレネル | 角度によって変わる、反射する割合 |
+| F | フレネル | 角度によって変わる反射する割合 |
 
 ## Cook-Torrance BRDF
 
-PBR の標準の BRDF は、**拡散**と鏡面の和です。
+PBR の標準の BRDF は**拡散**と鏡面の和です。
 
 <div class="formula">fr ＝ kD · (albedo / π) ＋ kS · ( D · G · F ) / ( 4 · (N·L) · (N·V) )</div>
 
-| 部分 | 意味 |
-| --- | --- |
-| kD · albedo / π | 拡散（ランバート）。`/π` は半球で積分したとき、エネルギーを超えないための係数 |
-| kS · D·G·F / (4 (N·L)(N·V)) | 鏡面（Cook-Torrance）。分母の 4 (N·L)(N·V) は、微小面の向きから、実際の光の経路に直す係数 |
-| kS ＝ F | 鏡面反射の割合（フレネルが決める） |
-| kD ＝ (1 − kS) × (1 − metallic) | 拡散の割合。鏡面に使われた分は、引く。金属は、0（拡散なし） |
+- kD · albedo / π: 拡散（ランバート）。`/π` は半球で積分したときエネルギーを超えないための係数
+- kS · D·G·F / (4 (N·L)(N·V)): 鏡面（Cook-Torrance）。分母の 4 (N·L)(N·V) は、微小面の向きから実際の光の経路に直す係数
+- kS ＝ F: 鏡面反射の割合（フレネルが決める）
+- kD ＝ (1 − kS) × (1 − metallic): 拡散の割合。鏡面に使われた分は引く。金属は 0（拡散なし）
 
 ### D：法線分布関数（GGX）
 
@@ -168,12 +160,10 @@ GGX（Trowbridge-Reitz）は、現在の標準です。ハイライトのすそ�
 
 <div class="formula">D(h) ＝ α² / ( π · ( (N·H)² · (α² − 1) + 1 )² )　　　α ＝ roughness²</div>
 
-| 値 | 説明 |
-| --- | --- |
-| `N·H` | 法線とハーフベクトルの一致の度合い（1 で一致） |
-| `α = roughness²` | 粗さを二乗する（見た目の変化が均等になる。Disney の方式） |
-| roughness が小さい | `N·H = 1` の周りだけが、とても大きい値 → 小さく鋭いハイライト |
-| roughness が大きい | 広い範囲でなだらか → 広くぼやけたハイライト |
+- `N·H`: 法線とハーフベクトルの一致の度合い（1 で一致）
+- `α = roughness²`: 粗さを二乗する（見た目の変化が均等になる。Disney の方式）
+- roughness が小さい: `N·H = 1` の周りだけが、とても大きい値 → 小さく鋭いハイライト
+- roughness が大きい: 広い範囲でなだらか → 広くぼやけたハイライト
 
 ### G：幾何減衰（Smith + Schlick-GGX）
 
@@ -181,15 +171,13 @@ GGX（Trowbridge-Reitz）は、現在の標準です。ハイライトのすそ�
 
 <div class="formula">G ＝ G1(N·L) · G1(N·V)　　　G1(x) ＝ x / ( x · (1 − k) + k )　　　k ＝ (roughness + 1)² / 8（直接光）</div>
 
-| 値 | 説明 |
-| --- | --- |
-| `N·V` / `N·L` が小さい（浅い角度） | `G1` が小さくなる（光が遮られやすい） |
-| roughness が大きい | 全体に遮られやすい |
-| `k` | 直接光では `(r+1)²/8`、IBL では `r²/2` を使う（Epic Games の近似） |
+- `N·V` / `N·L` が小さい（浅い角度）: `G1` が小さくなる（光が遮られやすい）
+- roughness が大きい: 全体に遮られやすい
+- `k`: 直接光では `(r+1)²/8`、IBL では `r²/2` を使う（Epic Games の近似）
 
 ### F：フレネル（Schlick の近似）
 
-フレネルは、「浅い角度で見るほど、反射が強くなる」現象です。水面を真上から見ると透けますが、遠くの水面は空を鏡のように映します。
+フレネルは「浅い角度で見るほど反射が強くなる」現象です。水面を真上から見ると透けますが、遠くの水面は空を鏡のように映します。
 
 <div class="formula">F ＝ F0 ＋ ( 1 − F0 ) · ( 1 − (H·V) )⁵</div>
 
@@ -205,11 +193,9 @@ GGX（Trowbridge-Reitz）は、現在の標準です。ハイライトのすそ�
 <text x="60" y="244">非金属：真正面はほとんど反射せず、浅い角度で、鏡のようになる</text>
 </svg>
 
-| 値 | 説明 |
-| --- | --- |
-| F0 | 正面から見たときの反射率。物質で決まる |
-| `H·V` | 視線とハーフベクトルの内積。浅い角度ほど、0 に近づく |
-| `(1 − H·V)⁵` | 浅い角度で急に効いてくる項 |
+- F0: 正面から見たときの反射率。物質で決まる
+- `H·V`: 視線とハーフベクトルの内積。浅い角度ほど 0 に近づく
+- `(1 − H·V)⁵`: 浅い角度で急に効いてくる項
 
 ## 材質：メタリック・ラフネス
 
@@ -218,7 +204,7 @@ GGX（Trowbridge-Reitz）は、現在の標準です。ハイライトのすそ�
 | パラメータ | 範囲 | 意味 |
 | --- | --- | --- |
 | ベースカラー（albedo） | RGB | 非金属は拡散色、金属は反射色（F0） |
-| 金属度（metallic） | 0〜1 | 0 ＝ 非金属（プラスチック・木・肌）、1 ＝ 金属。中間は錆びなど、境目に使う |
+| 金属度（metallic） | 0〜1 | 0 ＝ 非金属（プラスチック・木・肌）、1 ＝ 金属。中間は錆びなど境目に使う |
 | 粗さ（roughness） | 0〜1 | 0 ＝ 鏡、1 ＝ ざらざら（マット） |
 
 ### 金属と非金属
@@ -263,7 +249,7 @@ float3 diffuse_color = base_color * (1.0f - metallic);
 | 金 | (1.00, 0.77, 0.34) | |
 | 銅 | (0.95, 0.64, 0.54) | |
 
-金属度は、0 か 1 に近い値にします（中間の値は錆びや汚れの境目だけに、使います）。
+金属度は 0 か 1 に近い値にします（中間の値は錆びや汚れの境目だけに使います）。
 
 ### 材質のサンプル
 
@@ -296,7 +282,7 @@ float3 diffuse_color = base_color * (1.0f - metallic);
 
 ## 直接光の計算（HLSL、DX11）
 
-ここまでの式をそのまま、HLSL にします。**ライトごとに足し算**します。
+ここまでの式をそのまま HLSL にします。**ライトごとに足し算**します。
 
 ```hlsl
 static const float kPi = 3.14159265359f;
@@ -345,12 +331,10 @@ float3 DirectLight(float3 n, float3 v, float3 l, float3 radiance,
 }
 ```
 
-| 注意 | 説明 |
-| --- | --- |
-| `n_dot_v` に最小値 | `0` になると分母がゼロ割りになる |
-| roughness の下限 | 0.04 程度にする（0 だとハイライトが点になって消える） |
-| `radiance` | ライトの色 × 強さ（ポイントライトは、距離の 2 乗で減衰させる） |
-| **最後の `* n_dot_l`** | レンダリング方程式の `(N·ωi)` |
+- `n_dot_v` に最小値: `0` になると分母がゼロ割りになる
+- roughness の下限: 0.04 程度にする（0 だとハイライトが点になって消える）
+- `radiance`: ライトの色 × 強さ（ポイントライトは、距離の 2 乗で減衰させる）
+- **最後の `* n_dot_l`**: レンダリング方程式の `(N·ωi)`
 
 ### ピクセルシェーダー
 
@@ -386,15 +370,15 @@ float4 PSMain(VsOutput input) : SV_TARGET {
 
 ## 間接光（IBL）
 
-**ライトの直接光だけ**では、金属はほぼ真っ黒になります（拡散がなく、反射する相手が光源だけ）。実際の金属は空や周囲の景色を映すので、周囲全体からの光を考えます。これがIBL（Image Based Lighting、画像ベースのライティング）です。
+**ライトの直接光だけ**では金属はほぼ真っ黒になります（拡散がなく、反射する相手が光源だけ）。実際の金属は空や周囲の景色を映すので、周囲全体からの光を考えます。これがIBL（Image Based Lighting、画像ベースのライティング）です。
 
-環境マップ（キューブマップ。周囲 360° の景色の画像）を光源として扱います。レンダリング方程式の積分は、重いので事前に計算しておきます。
+環境マップ（キューブマップ。周囲 360° の景色の画像）を光源として扱います。レンダリング方程式の積分は重いので事前に計算しておきます。
 
 <svg class="fig flow" viewBox="0 0 677 280" role="img" aria-label="IBL：重い積分を、事前計算して、テクスチャにしておく"><defs><marker id="fl52825" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">IBL：重い積分を事前計算して、テクスチャにしておく</text><line x1="202.8" y1="125.0" x2="324.7" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="263.8" y="100.0" text-anchor="middle" style="font-size:12px">半球で積分</text><line x1="233.0" y1="148.0" x2="291.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="262.0" y="142.0" text-anchor="middle" style="font-size:12px">粗さごとにぼかす</text><line x1="455.9" y1="87.0" x2="564.0" y2="130.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="509.9" y="102.7" text-anchor="middle" style="font-size:12px">法線で引く</text><line x1="506.0" y1="148.0" x2="564.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="535.0" y="142.0" text-anchor="middle" style="font-size:12px">反射方向で引く</text><line x1="445.5" y1="213.2" x2="564.0" y2="165.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="504.8" y="183.4" text-anchor="middle" style="font-size:12px">粗さ・角度で引く</text><rect x="28.0" y="128.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="129.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">環境マップ （周囲の景色）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="297.5" y="44.0" width="202" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">拡散用 irradiance マップ</text><circle cx="299.5" cy="46.0" r="10" fill="#2ea043"/><text x="299.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="294.0" y="128.0" width="209" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">鏡面用 プリフィルタ マップ</text><circle cx="296.0" cy="130.0" r="10" fill="#2ea043"/><text x="296.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="354.5" y="212.0" width="88" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">BRDF LUT</text><circle cx="356.5" cy="214.0" r="10" fill="#2ea043"/><text x="356.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="567.0" y="128.0" width="82" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="608.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセル</text><circle cx="569.0" cy="130.0" r="10" fill="#e5a828"/><text x="569.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### 拡散の間接光（irradiance マップ）
 
-法線方向の半球から来る光をあらかじめ平均（積分）して、小さなキューブマップ（32×32 程度）に保存します。法線で引くだけでその向きの拡散の環境光が分かります。球面調和関数（SH）で、9 個の係数に圧縮する方法もあります。
+法線方向の半球から来る光をあらかじめ平均（積分）して、小さなキューブマップ（32×32 程度）に保存します。法線で引くだけでその向きの拡散の環境光が分かります。球面調和関数（SH）で 9 個の係数に圧縮する方法もあります。
 
 ### 鏡面の間接光（split-sum 近似）
 
@@ -405,7 +389,7 @@ float4 PSMain(VsOutput input) : SV_TARGET {
 | 部分 | 事前計算 | 引き方 |
 | --- | --- | --- |
 | prefiltered(R, roughness) | 環境マップを粗さごとにぼかして、ミップマップの各段に保存 | 反射方向 R と粗さ（ミップのレベル）で引く |
-| A, B（BRDF LUT） | 視線角度 (N·V) と 粗さから、F0 の係数を求めた、2D テクスチャ | `(N·V, roughness)` で引く（材質に依らず、1 枚でよい） |
+| A, B（BRDF LUT） | 視線角度 (N·V) と 粗さから、F0 の係数を求めた 2D テクスチャ | `(N·V, roughness)` で引く（材質に依らず 1 枚でよい） |
 
 ```hlsl
 TextureCube irradiance_map : register(t4);
@@ -431,25 +415,21 @@ float3 AmbientIBL(float3 n, float3 v, float3 albedo, float metallic, float rough
 }
 ```
 
-| 注意 | 説明 |
-| --- | --- |
-| 環境マップは HDR | `DXGI_FORMAT_R16G16B16A16_FLOAT`。太陽の明るさは、1 を大きく超える |
-| BRDF LUT | 起動時に生成（またはファイルから）。2 チャンネル（R16G16） |
-| 作るのはビルド時（ツール） | 実行時にやると重い。cmgen・IBLBaker・自作のツールで事前に |
-| AO（アンビエント オクルージョン） | 間接光を凹みで暗くする。`ao_map` を間接光だけに掛ける |
+- 環境マップは HDR: `DXGI_FORMAT_R16G16B16A16_FLOAT`。太陽の明るさは 1 を大きく超える
+- BRDF LUT: 起動時に生成（またはファイルから）。2 チャンネル（R16G16）
+- 作るのはビルド時（ツール）: 実行時にやると重い。cmgen・IBLBaker・自作のツールで事前に
+- AO（アンビエント オクルージョン）: 間接光を凹みで暗くする。`ao_map` を間接光だけに掛ける
 
 ## 色空間とトーンマッピング
 
 PBR は物理的な光の量を足し算するのでリニア空間で計算します。
 
-| 項目 | 説明 |
-| --- | --- |
-| 色のテクスチャ（albedo、emissive） | sRGB（ガンマ付き）で保存されている。`_SRGB` フォーマットで読めば、読み込み時にリニアへ自動変換 |
-| データのテクスチャ（法線、metallic、roughness、AO） | リニア。sRGB にしない |
-| 計算 | すべて、リニア空間 |
-| HDR の値 | 光の量は、1 を超えてよい（太陽は 100 以上など） |
-| トーンマッピング | HDR の値を 0〜1 の画面の範囲に収める。Reinhard、ACES など |
-| ガンマ補正 | 最後に、sRGB へ（レンダーターゲットが `_SRGB` なら自動） |
+- 色のテクスチャ（albedo、emissive）: sRGB（ガンマ付き）で保存されている。`_SRGB` フォーマットで読めば読み込み時にリニアへ自動変換
+- データのテクスチャ（法線、metallic、roughness、AO）: リニア。sRGB にしない
+- 計算: すべてリニア空間
+- HDR の値: 光の量は 1 を超えてよい（太陽は 100 以上など）
+- トーンマッピング: HDR の値を 0〜1 の画面の範囲に収める。Reinhard、ACES など
+- ガンマ補正: 最後に sRGB へ（レンダーターゲットが `_SRGB` なら自動）
 
 ```hlsl
 float3 ToneMapReinhard(float3 c, float exposure) {
@@ -458,33 +438,31 @@ float3 ToneMapReinhard(float3 c, float exposure) {
 }
 ```
 
-トーンマッピングを忘れると、明るい所が真っ白に飛び、見た目がきつくなります。
+トーンマッピングを忘れると明るい所が真っ白に飛び見た目がきつくなります。
 
 ## テクスチャセット
 
-PBR の材質は、複数のテクスチャで与えます。
+PBR の材質は複数のテクスチャで与えます。
 
 | テクスチャ | 内容 | 色空間 |
 | --- | --- | --- |
 | ベースカラー（albedo） | 拡散色 / 金属の色。影・光の情報を含めない | sRGB |
 | 法線マップ | 細かな凹凸（[法線マップ](lighting-normals.md)） | リニア |
 | メタリック・ラフネス | glTF では、G ＝ roughness、B ＝ metallic | リニア |
-| AO（オクルージョン） | 凹みの暗さ。glTF では、R | リニア |
+| AO（オクルージョン） | 凹みの暗さ。glTF では R | リニア |
 | エミッシブ | 自己発光 | sRGB |
 
 !!! warning "テクスチャに光の情報を焼き込まない"
-    ベースカラーに影やハイライトを描き込むと、PBR のライトと二重になり、不自然になります。光はライトに任せるのが、PBR の約束です。
+    ベースカラーに影やハイライトを描き込むと PBR のライトと二重になり、不自然になります。光はライトに任せるのが PBR の約束です。
 
 ## DX11 での実装の流れ
 
-| 手順 | 内容 |
-| --- | --- |
-| 1. 定数バッファ | カメラ位置、ライト（方向・色・強さ）、材質のスカラー（metallic・roughness の倍率） |
-| 2. テクスチャ（SRV） | albedo（`_SRGB`）・法線・metallic-roughness・AO を `PSSetShaderResources` |
-| 3. IBL 用リソース | irradiance・prefilter（キューブマップ）・BRDF LUT をスロットに設定 |
-| 4. サンプラー | `MIN_MAG_MIP_LINEAR` + 異方性（[メッシュとテクスチャ](mesh-textures.md)） |
-| 5. 描画先は HDR | `R16G16B16A16_FLOAT` に描いて、最後にトーンマップしてバックバッファへ |
-| 6. 頂点にタンジェント | 法線マップに必要（[メッシュとテクスチャ](mesh-textures.md)） |
+1. 1. 定数バッファ: カメラ位置、ライト（方向・色・強さ）、材質のスカラー（metallic・roughness の倍率）
+2. 2. テクスチャ（SRV）: albedo（`_SRGB`）・法線・metallic-roughness・AO を `PSSetShaderResources`
+3. 3. IBL 用リソース: irradiance・prefilter（キューブマップ）・BRDF LUT をスロットに設定
+4. 4. サンプラー: `MIN_MAG_MIP_LINEAR` + 異方性（[メッシュとテクスチャ](mesh-textures.md)）
+5. 5. 描画先は HDR: `R16G16B16A16_FLOAT` に描いて、最後にトーンマップしてバックバッファへ
+6. 6. 頂点にタンジェント: 法線マップに必要（[メッシュとテクスチャ](mesh-textures.md)）
 
 ```cpp
 struct LightCB {
@@ -524,13 +502,13 @@ struct MaterialCB {
     ガンマ（sRGB）の扱いが間違っています。albedo は `_SRGB`、法線・metallic・roughness は、リニア。最後にトーンマッピングします。
 
 ??? failure "非金属なのに、ハイライトが色付きになる"
-    `F0` をベースカラーにしています。非金属は、0.04 の無色です（`lerp(0.04, albedo, metallic)`）。
+    `F0` をベースカラーにしています。非金属は 0.04 の無色です（`lerp(0.04, albedo, metallic)`）。
 
 ??? failure "roughness を 0 にして、ハイライトが消える・NaN になる"
-    下限（0.04 程度）を設けます。分母のゼロ割りも、`max(..., 0.0001)` で避けます。
+    下限（0.04 程度）を設けます。分母のゼロ割りも `max(..., 0.0001)` で避けます。
 
 ??? failure "metallic が、0.5 などの中間値ばかり"
-    現実の材質には、ほぼ中間がありません。0 か 1 にします（境目だけ、中間）。
+    現実の材質にはほぼ中間がありません。0 か 1 にします（境目だけ中間）。
 
 ??? failure "albedo テクスチャに影が描き込んである"
     ライトと二重になります。光の情報を除いたテクスチャにします。
@@ -539,12 +517,12 @@ struct MaterialCB {
     DirectX 系と OpenGL 系で、Y（緑）の向きが逆です。モデルのツールの設定を確認します。
 
 ??? failure "パラメータを見た目でライトごとに調整している"
-    PBR の目的に反します。材質は物理の値にして、ライトの強さ・色で調整します。
+    PBR の目的に反します。材質は物理の値にしてライトの強さ・色で調整します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] PBR の核は、エネルギー保存・マイクロファセット・フレネル
+    - [x] PBR の核はエネルギー保存・マイクロファセット・フレネル
     - [x] 材質はベースカラー・金属度・粗さ。非金属の F0 ＝ 0.04、金属は拡散なし・F0 ＝ベースカラー
     - [x] 反射は Cook-Torrance：D（GGX）× G（Smith）× F（Schlick）÷ 4(N·L)(N·V) ＋ ランバート（albedo / π）
     - [x] 直接光はライトごとの足し算、間接光は IBL（irradiance・prefilter・BRDF LUT）

@@ -81,7 +81,7 @@ static_assert(sizeof(PerObject) % 16 == 0, "定数バッファは、16 バイト
 
 ## 16 バイト境界の規則
 
-`cbuffer` は <strong>16 バイトずつの行（`float4` 1 つぶん）</strong>に並びます。1 つの変数が行の境界をまたぐ場合は、次の行の先頭から、始まります。
+`cbuffer` は <strong>16 バイトずつの行（`float4` 1 つぶん）</strong>に並びます。1 つの変数が行の境界をまたぐ場合は、次の行の先頭から始まります。
 
 | 並べた型 | HLSL の配置 | C++ の `float3 + float`（普通のパディング無し）との違い |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ struct Lighting {
 static_assert(sizeof(Lighting) == 48, "HLSL の cbuffer と同じ大きさ");
 ```
 
-配列は、要素ごとに 16 バイトの行を使います。`float values[4]` は HLSL では要素が 4 つの行に分かれ、全体で 52 バイト（最後の要素だけ 4 バイト）になります。`float4 values[4]` で渡して `.x` で使うほうが意図が明確です。
+配列は要素ごとに 16 バイトの行を使います。`float values[4]` は HLSL では要素が 4 つの行に分かれ全体で 52 バイト（最後の要素だけ 4 バイト）になります。`float4 values[4]` で渡して `.x` で使うほうが意図が明確です。
 
 ## 作る
 
@@ -142,11 +142,9 @@ context->VSSetConstantBuffers(0, 1, buffers);              // スロット 0 か
 context->PSSetConstantBuffers(0, 1, buffers);              // ピクセル シェーダーからも、読むなら
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `StartSlot` | 最初のスロット（0〜13）。HLSL の `register(b#)` と対応 |
-| `NumBuffers` | つなぐバッファの数 |
-| `ppConstantBuffers` | バッファの配列 |
+- `StartSlot`: 最初のスロット（0〜13）。HLSL の `register(b#)` と対応
+- `NumBuffers`: つなぐバッファの数
+- `ppConstantBuffers`: バッファの配列
 
 シェーダーの種類ごとに設定します（`VS`、`PS`、`CS`、`GS`、`HS`、`DS`）。同じバッファを複数の段につなげます。
 

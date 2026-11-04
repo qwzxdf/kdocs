@@ -49,13 +49,11 @@ if (SUCCEEDED(hr)) {
 }
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pResource` | `Map` するリソース |
-| `Subresource` | サブリソース番号（バッファは 0。テクスチャはミップと配列で決まる） |
-| `MapType` | 下の表 |
-| `MapFlags` | `D3D11_MAP_FLAG_DO_NOT_WAIT`（GPU が使用中なら待たずに失敗） |
-| `pMappedResource` | 出力: `pData`（ポインター）、`RowPitch`、`DepthPitch` |
+- `pResource`: `Map` するリソース
+- `Subresource`: サブリソース番号（バッファは 0。テクスチャはミップと配列で決まる）
+- `MapType`: 下の表
+- `MapFlags`: `D3D11_MAP_FLAG_DO_NOT_WAIT`（GPU が使用中なら待たずに失敗）
+- `pMappedResource`: 出力: `pData`（ポインター）、`RowPitch`、`DepthPitch`
 
 ### MapType の種類
 
@@ -110,14 +108,12 @@ write_offset_ += size;
 context->UpdateSubresource(buffer.Get(), 0, nullptr, data, 0, 0);
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pDstResource` | 更新先 |
-| `DstSubresource` | サブリソース番号 |
-| `pDstBox` | 更新する範囲（`nullptr` で、全部） |
-| `pSrcData` | 元のデータ（CPU のメモリ） |
-| `SrcRowPitch` | テクスチャの 1 行のバイト数 |
-| `SrcDepthPitch` | 3D テクスチャの 1 層のバイト数 |
+- `pDstResource`: 更新先
+- `DstSubresource`: サブリソース番号
+- `pDstBox`: 更新する範囲（`nullptr` で全部）
+- `pSrcData`: 元のデータ（CPU のメモリ）
+- `SrcRowPitch`: テクスチャの 1 行のバイト数
+- `SrcDepthPitch`: 3D テクスチャの 1 層のバイト数
 
 ```cpp
 // テクスチャの、一部の範囲（x: 10〜50, y: 20〜60）だけを更新する。

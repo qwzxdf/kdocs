@@ -68,15 +68,13 @@ ImGui::Dummy(ImVec2(100, 20));
 
 ## 角の丸み（ImDrawFlags）
 
-| フラグ | 丸くする角 |
-| --- | --- |
-| `ImDrawFlags_RoundCornersAll` | **全部**（`rounding > 0` の既定） |
-| `ImDrawFlags_RoundCornersTop` | 上の 2 つ |
-| `ImDrawFlags_RoundCornersBottom` | 下の 2 つ |
-| `ImDrawFlags_RoundCornersLeft` / `Right` | 左 / 右の 2 つ |
-| `ImDrawFlags_RoundCornersTopLeft` ほか | 1 つの角だけ |
-| `ImDrawFlags_RoundCornersNone` | 丸めない |
-| `ImDrawFlags_Closed` | 折れ線を閉じる |
+- `ImDrawFlags_RoundCornersAll`: **全部**（`rounding > 0` の既定）
+- `ImDrawFlags_RoundCornersTop`: 上の 2 つ
+- `ImDrawFlags_RoundCornersBottom`: 下の 2 つ
+- `ImDrawFlags_RoundCornersLeft` / `Right`: 左 / 右の 2 つ
+- `ImDrawFlags_RoundCornersTopLeft` ほか: 1 つの角だけ
+- `ImDrawFlags_RoundCornersNone`: 丸めない
+- `ImDrawFlags_Closed`: 折れ線を閉じる
 
 ## 色
 
@@ -133,23 +131,19 @@ bool Knob(const char* label, float* value, float min, float max) {
 }
 ```
 
-| 要素 | 役割 |
-| --- | --- |
-| `PushID(label)` | 同じ見た目の部品を複数並べても、ID が衝突しない |
-| `InvisibleButton` | 当たり判定・ドラッグ判定・カーソル位置の確保 |
-| `IsItemActive()` | ドラッグ中か |
-| `GetIO().MouseDelta` | 前フレームからのマウス移動量 |
-| `ImDrawList` | 見た目の描画 |
+- `PushID(label)`: 同じ見た目の部品を複数並べても、ID が衝突しない
+- `InvisibleButton`: 当たり判定・ドラッグ判定・カーソル位置の確保
+- `IsItemActive()`: ドラッグ中か
+- `GetIO().MouseDelta`: 前フレームからのマウス移動量
+- `ImDrawList`: 見た目の描画
 
 ## 描画リストの内部
 
 **描画リストは頂点・インデックス・描画コマンド**からできています。
 
-| メンバー | 内容 |
-| --- | --- |
-| `VtxBuffer` | 頂点（`ImDrawVert`：位置・UV・色） |
-| `IdxBuffer` | インデックス（三角形） |
-| `CmdBuffer` | 描画コマンド（クリップ矩形・テクスチャ・インデックスの範囲） |
+- `VtxBuffer`: 頂点（`ImDrawVert`：位置・UV・色）
+- `IdxBuffer`: インデックス（三角形）
+- `CmdBuffer`: 描画コマンド（クリップ矩形・テクスチャ・インデックスの範囲）
 
 バックエンド（`ImGui_ImplDX11_RenderDrawData` など）がこれらを GPU に送り、コマンドごとに `DrawIndexed` します。1 フレームの描画が重いときは、`ImGui::ShowMetricsWindow` で、頂点数・コマンド数を確認します。
 

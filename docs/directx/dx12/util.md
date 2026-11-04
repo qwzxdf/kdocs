@@ -355,17 +355,15 @@ PSO の深度・ステンシル設定の既定値を返します。
 
 もし、ほかの資料で `d3dx12.h` のコードを見かけたときは、次のように読み替えられます。
 
-| `d3dx12.h` | このサイトの書き方 |
-| --- | --- |
-| `CD3DX12_HEAP_PROPERTIES(type)` | `MakeHeapProperties(type)` |
-| `CD3DX12_RESOURCE_DESC::Buffer(size)` | `MakeBufferDesc(size)` |
-| `CD3DX12_RESOURCE_DESC::Tex2D(...)` | `MakeTexture2DDesc(...)` |
-| `CD3DX12_RESOURCE_BARRIER::Transition(...)` | `MakeTransitionBarrier(...)` |
-| `CD3DX12_RESOURCE_BARRIER::UAV(res)` | `MakeUavBarrier(res)` |
-| `CD3DX12_CPU_DESCRIPTOR_HANDLE h(start, n, inc)` | `OffsetHandle(start, n, inc)` |
-| `CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT)` | `MakeDefaultRasterizerDesc()` |
-| `CD3DX12_RANGE(0, 0)` | `D3D12_RANGE{0, 0}` |
-| `UpdateSubresources(...)` | `GetCopyableFootprints` と `CopyTextureRegion`（[Texture Upload](texture-upload.md)） |
+- `CD3DX12_HEAP_PROPERTIES(type)`: `MakeHeapProperties(type)`
+- `CD3DX12_RESOURCE_DESC::Buffer(size)`: `MakeBufferDesc(size)`
+- `CD3DX12_RESOURCE_DESC::Tex2D(...)`: `MakeTexture2DDesc(...)`
+- `CD3DX12_RESOURCE_BARRIER::Transition(...)`: `MakeTransitionBarrier(...)`
+- `CD3DX12_RESOURCE_BARRIER::UAV(res)`: `MakeUavBarrier(res)`
+- `CD3DX12_CPU_DESCRIPTOR_HANDLE h(start, n, inc)`: `OffsetHandle(start, n, inc)`
+- `CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT)`: `MakeDefaultRasterizerDesc()`
+- `CD3DX12_RANGE(0, 0)`: `D3D12_RANGE{0, 0}`
+- `UpdateSubresources(...)`: `GetCopyableFootprints` と `CopyTextureRegion`（[Texture Upload](texture-upload.md)）
 
 ## 関連ページ
 

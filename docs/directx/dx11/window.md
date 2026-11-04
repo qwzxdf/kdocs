@@ -121,10 +121,8 @@ const UINT height = client.bottom - client.top;
 
 ## ウィンドウ ライブラリを使うとき
 
-| ライブラリ | `HWND` の取り出し |
-| --- | --- |
-| SDL | `SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)` |
-| GLFW | `glfwGetWin32Window(window)`（`#define GLFW_EXPOSE_NATIVE_WIN32`） |
+- SDL: `SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)`
+- GLFW: `glfwGetWin32Window(window)`（`#define GLFW_EXPOSE_NATIVE_WIN32`）
 
 どちらも、`HWND` さえ取り出せれば以降の D3D11 のコードは、同じです。
 

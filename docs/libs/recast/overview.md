@@ -47,12 +47,10 @@ tags:
 <text x="20" y="236" style="font-size:12px">ポリゴン（ノード）の列をたどり、ポリゴンの境界（辺）をまたいで、目標へ向かう</text>
 </svg>
 
-| 概念 | 説明 |
-| --- | --- |
-| ポリゴン | 歩ける面の 1 区画。ノードとして扱う |
-| 共有する辺（ポータル） | 隣り合うポリゴンの境目。ここを越えて、移動する |
-| 経路（ポリゴンの列） | 開始点のポリゴンから、目標のポリゴンまでのたどり方（A* で探す） |
-| 直線化（ストリング プル） | ポリゴンの列から、実際に歩く点の列を作る（角で曲がる最短の線） |
+- ポリゴン: 歩ける面の 1 区画。ノードとして扱う
+- 共有する辺（ポータル）: 隣り合うポリゴンの境目。ここを越えて、移動する
+- 経路（ポリゴンの列）: 開始点のポリゴンから、目標のポリゴンまでのたどり方（A* で探す）
+- 直線化（ストリング プル）: ポリゴンの列から、実際に歩く点の列を作る（角で曲がる最短の線）
 
 ## Recast Navigation の構成
 
@@ -72,11 +70,9 @@ tags:
 
 ## 導入
 
-| 方法 | 内容 |
-| --- | --- |
-| **vcpkg** | `vcpkg install recastnavigation`（Recast・Detour・DetourCrowd・DetourTileCache・DebugUtils が入る） |
-| ソース | [GitHub の recastnavigation](https://github.com/recastnavigation/recastnavigation) を取得し、`Recast/`・`Detour/` などの `Source` と `Include` をプロジェクトに追加 |
-| CMake | `add_subdirectory` で取り込む。ライブラリごとにターゲットがある |
+- **vcpkg**: `vcpkg install recastnavigation`（Recast・Detour・DetourCrowd・DetourTileCache・DebugUtils が入る）
+- ソース: [GitHub の recastnavigation](https://github.com/recastnavigation/recastnavigation) を取得し、`Recast/`・`Detour/` などの `Source` と `Include` をプロジェクトに追加
+- CMake: `add_subdirectory` で取り込む。ライブラリごとにターゲットがある
 
 ```cpp
 #include "Recast.h"
@@ -90,13 +86,11 @@ tags:
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| **敵の追跡・巡回** | 目標の位置まで経路を求めて歩かせる |
-| キャラのクリック移動 | クリックした地面の点を最寄りのナビメッシュ上の点に補正する |
-| 群衆（RTS・ゾンビ） | DetourCrowd で、多数を動かして、お互いを避けさせる |
-| ドアやバリケード | TileCache で、動的に通行可否を変える |
-| ジャンプ・はしご | オフメッシュ リンクで、離れた場所をつなぐ |
+- **敵の追跡・巡回**: 目標の位置まで経路を求めて歩かせる
+- キャラのクリック移動: クリックした地面の点を最寄りのナビメッシュ上の点に補正する
+- 群衆（RTS・ゾンビ）: DetourCrowd で、多数を動かして、お互いを避けさせる
+- ドアやバリケード: TileCache で、動的に通行可否を変える
+- ジャンプ・はしご: オフメッシュ リンクで、離れた場所をつなぐ
 
 ## よくあるミス
 

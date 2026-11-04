@@ -13,31 +13,29 @@ tags:
 `#include "SimpleMath.h"`
 </div>
 
-**SimpleMath**（シンプル マス）は、Microsoft の DirectX Tool Kit（DirectXTK） に入っている、DirectXMath を普通の C++ らしく書けるようにしたラッパーです。DirectXMath の `XMVECTOR` と `XMFLOAT3` を 1 つの型（`Vector3`）にまとめ、`+`、`-`、`*` などの演算子とメンバ関数（`v.Length()`、`v.Dot(w)`）で書けます。メンバ変数にも計算にも同じ型でそのまま使えます（16 バイト境界の問題もありません）。内部では DirectXMath を呼ぶので、遅くはなりません。普通のゲームのコードは、SimpleMath で書き、本当に速さが必要な所だけ、DirectXMath を直接使うのが、おすすめです。このサイトのサンプルは、SimpleMath の型で書き、座標系は左手系・Y-up・+Z が前にそろえています（SimpleMath の `Create…` 関数は右手系なので、そこだけ注意が必要です。[下](#convention)）。
+**SimpleMath**（シンプル マス）は、Microsoft の DirectX Tool Kit（DirectXTK） に入っている、DirectXMath を普通の C++ らしく書けるようにしたラッパーです。DirectXMath の `XMVECTOR` と `XMFLOAT3` を 1 つの型（`Vector3`）にまとめ `+`、`-`、`*` などの演算子とメンバ関数（`v.Length()`、`v.Dot(w)`）で書けます。メンバ変数にも計算にも同じ型でそのまま使えます（16 バイト境界の問題もありません）。内部では DirectXMath を呼ぶので、遅くはなりません。普通のゲームのコードは SimpleMath で書き本当に速さが必要な所だけ、DirectXMath を直接使うのが、おすすめです。このサイトのサンプルは SimpleMath の型で書き座標系は左手系・Y-up・+Z が前にそろえています（SimpleMath の `Create…` 関数は右手系なので、そこだけ注意が必要です。[下](#convention)）。
 
 !!! tip "ポイント"
     - 型は <strong>`Vector2` / `Vector3` / `Vector4`、`Matrix`、`Quaternion`、`Plane`、`Ray`、`Color`、`Viewport`</strong>。<strong>`DirectX::SimpleMath` 名前空間</strong>。
-    - 演算子とメンバ関数で書ける。メンバにも、`vector` の要素にもできる（アラインメントの問題なし）。
-    - `XMVECTOR` / `XMMATRIX` に、自動で変換できる。DirectXMath の関数も、そのまま呼べる。
+    - 演算子とメンバ関数で書ける。メンバにも `vector` の要素にもできる（アラインメントの問題なし）。
+    - `XMVECTOR` / `XMMATRIX` に自動で変換できる。DirectXMath の関数もそのまま呼べる。
     - SimpleMath の `Create…`（`CreateLookAt` など）と `Vector3::Forward` は右手系（前は −Z）。このサイトは左手系・+Z が前なのでビュー・射影は DirectXMath の `LH` 関数を使い、前は自前の `kForward`を使う（[下](#convention)）。
     - 行ベクトル規約（`v * M`）。掛け順は左から右（`S * R * T`）。
     - 導入は vcpkg の `directxtk`（SimpleMath を含む）。
 
 !!! info "このページを読む前に"
-    - [ゲーム数学](index.md)（このセクション全体の地図と、読む順番）
+    - [ゲーム数学](index.md)（このセクション全体の地図と読む順番）
     - [座標系](coordinate-systems.md)（このサイトの座標系の約束）
 
 ## 導入（Visual Studio）
 
-SimpleMath は、**DirectX Tool Kit** に含まれています（[GitHub](https://github.com/microsoft/DirectXTK)）。
+SimpleMath は**DirectX Tool Kit** に含まれています（[GitHub](https://github.com/microsoft/DirectXTK)）。
 
-| 方法 | 手順 |
-| --- | --- |
-| vcpkg | `vcpkg install directxtk:x64-windows`（[外部ライブラリの入れ方](../vs/libraries.md#vcpkg)）。`#include <SimpleMath.h>` で使える |
-| ソースを追加 | DirectXTK のリポジトリの `Inc/SimpleMath.h`、`Inc/SimpleMath.inl`、`Src/SimpleMath.cpp` をプロジェクトに追加する。DirectXMath があれば、SimpleMath だけをソースで追加するのが簡単 |
-| NuGet | `directxtk_desktop_win10` パッケージ |
+- vcpkg: `vcpkg install directxtk:x64-windows`（[外部ライブラリの入れ方](../vs/libraries.md#vcpkg)）。`#include <SimpleMath.h>` で使える
+- ソースを追加: DirectXTK のリポジトリの `Inc/SimpleMath.h`、`Inc/SimpleMath.inl`、`Src/SimpleMath.cpp` をプロジェクトに追加する。DirectXMath があれば、SimpleMath だけをソースで追加するのが簡単
+- NuGet: `directxtk_desktop_win10` パッケージ
 
-DirectXMath（`<DirectXMath.h>`）は、Windows SDK に含まれるので、別に入れる必要はありません。
+DirectXMath（`<DirectXMath.h>`）は Windows SDK に含まれるので、別に入れる必要はありません。
 
 ```cpp
 #include <SimpleMath.h>
@@ -101,7 +99,7 @@ player += direction * (3.0f * dt);            // 加算代入、スカラー倍
 | `Vector3::Right` / `Left` | `(1,0,0)` / `(-1,0,0)` | 右・左 |
 | `Vector3::Forward` / `Backward` | `(0,0,-1)` / `(0,0,1)` | 右手系の前は −Z。このサイトの左手系（前が +Z）では使わない（[下](#convention)） |
 
-`Forward` が `(0, 0, -1)` であることに注意します。これは右手系の「前」です。このサイトは左手系なので、`Vector3::Forward` と `Backward` の意味が逆になります。自前の定数（`kForward`）を使います（[座標系](coordinate-systems.md)）。
+`Forward` が `(0, 0, -1)` であることに注意します。これは右手系の「前」です。このサイトは左手系なので `Vector3::Forward` と `Backward` の意味が逆になります。自前の定数（`kForward`）を使います（[座標系](coordinate-systems.md)）。
 
 ## Matrix
 
@@ -130,7 +128,7 @@ Matrix mvp = world * view * proj;
 | `Matrix::CreateFromAxisAngle(axis, angle)` | 任意の軸まわりの[回転](rotation.md#quaternion)（軸と角度） | `XMMatrixRotationAxis` |
 | `Matrix::CreateFromQuaternion(q)` | [クォータニオン](rotation.md#quaternion)から | `XMMatrixRotationQuaternion` |
 | `Matrix::CreateFromYawPitchRoll(yaw, pitch, roll)` | [オイラー角](rotation.md#euler)から | `XMMatrixRotationRollPitchYaw` |
-| `Matrix::CreateWorld(position, forward, up)` | 位置と向きから、[ワールド行列](../3d/transforms-mvp.md#model)。**右手系の前（−Z）を想定**。このサイトでは使わず、自前の `MakeWorld`（[下](#convention)） | なし（自分で組む） |
+| `Matrix::CreateWorld(position, forward, up)` | 位置と向きから[ワールド行列](../3d/transforms-mvp.md#model)。**右手系の前（−Z）を想定**。このサイトでは使わず自前の `MakeWorld`（[下](#convention)） | なし（自分で組む） |
 | `Matrix::CreateLookAt(eye, target, up)` | [ビュー行列](../3d/transforms-mvp.md#view)（右手系。このサイトでは `XMMatrixLookAtLH` を使う。[カメラ](../3d/camera.md)） | `XMMatrixLookAtRH` |
 | `Matrix::CreatePerspectiveFieldOfView(fovY, aspect, near, far)` | [透視投影](../3d/projection.md)（右手系。このサイトでは `XMMatrixPerspectiveFovLH`） | `XMMatrixPerspectiveFovRH` |
 | `Matrix::CreateOrthographic(w, h, near, far)` | [正射投影](../3d/projection.md#orthographic)（右手系。このサイトでは `XMMatrixOrthographicLH`） | `XMMatrixOrthographicRH` |
@@ -139,10 +137,10 @@ Matrix mvp = world * view * proj;
 | `m.Decompose(scale, rotation, translation)` | [分解](matrices.md#extract)（拡大・回転・平行移動） | `XMMatrixDecompose` |
 | `m.Translation()` | [平行移動](matrices.md#extract)の成分（4 行目） | `m.r[3]` |
 | `m.Right()` / `m.Up()` | 行列の右・上の方向（回転の軸） | `m.r[0]` / `m.r[1]` |
-| `m.Backward()` | 行列の 3 行目（Z 軸）。このサイトの左手系では、これが前方向。`m.Forward()`（その反対）は使わない | `m.r[2]` |
+| `m.Backward()` | 行列の 3 行目（Z 軸）。このサイトの左手系ではこれが前方向。`m.Forward()`（その反対）は使わない | `m.r[2]` |
 | `Matrix::Lerp(a, b, t)` | 行列の補間（要素ごと。回転の補間には向かない。回転は [Slerp](rotation.md#slerp)） | なし |
 
-ここのメンバ関数名の `Create…` は、すべて静的関数です（`Matrix::CreateRotationY(...)`）。
+ここのメンバ関数名の `Create…` はすべて静的関数です（`Matrix::CreateRotationY(...)`）。
 
 ## Quaternion
 
@@ -183,11 +181,11 @@ Matrix m = Matrix::CreateFromQuaternion(q);
 | `Viewport` | `Viewport vp(0, 0, width, height);`。`vp.Project(world_pos, proj, view, world)`（3D → 画面）、`vp.Unproject(screen_pos, proj, view, world)`（画面 → 3D） |
 | `Color` | `Color(r, g, b, a)`。`Color(Colors::Red)` のような名前付きの色もある |
 
-`Viewport::Unproject` は、マウスのクリック位置から、3D の位置を求める（[ピッキング](../3d/picking-raycast.md)）のに使います。
+`Viewport::Unproject` はマウスのクリック位置から、3D の位置を求める（[ピッキング](../3d/picking-raycast.md)）のに使います。
 
 ## DirectXMath との相互変換
 
-SimpleMath の型は、**`XMVECTOR`、`XMMATRIX`、`XMFLOAT3` などに、自動で変換**できます。
+SimpleMath の型は**`XMVECTOR`、`XMMATRIX`、`XMFLOAT3` などに自動で変換**できます。
 
 ```cpp
 Vector3 v(1, 2, 3);
@@ -205,32 +203,28 @@ XMMATRIX xm = m;
 Matrix m2 = XMMatrixTranslation(1, 2, 3);
 ```
 
-つまり、SimpleMath を基本にして、DirectXMath の関数が必要なときだけ、混ぜて使えます。
+つまり、SimpleMath を基本にして、DirectXMath の関数が必要なときだけ混ぜて使えます。
 
 ## 速さ
 
-| 項目 | 説明 |
-| --- | --- |
-| **内部は DirectXMath** | 各演算が `XMLoad` → 計算 → `XMStore`。1 回の演算は、SIMD |
-| DirectXMath を手で連続して使う場合より、少し遅い | 演算のたびにロード・ストアが入る（コンパイラの最適化でかなり消える） |
-| ふつうのゲームでは、十分速い | 毎フレームの数百〜数千回の演算なら、問題ない |
-| ホット ループ（数万個ぶん）は、`XMVECTOR` で直接 | [SIMD](../optimize/simd.md)、[DirectXMath](directxmath.md) |
+- **内部は DirectXMath**: 各演算が `XMLoad` → 計算 → `XMStore`。1 回の演算は SIMD
+- DirectXMath を手で連続して使う場合より少し遅い: 演算のたびにロード・ストアが入る（コンパイラの最適化でかなり消える）
+- ふつうのゲームでは十分速い: 毎フレームの数百〜数千回の演算なら問題ない
+- ホット ループ（数万個ぶん）は `XMVECTOR` で直接: [SIMD](../optimize/simd.md)、[DirectXMath](directxmath.md)
 
 最適化は計測してからです（[計測](../optimize/measure.md)）。
 
 ## このサイトの規約（左手系・+Z が前） {#convention}
 
-SimpleMath の `Create…` 関数（`CreateLookAt`・`CreatePerspectiveFieldOfView`・`CreateWorld`）と、`Vector3::Forward`・`Matrix::Forward()` は、<strong>右手系（前が −Z）</strong>です。型そのもの（`Vector3`・`Matrix`・`Quaternion`）と、四則演算・内積・外積・`CreateTranslation`・`CreateScale`・`CreateRotationX/Y/Z`・クォータニオンの演算は、手系に依存しません。このサイトの規約（左手系・Y-up・+Z が前）では依存する部分だけを次のように置き換えます。
+SimpleMath の `Create…` 関数（`CreateLookAt`・`CreatePerspectiveFieldOfView`・`CreateWorld`）と `Vector3::Forward`・`Matrix::Forward()` は、<strong>右手系（前が −Z）</strong>です。型そのもの（`Vector3`・`Matrix`・`Quaternion`）と四則演算・内積・外積・`CreateTranslation`・`CreateScale`・`CreateRotationX/Y/Z`・クォータニオンの演算は、手系に依存しません。このサイトの規約（左手系・Y-up・+Z が前）では依存する部分だけを次のように置き換えます。
 
-| 右手系の SimpleMath | このサイトで使うもの |
-| --- | --- |
-| `Matrix::CreateLookAt(eye, target, up)` | `XMMatrixLookAtLH(eye, target, up)` |
-| `Matrix::CreatePerspectiveFieldOfView(...)` | `XMMatrixPerspectiveFovLH(...)` |
-| `Matrix::CreateOrthographic(...)` | `XMMatrixOrthographicLH(...)` |
-| `Matrix::CreateWorld(position, forward, up)` | 自前の `MakeWorld`（下） |
-| `Vector3::Forward`（`(0,0,-1)`） | 自前の `kForward`（`(0,0,1)`） |
-| `m.Forward()` | `m.Backward()`（3 行目。または自前の `ForwardOf`） |
-| 右手系のデータ（glTF など）を取り込む | ルートに `kRightToLeft`（X 反転）を 1 回掛ける（[座標系](coordinate-systems.md#right-to-left)） |
+- `Matrix::CreateLookAt(eye, target, up)`: `XMMatrixLookAtLH(eye, target, up)`
+- `Matrix::CreatePerspectiveFieldOfView(...)`: `XMMatrixPerspectiveFovLH(...)`
+- `Matrix::CreateOrthographic(...)`: `XMMatrixOrthographicLH(...)`
+- `Matrix::CreateWorld(position, forward, up)`: 自前の `MakeWorld`（下）
+- `Vector3::Forward`（`(0,0,-1)`）: 自前の `kForward`（`(0,0,1)`）
+- `m.Forward()`: `m.Backward()`（3 行目。または自前の `ForwardOf`）
+- 右手系のデータ（glTF など）を取り込む: ルートに `kRightToLeft`（X 反転）を 1 回掛ける（[座標系](coordinate-systems.md#right-to-left)）
 
 ```cpp
 inline const Vector3 kForward(0.0f, 0.0f, 1.0f);
@@ -255,19 +249,17 @@ inline Matrix MakeWorld(const Vector3& position, const Vector3& forward, const V
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 外積の向き | 成分の式は同じ（`up.Cross(z)` ＝ 右）。左手系なので幾何的な向きは「左手の法則」になる |
-| 回転の向き | `CreateRotationY(θ)` の正は上から見て時計回り（前 +Z が右 +X へ向く）。右手系の「反時計回り」と逆 |
-| 三角形の巻き方向 | 時計回りが表（Direct3D の既定）。法線は `Cross(v1 - v0, v2 - v0)` |
-| 一貫性 | ビュー・射影を `LH` にそろえる。1 つでも `RH` が混ざると、画面が反転する |
+- 外積の向き: 成分の式は同じ（`up.Cross(z)` ＝ 右）。左手系なので幾何的な向きは「左手の法則」になる
+- 回転の向き: `CreateRotationY(θ)` の正は上から見て時計回り（前 +Z が右 +X へ向く）。右手系の「反時計回り」と逆
+- 三角形の巻き方向: 時計回りが表（Direct3D の既定）。法線は `Cross(v1 - v0, v2 - v0)`
+- 一貫性: ビュー・射影を `LH` にそろえる。1 つでも `RH` が混ざると画面が反転する
 
-DirectXTK には、`#define DIRECTX_MATH_LH` のような全体の設定はありません。上の置き換えを 1 つのヘッダ（`math_conventions.h`）にまとめて、プロジェクト全体で使います（[座標系](coordinate-systems.md)）。
+DirectXTK には `#define DIRECTX_MATH_LH` のような全体の設定はありません。上の置き換えを 1 つのヘッダ（`math_conventions.h`）にまとめて、プロジェクト全体で使います（[座標系](coordinate-systems.md)）。
 
 ## よくあるミス
 
 ??? failure "`Normalize()` の戻り値を使おうとする"
-    `v.Normalize()` は、その場で書き換えて、戻り値はありません。結果を別に欲しいときは、`Vector3 n; v.Normalize(n);` か、コピーしてから `Normalize()` します。
+    `v.Normalize()` はその場で書き換えて、戻り値はありません。結果を別に欲しいときは `Vector3 n; v.Normalize(n);` かコピーしてから `Normalize()` します。
 
 ??? failure "`Vector3::Forward` で前へ進んで、後ろへ進む"
     SimpleMath の `Vector3::Forward` は、`(0, 0, -1)`（右手系の前）です。このサイトは左手系（前が +Z）なので、`kForward` を使います。
@@ -290,7 +282,7 @@ DirectXTK には、`#define DIRECTX_MATH_LH` のような全体の設定はあ�
     - [x] SimpleMath ＝ DirectXMath を普通の C++ で書けるようにしたラッパー（DirectX Tool Kit）
     - [x] 型は `Vector3`、`Matrix`、`Quaternion`、`Ray`、`Plane`、`Viewport`。メンバにも配列にも使える
     - [x] 関数の既定は右手系（前は `(0, 0, -1)`）。このサイトは左手系・+Z が前でビュー・射影は `LH`、前は `kForward`。行ベクトル（`S * R * T`）
-    - [x] `XMVECTOR` / `XMMATRIX` と、自動で変換できる。速さが必要な所だけ DirectXMath を直接
+    - [x] `XMVECTOR` / `XMMATRIX` と自動で変換できる。速さが必要な所だけ DirectXMath を直接
     - [x] 導入は `vcpkg install directxtk`。普段のコードは SimpleMath で
 
 ## 関連ページ

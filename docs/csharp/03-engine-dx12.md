@@ -6,26 +6,26 @@ tags:
 
 # 第 3 章 Engine に DirectX 12 を載せる
 
-エンジンが何も描かないままでは、エディタにつないでも、本当に動いているのか確かめようがありません。そこで、`Engine::Tick` の中で DirectX 12 を使って、ウィンドウを 1 色で塗りつぶすところまで作ります。DirectX 12 の部品（デバイス、キュー、フェンス、スワップ チェーン）の詳しい説明は、[DirectX 12 Guide](../directx/dx12/index.md) にあります。この章で説明するのは、それらを Engine の中に組み込む形と、WPF から使うことを見据えた設計（ウィンドウのリサイズ、例外を境界の外に出さない）だけです。
+エンジンが何も描かないままではエディタにつないでも本当に動いているのか確かめようがありません。そこで、`Engine::Tick` の中で DirectX 12 を使って、ウィンドウを 1 色で塗りつぶすところまで作ります。DirectX 12 の部品（デバイス、キュー、フェンス、スワップ チェーン）の詳しい説明は[DirectX 12 Guide](../directx/dx12/index.md) にあります。この章で説明するのはそれらを Engine の中に組み込む形と WPF から使うことを見据えた設計（ウィンドウのリサイズ、例外を境界の外に出さない）だけです。
 
 !!! info "このページを読む前に"
     - [第 2 章 Engine プロジェクト：DLL の骨組み](02-engine-skeleton.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 ## この章の考え方
 
-DirectX 12 は、GPU に仕事を頼む手順をプログラマーが細かく書く仕組みです。そのため、画面を 1 色で塗るだけでも、デバイス、コマンド キュー、スワップ チェーン、フェンスなど、たくさんの部品が要ります。初めて見ると、量の多さに驚くかもしれません。
+DirectX 12 は GPU に仕事を頼む手順をプログラマーが細かく書く仕組みです。そのため、画面を 1 色で塗るだけでもデバイス、コマンド キュー、スワップ チェーン、フェンスなどたくさんの部品が要ります。初めて見ると量の多さに驚くかもしれません。
 
 まず、全体の流れを言葉で説明しておきます。
 
-1. GPU を選び、窓口（デバイス）を作る。
-2. 仕事の受付（コマンド キュー）を作る。GPU への仕事は、ここに並べて頼む。
-3. 画面に出す絵を入れる板（バック バッファ）の束、つまりスワップ チェーンを作る。裏の板に描いて、表の板と入れ替える。
+1. GPU を選び窓口（デバイス）を作る。
+2. 仕事の受付（コマンド キュー）を作る。GPU への仕事はここに並べて頼む。
+3. 画面に出す絵を入れる板（バック バッファ）の束、つまりスワップ チェーンを作る。裏の板に描いて表の板と入れ替える。
 4. 毎フレーム、「何をするか」の指示書（コマンド リスト）を書いて、キューに出す。
 5. GPU が終わったかどうかを目印（フェンス）で確かめる。終わる前に指示書や板を触ってはいけない。
 
-この章のコードは、この 5 つをそのまま書いたものです。各部品の詳しい意味は、DirectX 12 Guide の各ページにあります。この教材では、「WPF の中に埋め込んでも壊れない」ために必要な点（リサイズ、後片付け、例外の扱い）に絞って説明します。
+この章のコードはこの 5 つをそのまま書いたものです。各部品の詳しい意味は DirectX 12 Guide の各ページにあります。この教材では「WPF の中に埋め込んでも壊れない」ために必要な点（リサイズ、後片付け例外の扱い）に絞って説明します。
 
 DirectX 12 を初めて触る人は、先に [DirectX 12 Guide](../directx/dx12/index.md) の最初の数ページを読んでおくと、この章がずっと読みやすくなります。
 
@@ -35,7 +35,7 @@ DirectX 12 を初めて触る人は、先に [DirectX 12 Guide](../directx/dx12/
 - `Engine::Create` がウィンドウ（`HWND`）にスワップ チェーンを作る。
 - `Engine::Tick` が毎フレーム、色が変わる塗りつぶしを描く。
 - `Engine::Resize` でウィンドウの大きさの変化に追従する。
-- エラーを例外にして、境界で捕まえる（例外を DLL の外に出さない）。
+- エラーを例外にして境界で捕まえる（例外を DLL の外に出さない）。
 
 ## 追加するもの
 
@@ -56,14 +56,12 @@ Engine\
 2. `Engine\third_party\d3dx12\` に置く。
 3. Engine プロジェクトの「追加のインクルード ディレクトリ」に `$(ProjectDir)third_party\d3dx12` を足す。
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `d3dx12.h` | `CD3DX12_RESOURCE_BARRIER` や `CD3DX12_CPU_DESCRIPTOR_HANDLE` など DX12 の構造体を簡単に書くための補助。ヘッダーだけ（ライブラリは不要） |
-| `third_party\` | 外部から持ってきたコードを置くフォルダー。自分のコードと分けておく |
+- `d3dx12.h`: `CD3DX12_RESOURCE_BARRIER` や `CD3DX12_CPU_DESCRIPTOR_HANDLE` など DX12 の構造体を簡単に書くための補助。ヘッダーだけ（ライブラリは不要）
+- `third_party\`: 外部から持ってきたコードを置くフォルダー。自分のコードと分けておく
 
 ## 手順 2：エラー確認のヘルパー
 
-DX12 の関数は、失敗すると `HRESULT`（負の値）を返します。毎回 `if (FAILED(hr))` を書くのは大変なので、失敗したら例外を投げる関数を作ります。
+DX12 の関数は失敗すると `HRESULT`（負の値）を返します。毎回 `if (FAILED(hr))` を書くのは大変なので、失敗したら例外を投げる関数を作ります。
 
 `src\Dx12Util.h`:
 
@@ -87,11 +85,9 @@ inline void ThrowIfFailed(HRESULT hr, const char* what) {
 }  // namespace mini
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `HRESULT` | Windows API の結果コード（32 ビット整数）。成功は 0 以上、失敗は負。`FAILED(hr)` で判定 |
-| `std::runtime_error` | 「実行時に起きたエラー」を表す標準の例外クラス。メッセージを持てる |
-| 例外 | `throw` で投げると、呼び出し元をさかのぼって `catch` まで飛ぶ。DLL の境界を越えさせてはいけない（C# は、C++ の例外を受け取れない。第 33 章） |
+- `HRESULT`: Windows API の結果コード（32 ビット整数）。成功は 0 以上、失敗は負。`FAILED(hr)` で判定
+- `std::runtime_error`: 「実行時に起きたエラー」を表す標準の例外クラス。メッセージを持てる
+- 例外: `throw` で投げると呼び出し元をさかのぼって `catch` まで飛ぶ。DLL の境界を越えさせてはいけない（C# は、C++ の例外を受け取れない。第 33 章）
 
 ## 手順 3：Renderer のヘッダー
 
@@ -304,24 +300,20 @@ void Renderer::WaitForGpu() {
 }  // namespace mini
 ```
 
-この中の各部品は、DX12 Guide の各ページで説明しています。
+この中の各部品は DX12 Guide の各ページで説明しています。
 
-| 部分 | 参照するページ |
-| --- | --- |
-| ①② デバッグ レイヤー、ファクトリー、デバイス | [Device and Factory](../directx/dx12/factory-device.md)、[Debug Layer](../directx/dx12/debug-layer.md) |
-| ③ コマンド キュー | [Command Queue](../directx/dx12/command-queue.md) |
-| ④ スワップ チェーン | [Swap Chain (D3D12)](../directx/dx12/swap-chain.md) |
-| ⑤ RTV とヒープ | [Descriptor Heap](../directx/dx12/descriptor-heap.md)、[Descriptor](../directx/dx12/descriptor.md) |
-| ⑥ アロケーター、リスト、フェンス | [Command Allocator](../directx/dx12/command-allocator.md)、[Command List](../directx/dx12/command-list.md)、[Fence](../directx/dx12/fence.md) |
-| バリア | [Resource Barrier](../directx/dx12/resource-barrier.md) |
-| フレームのスロット | [Frame Resources](../directx/dx12/frame-resources.md) |
+- ①② デバッグ レイヤー、ファクトリー、デバイス: [Device and Factory](../directx/dx12/factory-device.md)、[Debug Layer](../directx/dx12/debug-layer.md)
+- ③ コマンド キュー: [Command Queue](../directx/dx12/command-queue.md)
+- ④ スワップ チェーン: [Swap Chain (D3D12)](../directx/dx12/swap-chain.md)
+- ⑤ RTV とヒープ: [Descriptor Heap](../directx/dx12/descriptor-heap.md)、[Descriptor](../directx/dx12/descriptor.md)
+- ⑥ アロケーター、リスト、フェンス: [Command Allocator](../directx/dx12/command-allocator.md)、[Command List](../directx/dx12/command-list.md)、[Fence](../directx/dx12/fence.md)
+- バリア: [Resource Barrier](../directx/dx12/resource-barrier.md)
+- フレームのスロット: [Frame Resources](../directx/dx12/frame-resources.md)
 
 WPF と組み合わせるうえで、この Renderer の特に大事な点は 2 つです。
 
-| 点 | 理由 |
-| --- | --- |
-| `Resize` が `WaitForGpu` → バック バッファの解放 → `ResizeBuffers` → RTV の作り直しの順 | WPF の中の子ウィンドウは、ユーザーがウィンドウを広げたり縮めたりするたびに大きさが変わる。バック バッファへの参照が残っていると、`ResizeBuffers` が失敗する |
-| デストラクターで `WaitForGpu` | エディタを閉じるとき（またはエンジンを作り直すとき）に GPU が使っている物を解放してクラッシュするのを防ぐ |
+- `Resize` が `WaitForGpu` → バック バッファの解放 → `ResizeBuffers` → RTV の作り直しの順: WPF の中の子ウィンドウは、ユーザーがウィンドウを広げたり縮めたりするたびに大きさが変わる。バック バッファへの参照が残っていると、`ResizeBuffers` が失敗する
+- デストラクターで `WaitForGpu`: エディタを閉じるとき（またはエンジンを作り直すとき）に GPU が使っている物を解放してクラッシュするのを防ぐ
 
 ## 手順 5：Engine に Renderer を持たせる
 
@@ -403,13 +395,11 @@ std::uint64_t Engine::FrameCount() const {
 }  // namespace mini
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `reinterpret_cast<HWND>(desc.window)` | `HWND__*`（公開ヘッダーの型）を `HWND`（`windows.h` の型）として扱う。実体は同じ |
-| `std::make_unique` | `std::unique_ptr` を作る。`new` の素の呼び出しより安全 |
-| `try` / `catch (const std::exception& e)` | 例外を捕まえる。`e.what()` でメッセージを読む |
-| `std::sin` | 正弦。`t` が進むと色がなめらかに変わる |
-| 例外を境界で止める | `Create` / `Resize` / `Tick` は、外から呼ばれる入口。ここから例外が出ると、呼び出し元（C# を含む）の動作が不定になる。必ず中で捕まえる |
+- `reinterpret_cast<HWND>(desc.window)`: `HWND__*`（公開ヘッダーの型）を `HWND`（`windows.h` の型）として扱う。実体は同じ
+- `std::make_unique`: `std::unique_ptr` を作る。`new` の素の呼び出しより安全
+- `try` / `catch (const std::exception& e)`: 例外を捕まえる。`e.what()` でメッセージを読む
+- `std::sin`: 正弦。`t` が進むと色がなめらかに変わる
+- 例外を境界で止める: `Create` / `Resize` / `Tick` は、外から呼ばれる入口。ここから例外が出ると呼び出し元（C# を含む）の動作が不定になる。必ず中で捕まえる
 
 ## 動作確認
 
@@ -418,16 +408,16 @@ std::uint64_t Engine::FrameCount() const {
 ## よくあるミス
 
 ??? failure "`d3dx12.h` が見つからない（`C1083`）"
-    インクルード ディレクトリに `third_party\\d3dx12` を足していないか、`d3dx12.h` だけを置いて `d3dx12_*.h` を置いていません。
+    インクルード ディレクトリに `third_party\\d3dx12` を足していないか `d3dx12.h` だけを置いて `d3dx12_*.h` を置いていません。
 
 ??? failure "`LNK2019`（`D3D12CreateDevice` が未解決）"
-    `d3d12.lib` がリンクされていません。`#pragma comment(lib, "d3d12.lib")` を書いた `.cpp` が、ビルドに含まれているかを確認してください。
+    `d3d12.lib` がリンクされていません。`#pragma comment(lib, "d3d12.lib")` を書いた `.cpp` がビルドに含まれているかを確認してください。
 
 ??? failure "`C4189`、`C4100` などの警告がエラーになる（`/WX`）"
-    未使用の変数や引数を消すか、名前をコメントにしてください（`float /*delta_seconds*/`）。
+    未使用の変数や引数を消すか名前をコメントにしてください（`float /*delta_seconds*/`）。
 
 ??? failure "`Present` が `DXGI_ERROR_INVALID_CALL`"
-    スワップ チェーンを作るときに、デバイスを渡していませんか（D3D12 では、コマンド キューを渡します）。また、フォーマットに `_SRGB` を指定していませんか（フリップ モデルでは指定できません）。
+    スワップ チェーンを作るときにデバイスを渡していませんか（D3D12 では、コマンド キューを渡します）。また、フォーマットに `_SRGB` を指定していませんか（フリップ モデルでは指定できません）。
 
 ## この章で作ったもの
 

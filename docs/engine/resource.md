@@ -180,12 +180,10 @@ int main() {
 
 ## ゲームでの例
 
-| リソース | マネージャ |
-| --- | --- |
-| 画像 | `TextureManager`（パス → テクスチャ） |
-| 音 | `SoundManager` |
-| フォント | `FontManager`（フォント名 + サイズ → フォント） |
-| データ | `MasterData`（アイテム表などを起動時に読む） |
+- 画像: `TextureManager`（パス → テクスチャ）
+- 音: `SoundManager`
+- フォント: `FontManager`（フォント名 + サイズ → フォント）
+- データ: `MasterData`（アイテム表などを起動時に読む）
 
 ## よくあるミス
 

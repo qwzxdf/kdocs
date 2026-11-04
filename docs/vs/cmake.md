@@ -6,26 +6,24 @@ tags:
 
 # CMake で使う
 
-<strong>CMake（シーメイク）</strong> は、「どのファイルをどの設定でビルドするか」を `CMakeLists.txt` というテキストファイルに書いて、Visual Studio のプロジェクトを自動で作ってくれるツールです。Visual Studio は、`.sln` / `.vcxproj` を使わずに、CMake のプロジェクトを「フォルダーを開く」で直接開くこともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
+<strong>CMake（シーメイク）</strong> は「どのファイルをどの設定でビルドするか」を `CMakeLists.txt` というテキストファイルに書いて、Visual Studio のプロジェクトを自動で作ってくれるツールです。Visual Studio は `.sln` / `.vcxproj` を使わずに CMake のプロジェクトを「フォルダーを開く」で直接開くこともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
 
 !!! tip "ポイント"
-    - <strong>学生のうちは、Visual Studio のプロジェクト（`.sln`）で十分。</strong> CMake は、必要になったときに覚えればよい。
-    - CMake のプロジェクトは、Visual Studio の「**フォルダーを開く**」で開く。`CMakeLists.txt` が見つかると、自動で設定される。
-    - 外部ライブラリは、`FetchContent`（ダウンロードして一緒にビルド）か、vcpkg で入れる。
-    - ビルドの設定は `CMakePresets.json` に書くと、チームで共有できる。
+    - <strong>学生のうちは Visual Studio のプロジェクト（`.sln`）で十分。</strong> CMake は必要になったときに覚えればよい。
+    - CMake のプロジェクトは、Visual Studio の「**フォルダーを開く**」で開く。`CMakeLists.txt` が見つかると自動で設定される。
+    - 外部ライブラリは `FetchContent`（ダウンロードして一緒にビルド）か vcpkg で入れる。
+    - ビルドの設定は `CMakePresets.json` に書くとチームで共有できる。
 
 !!! info "このページを読む前に"
-    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [vs/index.md](index.md)（このセクション全体の地図と読む順番）
     - [インストールとプロジェクトの作成](setup.md)（Visual Studio の準備）
 
 ## 使う場面
 
-| 場面 | おすすめ |
-| --- | --- |
-| Windows だけ、Visual Studio だけで開発する | **`.sln` のプロジェクト**（[プロジェクトの作成](setup.md)） |
-| ライブラリが CMake でしか配られていない | CMake でビルドして、できた `.lib` を使う。または vcpkg |
-| Windows 以外（Linux、Mac）でも動かしたい | CMake |
-| 複数の IDE（Visual Studio、VS Code、CLion）で開きたい | CMake |
+- Windows だけ Visual Studio だけで開発する: **`.sln` のプロジェクト**（[プロジェクトの作成](setup.md)）
+- ライブラリが CMake でしか配られていない: CMake でビルドして、できた `.lib` を使う。または vcpkg
+- Windows 以外（Linux、Mac）でも動かしたい: CMake
+- 複数の IDE（Visual Studio、VS Code、CLion）で開きたい: CMake
 
 ## Visual Studio で CMake のプロジェクトを開く
 
@@ -36,19 +34,19 @@ tags:
 
 ![ファイル → 開く。フォルダー、CMake プロジェクトなどが並ぶ](img/file-open-menu.jpg)
 
-フォルダーを開くと、`CMakeLists.txt` が見つかって、CMake の生成が自動で始まります。下の「出力」の出力元が「CMake」になり、生成の経過が出ます。右の「ソリューション エクスプローラー - フォルダー ビュー」には、フォルダーの中身がそのまま並びます。生成の結果は、`out/build/<プリセット名>` に置かれます。
+フォルダーを開くと `CMakeLists.txt` が見つかって、CMake の生成が自動で始まります。下の「出力」の出力元が「CMake」になり生成の経過が出ます。右の「ソリューション エクスプローラー - フォルダー ビュー」には、フォルダーの中身がそのまま並びます。生成の結果は `out/build/<プリセット名>` に置かれます。
 
 ![CMake のフォルダーを開いたところ。上のツールバーに「x64 Debug」と「CMakeGame.exe」、下の出力に CMake の生成の結果が出ている](img/cmake-folder.jpg)
 
-ツールバーの「x64 Debug」は、`CMakePresets.json` に書いたプリセットです。押すと、`x64 Debug`、`x64 Release` と「構成を管理します...」が出ます。Debug と Release は、ここで切り替えます。
+ツールバーの「x64 Debug」は、`CMakePresets.json` に書いたプリセットです。押すと `x64 Debug`、`x64 Release` と「構成を管理します...」が出ます。Debug と Release はここで切り替えます。
 
 ![プリセットのドロップダウン](img/cmake-preset-dropdown.jpg)
 
-ビルドは、メニューの「ビルド」にある「すべてビルド」（Ctrl + Shift + B）です。`.sln` のときの「ソリューションのビルド」に当たります。
+ビルドはメニューの「ビルド」にある「すべてビルド」（Ctrl + Shift + B）です。`.sln` のときの「ソリューションのビルド」に当たります。
 
-![フォルダー ビューのときの、ビルド メニュー](img/cmake-build-menu.jpg)
+![フォルダー ビューのときのビルド メニュー](img/cmake-build-menu.jpg)
 
-成功すると、出力に「すべてビルド が成功しました。」と出ます。下の画面の「[4/4] Linking CXX executable」は Ninja の進行で、最後が `CMakeGame.exe` のリンクです。
+成功すると出力に「すべてビルド が成功しました。」と出ます。下の画面の「[4/4] Linking CXX executable」は Ninja の進行で、最後が `CMakeGame.exe` のリンクです。
 
 ![ビルドの出力](img/cmake-build-output.jpg)
 
@@ -76,24 +74,22 @@ if(MSVC)
 endif()
 ```
 
-| 命令 | 意味 |
-| --- | --- |
-| `cmake_minimum_required` | 必要な CMake のバージョン |
-| `project` | プロジェクトの名前と言語 |
-| `set(CMAKE_CXX_STANDARD 23)` | C++ 言語標準を C++23 に |
-| `add_executable(名前 ソース...)` | 実行ファイルを作る。ソースの一覧 |
-| `add_library(名前 STATIC ソース...)` | ライブラリを作る |
-| `target_include_directories` | インクルードのパス |
-| `target_link_libraries` | リンクするライブラリ |
-| `target_compile_options` | コンパイラのオプション |
-| `find_package` | 入っているライブラリを探す（vcpkg など） |
-| `FetchContent` | ライブラリを**ダウンロードして一緒にビルド** |
+- `cmake_minimum_required`: 必要な CMake のバージョン
+- `project`: プロジェクトの名前と言語
+- `set(CMAKE_CXX_STANDARD 23)`: C++ 言語標準を C++23 に
+- `add_executable(名前 ソース...)`: 実行ファイルを作る。ソースの一覧
+- `add_library(名前 STATIC ソース...)`: ライブラリを作る
+- `target_include_directories`: インクルードのパス
+- `target_link_libraries`: リンクするライブラリ
+- `target_compile_options`: コンパイラのオプション
+- `find_package`: 入っているライブラリを探す（vcpkg など）
+- `FetchContent`: ライブラリを**ダウンロードして一緒にビルド**
 
 ## 外部ライブラリを入れる
 
 ### 方法 A：vcpkg（Visual Studio と相性がよい）
 
-vcpkg を使うには、**ツールチェーン ファイル**を CMake に教えます。`CMakePresets.json` に書くのが定番です。
+vcpkg を使うには**ツールチェーン ファイル**を CMake に教えます。`CMakePresets.json` に書くのが定番です。
 
 ```json
 {
@@ -124,7 +120,7 @@ vcpkg を使うには、**ツールチェーン ファイル**を CMake に教�
 }
 ```
 
-`vcpkg.json`（マニフェスト）にライブラリを書いておくと、CMake の生成時に自動で入ります（[外部ライブラリの入れ方](libraries.md#vcpkg)）。
+`vcpkg.json`（マニフェスト）にライブラリを書いておくと CMake の生成時に自動で入ります（[外部ライブラリの入れ方](libraries.md#vcpkg)）。
 
 ```cmake
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -143,9 +139,9 @@ FetchContent_MakeAvailable(json)
 target_link_libraries(MyGame PRIVATE nlohmann_json::nlohmann_json)
 ```
 
-- 最初の CMake の生成のときに、ライブラリがダウンロードされて、プロジェクトの一部としてビルドされます
+- 最初の CMake の生成のときにライブラリがダウンロードされて、プロジェクトの一部としてビルドされます
 - バージョンを `GIT_TAG` や URL で固定できるので、チームで同じものが使えます
-- ネットワークが必要で、ライブラリが大きいと生成に時間がかかります
+- ネットワークが必要でライブラリが大きいと生成に時間がかかります
 
 ## CMake と Visual Studio プロジェクトの比較
 
@@ -159,7 +155,7 @@ target_link_libraries(MyGame PRIVATE nlohmann_json::nlohmann_json)
 
 ## CMake で .sln を作る
 
-「やっぱり `.sln` で開きたい」ときは、CMake に Visual Studio のプロジェクトを作らせます。
+「やっぱり `.sln` で開きたい」ときは CMake に Visual Studio のプロジェクトを作らせます。
 
 ```powershell
 cmake -S . -B build -G "Visual Studio 18 2026" -A x64

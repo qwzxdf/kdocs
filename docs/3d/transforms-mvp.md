@@ -6,17 +6,17 @@ tags:
 
 # MVP 変換（モデル・ビュー・プロジェクション）
 
-3D の描画の核心が**MVP 変換**です。M（Model：モデル／ワールド）、V（View：ビュー）、P（Projection：プロジェクション）の 3 つの行列でモデルの中の頂点を画面に映る位置まで順番に変換します。この 3 つを CPU で 1 つの行列（`mvp`）に掛け合わせて、GPU に渡し、頂点シェーダーで頂点に掛けるのが、基本の流れです。このページは、3 つの行列がそれぞれ何をするか、DirectX 11 で、どう GPU に渡して使うかをコードで説明します。
+3D の描画の核心が**MVP 変換**です。M（Model：モデル／ワールド）、V（View：ビュー）、P（Projection：プロジェクション）の 3 つの行列でモデルの中の頂点を画面に映る位置まで順番に変換します。この 3 つを CPU で 1 つの行列（`mvp`）に掛け合わせて、GPU に渡し頂点シェーダーで頂点に掛けるのが、基本の流れです。このページは 3 つの行列がそれぞれ何をするか DirectX 11 で、どう GPU に渡して使うかをコードで説明します。
 
 !!! tip "ポイント"
     - <strong>M（ワールド）＝ 物体を世界に置く</strong>。<strong>V（ビュー）＝ カメラから見た座標にする</strong>。P（プロジェクション）＝ 遠近感をつけて、画面に映る範囲にする。
     - 掛け順（行ベクトル規約）は `world * view * proj`（左から右）。頂点は左から掛ける。
-    - CPU で 1 回掛けて（`mvp`）、定数バッファに入れて、GPU に渡す。頂点ごとに 3 回掛けない。
+    - CPU で 1 回掛けて（`mvp`）、定数バッファに入れて GPU に渡す。頂点ごとに 3 回掛けない。
     - HLSL では `row_major float4x4` と `mul(float4(pos, 1), mvp)`（SimpleMath の行列をそのまま渡せる）。
-    - `view * proj` は、カメラが同じなら全オブジェクトで共通。1 回だけ作る。
+    - `view * proj` はカメラが同じなら全オブジェクトで共通。1 回だけ作る。
 
 !!! info "このページを読む前に"
-    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [3d/index.md](index.md)（このセクション全体の地図と読む順番）
     - [行列](../gamemath/matrices.md)（行列の基礎）
     - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
 
@@ -34,7 +34,7 @@ Matrix world = Matrix::CreateScale(scale)
              * Matrix::CreateTranslation(position);
 ```
 
-物体ごとに、1 つずつ持ちます。動くたびに更新します。
+物体ごとに 1 つずつ持ちます。動くたびに更新します。
 
 ### V：ビュー行列 {#view}
 
@@ -45,11 +45,11 @@ Matrix world = Matrix::CreateScale(scale)
 Matrix view = XMMatrixLookAtLH(camera_position, camera_target, Vector3::Up);
 ```
 
-ビュー空間では、カメラが原点にいて、+Z の方向を見て（左手系）、+Y が上、+X が右です。カメラが動くと全部の物体の見え方が変わるので、カメラの更新ごとに作り直す（1 フレームに 1 回）。詳しくは [カメラ](camera.md) を見てください。
+ビュー空間ではカメラが原点にいて、+Z の方向を見て（左手系）、+Y が上、+X が右です。カメラが動くと全部の物体の見え方が変わるので、カメラの更新ごとに作り直す（1 フレームに 1 回）。詳しくは [カメラ](camera.md) を見てください。
 
 ### P：プロジェクション行列
 
-ビュー空間の座標をクリップ空間に変換します。遠近感（遠いものが小さく見える）をつけ、見える範囲（視錐台）を標準の箱に変換します。
+ビュー空間の座標をクリップ空間に変換します。遠近感（遠いものが小さく見える）をつけ見える範囲（視錐台）を標準の箱に変換します。
 
 ```cpp
 float fov_y = DirectX::XMConvertToRadians(60.0f);          // 縦の視野角
@@ -57,7 +57,7 @@ float aspect = width / static_cast<float>(height);          // 画面の縦横�
 Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 1000.0f);   // near=0.1、far=1000
 ```
 
-画面のサイズ（ウィンドウの大きさ）が変わったときだけ、作り直します。詳しくは [投影](projection.md) を見てください。
+画面のサイズ（ウィンドウの大きさ）が変わったときだけ作り直します。詳しくは [投影](projection.md) を見てください。
 
 ## 掛け合わせる
 
@@ -159,25 +159,23 @@ VSOutput main(VSInput input) {
 }
 ```
 
-| 部分 | 意味 |
-| --- | --- |
-| `row_major float4x4` | メモリの並びが行優先であることを HLSL に教える。SimpleMath の `Matrix` を転置せずに渡せる |
-| `mul(v, M)` | 行ベクトル × 行列。C++ の `v * M` と同じ意味 |
-| `float4(input.position, 1.0f)` | 位置なので、w = 1 |
-| `SV_POSITION` | クリップ空間の座標。GPU が、w で割る（透視除算）ところまでやってくれる |
+- `row_major float4x4`: メモリの並びが行優先であることを HLSL に教える。SimpleMath の `Matrix` を転置せずに渡せる
+- `mul(v, M)`: 行ベクトル × 行列。C++ の `v * M` と同じ意味
+- `float4(input.position, 1.0f)`: 位置なので w = 1
+- `SV_POSITION`: クリップ空間の座標。GPU が w で割る（透視除算）ところまでやってくれる
 
 !!! note "列優先（既定）で受けたいとき"
-    `row_major` を付けずに、C++ 側で `.Transpose()`（転置）して送る方法もあります。DirectX の古い資料では、「`XMMatrixTranspose` で転置して送り、HLSL で `mul(M, v)`」と書かれていることが多いです。どちらかに統一します（このカテゴリは `row_major` + `mul(v, M)`）。
+    `row_major` を付けずに C++ 側で `.Transpose()`（転置）して送る方法もあります。DirectX の古い資料では「`XMMatrixTranspose` で転置して送り HLSL で `mul(M, v)`」と書かれていることが多いです。どちらかに統一します（このカテゴリは `row_major` + `mul(v, M)`）。
 
 ### ピクセル シェーダーとの組み合わせ
 
-頂点シェーダーがクリップ空間の座標を返すと、GPU が透視除算（w で割る）とビューポート変換を行い、三角形をピクセルに分解（ラスタライズ）して、ピクセル シェーダーを呼びます。この 2 つは、固定機能（自動）で、自分では書きません。
+頂点シェーダーがクリップ空間の座標を返すと GPU が透視除算（w で割る）とビューポート変換を行い、三角形をピクセルに分解（ラスタライズ）して、ピクセル シェーダーを呼びます。この 2 つは固定機能（自動）で、自分では書きません。
 
 <svg class="fig flow" viewBox="0 0 384 280" role="img" aria-label="シェーダーに渡したあと、GPU が自動でやること"><defs><marker id="fl7326" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">シェーダーに渡したあと、GPU が自動でやること</text><line x1="192.0" y1="87.0" x2="192.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7326)"/><line x1="192.0" y1="171.0" x2="192.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7326)"/><rect x="28.0" y="44.0" width="328" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="192.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">頂点シェーダー （クリップ空間の座標を返す）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="37.0" y="128.0" width="310" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="192.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPUが自動 （w で割る・ビューポート変換）</text><circle cx="39.0" cy="130.0" r="10" fill="#2ea043"/><text x="39.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="70.0" y="212.0" width="244" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="192.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルシェーダー （色を返す）</text><circle cx="72.0" cy="214.0" r="10" fill="#e5a828"/><text x="72.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ## ビューポート（画面への変換）
 
-**ビューポート**は、NDC（−1〜1）の座標を画面のピクセルに変換する設定です。DirectX 11 では、`RSSetViewports` で設定します。
+**ビューポート**は NDC（−1〜1）の座標を画面のピクセルに変換する設定です。DirectX 11 では `RSSetViewports` で設定します。
 
 ```cpp
 D3D11_VIEWPORT viewport = {};
@@ -190,7 +188,7 @@ viewport.MaxDepth = 1.0f;
 context->RSSetViewports(1, &viewport);
 ```
 
-NDC の `(x, y)` が、画面のピクセル `(sx, sy)` に変換されます（Direct3D の画面は、左上が原点、Y が下向き）。
+NDC の `(x, y)` が画面のピクセル `(sx, sy)` に変換されます（Direct3D の画面は、左上が原点、Y が下向き）。
 
 ```text
 sx = (x_ndc * 0.5 + 0.5) * width
@@ -235,7 +233,7 @@ sy = (1 - (y_ndc * 0.5 + 0.5)) * height     ← Y は上下が反転する
 
 <!-- fig:trs-order:end -->
 
-## 手で変換して、確かめる
+## 手で変換して確かめる
 
 GPU が行っている計算を**CPU で再現**できます（デバッグ、ピッキング、UI の位置合わせに使います）。
 
@@ -255,58 +253,54 @@ Vector3 WorldToScreen(const Vector3& world_pos, const Matrix& view, const Matrix
 }
 ```
 
-SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMath](../gamemath/simplemath.md)）。敵の頭上に HP バーを出す、3D の位置に UI を重ねるときに使います。
+SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMath](../gamemath/simplemath.md)）。敵の頭上に HP バーを出す 3D の位置に UI を重ねるときに使います。
 
 ## 規約の確認
 
 3D の画面が**何も映らない・反転する・歪む**ときは規約のずれを疑います。
 
-| 確認すること | 内容 |
-| --- | --- |
-| 掛け順 | `world * view * proj`（行ベクトル）。`proj * view * world` と書いていないか |
-| 座標系 | ビュー・プロジェクションが両方とも左手系（`XMMatrixLookAtLH` と `XMMatrixPerspectiveFovLH`）か |
-| HLSL の行列の並び | `row_major` を付けたか。付けないなら、転置して送ったか |
-| `mul` の順番 | `mul(float4(pos, 1), mvp)`（ベクトルが左） |
-| 三角形の表 | CW が表なら、`FrontCounterClockwise = FALSE`（既定。[深度とカリング](depth-culling.md)） |
-| w の値 | 位置は `w = 1`、方向は `w = 0` |
-| near / far | near が 0 や負でないか（[投影](projection.md)） |
+- 掛け順: `world * view * proj`（行ベクトル）。`proj * view * world` と書いていないか
+- 座標系: ビュー・プロジェクションが両方とも左手系（`XMMatrixLookAtLH` と `XMMatrixPerspectiveFovLH`）か
+- HLSL の行列の並び: `row_major` を付けたか。付けないなら転置して送ったか
+- `mul` の順番: `mul(float4(pos, 1), mvp)`（ベクトルが左）
+- 三角形の表: CW が表なら `FrontCounterClockwise = FALSE`（既定。[深度とカリング](depth-culling.md)）
+- w の値: 位置は `w = 1`、方向は `w = 0`
+- near / far: near が 0 や負でないか（[投影](projection.md)）
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| 物体を描く | 物体ごとに `world` を作り、`world * view_proj` を定数バッファへ |
-| 多数の同じ物体 | インスタンシング。`world` の配列を頂点バッファか構造化バッファで渡す（[描画の最適化](../graphics/pipeline/draw-calls.md)） |
-| カメラが動く | `view` を作り直して、`view_proj` を更新 |
-| ウィンドウをリサイズ | `proj`（アスペクト比）とビューポートを更新 |
-| 3D の位置に UI（HP バー）を出す | `WorldToScreen` で、画面の座標に |
-| デバッグ表示（線・球） | `view_proj` を使って、ワールド座標の線を描く |
+- 物体を描く: 物体ごとに `world` を作り `world * view_proj` を定数バッファへ
+- 多数の同じ物体: インスタンシング。`world` の配列を頂点バッファか構造化バッファで渡す（[描画の最適化](../graphics/pipeline/draw-calls.md)）
+- カメラが動く: `view` を作り直して、`view_proj` を更新
+- ウィンドウをリサイズ: `proj`（アスペクト比）とビューポートを更新
+- 3D の位置に UI（HP バー）を出す: `WorldToScreen` で、画面の座標に
+- デバッグ表示（線・球）: `view_proj` を使って、ワールド座標の線を描く
 
 ## よくあるミス
 
 ??? failure "掛け順を逆にして、何も映らない"
-    行ベクトル規約では `world * view * proj` です。`proj * view * world` にすると、変換が逆順になって、物体が画面の外へ行きます。
+    行ベクトル規約では `world * view * proj` です。`proj * view * world` にすると変換が逆順になって、物体が画面の外へ行きます。
 
 ??? failure "HLSL で行列が転置されて、画面がめちゃくちゃになる"
-    SimpleMath（行優先）と HLSL（既定は列優先）の食い違いです。`row_major` を付けるか、C++ で `.Transpose()` して送ります。
+    SimpleMath（行優先）と HLSL（既定は列優先）の食い違いです。`row_major` を付けるか C++ で `.Transpose()` して送ります。
 
-??? failure "頂点ごとに、3 つの行列を掛ける"
+??? failure "頂点ごとに 3 つの行列を掛ける"
     頂点シェーダーで `mul(mul(mul(v, world), view), proj)` と書くと頂点ごとに 3 回の掛け算が走ります。CPU で `mvp` を 1 回だけ作って、渡します。
 
 ??? failure "位置を `w = 0` で変換して、平行移動が効かない"
     `float4(position, 0)` にすると位置が平行移動されません。位置は `w = 1` です。
 
 ??? failure "定数バッファの大きさが、16 バイトの倍数でない"
-    `CreateBuffer` が失敗します。`float3` を使うと、16 バイト境界に合わせるための**パディング**が必要です。`float3 + float` の組にするか、パディングを足します。
+    `CreateBuffer` が失敗します。`float3` を使うと 16 バイト境界に合わせるための**パディング**が必要です。`float3 + float` の組にするかパディングを足します。
 
 ??? failure "カメラの後ろの点を画面に出す"
-    `clip.w <= 0` の点は、カメラの後ろです。`w` で割ると反転した位置に出ます。`w` を確認します。
+    `clip.w <= 0` の点はカメラの後ろです。`w` で割ると反転した位置に出ます。`w` を確認します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>M（ワールド）＝ 世界に置く、V（ビュー）＝ カメラから見る、P（プロジェクション）＝ 遠近感</strong>
-    - [x] 行ベクトル規約：`world * view * proj`。CPU で 1 回掛けて、定数バッファで GPU へ
+    - [x] <strong>M（ワールド）＝ 世界に置く、V（ビュー）＝ カメラから見る P（プロジェクション）＝ 遠近感</strong>
+    - [x] 行ベクトル規約：`world * view * proj`。CPU で 1 回掛けて定数バッファで GPU へ
     - [x] HLSL は `row_major float4x4` + `mul(float4(pos, 1), mvp)`
     - [x] `view * proj` は共通。物体ごとに `world` だけ掛ける
     - [x] 画面に何も出ないときは、掛け順・手系・行列の並び・w を確認する

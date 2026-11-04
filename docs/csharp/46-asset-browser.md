@@ -6,11 +6,11 @@ tags:
 
 # 第 46 章 アセット ブラウザ
 
-この章で、プロジェクトのフォルダーの中身（シーン、テクスチャ、モデル…）を一覧する、アセット ブラウザを作ります。フォルダーの木、ファイルの一覧、検索、画像のサムネイル、フォルダーの変更の自動検出、そしてファイルをビューポートへドラッグ アンド ドロップして物を置く操作までを扱います。第 5 部（エディタの機能）の最後の章です。
+この章でプロジェクトのフォルダーの中身（シーン、テクスチャ、モデル…）を一覧するアセット ブラウザを作ります。フォルダーの木、ファイルの一覧、検索、画像のサムネイル、フォルダーの変更の自動検出、そしてファイルをビューポートへドラッグ アンド ドロップして物を置く操作までを扱います。第 5 部（エディタの機能）の最後の章です。
 
 !!! info "このページを読む前に"
     - [第 45 章 保存と読み込み](45-save-load.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
@@ -23,16 +23,16 @@ tags:
     | `Asset/AssetView.xaml`（変更） | フォルダーの木とファイルの一覧の画面に作り直す |
 
 !!! note "第 16〜20 章のダミーからの置き換え"
-    アセット ブラウザは、第 16 章でダミーのデータ（`AssetEntry`・`FolderEntry`・`FileEntry`）を並べるところから始め、第 17 章で `AssetScanner` に、第 20 章で `IAssetScanner` に、フォルダーを読ませました。この章で、次のように本物へ置き換えます。
+    アセット ブラウザは第 16 章でダミーのデータ（`AssetEntry`・`FolderEntry`・`FileEntry`）を並べるところから始め、第 17 章で `AssetScanner` に第 20 章で `IAssetScanner` にフォルダーを読ませました。この章で次のように本物へ置き換えます。
 
-    - `AssetEntry` は、フォルダーとファイルを 1 つのクラスにまとめます（`FolderEntry` と `FileEntry` は消します）。
-    - `IAssetScanner` と `AssetScanner` は、変更の監視もできる `IAssetService` と `AssetService` に置き換えます。コンテナーへの登録（`AssetModule` の `RegisterTypes`）も、`IAssetService` に変えます。
-    - `AssetViewModel` と `AssetView.xaml` は、新しいサービスを使う形に書き換えます。
+    - `AssetEntry` はフォルダーとファイルを 1 つのクラスにまとめます（`FolderEntry` と `FileEntry` は消します）。
+    - `IAssetScanner` と `AssetScanner` は変更の監視もできる `IAssetService` と `AssetService` に置き換えます。コンテナーへの登録（`AssetModule` の `RegisterTypes`）も `IAssetService` に変えます。
+    - `AssetViewModel` と `AssetView.xaml` は新しいサービスを使う形に書き換えます。
 
 
 ## 作る前に知っておく 4 つの問題
 
-アセット ブラウザは、ファイル システムの見た目です。作り始めると、次の問題にぶつかります。
+アセット ブラウザはファイル システムの見た目です。作り始めると次の問題にぶつかります。
 
 | 問題 | 内容 | 対処 |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ tags:
 
 この章のゴールは次のとおりです。
 
-- プロジェクト フォルダーを選ぶと、左にフォルダーの木、右にファイルの一覧が出る。
+- プロジェクト フォルダーを選ぶと左にフォルダーの木、右にファイルの一覧が出る。
 - 検索ボックスでファイル名を絞り込める。画像はサムネイルが出る。
 - エクスプローラーでファイルを追加／削除すると、自動で更新される。
 - `.scene` をダブルクリックで開ける。
@@ -103,13 +103,13 @@ public partial class AssetEntry : ObservableObject
 }
 ```
 
-`Path.GetFileName` と `Path.GetExtension` で、パスからファイル名と拡張子（`.png`）を取り出します。拡張子の比較は、大文字小文字を区別したくないので、`ToLowerInvariant()`（カルチャーに依存しない小文字化）にそろえます。`".png" or ".jpg" or …` は switch 式のパターンで、複数の値のどれかに当てはまる、という意味です。
+`Path.GetFileName` と `Path.GetExtension` でパスからファイル名と拡張子（`.png`）を取り出します。拡張子の比較は大文字小文字を区別したくないので、`ToLowerInvariant()`（カルチャーに依存しない小文字化）にそろえます。`".png" or ".jpg" or …` は switch 式のパターンで、複数の値のどれかに当てはまるという意味です。
 
 アイコンの代わりに絵文字を使っているのは、画像ファイルを用意せずに済ませる簡易な方法です。フォントによって見え方が変わるので、本格的には画像リソースを用意します。`ImageSource` は WPF の画像の基底クラスで、`BitmapImage` などがこれを継承しています。
 
 ## サービス
 
-フォルダーの一覧と、変更の監視を担当するサービスです。
+フォルダーの一覧と変更の監視を担当するサービスです。
 
 ```csharp title="Asset/IAssetService.cs（新規）"
 namespace Editor.Asset;
@@ -208,15 +208,15 @@ public sealed class AssetService : IAssetService, IDisposable
 }
 ```
 
-`FileSystemWatcher` は、フォルダーを監視して `Created`、`Deleted`、`Renamed` などを通知する標準クラスです。`IncludeSubdirectories` でサブフォルダーも対象にし、`EnableRaisingEvents = true` で監視を始めます。
+`FileSystemWatcher` はフォルダーを監視して `Created`、`Deleted`、`Renamed` などを通知する標準クラスです。`IncludeSubdirectories` でサブフォルダーも対象にし、`EnableRaisingEvents = true` で監視を始めます。
 
-このクラスで気をつけるのは、2 つです。
+このクラスで気をつけるのは 2 つです。
 
-1つ目は、`FileSystemWatcher` のイベントが UI ではない別のスレッドで呼ばれることです。UI のタイマーや `HashSet` をそのスレッドから触ると、おかしくなります。だから、`Dispatcher.BeginInvoke` で UI スレッドへ回してから触っています（第 24 章）。
+1つ目は `FileSystemWatcher` のイベントが UI ではない別のスレッドで呼ばれることです。UI のタイマーや `HashSet` をそのスレッドから触ると、おかしくなります。だから、`Dispatcher.BeginInvoke` で UI スレッドへ回してから触っています（第 24 章）。
 
-2つ目は、通知が短時間に何度も来ることです。ファイル 1 つをコピーしただけでも、複数のイベントが飛んできます。そのたびに一覧を更新すると、重くてちらつきます。そこでデバウンスを使います。イベントが来るたびにタイマーを延長して、0.3 秒、何も来なくなってから 1 回だけ通知します。
+2つ目は通知が短時間に何度も来ることです。ファイル 1 つをコピーしただけでも複数のイベントが飛んできます。そのたびに一覧を更新すると重くてちらつきます。そこでデバウンスを使います。イベントが来るたびにタイマーを延長して、0.3 秒、何も来なくなってから 1 回だけ通知します。
 
-`List` の `Directory.EnumerateFiles` は、全部を配列にする `GetFiles` と違い、遅延評価で 1 つずつ取り出します。`OrderBy(…, StringComparer.OrdinalIgnoreCase)` で大文字小文字を区別せずに並べ、フォルダーを先に、ファイルを後に連結しています。`.git` のような隠しフォルダーは除きます。
+`List` の `Directory.EnumerateFiles` は全部を配列にする `GetFiles` と違い遅延評価で 1 つずつ取り出します。`OrderBy(…, StringComparer.OrdinalIgnoreCase)` で大文字小文字を区別せずに並べフォルダーを先にファイルを後に連結しています。`.git` のような隠しフォルダーは除きます。
 
 なお、`FileSystemWatcher` は内部のバッファーがあふれると `Error` を起こして、変更の一部を取りこぼします。そのときは、全体を読み直すのが安全です。
 
@@ -324,11 +324,11 @@ public partial class AssetViewModel : ObservableObject
     }
 ```
 
-検索の絞り込みに使っている `CollectionViewSource.GetDefaultView(コレクション)` は、コレクションを加工して見せる窓（`ICollectionView`）です。元のコレクションは変えずに、絞り込み、並べ替え、グループ化ができます。`Filter` に条件（`true` を返した要素だけが表示される）を渡し、条件が変わったら `Refresh()` でかけ直します。ビューには、元の `Entries` ではなく `EntriesView` を渡す点に注意してください。
+検索の絞り込みに使っている `CollectionViewSource.GetDefaultView(コレクション)` はコレクションを加工して見せる窓（`ICollectionView`）です。元のコレクションは変えずに絞り込み並べ替えグループ化ができます。`Filter` に条件（`true` を返した要素だけが表示される）を渡し、条件が変わったら `Refresh()` でかけ直します。ビューには元の `Entries` ではなく `EntriesView` を渡す点に注意してください。
 
-`OpenFolderDialog` は、.NET 8 で WPF に加わった、フォルダーを選ぶ標準ダイアログです。`_ = LoadThumbnailAsync(entry)` の `_ =` は、「`Task` を待たずに開始して、戻り値は意図して無視する」という書き方です。`OpenEntry` は `async Task` で、`[RelayCommand]` が `AsyncRelayCommand` を生成します（第 17 章）。例外は黙って消えるので、`OpenPathAsync` の内部で例外を処理して、ログに出す形にします。
+`OpenFolderDialog` は.NET 8 で WPF に加わった、フォルダーを選ぶ標準ダイアログです。`_ = LoadThumbnailAsync(entry)` の `_ =` は「`Task` を待たずに開始して、戻り値は意図して無視する」という書き方です。`OpenEntry` は `async Task` で `[RelayCommand]` が `AsyncRelayCommand` を生成します（第 17 章）。例外は黙って消えるので `OpenPathAsync` の内部で例外を処理して、ログに出す形にします。
 
-`ISceneFileService` には、パスを指定して開く `OpenPathAsync(string path)` を足します。第 45 章の `OpenAsync` から、ダイアログの部分を取り出した形です。
+`ISceneFileService` にはパスを指定して開く `OpenPathAsync(string path)` を足します。第 45 章の `OpenAsync` からダイアログの部分を取り出した形です。
 
 ### フォルダーの木
 
@@ -366,7 +366,7 @@ private void Fill(FolderNode node)
 }
 ```
 
-大きなプロジェクトでは、すべてのサブフォルダーを最初に読むと遅くなります。本来は、ノードが展開されたときに読む（遅延読み込み）のが正解ですが、この教材では簡単さを優先しています。
+大きなプロジェクトではすべてのサブフォルダーを最初に読むと遅くなります。本来はノードが展開されたときに読む（遅延読み込み）のが正解ですが、この教材では簡単さを優先しています。
 
 ### サムネイルの非同期読み込み
 
@@ -406,12 +406,12 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 }
 ```
 
-ここは重い画像を扱うので、一つずつ理由を押さえます。
+ここは重い画像を扱うので一つずつ理由を押さえます。
 
-- `DecodePixelWidth = 96`：読み込む時点で縮小します。4096 ピクセルの画像でも、96 ピクセル分のメモリで済みます。あとから小さく表示するだけでは、元のサイズでメモリを使ってしまうので、必ず指定します。
-- `BitmapCacheOption.OnLoad`：読み込みが終わったらファイルを閉じます。指定しないと、ファイルを掴みっぱなしで、削除や上書きができなくなります。
-- `Freeze()`：変更不可にして、別のスレッドから渡せるようにします。凍結していない WPF のオブジェクトは、作ったスレッドでしか触れません。ここでは別のスレッドで作って、UI スレッドで使うので、必須です。
-- `SemaphoreSlim(4)`：同時に入れる数を 4 に制限します。サムネイルを 1000 枚、一斉に読み始めると、メモリも CPU も尽きるからです。`WaitAsync` で枠を待ち、`finally` で必ず `Release` して返します。
+- `DecodePixelWidth = 96`：読み込む時点で縮小します。4096 ピクセルの画像でも 96 ピクセル分のメモリで済みます。あとから小さく表示するだけでは元のサイズでメモリを使ってしまうので、必ず指定します。
+- `BitmapCacheOption.OnLoad`：読み込みが終わったらファイルを閉じます。指定しないとファイルを掴みっぱなしで、削除や上書きができなくなります。
+- `Freeze()`：変更不可にして別のスレッドから渡せるようにします。凍結していない WPF のオブジェクトは、作ったスレッドでしか触れません。ここでは別のスレッドで作って、UI スレッドで使うので必須です。
+- `SemaphoreSlim(4)`：同時に入れる数を 4 に制限します。サムネイルを 1000 枚、一斉に読み始めるとメモリも CPU も尽きるからです。`WaitAsync` で枠を待ち `finally` で必ず `Release` して返します。
 - 壊れた画像は `null` を返して、サムネイルなし（記号のまま）にします。
 
 ## ビュー
@@ -503,13 +503,13 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 </UserControl>
 ```
 
-一覧は、`ListBox` の `ItemsPanel` を `WrapPanel` に差し替えて、タイル状に折り返す並びにしています。リストの並べ方は、`ItemsPanelTemplate` で変えられます。`SelectionMode="Extended"` で `Ctrl`/`Shift` による複数選択ができ、`EventSetter` は、スタイルの中でイベント ハンドラーを結ぶための要素で、ここでは各項目のダブルクリックに使っています。`NotNullToCollapsed` は、`null` でなければ `True` を返すコンバーターです（第 14 章の要領で作ります）。
+一覧は `ListBox` の `ItemsPanel` を `WrapPanel` に差し替えて、タイル状に折り返す並びにしています。リストの並べ方は `ItemsPanelTemplate` で変えられます。`SelectionMode="Extended"` で `Ctrl`/`Shift` による複数選択ができ `EventSetter` は、スタイルの中でイベント ハンドラーを結ぶための要素で、ここでは各項目のダブルクリックに使っています。`NotNullToCollapsed` は `null` でなければ `True` を返すコンバーターです（第 14 章の要領で作ります）。
 
-ここには落とし穴が 1 つあります。`ListBox` は既定で仮想化されますが、`WrapPanel` に変えると仮想化されなくなります。数千項目を扱うなら、別のライブラリを使うか、行ごとの表示に切り替える必要があります。
+ここには落とし穴が 1 つあります。`ListBox` は既定で仮想化されますが、`WrapPanel` に変えると仮想化されなくなります。数千項目を扱うなら別のライブラリを使うか行ごとの表示に切り替える必要があります。
 
 ### コードビハインド
 
-ドラッグのような、画面操作そのものの処理は、ビューのコードビハインドに置きます。
+ドラッグのような画面操作そのものの処理は、ビューのコードビハインドに置きます。
 
 ```csharp
 private void OnFolderSelected(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -540,7 +540,7 @@ private void OnEntryMouseMove(object sender, MouseEventArgs e)
 }
 ```
 
-ドラッグは、押した位置から少し動いてから始めます。クリックのつもりが、ほんの少しの手ぶれでドラッグになるのを防ぐためで、「少し」の目安は OS の値（`SystemParameters.MinimumHorizontalDragDistance` など）を使います。ドラッグするデータは `DataFormats.FileDrop`（ファイルのパスの `string[]`）という標準の形式にします。エクスプローラーからのドロップと同じ形式なので、受ける側は 1 つの処理で両方を扱えます。
+ドラッグは押した位置から少し動いてから始めます。クリックのつもりがほんの少しの手ぶれでドラッグになるのを防ぐためで、「少し」の目安は OS の値（`SystemParameters.MinimumHorizontalDragDistance` など）を使います。ドラッグするデータは `DataFormats.FileDrop`（ファイルのパスの `string[]`）という標準の形式にします。エクスプローラーからのドロップと同じ形式なので、受ける側は 1 つの処理で両方を扱えます。
 
 ## ビューポートへドロップ
 
@@ -566,7 +566,7 @@ public static partial bool DragQueryPoint(nint drop, out POINT point);
 public static partial void DragFinish(nint drop);
 ```
 
-`ViewportHost` の `BuildWindowCore` で `DragAcceptFiles(_hwnd, true)` を呼び、「このウィンドウはファイルのドロップを受け付ける」と宣言します。そして `WndProc` で、`WM_DROPFILES` を受け取ります。
+`ViewportHost` の `BuildWindowCore` で `DragAcceptFiles(_hwnd, true)` を呼び「このウィンドウはファイルのドロップを受け付ける」と宣言します。そして `WndProc` で `WM_DROPFILES` を受け取ります。
 
 ```csharp
 public event EventHandler<ViewportDropEventArgs>? FilesDropped;
@@ -592,9 +592,9 @@ case Win32.WM_DROPFILES:
 }
 ```
 
-`wParam` は、ドロップ情報のハンドル（`HDROP`）です。`DragQueryFile` の使い方は少し独特です。インデックスに `0xFFFFFFFF` を渡すとファイルの個数が返り、各ファイルについては、1 回目でバッファー無しで文字数を聞き、バッファーを用意してから、2 回目で受け取ります。C でよくある 2 段階の取得です。最後の `DragFinish` でドロップ情報を解放します。呼び忘れるとメモリが漏れるので、必ず呼びます。
+`wParam` はドロップ情報のハンドル（`HDROP`）です。`DragQueryFile` の使い方は少し独特です。インデックスに `0xFFFFFFFF` を渡すとファイルの個数が返り各ファイルについては、1 回目でバッファー無しで文字数を聞きバッファーを用意してから、2 回目で受け取ります。C でよくある 2 段階の取得です。最後の `DragFinish` でドロップ情報を解放します。呼び忘れるとメモリが漏れるので、必ず呼びます。
 
-ドロップされた位置から地面（`y = 0`）との交点を求めて、そこに物を作ります。レイの計算は、第 43 章のものと同じです。第 43 章では `GizmoController` の中に書いたので、`CameraMath` という共有のクラスに取り出して、どちらからも使うようにします（第 43 章の `MakeRay` をそのまま `static` クラスへ移すだけです）。
+ドロップされた位置から地面（`y = 0`）との交点を求めて、そこに物を作ります。レイの計算は第 43 章のものと同じです。第 43 章では `GizmoController` の中に書いたので、`CameraMath` という共有のクラスに取り出して、どちらからも使うようにします（第 43 章の `MakeRay` をそのまま `static` クラスへ移すだけです）。
 
 ```csharp
 // ViewportViewModel
@@ -620,28 +620,26 @@ public void OnFilesDropped(IReadOnlyList<string> paths, float x, float y)
 }
 ```
 
-レイ `O + tD` が `y = 0` になるのは `t = -O.y / D.y` のときです。`D.y` がほぼ 0 なら地面と平行、`t` が負なら地面はカメラの後ろなので、その場合はカメラの前方 5 m に置きます。`... is var t && t > 0` は、計算結果を `t` に取って、そのまま条件に使うパターンです。物は `ISceneEditor` 経由で作るので、Undo で戻せます。
+レイ `O + tD` が `y = 0` になるのは `t = -O.y / D.y` のときです。`D.y` がほぼ 0 なら地面と平行、`t` が負なら地面はカメラの後ろなので、その場合はカメラの前方 5 m に置きます。`... is var t && t > 0` は計算結果を `t` に取って、そのまま条件に使うパターンです。物は `ISceneEditor` 経由で作るので Undo で戻せます。
 
-なお、ここで置くのは、ファイル名を持った箱です。ファイルの中身（メッシュやテクスチャ）をエンジンが読み込み、物に割り当てるのは、アセット システムというエンジン側の機能で、この教材の範囲を超えます。物に `AssetPath` を持たせ、エンジンに `me_asset_load` を足す形が自然な拡張です。
+なお、ここで置くのはファイル名を持った箱です。ファイルの中身（メッシュやテクスチャ）をエンジンが読み込み物に割り当てるのは、アセット システムというエンジン側の機能で、この教材の範囲を超えます。物に `AssetPath` を持たせエンジンに `me_asset_load` を足す形が自然な拡張です。
 
 ## 動かして確かめる
 
-| 操作 | 期待する結果 |
-| --- | --- |
-| 「フォルダーを開く…」で選ぶ | 左にフォルダーの木、右にファイルの一覧が出る |
-| 左の木でフォルダーを選ぶ | 右の一覧が切り替わる。`↑` で親へ |
-| 検索ボックスに入力 | 名前に一致するものだけが残る |
-| 画像ファイル | 絵文字の代わりに、サムネイルが少し遅れて出る |
-| エクスプローラーでファイルを追加／削除 | 約 0.3 秒後に一覧が更新される |
-| `.scene` をダブルクリック | シーンが開く（未保存なら確認が出る） |
-| ファイルをビューポートへドラッグ | 地面の落とした位置にファイル名の物が置かれる。Undo で戻せる |
-| エクスプローラーから直接ドロップ | 同様に動く |
+- 「フォルダーを開く…」で選ぶ: 左にフォルダーの木、右にファイルの一覧が出る
+- 左の木でフォルダーを選ぶ: 右の一覧が切り替わる。`↑` で親へ
+- 検索ボックスに入力: 名前に一致するものだけが残る
+- 画像ファイル: 絵文字の代わりにサムネイルが少し遅れて出る
+- エクスプローラーでファイルを追加／削除: 約 0.3 秒後に一覧が更新される
+- `.scene` をダブルクリック: シーンが開く（未保存なら確認が出る）
+- ファイルをビューポートへドラッグ: 地面の落とした位置にファイル名の物が置かれる。Undo で戻せる
+- エクスプローラーから直接ドロップ: 同様に動く
 
 ??? failure "ビューポートにドロップできない（禁止マークが出る）"
     `HwndHost` には WPF の `AllowDrop` が効きません。子ウィンドウに `DragAcceptFiles(hwnd, true)` を設定したかを確認します。エディタが管理者権限で動いていると、一般権限のエクスプローラーからのドロップはブロックされます（UIPI）。
 
-??? failure "一覧に画像が出ず、ずっと記号のまま"
-    サムネイルの読み込みで例外が出て `null` になっています。`catch` の中でログを出して、原因を見ます。
+??? failure "一覧に画像が出ずずっと記号のまま"
+    サムネイルの読み込みで例外が出て `null` になっています。`catch` の中でログを出して原因を見ます。
 
 ??? failure "画像ファイルが削除できない／上書きできない"
     `BitmapCacheOption.OnLoad` を指定していません。画像を掴みっぱなしになります。
@@ -650,24 +648,22 @@ public void OnFilesDropped(IReadOnlyList<string> paths, float x, float y)
     `DecodePixelWidth` を指定していません。元のサイズでデコードされています。
 
 ??? failure "`FileSystemWatcher` のイベントで `InvalidOperationException`（別のスレッド）"
-    ハンドラーの中で、直接 UI（`ObservableCollection` など）を触っています。`Dispatcher.BeginInvoke` で UI スレッドに回します。
+    ハンドラーの中で直接 UI（`ObservableCollection` など）を触っています。`Dispatcher.BeginInvoke` で UI スレッドに回します。
 
 ??? failure "更新が何度も走って、一覧がちらつく"
-    デバウンスをしていません。1 つのファイルの保存でも、複数のイベントが来ます。
+    デバウンスをしていません。1 つのファイルの保存でも複数のイベントが来ます。
 
 ## 第 5 部のまとめ
 
-| 章 | 作ったもの |
-| --- | --- |
-| 第 40 章 | シーンのデータ（エディタが正）と、エンジンへの同期 |
-| 第 41 章 | シーン ツリー（選択、追加、削除、名前変更、ドラッグで親子づけ） |
-| 第 42 章 | プロパティ パネル（型ごとの DataTemplate、入力の検証） |
-| 第 43 章 | ピッキングとギズモ（レイ、スラブ法、最近点） |
-| 第 44 章 | Undo/Redo（コマンド パターン、トランザクション、スナップショット） |
-| 第 45 章 | 保存と読み込み（DTO、検証、一時ファイル、非同期） |
-| 第 46 章 | アセット ブラウザ（`FileSystemWatcher`、サムネイル、ドラッグ アンド ドロップ） |
+- 第 40 章: シーンのデータ（エディタが正）とエンジンへの同期
+- 第 41 章: シーン ツリー（選択、追加、削除、名前変更、ドラッグで親子づけ）
+- 第 42 章: プロパティ パネル（型ごとの DataTemplate、入力の検証）
+- 第 43 章: ピッキングとギズモ（レイ、スラブ法、最近点）
+- 第 44 章: Undo/Redo（コマンド パターン、トランザクション、スナップショット）
+- 第 45 章: 保存と読み込み（DTO、検証、一時ファイル、非同期）
+- 第 46 章: アセット ブラウザ（`FileSystemWatcher`、サムネイル、ドラッグ アンド ドロップ）
 
-これで、ふつうのエディタができました。残るのは、このエディタをゲームの開発に使うための機能です。
+これでふつうのエディタができました。残るのはこのエディタをゲームの開発に使うための機能です。
 
 次の章から第 6 部です。ゲームのコードを `Game.dll` として分けて、エンジンが読み込んで動かす仕組みを作ります。
 

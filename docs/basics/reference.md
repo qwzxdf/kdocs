@@ -11,10 +11,10 @@ tags:
 <span class="ver ver-11">C++98〜</span>
 </div>
 
-**参照**は、<strong>すでにある変数に付ける「別名」</strong>です。`int& r = x;` と書くと、`r` は `x` そのものになり、`r` を書き換えると `x` も変わります。コピーを作らずに同じものを触れるので、関数の引数で大きなデータを渡すときに欠かせません。`const` を付けた**const 参照**（`const T&`）は「読むだけの別名」で、書き換えはできませんが、コピーもされません。
+**参照**は <strong>すでにある変数に付ける「別名」</strong>です。`int& r = x;` と書くと `r` は `x` そのものになり `r` を書き換えると `x` も変わります。コピーを作らずに同じものを触れるので、関数の引数で大きなデータを渡すときに欠かせません。`const` を付けた**const 参照**（`const T&`）は「読むだけの別名」で、書き換えはできませんがコピーもされません。
 
 !!! tip "ポイント"
-    - <strong>関数の引数は、読むだけなら `const T&`、書き換えるなら `T&`、小さい型（int、float、ポインタ）なら値渡し。</strong>
+    - <strong>関数の引数は読むだけなら `const T&`、書き換えるなら `T&`、小さい型（int、float、ポインタ）なら値渡し。</strong>
     - 参照は作ったときの相手から変えられない。null にもならない。
     - **消えた変数の参照を使うと未定義動作**（ローカル変数の参照を返す、など）。
     - 範囲 for も同じ考え方: 読むだけ `const auto&`、書き換える `auto&`。
@@ -46,7 +46,7 @@ view = 70
 ```
 
 <div class="mem">
-<div class="mem-step"><span class="mem-label">メモリ</span><span class="mem-cells"><span class="move">70</span></span><span class="mem-note">← hp も ref も view も、この 1 つの場所を指している（コピーは無い）</span></div>
+<div class="mem-step"><span class="mem-label">メモリ</span><span class="mem-cells"><span class="move">70</span></span><span class="mem-note">← hp も ref も view もこの 1 つの場所を指している（コピーは無い）</span></div>
 </div>
 
 ## 詳しく
@@ -152,11 +152,9 @@ int main() {
 
 ### const の位置
 
-| 書き方 | 意味 |
-| --- | --- |
-| `const T&` | 指す先を書き換えられない（読むだけ）。一番よく使う |
-| `T const&` | 上と同じ意味（書き方が違うだけ） |
-| `const` メンバ関数 `int Hp() const;` | その関数の中ではメンバを書き換えない。const 参照からも呼べる |
+- `const T&`: 指す先を書き換えられない（読むだけ）。一番よく使う
+- `T const&`: 上と同じ意味（書き方が違うだけ）
+- `const` メンバ関数 `int Hp() const;`: その関数の中ではメンバを書き換えない。const 参照からも呼べる
 
 ```cpp
 #include <print>
@@ -188,13 +186,11 @@ int main() {
 
 ## ゲームでの例
 
-| 場面 | 書き方 |
-| --- | --- |
-| 描画関数 | `void Draw(const Sprite& sprite)` |
-| 更新関数 | `void Update(Enemy& enemy, float dt)` |
-| 全員を回して更新 | `for (auto& e : enemies)` |
-| 全員を回して表示 | `for (const auto& e : enemies)` |
-| ゲッター | `const std::string& name() const { return name_; }` |
+- 描画関数: `void Draw(const Sprite& sprite)`
+- 更新関数: `void Update(Enemy& enemy, float dt)`
+- 全員を回して更新: `for (auto& e : enemies)`
+- 全員を回して表示: `for (const auto& e : enemies)`
+- ゲッター: `const std::string& name() const { return name_; }`
 
 <!-- fig:reference-alias:begin -->
 

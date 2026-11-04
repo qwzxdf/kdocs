@@ -77,14 +77,12 @@ Google Style では、マクロを使った include ガードを推奨してい�
 
 ### 前方宣言で include を減らす
 
-| ヘッダの中での使い方 | include が必要？ |
-| --- | --- |
-| `Weapon* weapon_;` / `Weapon& weapon` | **不要**（前方宣言 `class Weapon;` で OK） |
-| `std::unique_ptr<Weapon> weapon_;` | 不要（ただしデストラクタを .cpp で定義する） |
-| 関数の引数・戻り値に `Weapon`（値） | 宣言だけなら不要 |
-| `Weapon weapon_;`（値のメンバ） | 必要（大きさが分からないといけない） |
-| 継承 `class Sword : public Weapon` | 必要 |
-| ヘッダの中で `weapon_->power()` を呼ぶ | 必要 |
+- `Weapon* weapon_;` / `Weapon& weapon`: **不要**（前方宣言 `class Weapon;` で OK）
+- `std::unique_ptr<Weapon> weapon_;`: 不要（ただしデストラクタを .cpp で定義する）
+- 関数の引数・戻り値に `Weapon`（値）: 宣言だけなら不要
+- `Weapon weapon_;`（値のメンバ）: 必要（大きさが分からないといけない）
+- 継承 `class Sword : public Weapon`: 必要
+- ヘッダの中で `weapon_->power()` を呼ぶ: 必要
 
 include を減らすと、ヘッダを書き換えたときに再コンパイルされるファイルが減り、ビルドが速くなります。
 
@@ -123,14 +121,12 @@ class Enemy {
 
 ### ヘッダに書くもの・ソースに書くもの
 
-| 書くもの | 場所 |
-| --- | --- |
-| クラスの宣言、関数の宣言 | ヘッダ |
-| 関数の中身 | ソース |
-| テンプレートの中身 | ヘッダ（[テンプレート](../../basics/template.md#テンプレートはヘッダに書く)） |
-| 短いゲッター（1 行） | ヘッダでも OK |
-| `constexpr` / `inline` の定数・関数 | ヘッダ |
-| そのファイルの中だけで使う関数・定数 | ソースの無名名前空間 |
+- クラスの宣言、関数の宣言: ヘッダ
+- 関数の中身: ソース
+- テンプレートの中身: ヘッダ（[テンプレート](../../basics/template.md#テンプレートはヘッダに書く)）
+- 短いゲッター（1 行）: ヘッダでも OK
+- `constexpr` / `inline` の定数・関数: ヘッダ
+- そのファイルの中だけで使う関数・定数: ソースの無名名前空間
 
 ```cpp
 // enemy.cpp
@@ -197,11 +193,9 @@ void Audio::Play(const char* name) { /* impl_->system を使う */ }
 
 ## ゲームでの例
 
-| 状況 | 対策 |
-| --- | --- |
-| ゲーム全体のヘッダ `Game.h` を全ファイルが include していて、変更のたびに全部再ビルド | 必要なヘッダだけを include、前方宣言を使う |
-| Player と Enemy がお互いを include | 前方宣言、またはイベントで依存を切る |
-| DirectX や SDL のヘッダがあちこちに漏れている | PImpl やラッパークラスで 1 か所に閉じ込める |
+- ゲーム全体のヘッダ `Game.h` を全ファイルが include していて、変更のたびに全部再ビルド: 必要なヘッダだけを include、前方宣言を使う
+- Player と Enemy がお互いを include: 前方宣言、またはイベントで依存を切る
+- DirectX や SDL のヘッダがあちこちに漏れている: PImpl やラッパークラスで 1 か所に閉じ込める
 
 ## よくある失敗
 

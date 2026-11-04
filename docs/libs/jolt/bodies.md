@@ -98,10 +98,8 @@ bodies.AddBodiesFinalize(ids.data(), (int)ids.size(), state, EActivation::Activa
 
 質量は形の体積 × 密度で、自動計算されます。
 
-| 方法 | 説明 |
-| --- | --- |
-| 形の密度（`ShapeSettings::mDensity`） | 体積から、質量が決まる（既定 1000 kg/m³ ＝ 水） |
-| `mOverrideMassProperties = EOverrideMassProperties::CalculateInertia`、`mMassPropertiesOverride.mMass = 80.0f` | 質量を直接指定（慣性は、形から計算） |
+- 形の密度（`ShapeSettings::mDensity`）: 体積から、質量が決まる（既定 1000 kg/m³ ＝ 水）
+- `mOverrideMassProperties = EOverrideMassProperties::CalculateInertia`、`mMassPropertiesOverride.mMass = 80.0f`: 質量を直接指定（慣性は、形から計算）
 
 質量の違いが大きすぎる物体（1kg と 100 万 kg）が接触すると、不安定になります。質量比は極端にしない（10 倍程度までが、安定）。
 
@@ -164,12 +162,10 @@ bodies.AddImpulse(id, Vec3(0, 500.0f, 0));
 bodies.SetLinearVelocity(id, Vec3(5.0f, 0, 0));
 ```
 
-| 注意 | 説明 |
-| --- | --- |
-| 力は毎フレーム加える（`AddForce`） | 1 回だけでは、すぐ消える。固定ステップごとに |
-| 衝撃は質量に反比例して効く | 軽い物体は、大きく動く |
-| `Update` の外で呼ぶ | 物理が動いている間は、触らない |
-| 休止中の物体は動かない | `ActivateBody`、または`EActivation::Activate` を渡す |
+- 力は毎フレーム加える（`AddForce`）: 1 回だけでは、すぐ消える。固定ステップごとに
+- 衝撃は質量に反比例して効く: 軽い物体は、大きく動く
+- `Update` の外で呼ぶ: 物理が動いている間は、触らない
+- 休止中の物体は動かない: `ActivateBody`、または`EActivation::Activate` を渡す
 
 ## キネマティック物体の動かし方
 
@@ -179,10 +175,8 @@ bodies.SetLinearVelocity(id, Vec3(5.0f, 0, 0));
 bodies.MoveKinematic(platform_id, target_position, target_rotation, dt);
 ```
 
-| 方法 | 動き |
-| --- | --- |
-| `MoveKinematic(id, 位置, 向き, dt)` | `dt` 後に目標の位置にいるよう、速度を計算して設定。乗っている物を運べる |
-| `SetPosition` | 瞬間移動。速度なし（乗っている物を運べない） |
+- `MoveKinematic(id, 位置, 向き, dt)`: `dt` 後に目標の位置にいるよう、速度を計算して設定。乗っている物を運べる
+- `SetPosition`: 瞬間移動。速度なし（乗っている物を運べない）
 
 動く床・エレベーターは`MoveKinematic` を固定ステップごとに呼びます。
 
@@ -190,10 +184,8 @@ bodies.MoveKinematic(platform_id, target_position, target_rotation, dt);
 
 **止まった物体**は自動で休止（スリープ）して、計算を省きます。
 
-| 状態 | 説明 |
-| --- | --- |
-| アクティブ | 毎ステップ、計算される |
-| スリープ | 一定時間、ほぼ動かないと休止。計算されず軽い |
+- アクティブ: 毎ステップ、計算される
+- スリープ: 一定時間、ほぼ動かないと休止。計算されず軽い
 
 ```cpp
 bodies.ActivateBody(id);
@@ -201,11 +193,9 @@ bodies.DeactivateBody(id);
 bool active = bodies.IsActive(id);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| 起こす | 休止中の物体に力を加える・ほかの物体が当たると、自動で起きる。`ActivateBody` で手動でも |
-| 力が効かない | 休止中だと`AddForce` が、効かないことがある。`ActivateBody` を呼ぶ |
-| 無効にする | `mAllowSleeping = false`（常に動かしたい物体） |
+- 起こす: 休止中の物体に力を加える・ほかの物体が当たると、自動で起きる。`ActivateBody` で手動でも
+- 力が効かない: 休止中だと`AddForce` が、効かないことがある。`ActivateBody` を呼ぶ
+- 無効にする: `mAllowSleeping = false`（常に動かしたい物体）
 
 大量の物体がある場合、スリープが大きな節約になります。
 
@@ -220,11 +210,9 @@ sensor_settings.mIsSensor = true;
 bodies.CreateAndAddBody(sensor_settings, EActivation::DontActivate);
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| `mIsSensor = true` | 衝突しない。接触リスナーで重なりを通知 |
-| レイヤー | センサー専用のレイヤーを作り反応させたい相手とだけ `true` |
-| 静的なセンサーは動く物体だけを検出する場合がある | バージョンで違う（`mSensorDetectsStatic`）。ドキュメントで確認 |
+- `mIsSensor = true`: 衝突しない。接触リスナーで重なりを通知
+- レイヤー: センサー専用のレイヤーを作り反応させたい相手とだけ `true`
+- 静的なセンサーは動く物体だけを検出する場合がある: バージョンで違う（`mSensorDetectsStatic`）。ドキュメントで確認
 
 ## 接触リスナー（衝突の通知）
 
@@ -275,11 +263,9 @@ physics_system.SetContactListener(&listener);
 
 ### 接触の情報
 
-| 情報 | 取得 |
-| --- | --- |
-| どの物体か | `body1.GetID()`、`body.GetUserData()`（エンティティ ID） |
-| 接触点・法線 | `ContactManifold`（`mBaseOffset`、`mWorldSpaceNormal`、`mPenetrationDepth`） |
-| 接触の性質 | `ContactSettings`（`mCombinedFriction`、`mCombinedRestitution`）を書き換えて摩擦・反発をその場で変えられる |
+- どの物体か: `body1.GetID()`、`body.GetUserData()`（エンティティ ID）
+- 接触点・法線: `ContactManifold`（`mBaseOffset`、`mWorldSpaceNormal`、`mPenetrationDepth`）
+- 接触の性質: `ContactSettings`（`mCombinedFriction`、`mCombinedRestitution`）を書き換えて摩擦・反発をその場で変えられる
 
 ## BodyID と Body へのアクセス
 

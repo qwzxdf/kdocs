@@ -244,23 +244,21 @@ bool LoadGame(SaveData& data, const char* path) {
 
 cereal は、**使う型ごとにヘッダを include します。忘れると、`cereal could not find any output serialization functions` のような長いエラーになります。
 
-| ヘッダ | 対応する型 |
-| --- | --- |
-| `cereal/types/string.hpp` | `std::string` |
-| `cereal/types/vector.hpp` | `std::vector` |
-| `cereal/types/array.hpp` | `std::array` |
-| `cereal/types/map.hpp` | `std::map`、`std::multimap` |
-| `cereal/types/unordered_map.hpp` | `std::unordered_map` |
-| `cereal/types/set.hpp` / `unordered_set.hpp` | `std::set` / `std::unordered_set` |
-| `cereal/types/deque.hpp` / `list.hpp` | `std::deque` / `std::list` |
-| `cereal/types/utility.hpp` | `std::pair` |
-| `cereal/types/tuple.hpp` | `std::tuple` |
-| `cereal/types/memory.hpp` | `std::unique_ptr`、`std::shared_ptr`、`std::weak_ptr` |
-| `cereal/types/optional.hpp` | `std::optional` |
-| `cereal/types/variant.hpp` | `std::variant` |
-| `cereal/types/chrono.hpp` | `std::chrono::duration`、`time_point` |
-| `cereal/types/bitset.hpp` | `std::bitset` |
-| `cereal/types/polymorphic.hpp` | 継承したクラスをポインタで保存する |
+- `cereal/types/string.hpp`: `std::string`
+- `cereal/types/vector.hpp`: `std::vector`
+- `cereal/types/array.hpp`: `std::array`
+- `cereal/types/map.hpp`: `std::map`、`std::multimap`
+- `cereal/types/unordered_map.hpp`: `std::unordered_map`
+- `cereal/types/set.hpp` / `unordered_set.hpp`: `std::set` / `std::unordered_set`
+- `cereal/types/deque.hpp` / `list.hpp`: `std::deque` / `std::list`
+- `cereal/types/utility.hpp`: `std::pair`
+- `cereal/types/tuple.hpp`: `std::tuple`
+- `cereal/types/memory.hpp`: `std::unique_ptr`、`std::shared_ptr`、`std::weak_ptr`
+- `cereal/types/optional.hpp`: `std::optional`
+- `cereal/types/variant.hpp`: `std::variant`
+- `cereal/types/chrono.hpp`: `std::chrono::duration`、`time_point`
+- `cereal/types/bitset.hpp`: `std::bitset`
+- `cereal/types/polymorphic.hpp`: 継承したクラスをポインタで保存する
 
 `int`、`float`、`bool`、enum、C 配列（`int a[4]`）などの基本の型は、何も include しなくても使えます。
 
@@ -277,13 +275,11 @@ cereal は、**使う型ごとにヘッダを include します。忘れると�
 
 ## 自作の型を対応させる 5 つの書き方
 
-| 書き方 | 使う場面 |
-| --- | --- |
-| メンバ関数 `serialize` | ほとんどの場合（自分で書いたクラス） |
-| メンバ以外の関数 `serialize` | 自分では変更できない型（他のライブラリの `Vec3` など） |
-| `save` と `load` を組で書く | 保存と読み込みで処理が違う（読み込み後に再計算するなど） |
-| `save_minimal` と `load_minimal` を組で書く | 型を 1 つの数値・文字列で表したい（ID、色など） |
-| `load_and_construct` | デフォルトコンストラクタが無い型 |
+- メンバ関数 `serialize`: ほとんどの場合（自分で書いたクラス）
+- メンバ以外の関数 `serialize`: 自分では変更できない型（他のライブラリの `Vec3` など）
+- `save` と `load` を組で書く: 保存と読み込みで処理が違う（読み込み後に再計算するなど）
+- `save_minimal` と `load_minimal` を組で書く: 型を 1 つの数値・文字列で表したい（ID、色など）
+- `load_and_construct`: デフォルトコンストラクタが無い型
 
 どれも、1 つの型に対して**1 つの書き方だけ**を使います（2 つ書くと「どれを使えばいいか分からない」というエラーになります）。
 
@@ -448,23 +444,19 @@ int main() {
 
 cereal はエラーを**例外**（`cereal::Exception`、`std::runtime_error` の子）で知らせます。
 
-| 状況 | 結果 |
-| --- | --- |
-| データが途中で切れている | `cereal::Exception`（`Failed to read N bytes from input stream!`） |
-| JSON のキーが見つからない | `cereal::Exception`（JSON アーカイブのとき） |
-| 型や順番がずれている（バイナリ） | エラーにならないことがある。おかしな値が読まれたり、巨大な要素数を読んでメモリ不足（`std::bad_alloc`）になったりする |
+- データが途中で切れている: `cereal::Exception`（`Failed to read N bytes from input stream!`）
+- JSON のキーが見つからない: `cereal::Exception`（JSON アーカイブのとき）
+- 型や順番がずれている（バイナリ）: エラーにならないことがある。おかしな値が読まれたり、巨大な要素数を読んでメモリ不足（`std::bad_alloc`）になったりする
 
 !!! danger "バイナリアーカイブは「間違ったデータ」を見分けられない"
     バイナリアーカイブは、データの中に型の情報を持っていません。違う型のデータや壊れたデータを読むと、エラーにならずにでたらめな値になることがあります。特に、要素数が壊れていると「40 億個の vector を確保しようとする」などが起きます。セーブデータには、先頭にマジックナンバー（`'SAVE'` などの決まった値）とバージョン<strong>、</strong>最後にチェックサム（CRC32 など）<strong> を付けて、壊れていたら読まないようにします。インターネットから来るデータなど、</strong>信用できないデータを cereal のバイナリで読むのは危険です。
 
 ## 速さとサイズの特徴
 
-| 項目 | 特徴 |
-| --- | --- |
-| 速さ | バイナリアーカイブは十分速い。ただし `std::ostream` / `std::istream` を通すので、[zpp_bits](zpp-bits.md) や [struct_pack](struct-pack.md) よりは遅い |
-| サイズ | 要素数が 8 バイト固定なので、短い文字列や小さい vector が多いと少し大きくなる |
-| JSON アーカイブ | 中で RapidJSON を使う。バイナリよりずっと大きく遅いが、デバッグに便利 |
-| コンパイル時間 | テンプレートを多く使うので、少し長くなる |
+- 速さ: バイナリアーカイブは十分速い。ただし `std::ostream` / `std::istream` を通すので、[zpp_bits](zpp-bits.md) や [struct_pack](struct-pack.md) よりは遅い
+- サイズ: 要素数が 8 バイト固定なので、短い文字列や小さい vector が多いと少し大きくなる
+- JSON アーカイブ: 中で RapidJSON を使う。バイナリよりずっと大きく遅いが、デバッグに便利
+- コンパイル時間: テンプレートを多く使うので、少し長くなる
 
 学生のゲームのセーブデータなら、速さが問題になることはまずありません。
 
@@ -927,13 +919,11 @@ JSONOutputArchive::Options(int precision = std::numeric_limits<double>::max_digi
                            unsigned int indentLength = 4);
 ```
 
-| 設定 | 意味 |
-| --- | --- |
-| `Options::Default()` | 小数は正確に戻せる桁数、スペース 4 つで字下げ |
-| `Options::NoIndent()` | 改行・字下げなしの 1 行 |
-| `precision` | 小数の桁数 |
-| `IndentChar::space` / `tab` / `newline` / `carriage_return` | 字下げに使う文字 |
-| `indentLength` | 字下げの文字数 |
+- `Options::Default()`: 小数は正確に戻せる桁数、スペース 4 つで字下げ
+- `Options::NoIndent()`: 改行・字下げなしの 1 行
+- `precision`: 小数の桁数
+- `IndentChar::space` / `tab` / `newline` / `carriage_return`: 字下げに使う文字
+- `indentLength`: 字下げの文字数
 
 ### PortableBinaryOutputArchive::Options
 
@@ -945,20 +935,16 @@ JSONOutputArchive::Options(int precision = std::numeric_limits<double>::max_digi
 
 ### 設定マクロ
 
-| マクロ | 意味 |
-| --- | --- |
-| `CEREAL_THREAD_SAFE=1` | 複数のスレッドで同時にアーカイブを使うときに、内部の登録情報をロックで守る |
-| `CEREAL_SERIALIZE_FUNCTION_NAME` など | `serialize` / `save` / `load` の関数名を変える（Google Style の名前に合わせたいときなど） |
-| `CEREAL_RAPIDJSON_NAMESPACE` | 中で使う RapidJSON の名前空間を変える（自分でも RapidJSON を使っていてぶつかるとき） |
+- `CEREAL_THREAD_SAFE=1`: 複数のスレッドで同時にアーカイブを使うときに、内部の登録情報をロックで守る
+- `CEREAL_SERIALIZE_FUNCTION_NAME` など: `serialize` / `save` / `load` の関数名を変える（Google Style の名前に合わせたいときなど）
+- `CEREAL_RAPIDJSON_NAMESPACE`: 中で使う RapidJSON の名前空間を変える（自分でも RapidJSON を使っていてぶつかるとき）
 
 ## ゲームでの使いどころ
 
-| 場面 | 使い方 |
-| --- | --- |
-| セーブデータ | バイナリアーカイブ + `CEREAL_CLASS_VERSION` + マジックナンバー + チェックサム |
-| エディタで作ったシーン | 開発中は JSON アーカイブ、製品版はバイナリ |
-| 継承を使ったオブジェクトの保存 | `unique_ptr<Base>` の vector をそのまま保存 |
-| ゲームの状態のスナップショット | デバッグで「この瞬間の状態」を保存して再現する |
+- セーブデータ: バイナリアーカイブ + `CEREAL_CLASS_VERSION` + マジックナンバー + チェックサム
+- エディタで作ったシーン: 開発中は JSON アーカイブ、製品版はバイナリ
+- 継承を使ったオブジェクトの保存: `unique_ptr<Base>` の vector をそのまま保存
+- ゲームの状態のスナップショット: デバッグで「この瞬間の状態」を保存して再現する
 
 ## よくあるミス
 

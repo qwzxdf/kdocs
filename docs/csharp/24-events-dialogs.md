@@ -6,15 +6,15 @@ tags:
 
 # 第 24 章 イベント集約、ダイアログ、サービス
 
-第 23 章で、画面を機能ごとのモジュールに分けました。すると今度は、こういう問題が出てきました。実行すると、シーン ツリーでどのオブジェクトを選んでも、プロパティ パネルは「(仮) Cube」のままです。
+第 23 章で画面を機能ごとのモジュールに分けました。すると今度は、こういう問題が出てきました。実行するとシーン ツリーでどのオブジェクトを選んでもプロパティ パネルは「(仮) Cube」のままです。
 
 !!! info "このページを読む前に"
-    - [第 23 章 リージョン、モジュール、ナビゲーション](23-regions-modules.md)（前の章。この章は、そこで分けたモジュールをつなぐ）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [第 23 章 リージョン、モジュール、ナビゲーション](23-regions-modules.md)（前の章。この章はそこで分けたモジュールをつなぐ）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
-> シーン ツリーで「Cube」を選んだら、プロパティ パネルに Cube の値を出したい。でも、シーン ツリーのモジュールとプロパティのモジュールは、お互いを知らない。どうやって伝える？
+> シーン ツリーで「Cube」を選んだらプロパティ パネルに Cube の値を出したい。でもシーン ツリーのモジュールとプロパティのモジュールは、お互いを知らない。どうやって伝える？
 
-お互いの参照を持たせてしまうと、せっかく分けた意味がなくなります。この章では、お互いを知らない部品どうしが連絡を取る方法（`IEventAggregator` と共有サービス）、ビューモデルからダイアログを開く方法、そして共通の機能を置く「サービス」の作り方を学びます。第 2 部の最後の章です。
+お互いの参照を持たせてしまうとせっかく分けた意味がなくなります。この章ではお互いを知らない部品どうしが連絡を取る方法（`IEventAggregator` と共有サービス）、ビューモデルからダイアログを開く方法、そして共通の機能を置く「サービス」の作り方を学びます。第 2 部の最後の章です。
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
@@ -35,13 +35,13 @@ tags:
 | 共有サービス | 両方が同じ「選択サービス」を DI で受け取って、そこに書き込み・読み取りをする | 「今の状態」を共有したいとき（今の選択、今開いているシーン） |
 | イベント集約 | 片方がメッセージを送り（Publish）、もう片方が受け取る（Subscribe）。お互いは相手を知らない | 「何かが起きた」と知らせたいとき（保存された、ログが追加された） |
 
-状態を持つものはサービス、出来事の通知はイベント集約、と使い分けるのが基本です。この章の選択は、両方を使います。
+状態を持つものはサービス、出来事の通知はイベント集約、と使い分けるのが基本です。この章の選択は両方を使います。
 
 ## 選択をつなぐ
 
 ### IEventAggregator
 
-まず、メッセージの種類ごとに、`PubSubEvent<T>` を継承したクラスを作ります。`T` はメッセージに添える中身です。
+まず、メッセージの種類ごとに `PubSubEvent<T>` を継承したクラスを作ります。`T` はメッセージに添える中身です。
 
 ```csharp title="Scene/SelectionChangedEvent.cs（新規）"
 using Prism.Events;
@@ -54,7 +54,7 @@ public class SelectionChangedEvent : PubSubEvent<SceneObjectViewModel?>
 }
 ```
 
-送る側と受け取る側は、どちらも `IEventAggregator` を DI で受け取ります（Prism が最初から登録してくれているので、自分で登録しなくて構いません）。
+送る側と受け取る側はどちらも `IEventAggregator` を DI で受け取ります（Prism が最初から登録してくれているので、自分で登録しなくて構いません）。
 
 ```csharp title="送る側の形"
 _events.GetEvent<SelectionChangedEvent>().Publish(obj);
@@ -64,7 +64,7 @@ _events.GetEvent<SelectionChangedEvent>().Publish(obj);
 events.GetEvent<SelectionChangedEvent>().Subscribe(OnSelectionChanged);
 ```
 
-`SceneObjectViewModel?` の `?` は、「何も選ばれていない」を `null` で表すためのものです。`GetEvent<T>()` は、型ごとに 1 つの仲介オブジェクトを返します。送る側と受け取る側は、お互いを知らなくても、同じ型を指定するだけでつながります。
+`SceneObjectViewModel?` の `?` は「何も選ばれていない」を `null` で表すためのものです。`GetEvent<T>()` は型ごとに 1 つの仲介オブジェクトを返します。送る側と受け取る側はお互いを知らなくても、同じ型を指定するだけでつながります。
 
 ### どのスレッドで受け取るか
 
@@ -77,23 +77,21 @@ events.GetEvent<SelectionChangedEvent>().Subscribe(
     keepSubscriberReferenceAlive: false);
 ```
 
-| 指定 | 意味 |
-| --- | --- |
-| `PublisherThread` | 送った側のスレッドで呼ぶ（既定） |
-| `UIThread` | UI スレッドで呼ぶ。画面を触る処理は、これにする |
-| `BackgroundThread` | 別のスレッドで呼ぶ |
+- `PublisherThread`: 送った側のスレッドで呼ぶ（既定）
+- `UIThread`: UI スレッドで呼ぶ。画面を触る処理はこれにする
+- `BackgroundThread`: 別のスレッドで呼ぶ
 
-WPF の画面の部品は、作ったスレッド（UI スレッド）からしか触れません。別のスレッドから触ると `InvalidOperationException` になります。エンジンのログのように、別のスレッドから届く通知を画面に出すときは、`UIThread` を指定してください。
+WPF の画面の部品は作ったスレッド（UI スレッド）からしか触れません。別のスレッドから触ると `InvalidOperationException` になります。エンジンのログのように別のスレッドから届く通知を画面に出すときは、`UIThread` を指定してください。
 
-`keepSubscriberReferenceAlive` は、受け取る側を「弱い参照」で持つかどうかの指定です。`false`（既定）なら弱い参照なので、受け取る側のオブジェクトが不要になれば GC が片付けてくれます。解除し忘れによるメモリの滞留が起きにくい、安全な設定です。
+`keepSubscriberReferenceAlive` は受け取る側を「弱い参照」で持つかどうかの指定です。`false`（既定）なら弱い参照なので、受け取る側のオブジェクトが不要になれば GC が片付けてくれます。解除し忘れによるメモリの滞留が起きにくい安全な設定です。
 
-受け取るのをやめたいときは、`Subscribe` が返す `SubscriptionToken` を使って `Unsubscribe` します。
+受け取るのをやめたいときは `Subscribe` が返す `SubscriptionToken` を使って `Unsubscribe` します。
 
 ### 共有サービス：今の状態を持つ
 
-イベントだけでは足りない場面があります。後から開いた画面は、イベントが送られたことを知らないので、今の選択が分からないからです。Editor でも起きます。起動すると、シーン ツリーのモジュールが先に初期化されて、最初の選択（`Cube`）を済ませます。そのあとで作られるプロパティ パネルは、その時点のイベントを受け取れません。
+イベントだけでは足りない場面があります。後から開いた画面はイベントが送られたことを知らないので、今の選択が分からないからです。Editor でも起きます。起動するとシーン ツリーのモジュールが先に初期化されて、最初の選択（`Cube`）を済ませます。そのあとで作られるプロパティ パネルは、その時点のイベントを受け取れません。
 
-そこで、「今の選択」は、サービスに持たせます。サービスは、DI で配るただのクラスです。状態を持つことと、変わったときに知らせることを、1 つのクラスにまとめます。
+そこで、「今の選択」はサービスに持たせます。サービスは DI で配るただのクラスです。状態を持つことと変わったときに知らせることを 1 つのクラスにまとめます。
 
 ```csharp title="Scene/SelectionService.cs（新規）"
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -126,9 +124,9 @@ public partial class SelectionService : ObservableObject, ISelectionService
 }
 ```
 
-`OnSelectedChanged` は、値が実際に変わったときにだけ呼ばれるので、変わったときにだけイベントを送れます。`ObservableObject` は、`INotifyPropertyChanged` が欲しいだけなら、ビューモデル以外でも使えます。
+`OnSelectedChanged` は値が実際に変わったときにだけ呼ばれるので、変わったときにだけイベントを送れます。`ObservableObject` は `INotifyPropertyChanged` が欲しいだけならビューモデル以外でも使えます。
 
-このサービスは、複数のモジュールが共有するので、`App` に登録します（第 23 章のとおりです）。
+このサービスは複数のモジュールが共有するので、`App` に登録します（第 23 章のとおりです）。
 
 ```csharp title="App.xaml.cs（変更）"
 containerRegistry.RegisterSingleton<ISelectionService, SelectionService>();
@@ -136,7 +134,7 @@ containerRegistry.RegisterSingleton<ISelectionService, SelectionService>();
 
 ### 3 か所をつなぐ
 
-送る側のシーン ツリーは、選ばれたオブジェクトをサービスに書き込みます。
+送る側のシーン ツリーは選ばれたオブジェクトをサービスに書き込みます。
 
 ```csharp title="SceneTree/SceneTreeViewModel.cs（変更）"
 private readonly ISelectionService _selection;
@@ -154,7 +152,7 @@ partial void OnSelectedChanged(SceneObjectViewModel? value)
 }
 ```
 
-受け取る側のプロパティは、作られたときにサービスから今の状態を読み、そのあとはイベントで追いかけます。
+受け取る側のプロパティは作られたときにサービスから今の状態を読みそのあとはイベントで追いかけます。
 
 ```csharp title="Property/PropertyViewModel.cs（変更）"
 public PropertyViewModel(ISelectionService selection, IEventAggregator events)
@@ -167,7 +165,7 @@ public PropertyViewModel(ISelectionService selection, IEventAggregator events)
 
 前の章で置いた「仮のオブジェクト」の行は、消します。
 
-もう 1 か所、ステータス バーです。第 23 章で消した「選択中の名前」を、イベントで戻します。
+もう 1 か所、ステータス バーです。第 23 章で消した「選択中の名前」をイベントで戻します。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
 public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events)
@@ -179,13 +177,13 @@ public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events
 }
 ```
 
-実行して、シーン ツリーで別の行を選ぶと、プロパティが切り替わり、ステータス バーの文字も変わります。3 つのクラスは、互いを知りません。同じ `SelectionChangedEvent` を指しているだけです。
+実行してシーン ツリーで別の行を選ぶとプロパティが切り替わりステータス バーの文字も変わります。3 つのクラスは互いを知りません。同じ `SelectionChangedEvent` を指しているだけです。
 
-この選択サービスは、1 つだけ選べる簡易版です。第 41 章で、複数選択にも対応した形に作り直します。
+この選択サービスは 1 つだけ選べる簡易版です。第 41 章で複数選択にも対応した形に作り直します。
 
 ## ログをサービスにする
 
-`LogViewModel` は、第 17 章で、どのスレッドからでも `Add` できるようにしました。ところが、`AssetViewModel` は、`LogViewModel`、つまり画面のビューモデルを受け取って、ログを書いています。画面のためのクラスに、ほかの機能が依存するのは、よい形ではありません。ログを書く機能を、画面から切り離して、サービスにします。
+`LogViewModel` は第 17 章でどのスレッドからでも `Add` できるようにしました。ところが、`AssetViewModel` は `LogViewModel`、つまり画面のビューモデルを受け取って、ログを書いています。画面のためのクラスにほかの機能が依存するのは、よい形ではありません。ログを書く機能を画面から切り離して、サービスにします。
 
 ```csharp title="Log/LogService.cs（新規）"
 using System.Collections.ObjectModel;
@@ -222,9 +220,9 @@ public class LogService : ILogService
 }
 ```
 
-`Dispatcher` は、UI スレッドへの仕事の受付窓口です。`CheckAccess()` は「今のスレッドが UI スレッドか」を返し、そうでなければ `InvokeAsync` で UI スレッドに仕事を頼みます（頼んだら待たずに戻ります）。第 17 章で `LogViewModel.Add` に書いた中身を、そのままサービスに移しました。
+`Dispatcher` は UI スレッドへの仕事の受付窓口です。`CheckAccess()` は「今のスレッドが UI スレッドか」を返し、そうでなければ `InvokeAsync` で UI スレッドに仕事を頼みます（頼んだら待たずに戻ります）。第 17 章で `LogViewModel.Add` に書いた中身をそのままサービスに移しました。
 
-`LogViewModel` は、サービスの一覧を出すだけの小さなクラスになります。`AssetViewModel` は、`LogViewModel` の代わりに `ILogService` を受け取ります。
+`LogViewModel` はサービスの一覧を出すだけの小さなクラスになります。`AssetViewModel` は `LogViewModel` の代わりに `ILogService` を受け取ります。
 
 ```csharp title="Log/LogViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
@@ -248,27 +246,27 @@ public class LogViewModel
 public AssetViewModel(ILogService log, IAssetScanner scanner)    // LogViewModel の代わり
 ```
 
-`_log.Add(LogLevel.Info, msg)` と書いていた所は、`_log.Info(msg)`、`_log.Error(...)` に直します。
+`_log.Add(LogLevel.Info, msg)` と書いていた所は `_log.Info(msg)`、`_log.Error(...)` に直します。
 
-登録は、`LogViewModel` から `ILogService` に替えます。
+登録は `LogViewModel` から `ILogService` に替えます。
 
 ```csharp title="App.xaml.cs（変更）"
 // containerRegistry.RegisterSingleton<LogViewModel>();    // これは消す
 containerRegistry.RegisterSingleton<ILogService, LogService>();
 ```
 
-`LogViewModel` は ViewModelLocator が作るので、登録しなくても動きます。共有する実体は `LogService` の `Entries` のほうで、どちらのモジュールが先に初期化されても、同じ一覧を見ます。第 23 章の落とし穴が、これで起きなくなりました。
+`LogViewModel` は ViewModelLocator が作るので、登録しなくても動きます。共有する実体は `LogService` の `Entries` のほうで、どちらのモジュールが先に初期化されても、同じ一覧を見ます。第 23 章の落とし穴がこれで起きなくなりました。
 
 ## ダイアログ
 
-「保存しますか？」の確認や入力ダイアログをビューモデルから開きたいことがあります。ビューモデルから `MessageBox.Show` を直接呼ぶと、画面に依存してしまい、テストもできません。Prism の `IDialogService` を使います。Editor では、「ファイル → 終了」を選んだときの確認に使います。
+「保存しますか？」の確認や入力ダイアログをビューモデルから開きたいことがあります。ビューモデルから `MessageBox.Show` を直接呼ぶと画面に依存してしまいテストもできません。Prism の `IDialogService` を使います。Editor では「ファイル → 終了」を選んだときの確認に使います。
 
 !!! warning "Prism 9 の変更点"
-    ダイアログの API は、Prism 8 から 9 で変わりました。8 までは名前空間が `Prism.Services.Dialogs` で、`IDialogAware` に `Title` があり、`RequestClose` はイベントでした。9 では名前空間が `Prism.Dialogs` になり、`Title` がなくなり、`RequestClose` は `DialogCloseListener` 型になっています。古い記事のコードがコンパイルできないときは、まずバージョンを疑ってください。
+    ダイアログの API は Prism 8 から 9 で変わりました。8 までは名前空間が `Prism.Services.Dialogs` で、`IDialogAware` に `Title` があり `RequestClose` はイベントでした。9 では名前空間が `Prism.Dialogs` になり `Title` がなくなり `RequestClose` は `DialogCloseListener` 型になっています。古い記事のコードがコンパイルできないときは、まずバージョンを疑ってください。
 
 ### ダイアログのビュー
 
-ダイアログの中身は `UserControl` です。外側のウィンドウは Prism が作ります。ウィンドウのタイトルや大きさは、ビューの中の `prism:Dialog.WindowStyle` で指定します。
+ダイアログの中身は `UserControl` です。外側のウィンドウは Prism が作ります。ウィンドウのタイトルや大きさはビューの中の `prism:Dialog.WindowStyle` で指定します。
 
 ```xml title="Shared/Dialogs/ConfirmDialog.xaml（新規）"
 <UserControl x:Class="Editor.Shared.Dialogs.ConfirmDialog"
@@ -329,7 +327,7 @@ public partial class ConfirmDialogViewModel : ObservableObject, IDialogAware
 }
 ```
 
-呼ばれる順は、ダイアログを開いて「いいえ」で閉じたとき、次のとおりです（Prism 9.0.537 で、各メンバーに出力を足して確かめました）。
+呼ばれる順はダイアログを開いて「いいえ」で閉じたとき次のとおりです（Prism 9.0.537 で、各メンバーに出力を足して確かめました）。
 
 ```text title="実験の出力：開いて、「いいえ」で閉じたとき"
 ctor                  （ビューモデルのコンストラクター）
@@ -340,16 +338,14 @@ OnDialogClosed
 callback No           （ShowDialog に渡した、閉じたときの処理）
 ```
 
-`ShowDialog` は、このあとで戻ります。`CanCloseDialog` が `false` を返すと、ダイアログは閉じられません。
+`ShowDialog` はこのあとで戻ります。`CanCloseDialog` が `false` を返すとダイアログは閉じられません。
 
 `IDialogAware` には 4 つのメンバーがあります。
 
-| メンバー | 役目 |
-| --- | --- |
-| `RequestClose` | ダイアログを閉じる依頼。`Invoke(ButtonResult.Yes)` のように、結果を添えて閉じる |
-| `CanCloseDialog()` | 今、閉じてよいかを返す。`false` なら閉じられない（入力途中の確認など） |
-| `OnDialogOpened(parameters)` | 開いたときに呼ばれる。呼び出し側が渡した値を `parameters` から読む |
-| `OnDialogClosed()` | 閉じたあとの後片付け |
+- `RequestClose`: ダイアログを閉じる依頼。`Invoke(ButtonResult.Yes)` のように結果を添えて閉じる
+- `CanCloseDialog()`: 今、閉じてよいかを返す。`false` なら閉じられない（入力途中の確認など）
+- `OnDialogOpened(parameters)`: 開いたときに呼ばれる。呼び出し側が渡した値を `parameters` から読む
+- `OnDialogClosed()`: 閉じたあとの後片付け
 
 `ButtonResult` は `OK`、`Cancel`、`Yes`、`No` などのどのボタンで閉じたかを表す列挙型です。
 
@@ -359,7 +355,7 @@ callback No           （ShowDialog に渡した、閉じたときの処理）
 containerRegistry.RegisterDialog<ConfirmDialog, ConfirmDialogViewModel>();
 ```
 
-開く側は、`IDialogService` を受け取って `ShowDialog` を呼びます。メニューの「終了」に結びます。
+開く側は `IDialogService` を受け取って `ShowDialog` を呼びます。メニューの「終了」に結びます。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
 private readonly IDialogService _dialogs;
@@ -384,7 +380,7 @@ private void Exit()                      // ExitCommand が生成される
 <MenuItem Header="終了(_X)" Command="{Binding ExitCommand}" />
 ```
 
-`nameof(ConfirmDialog)` は、型の名前を文字列 `"ConfirmDialog"` として得る式です。名前を変えたときに自動で追従します。`DialogParameters` はダイアログに渡す値の入れ物で、キーと値の組を並べます。`DialogCallback` は Prism 9 で導入された、「閉じたときの処理」を指定する入れ物です。
+`nameof(ConfirmDialog)` は型の名前を文字列 `"ConfirmDialog"` として得る式です。名前を変えたときに自動で追従します。`DialogParameters` はダイアログに渡す値の入れ物で、キーと値の組を並べます。`DialogCallback` は Prism 9 で導入された「閉じたときの処理」を指定する入れ物です。
 
 `ShowDialog` は閉じるまで他の操作を止めるダイアログ、`Show` は他の操作もできるダイアログを開きます。ウィンドウ自体の見た目を変えたいときは、`RegisterDialogWindow<T>()` で自作の `Window` を登録します（第 25 章）。
 
@@ -424,11 +420,11 @@ public class FileDialogService : IFileDialogService
 containerRegistry.RegisterSingleton<IFileDialogService, FileDialogService>();
 ```
 
-`Filter` は `"シーン (*.scene)|*.scene|すべて (*.*)|*.*"` のように、表示名とパターンを `|` でつなぎます。`ShowDialog()` が返すのは `bool?`（`true` / `false` / `null`）で、OK で閉じたときだけ `true` です。キャンセルされたときは `null` を返すことにしてあります。
+`Filter` は `"シーン (*.scene)|*.scene|すべて (*.*)|*.*"` のように表示名とパターンを `|` でつなぎます。`ShowDialog()` が返すのは `bool?`（`true` / `false` / `null`）で、OK で閉じたときだけ `true` です。キャンセルされたときは `null` を返すことにしてあります。
 
 ## サービスの一覧
 
-ここまでで、アプリ共通のサービスがそろいました。
+ここまででアプリ共通のサービスがそろいました。
 
 | サービス | 役目 | 登録 |
 | --- | --- | --- |
@@ -443,10 +439,10 @@ containerRegistry.RegisterSingleton<IFileDialogService, FileDialogService>();
 
 ## 動かして確かめる
 
-- シーン ツリーで別のオブジェクトを選ぶと、プロパティ パネルの内容とステータス バーの「選択: …」が切り替わる。
-- 起動直後から、プロパティ パネルに「Cube」が出ている（サービスから読んでいるから）。
-- ログ タブに「Editor を起動しました」と出る。アセットの読み込みでも、ログが増える。
-- 「ファイル → 終了」で確認ダイアログが開き、「いいえ」なら閉じるだけ、「はい」ならアプリが終わる。
+- シーン ツリーで別のオブジェクトを選ぶとプロパティ パネルの内容とステータス バーの「選択: …」が切り替わる。
+- 起動直後からプロパティ パネルに「Cube」が出ている（サービスから読んでいるから）。
+- ログ タブに「Editor を起動しました」と出る。アセットの読み込みでもログが増える。
+- 「ファイル → 終了」で確認ダイアログが開き「いいえ」なら閉じるだけ、「はい」ならアプリが終わる。
 
 ??? failure "別のスレッドから `ObservableCollection` を変更して例外になる"
     `This type of CollectionView does not support changes to its SourceCollection from a thread different from the Dispatcher thread` と出ます。`Dispatcher` で UI スレッドに回してください（`LogService` はその形です）。
@@ -455,13 +451,13 @@ containerRegistry.RegisterSingleton<IFileDialogService, FileDialogService>();
     受け取る側が GC に片付けられた可能性があります（`keepSubscriberReferenceAlive: false` の場合）。受け取る側のオブジェクトがどこかに保持されているか確かめます。ビューモデルは画面の `DataContext` が持っているので、普通は消えません。
 
 ??? failure "プロパティ パネルが、起動直後は空になる"
-    `PropertyViewModel` のコンストラクターで、`selection.Selected` を読んでいますか。イベントだけに頼ると、あとから作られたビューモデルは、最初の選択を受け取れません。
+    `PropertyViewModel` のコンストラクターで、`selection.Selected` を読んでいますか。イベントだけに頼るとあとから作られたビューモデルは、最初の選択を受け取れません。
 
 ??? failure "ダイアログが開かない"
-    `RegisterDialog` を書き忘れているか、`ShowDialog` に渡した名前がビューの型名と違っています。
+    `RegisterDialog` を書き忘れているか `ShowDialog` に渡した名前がビューの型名と違っています。
 
 ??? failure "`DialogCloseListener` が見つからない（`CS0246`）"
-    使っている Prism のバージョンが 8 以前です。`Prism.DryIoc` を 9 以降に更新するか、Prism 8 用の書き方を調べてください。
+    使っている Prism のバージョンが 8 以前です。`Prism.DryIoc` を 9 以降に更新するか Prism 8 用の書き方を調べてください。
 
 ## ここまでの Editor
 
@@ -486,6 +482,6 @@ Editor/
 └─ MainWindowViewModel.cs            終了の確認、ステータス バーの選択表示
 ```
 
-次の章では、画面遷移の確認、ビューの寿命、コマンドの束ね方など、Prism をもう少し掘り下げます。
+次の章では画面遷移の確認、ビューの寿命、コマンドの束ね方など Prism をもう少し掘り下げます。
 
 [第 25 章 Prism を掘り下げる](25-prism-deep.md) へ進みます。

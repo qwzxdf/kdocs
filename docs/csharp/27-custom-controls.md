@@ -6,20 +6,20 @@ tags:
 
 # 第 27 章 UserControl とカスタム コントロール
 
-画面を作っていると、「同じ部品の組み合わせを何度も書いている」と気づく瞬間があります。たとえばプロパティ パネルの「ラベル + 数値入力 3 つ」は、位置にも回転にも拡大にも出てきます。こういうときは、ひとまとめにして名前を付けた部品にします。WPF では、そのために 2 つの方法があります。
+画面を作っていると「同じ部品の組み合わせを何度も書いている」と気づく瞬間があります。たとえばプロパティ パネルの「ラベル + 数値入力 3 つ」は、位置にも回転にも拡大にも出てきます。こういうときはひとまとめにして名前を付けた部品にします。WPF ではそのために 2 つの方法があります。
 
 !!! info "このページを読む前に"
     - [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)（前の章。ここまでの内容が前提になる）
-    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+    - [C# 連携](index.md)（このセクション全体の地図と読む順番）
 
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
     | `Shared/Controls/LabeledNumber.xaml`・`.xaml.cs`（新規） | 「ラベル + 数値入力」の部品 |
-    | `Property/PropertyView.xaml`（変更） | 位置の入力欄を、この部品に置き換える |
+    | `Property/PropertyView.xaml`（変更） | 位置の入力欄をこの部品に置き換える |
 
-    後半のカスタム コントロール（`StepperBox`）と `Adorner` は、作り方を見るための実験で、Editor には入れません。
+    後半のカスタム コントロール（`StepperBox`）と `Adorner` は、作り方を見るための実験で Editor には入れません。
 
 ## どちらを選ぶか
 
@@ -30,13 +30,13 @@ tags:
 | 見た目の差し替え | 難しい（中身が固定） | 使う側がテンプレートを差し替えられる |
 | 向いている場面 | アプリの中で使い回す部品 | ライブラリとして配る部品、見た目を何通りにも変えたい部品 |
 
-アプリの中でしか使わない部品なら、`UserControl` でほとんど足ります。この教材の `SceneTreeView` などのビューも、実は `UserControl` です。カスタム コントロールは、ボタンやスライダーのように、機能はそのままで見た目を何度も作り替えたい部品に向いています。
+アプリの中でしか使わない部品なら `UserControl` でほとんど足ります。この教材の `SceneTreeView` などのビューも実は `UserControl` です。カスタム コントロールはボタンやスライダーのように機能はそのままで見た目を何度も作り替えたい部品に向いています。
 
 ## UserControl で、数値入力の部品を作る
 
-第 14〜15 章で、プロパティ パネルの位置は、`TextBox` を 3 つ並べて書きました。「ラベル + 数値入力」の組み合わせは、回転や拡大でも出てくるので、部品 `LabeledNumber` にまとめます。
+第 14〜15 章でプロパティ パネルの位置は、`TextBox` を 3 つ並べて書きました。「ラベル + 数値入力」の組み合わせは、回転や拡大でも出てくるので部品 `LabeledNumber` にまとめます。
 
-1. `Controls` フォルダーを作り、「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `LabeledNumber.xaml` を作ります。
+1. `Controls` フォルダーを作り「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `LabeledNumber.xaml` を作ります。
 
 ```xml title="Shared/Controls/LabeledNumber.xaml（新規）"
 <UserControl x:Class="Editor.Shared.Controls.LabeledNumber"
@@ -82,7 +82,7 @@ public partial class LabeledNumber : UserControl
 }
 ```
 
-3. 使う側は、普通の部品のように書きます。プロパティ パネルの位置の入力欄を、置き換えます。
+3. 使う側は普通の部品のように書きます。プロパティ パネルの位置の入力欄を置き換えます。
 
 ```xml title="Property/PropertyView.xaml（変更：位置の入力欄）"
 <!-- UserControl タグに xmlns:controls="clr-namespace:Editor.Shared.Controls" を足す -->
@@ -91,18 +91,18 @@ public partial class LabeledNumber : UserControl
 <controls:LabeledNumber Label="位置 Z" Value="{Binding Target.Z}" Margin="0,4,0,0" />
 ```
 
-部品の `Value` は `double`、ビューモデルの `X` は `float` ですが、バインディングが自動で変換します。部品の中の `TextBox` は、第 14 章で決めたとおり、フォーカスが外れたときに反映します（`UpdateSourceTrigger=LostFocus`）。
+部品の `Value` は `double`、ビューモデルの `X` は `float` ですが、バインディングが自動で変換します。部品の中の `TextBox` は第 14 章で決めたとおりフォーカスが外れたときに反映します（`UpdateSourceTrigger=LostFocus`）。
 
-ここで注意してほしいのが、`UserControl` 内部の `DataContext` です。部品の中で `{Binding Value}` と書くと、使う側から引き継いだ `DataContext`（たとえば親のビューモデル）の `Value` を探しに行ってしまいます。そこで、ここでは `ElementName=Root` で、部品自身の `Value` プロパティを指しました。
+ここで注意してほしいのが `UserControl` 内部の `DataContext` です。部品の中で `{Binding Value}` と書くと使う側から引き継いだ `DataContext`（たとえば親のビューモデル）の `Value` を探しに行ってしまいます。そこで、ここでは `ElementName=Root` で部品自身の `Value` プロパティを指しました。
 
-もう 1 つの方法は、部品の `DataContext` を部品自身にすることですが、そうすると、使う側が `Value="{Binding PositionX}"` と書いたときの `PositionX` の探し先も変わってしまい、親のビューモデルが見えなくなります。`UserControl` を作るときの典型的なハマりどころなので、`ElementName` か `RelativeSource` で自分自身を指す書き方を覚えておいてください。
+もう 1 つの方法は部品の `DataContext` を部品自身にすることですが、そうすると使う側が `Value="{Binding PositionX}"` と書いたときの `PositionX` の探し先も変わってしまい親のビューモデルが見えなくなります。`UserControl` を作るときの典型的なハマりどころなので、`ElementName` か `RelativeSource` で自分自身を指す書き方を覚えておいてください。
 
 ## カスタム コントロールを作る
 
 テンプレートで見た目を差し替えられる部品を作るときは、`Control` を継承します。
 
-1. 「追加 → 新しい項目 → カスタム コントロール (WPF)」を選ぶと、`.cs` ファイルと、`Themes\Generic.xaml` ができます。
-2. `.cs` には、機能（プロパティとロジック）だけを書きます。
+1. 「追加 → 新しい項目 → カスタム コントロール (WPF)」を選ぶと、`.cs` ファイルと `Themes\Generic.xaml` ができます。
+2. `.cs` には機能（プロパティとロジック）だけを書きます。
 
 ```csharp title="実験：Controls/StepperBox.cs（Editor には入れない）"
 [TemplatePart(Name = "PART_Up", Type = typeof(ButtonBase))]
@@ -153,18 +153,18 @@ public class StepperBox : Control
 
 ポイントは 4 つです。
 
-- `DefaultStyleKeyProperty.OverrideMetadata(...)` が、「このクラスの既定のスタイル（と、その中のテンプレート）は `Generic.xaml` から探して」という指定です。これを忘れると、見た目が何も出ません。
-- 機能（`Value` の増減）と見た目（`ControlTemplate`）が別ファイルに分かれています。使う側は、同じ `StepperBox` に対して、別のテンプレートを当てれば、別の見た目にできます。
-- `PART_Up` のように `PART_` で始まる名前は、「テンプレートに必ずあってほしい部品」を示す慣習です。`[TemplatePart]` 属性でそれを宣言しておき、`OnApplyTemplate` で `GetTemplateChild` を使って取り出します。
-- `TemplateBinding` で、部品のプロパティ（`Value`）をテンプレートの中の部品に結び付けています（第 11 章）。
+- `DefaultStyleKeyProperty.OverrideMetadata(...)` が「このクラスの既定のスタイル（とその中のテンプレート）は `Generic.xaml` から探して」という指定です。これを忘れると見た目が何も出ません。
+- 機能（`Value` の増減）と見た目（`ControlTemplate`）が別ファイルに分かれています。使う側は同じ `StepperBox` に対して別のテンプレートを当てれば、別の見た目にできます。
+- `PART_Up` のように `PART_` で始まる名前は、「テンプレートに必ずあってほしい部品」を示す慣習です。`[TemplatePart]` 属性でそれを宣言しておき `OnApplyTemplate` で `GetTemplateChild` を使って取り出します。
+- `TemplateBinding` で部品のプロパティ（`Value`）をテンプレートの中の部品に結び付けています（第 11 章）。
 
-`Themes\Generic.xaml` の置き場所は、**`Themes` フォルダーの直下**で、名前も `Generic.xaml` と決まっています。`AssemblyInfo.cs` に `[assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]` があることも確認してください（WPF のプロジェクト テンプレートで最初から入っています）。
+`Themes\Generic.xaml` の置き場所は**`Themes` フォルダーの直下**で、名前も `Generic.xaml` と決まっています。`AssemblyInfo.cs` に `[assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]` があることも確認してください（WPF のプロジェクト テンプレートで最初から入っています）。
 
 ## 部品の上に重ねて描く（Adorner）
 
-部品の上に選択枠や、ドラッグ中の目印を重ねたいことがあります。`Adorner`（装飾）は、そのための仕組みです。レイアウトに影響せず、部品の上の「装飾レイヤー」に描かれるので、元の部品の大きさや並びを変えずに、枠や記号を足せます。
+部品の上に選択枠やドラッグ中の目印を重ねたいことがあります。`Adorner`（装飾）はそのための仕組みです。レイアウトに影響せず部品の上の「装飾レイヤー」に描かれるので、元の部品の大きさや並びを変えずに枠や記号を足せます。
 
-自分で作るときは、`Adorner` を継承して、`OnRender` で描きます。
+自分で作るときは `Adorner` を継承して、`OnRender` で描きます。
 
 ```csharp title="実験：Controls/SelectionAdorner.cs（Editor には入れない）"
 using System.Windows.Documents;
@@ -198,7 +198,7 @@ public sealed class SelectionAdorner : Adorner
 }
 ```
 
-付けるときは、部品がいる `AdornerLayer` を取って、`Add` します。
+付けるときは部品がいる `AdornerLayer` を取って、`Add` します。
 
 ```csharp title="実験（Editor には入れない）"
 var layer = AdornerLayer.GetAdornerLayer(targetElement);
@@ -209,31 +209,31 @@ layer?.Add(adorner);
 layer?.Remove(adorner);
 ```
 
-`GetAdornerLayer` は、部品がウィンドウに表示されたあとでないと、`null` を返すことがあります。`Loaded` のあとに呼んでください。
+`GetAdornerLayer` は部品がウィンドウに表示されたあとでないと `null` を返すことがあります。`Loaded` のあとに呼んでください。
 
-`Adorner` は、`Window` の中の部品に対してだけ働きます。`HwndHost` で埋め込んだ 3D ビューポートの上には、重ねられません（第 37 章。WPF とは別のウィンドウだからです）。ビューポートの上の選択枠やギズモは、WPF の `Adorner` ではなく、エンジン側で描きます（第 43 章）。`Adorner` は、シーン ツリーやアセット ブラウザのような、WPF の部品の上で使います。
+`Adorner` は `Window` の中の部品に対してだけ働きます。`HwndHost` で埋め込んだ 3D ビューポートの上には、重ねられません（第 37 章。WPF とは別のウィンドウだからです）。ビューポートの上の選択枠やギズモは WPF の `Adorner` ではなく、エンジン側で描きます（第 43 章）。`Adorner` はシーン ツリーやアセット ブラウザのような WPF の部品の上で使います。
 
 ## 作らないほうがいい場合
 
 自作の部品を作る前に次の可能性を考えてみてください。
 
 - 既存の部品の `Style` や `ControlTemplate` を変えれば、同じ見た目にならないか（第 11 章）。
-- 既存の部品の `Content` に、他の部品を入れれば済まないか（第 8 章）。
-- `DataTemplate` で、データ 1 件の見せ方を決めれば済まないか。
+- 既存の部品の `Content` に他の部品を入れれば済まないか（第 8 章）。
+- `DataTemplate` でデータ 1 件の見せ方を決めれば済まないか。
 
-自作部品は、作るコストだけでなく、直すコストも抱えます。標準の部品で済む場合は、そちらを選ぶのが得です。
+自作部品は作るコストだけでなく、直すコストも抱えます。標準の部品で済む場合はそちらを選ぶのが得です。
 
 ??? failure "自作の `NumberBox` の `Value` に `{Binding}` したのに、値が反映されない"
-    `Value` を普通のプロパティ（`public double Value { get; set; }`）で書いていないか確かめてください。バインディングの対象にできるのは、依存関係プロパティだけです（第 10 章）。普通のプロパティだと、XAML 側で `Value="{Binding ...}"` と書いた時点で、実行時にバインディング エラーが出ます。
+    `Value` を普通のプロパティ（`public double Value { get; set; }`）で書いていないか確かめてください。バインディングの対象にできるのは、依存関係プロパティだけです（第 10 章）。普通のプロパティだと XAML 側で `Value="{Binding ...}"` と書いた時点で、実行時にバインディング エラーが出ます。
 
 ## この章のまとめ
 
-- アプリの中で使い回すだけなら `UserControl`。外から指定する値は、依存関係プロパティで公開する。
-- `UserControl` の中のバインディングは、`ElementName` などで自分自身を指す。`DataContext` を書き換えない。
-- 見た目を差し替えたい部品は、`Control` を継承したカスタム コントロール。機能は C#、見た目は `Generic.xaml`。
+- アプリの中で使い回すだけなら `UserControl`。外から指定する値は依存関係プロパティで公開する。
+- `UserControl` の中のバインディングは `ElementName` などで自分自身を指す。`DataContext` を書き換えない。
+- 見た目を差し替えたい部品は `Control` を継承したカスタム コントロール。機能は C#、見た目は `Generic.xaml`。
 - 部品の上に枠や目印を重ねたいときは `Adorner`。ただし `HwndHost` の上には重ねられない。
 - 作る前にスタイルやテンプレートで済まないかを考える。
 
-次の章では、イベントをコマンドに結んで、コードビハインドを減らす方法を見ます。
+次の章ではイベントをコマンドに結んで、コードビハインドを減らす方法を見ます。
 
 [第 28 章 コードビハインドを減らす（Behaviors）](28-behaviors.md) へ進みます。

@@ -234,16 +234,14 @@ int main() {
 
 よく使う標準の concepts です（`<concepts>`）。
 
-| concept | 意味 |
-| --- | --- |
-| `std::integral` | 整数型（int、long、char など） |
-| `std::floating_point` | 浮動小数点型（float、double） |
-| `std::same_as<U>` | U と同じ型 |
-| `std::convertible_to<U>` | U に変換できる |
-| `std::derived_from<Base>` | Base を継承している |
-| `std::invocable<Args...>` | その引数で呼び出せる |
-| `std::totally_ordered` | `<` などで比べられる |
-| `std::ranges::range` | 範囲 for で回せる（`<ranges>`） |
+- `std::integral`: 整数型（int、long、char など）
+- `std::floating_point`: 浮動小数点型（float、double）
+- `std::same_as<U>`: U と同じ型
+- `std::convertible_to<U>`: U に変換できる
+- `std::derived_from<Base>`: Base を継承している
+- `std::invocable<Args...>`: その引数で呼び出せる
+- `std::totally_ordered`: `<` などで比べられる
+- `std::ranges::range`: 範囲 for で回せる（`<ranges>`）
 
 自分で条件を書くこともできます。
 
@@ -367,13 +365,11 @@ int main() {
 
 ## ゲームでの例
 
-| 場面 | 例 |
-| --- | --- |
-| 数学の型 | `Vec2<T>`、`Rect<T>`（int 版と float 版を 1 つのコードで） |
-| リソース管理 | `ResourceCache<Texture>`、`ResourceCache<Sound>` |
-| オブジェクトプール | `Pool<Bullet, 1024>` |
-| ECS | `registry.GetComponent<Transform>(entity)`（[ECS](../design/patterns/ecs.md)） |
-| ユーティリティ | `Clamp<T>`、`Lerp<T>` |
+- 数学の型: `Vec2<T>`、`Rect<T>`（int 版と float 版を 1 つのコードで）
+- リソース管理: `ResourceCache<Texture>`、`ResourceCache<Sound>`
+- オブジェクトプール: `Pool<Bullet, 1024>`
+- ECS: `registry.GetComponent<Transform>(entity)`（[ECS](../design/patterns/ecs.md)）
+- ユーティリティ: `Clamp<T>`、`Lerp<T>`
 
 ## よくあるミス
 

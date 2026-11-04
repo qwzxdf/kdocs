@@ -6,17 +6,17 @@ tags:
 
 # Skin and Hair
 
-ゲームの主役は、たいてい人間（またはそれに近いキャラクター）です。プレイヤーの目は、顔と髪に最初に向かいます。しかも人間は、人の顔を見慣れているので、<strong>わずかな不自然さにも気づきます</strong>。「不気味の谷」と呼ばれる現象です。肌がプラスチックのように硬く見える、髪が一枚の板に見える、目が死んだように見える。これらは、<strong>光の物理を省略した結果</strong>です。
+ゲームの主役はたいてい人間（またはそれに近いキャラクター）です。プレイヤーの目は顔と髪に最初に向かいます。しかも人間は人の顔を見慣れているので、<strong>わずかな不自然さにも気づきます</strong>。「不気味の谷」と呼ばれる現象です。肌がプラスチックのように硬く見える髪が一枚の板に見える目が死んだように見える。これらは <strong>光の物理を省略した結果</strong>です。
 
-肌も髪も、<strong>光が表面で跳ね返るだけでなく、物の内部を通る</strong>素材です。肌では、光が皮膚の中へ入り、散らばり、少し離れた場所から出てきます。髪では、光が 1 本の細い繊維の中を通り抜け、反対側から出てきます。これを無視して「表面の色にライトを当てるだけ」で描くと、どれだけテクスチャが高精細でも、のっぺりとしたマネキンになります。
+肌も髪も <strong>光が表面で跳ね返るだけでなく、物の内部を通る</strong>素材です。肌では光が皮膚の中へ入り散らばり少し離れた場所から出てきます。髪では光が 1 本の細い繊維の中を通り抜け反対側から出てきます。これを無視して「表面の色にライトを当てるだけ」で描くとどれだけテクスチャが高精細でも、のっぺりとしたマネキンになります。
 
-このセクションでは、その二つの素材を <strong>原典の論文の考え方に沿って</strong>順に説明します。
+このセクションではその二つの素材を <strong>原典の論文の考え方に沿って</strong>順に説明します。
 
 ## このセクションの流れ
 
-肌の側から順に読むのがお勧めです。まず[Skin Overview](skin/index.md)で、肌の層構造と、光の振る舞いを知ります。次に[次表面散乱の理論](skin/subsurface-theory.md)で、「なぜ内部を通る光を計算するのか」を数式で理解します。そのうえで、実装の道具である[拡散プロファイル](skin/diffusion-profile.md)、画面空間の[分離ぼかし](skin/screen-space-sss.md)、軽量な[事前積分](skin/pre-integrated.md)を比べます。さらに、耳のような薄い部分の[透過](skin/thin-translucency.md)、肌の[鏡面反射](skin/specular.md)、毛穴やしわの[微細なディテール](skin/micro-detail.md)、そして[目](skin/eyes.md)を扱います。
+肌の側から順に読むのがお勧めです。まず[Skin Overview](skin/index.md)で、肌の層構造と光の振る舞いを知ります。次に[次表面散乱の理論](skin/subsurface-theory.md)で「なぜ内部を通る光を計算するのか」を数式で理解します。そのうえで、実装の道具である[拡散プロファイル](skin/diffusion-profile.md)、画面空間の[分離ぼかし](skin/screen-space-sss.md)、軽量な[事前積分](skin/pre-integrated.md)を比べます。さらに、耳のような薄い部分の[透過](skin/thin-translucency.md)、肌の[鏡面反射](skin/specular.md)、毛穴やしわの[微細なディテール](skin/micro-detail.md)、そして[目](skin/eyes.md)を扱います。
 
-髪は、[Hair Overview](hair/index.md)から入ります。形の作り方（[カードとストランド](hair/geometry.md)）、光り方の式（[Kajiya-Kay](hair/kajiya-kay.md)、[Marschner](hair/marschner.md)）、透明の扱い（[Hair Transparency](hair/transparency.md)）、影（[Hair Shadows](hair/shadows.md)）、エイリアシング（[Hair Anti-Aliasing](hair/anti-aliasing.md)）の順です。
+髪は[Hair Overview](hair/index.md)から入ります。形の作り方（[カードとストランド](hair/geometry.md)）、光り方の式（[Kajiya-Kay](hair/kajiya-kay.md)、[Marschner](hair/marschner.md)）、透明の扱い（[Hair Transparency](hair/transparency.md)）、影（[Hair Shadows](hair/shadows.md)）、エイリアシング（[Hair Anti-Aliasing](hair/anti-aliasing.md)）の順です。
 
 ## ページ一覧
 
@@ -44,7 +44,7 @@ tags:
 !!! abstract "まとめ"
     - [x] 肌は<strong>表面反射 ＋ 内部散乱</strong>。<strong>内部散乱を省くとプラスチックになる</strong>
     - [x] 髪は<strong>細い円柱</strong>。<strong>2 本のハイライト</strong>と<strong>透け</strong>が命
-    - [x] どちらも<strong>「安い近似」の階段</strong>があり、<strong>予算で選ぶ</strong>
+    - [x] どちらも<strong>「安い近似」の階段</strong>があり <strong>予算で選ぶ</strong>
 
 ## 関連ページ
 

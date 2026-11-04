@@ -106,11 +106,9 @@ HRESULT IDXGIFactory2::CreateSwapChainForHwnd(
 
 戻り値は次のとおりです。
 
-| 戻り値 | 原因 |
-| --- | --- |
-| `S_OK` | 成功 |
-| `DXGI_ERROR_INVALID_CALL` | `pDesc` の内容が不正（`_SRGB` 形式、フリップ モデルで MSAA、バッファが 1 枚など）。引数の `nullptr` もこれ |
-| `E_OUTOFMEMORY` | メモリ不足 |
+- `S_OK`: 成功
+- `DXGI_ERROR_INVALID_CALL`: `pDesc` の内容が不正（`_SRGB` 形式、フリップ モデルで MSAA、バッファが 1 枚など）。引数の `nullptr` もこれ
+- `E_OUTOFMEMORY`: メモリ不足
 
 また、1 つのウィンドウに結びつけられるフリップ モデルのスワップ チェーンは同時に 1 つだけです。作り直すときは、古いほうを先に完全に手放してから作ります。
 
@@ -127,11 +125,9 @@ DXGI がウィンドウのメッセージを監視して行う動作を止めま
 | `WindowHandle` | `HWND` | 対象のウィンドウ。`nullptr` で、結びつけを解除する |
 | `Flags` | `UINT` | 止めたい動作（下の表） |
 
-| フラグ | 止める動作 |
-| --- | --- |
-| `DXGI_MWA_NO_WINDOW_CHANGES` | DXGI がウィンドウの大きさやスタイルを変えること全般 |
-| `DXGI_MWA_NO_ALT_ENTER` | Alt+Enter での全画面の切り替え |
-| `DXGI_MWA_NO_PRINT_SCREEN` | Print Screen でのスクリーンショット |
+- `DXGI_MWA_NO_WINDOW_CHANGES`: DXGI がウィンドウの大きさやスタイルを変えること全般
+- `DXGI_MWA_NO_ALT_ENTER`: Alt+Enter での全画面の切り替え
+- `DXGI_MWA_NO_PRINT_SCREEN`: Print Screen でのスクリーンショット
 
 ゲームで使うのは `DXGI_MWA_NO_ALT_ENTER` です。自分で全画面を切り替えるなら、Alt+Enter を `WM_SYSKEYDOWN` で拾って処理します。呼ぶのは `CreateSwapChainForHwnd` のあとです。スワップ チェーンを作る前に呼んでも、あとから作るスワップ チェーンの動作を変えられません。戻り値は成功なら `S_OK` です。
 

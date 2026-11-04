@@ -49,11 +49,9 @@ UAV は <strong>1 つのミップ</strong>しか見せられません（SRV と�
 
 テクスチャの UAV にはフォーマットの制約があります。
 
-| できること | フォーマット |
-| --- | --- |
-| 書き込み | ほとんどの非圧縮フォーマット（`R8G8B8A8_UNORM`、`R16G16B16A16_FLOAT`、`R11G11B10_FLOAT` など） |
-| 読み込み・アトミック | `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（機能レベル 11.0 で保証） |
-| 使えない | `_SRGB`、圧縮（BC）、深度、MSAA |
+- 書き込み: ほとんどの非圧縮フォーマット（`R8G8B8A8_UNORM`、`R16G16B16A16_FLOAT`、`R11G11B10_FLOAT` など）
+- 読み込み・アトミック: `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（機能レベル 11.0 で保証）
+- 使えない: `_SRGB`、圧縮（BC）、深度、MSAA
 
 `RWTexture2D<float4>` の <strong>読み込み</strong>（`g_texture[id.xy]` を右辺に書く）をしたいとき `R16G16B16A16_FLOAT` などは保証されません。ハードウェアが対応しているかを `CheckFeatureSupport` で、確認します。
 
