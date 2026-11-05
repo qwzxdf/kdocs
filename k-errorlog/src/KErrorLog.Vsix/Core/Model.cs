@@ -108,6 +108,9 @@ namespace KErrorLog
             }
         }
 
+        /// <summary>個々のエラーではなく、件数の集計だけを言うリンカーの行。</summary>
+        public bool IsSummary { get { return Code == "LNK1120" || Code == "LNK1169"; } }
+
         public bool IsLinker { get { return Kind == DiagKind.Unresolved || Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase); } }
     }
 
@@ -135,7 +138,8 @@ namespace KErrorLog
         public int LinkerUnresolvedTotal;
         public string RawText = "";
 
-        public int ErrorCount { get { return Diags.FindAll(d => d.Sev == Sev.Error).Count; } }
+        /// <summary>エラーの数。LNK1120 / LNK1169 は、ほかのエラーの件数を言うだけの行なので、数えない。</summary>
+        public int ErrorCount { get { return Diags.FindAll(d => d.Sev == Sev.Error && !d.IsSummary).Count; } }
         public int WarningCount { get { return Diags.FindAll(d => d.Sev == Sev.Warning).Count; } }
     }
 }

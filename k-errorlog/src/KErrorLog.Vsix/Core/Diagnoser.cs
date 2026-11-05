@@ -95,17 +95,50 @@ namespace KErrorLog
         }
 
         /// <summary>.lib とソースを探して、シンボルに結果を書き込む(時間がかかるので、別のスレッドで呼ぶ)。</summary>
-        public static void Enrich(List<UnresolvedSym> syms, AnalysisContext ctx, CancellationToken ct)
+        public sealed class EnrichResult
         {
-            foreach (UnresolvedSym s in syms)
+            public Dictionary<UnresolvedSym, UnresolvedSym> Clones = new Dictionary<UnresolvedSym, UnresolvedSym>();
+            public Dictionary<Diag, List<string>> Found = new Dictionary<Diag, List<string>>();
+        }
+
+        /// <summary>
+        /// .lib・ソース・足りないファイルを探す(時間がかかるので、別のスレッドで呼ぶ)。
+        /// 画面が読んでいるオブジェクトには触らず、結果は別のオブジェクトに作る。画面側は <see cref="Apply"/> で取り込む。
+        /// </summary>
+        public static EnrichResult Compute(RenderInput input, CancellationToken ct)
+        {
+            var result = new EnrichResult();
+            foreach (UnresolvedSym s in input.Syms)
+                result.Clones[s] = new UnresolvedSym
+                {
+                    Mangled = s.Mangled,
+                    Info = s.Info,
+                    Win32Lib = s.Win32Lib,
+                    Libs = new List<LibHit>(),
+                    Defs = new List<SrcHit>()
+                };
+
+            if (string.IsNullOrEmpty(input.Ctx.SolutionDir)) return result;
+
+            // 起動関数と、名前の表で分かる Windows の関数は、.lib を探しても意味がない
+            var forLibs = result.Clones.Values.Where(c => !IsEntry(c) && c.Win32Lib == null).ToList();
+            LibScanner.Scan(forLibs, input.Ctx.SolutionDir, ct, 6000);
+            var forSource = result.Clones.Values.Where(c => !IsEntry(c)).ToList();
+            SourceScanner.Scan(forSource, input.Ctx.SolutionDir, ct, 6000);
+            EnrichFiles(input.Report, input.Ctx, ct, result.Found);
+            return result;
+        }
+
+        /// <summary>Compute の結果を、画面が読むオブジェクトへ移す(UI スレッドで呼ぶ)。</summary>
+        public static void Apply(EnrichResult result)
+        {
+            foreach (var kv in result.Clones)
             {
-                s.Libs = new List<LibHit>();
-                s.Defs = new List<SrcHit>();
+                kv.Key.Libs = kv.Value.Libs;
+                kv.Key.Defs = kv.Value.Defs;
             }
-            if (string.IsNullOrEmpty(ctx.SolutionDir)) return;
-            var searchable = syms.Where(s => !IsEntry(s)).ToList();
-            LibScanner.Scan(searchable, ctx.SolutionDir, ct, 6000);
-            SourceScanner.Scan(searchable, ctx.SolutionDir, ct, 6000);
+            foreach (var kv in result.Found)
+                kv.Key.Found = kv.Value;
         }
 
         /// <summary>足りないファイルを、ソリューションの下から探す必要があるか。</summary>
@@ -123,7 +156,7 @@ namespace KErrorLog
         /// 「ファイルを開けない」エラー(C1083、LNK1104、LNK1181)の、足りないファイルを、ソリューションの下から探す。
         /// 見つかれば、追加のインクルード / ライブラリ ディレクトリに入れる場所が分かる。
         /// </summary>
-        public static void EnrichFiles(BuildReport report, AnalysisContext ctx, CancellationToken ct)
+        private static void EnrichFiles(BuildReport report, AnalysisContext ctx, CancellationToken ct, Dictionary<Diag, List<string>> found)
         {
             var wanted = report.Diags.Where(d => d.MissingName.Length > 0).ToList();
             if (wanted.Count == 0 || string.IsNullOrEmpty(ctx.SolutionDir) || !Directory.Exists(ctx.SolutionDir)) return;
@@ -131,7 +164,7 @@ namespace KErrorLog
             var tails = new List<KeyValuePair<Diag, string>>();
             foreach (Diag d in wanted)
             {
-                d.Found.Clear();
+                found[d] = new List<string>();
                 string n = d.MissingName.Replace('/', '\\');
                 while (n.StartsWith("..\\", StringComparison.Ordinal) || n.StartsWith(".\\", StringComparison.Ordinal))
                     n = n.Substring(n.IndexOf('\\') + 1);
@@ -153,8 +186,8 @@ namespace KErrorLog
                     {
                         files++;
                         foreach (var t in tails)
-                            if (t.Key.Found.Count < 5 && f.EndsWith(t.Value, StringComparison.OrdinalIgnoreCase))
-                                t.Key.Found.Add(f);
+                            if (found[t.Key].Count < 5 && f.EndsWith(t.Value, StringComparison.OrdinalIgnoreCase))
+                                found[t.Key].Add(f);
                     }
                 string[] subs = null;
                 try { subs = Directory.GetDirectories(dir); } catch (Exception) { }

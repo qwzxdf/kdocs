@@ -36,6 +36,8 @@ namespace KErrorLog
         {
             public string Token;
             public bool IsVariable;
+            /// <summary>コンストラクター・デストラクターは、戻り値の型がないので、名前の前が空でもよい。</summary>
+            public bool AllowEmptyPrefix;
             public List<UnresolvedSym> Syms = new List<UnresolvedSym>();
         }
 
@@ -56,7 +58,12 @@ namespace KErrorLog
                 if (token == null) continue;
                 bool isVar = !s.Info.IsFunction;
                 Target t;
-                if (!targets.TryGetValue(token, out t)) targets[token] = t = new Target { Token = token, IsVariable = isVar };
+                if (!targets.TryGetValue(token, out t)) targets[token] = t = new Target
+                {
+                    Token = token,
+                    IsVariable = isVar,
+                    AllowEmptyPrefix = s.Info.Kind == SymKind.Ctor || s.Info.Kind == SymKind.Dtor
+                };
                 t.Syms.Add(s);
             }
             if (targets.Count == 0) return;
@@ -137,10 +144,32 @@ namespace KErrorLog
             // 呼び出し・代入・return・メンバー アクセスは、定義ではない
             if (prefix.IndexOf('=') >= 0 || prefix.IndexOf('(') >= 0 || prefix.IndexOf('.') >= 0 || prefix.IndexOf("->", StringComparison.Ordinal) >= 0
                 || prefix.IndexOf("return", StringComparison.Ordinal) >= 0 || prefix.IndexOf("new ", StringComparison.Ordinal) >= 0
-                || prefix.IndexOf("co_", StringComparison.Ordinal) >= 0 || prefix.IndexOf(',') >= 0)
+                || prefix.IndexOf("co_", StringComparison.Ordinal) >= 0 || prefix.IndexOf(',') >= 0
+                || prefix.IndexOf("<<", StringComparison.Ordinal) >= 0 || prefix.IndexOf(">>", StringComparison.Ordinal) >= 0)
                 return false;
 
-            if (!t.IsVariable)
+            // 定義には、型(戻り値の型)が前に付く。使うだけの `Foo::count++;` や `Foo::Create(` は、前が空
+            string before = prefix.TrimEnd();
+            if (before.Length == 0)
+            {
+                if (!t.AllowEmptyPrefix) return false;
+            }
+            else
+            {
+                char last = before[before.Length - 1];
+                if (!(IsIdent(last) || last == '*' || last == '&' || last == '>')) return false;
+            }
+
+            if (t.IsVariable)
+            {
+                // 定義は「= 初期値」「{初期値}」「[要素数]」「;」のどれかで続く。`++` や `+=` で続くのは使うだけ
+                string after = line.Substring(end).TrimStart();
+                if (!(after.StartsWith("=", StringComparison.Ordinal) && !after.StartsWith("==", StringComparison.Ordinal)
+                      || after.StartsWith("{", StringComparison.Ordinal) || after.StartsWith("[", StringComparison.Ordinal)
+                      || after.StartsWith(";", StringComparison.Ordinal)))
+                    return false;
+            }
+            else
             {
                 string tail = trimmed.TrimEnd();
                 // 「foo();」のような、呼び出しか宣言の 1 行は除く(定義は、本体の「{」や引数の続きで終わる)
