@@ -49,6 +49,8 @@ namespace KErrorLog
         public string FromObj = "";
         public string FuncDem = "";
         public string FuncMangled = "";
+        /// <summary>lld / GNU ld のように、1 つのシンボルに参照元が複数ぶら下がる形式での、2 つ目以降の参照元(obj, 関数)。</summary>
+        public List<KeyValuePair<string, string>> More = new List<KeyValuePair<string, string>>();
     }
 
     /// <summary>LNK2005 / LNK1169 の、二重定義。</summary>
@@ -90,6 +92,11 @@ namespace KErrorLog
         public MultiDefRef MultiDef;
         public MismatchRef Mismatch;
 
+        /// <summary>「ファイルを開けない」系のエラーで、足りないファイル名(include の相対パス、.lib の名前)。</summary>
+        public string MissingName = "";
+        /// <summary>そのファイルが、ソリューションの下で見つかった場所(検索のあとで入る)。</summary>
+        public List<string> Found = new List<string>();
+
         public bool HasLocation { get { return File.Length > 0 && Line > 0; } }
 
         public string Location
@@ -101,7 +108,7 @@ namespace KErrorLog
             }
         }
 
-        public bool IsLinker { get { return Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase); } }
+        public bool IsLinker { get { return Kind == DiagKind.Unresolved || Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase); } }
     }
 
     public enum RawKind { Normal, ProjectHeader, Error, Warning, Note, Summary }

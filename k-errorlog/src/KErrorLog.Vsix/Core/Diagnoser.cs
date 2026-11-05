@@ -51,6 +51,13 @@ namespace KErrorLog
             "main", "wmain", "WinMain", "wWinMain", "mainCRTStartup", "wmainCRTStartup", "WinMainCRTStartup", "wWinMainCRTStartup"
         };
 
+        private static readonly HashSet<string> CrtNames = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "CxxThrowException", "CxxFrameHandler3", "CxxFrameHandler4", "security_check_cookie", "security_cookie", "GSHandlerCheck",
+            "chkstk", "alloca_probe", "fltused", "report_rangecheckfailure", "RTC_InitBase", "RTC_Shutdown", "RTC_CheckStackVars",
+            "RTC_CheckEsp", "CrtDbgReport", "CrtDbgReportW", "purecall", "ehvec_ctor", "ehvec_dtor"
+        };
+
         private static readonly Regex StdcallTail = new Regex(@"@\d+$", RegexOptions.Compiled);
 
         /// <summary>解析した結果から、未解決のシンボルを 1 つずつにまとめて取り出す。</summary>
@@ -76,6 +83,13 @@ namespace KErrorLog
                     From = r.FuncDem.Length > 0 ? SymbolPretty.Parse(r.FuncDem, r.FuncMangled) : null,
                     Project = d.Project
                 });
+                foreach (KeyValuePair<string, string> more in r.More)
+                    s.Refs.Add(new RefSite
+                    {
+                        Obj = more.Key,
+                        From = more.Value.Length > 0 ? SymbolPretty.Parse(more.Value, more.Value) : null,
+                        Project = d.Project
+                    });
             }
             return list;
         }
@@ -92,6 +106,62 @@ namespace KErrorLog
             var searchable = syms.Where(s => !IsEntry(s)).ToList();
             LibScanner.Scan(searchable, ctx.SolutionDir, ct, 6000);
             SourceScanner.Scan(searchable, ctx.SolutionDir, ct, 6000);
+        }
+
+        /// <summary>足りないファイルを、ソリューションの下から探す必要があるか。</summary>
+        public static bool NeedsFileSearch(BuildReport report)
+        {
+            return report != null && report.Diags.Any(d => d.MissingName.Length > 0);
+        }
+
+        private static readonly HashSet<string> SkipDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".git", ".vs", "node_modules", ".svn", "ipch"
+        };
+
+        /// <summary>
+        /// 「ファイルを開けない」エラー(C1083、LNK1104、LNK1181)の、足りないファイルを、ソリューションの下から探す。
+        /// 見つかれば、追加のインクルード / ライブラリ ディレクトリに入れる場所が分かる。
+        /// </summary>
+        public static void EnrichFiles(BuildReport report, AnalysisContext ctx, CancellationToken ct)
+        {
+            var wanted = report.Diags.Where(d => d.MissingName.Length > 0).ToList();
+            if (wanted.Count == 0 || string.IsNullOrEmpty(ctx.SolutionDir) || !Directory.Exists(ctx.SolutionDir)) return;
+
+            var tails = new List<KeyValuePair<Diag, string>>();
+            foreach (Diag d in wanted)
+            {
+                d.Found.Clear();
+                string n = d.MissingName.Replace('/', '\\');
+                while (n.StartsWith("..\\", StringComparison.Ordinal) || n.StartsWith(".\\", StringComparison.Ordinal))
+                    n = n.Substring(n.IndexOf('\\') + 1);
+                if (n.Length > 0) tails.Add(new KeyValuePair<Diag, string>(d, "\\" + n));
+            }
+            if (tails.Count == 0) return;
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var stack = new Stack<string>();
+            stack.Push(ctx.SolutionDir);
+            int files = 0;
+            while (stack.Count > 0 && !ct.IsCancellationRequested && sw.ElapsedMilliseconds < 4000 && files < 100000)
+            {
+                string dir = stack.Pop();
+                string[] list = null;
+                try { list = Directory.GetFiles(dir); } catch (Exception) { }
+                if (list != null)
+                    foreach (string f in list)
+                    {
+                        files++;
+                        foreach (var t in tails)
+                            if (t.Key.Found.Count < 5 && f.EndsWith(t.Value, StringComparison.OrdinalIgnoreCase))
+                                t.Key.Found.Add(f);
+                    }
+                string[] subs = null;
+                try { subs = Directory.GetDirectories(dir); } catch (Exception) { }
+                if (subs == null) continue;
+                foreach (string sub in subs)
+                    if (!SkipDirs.Contains(Path.GetFileName(sub))) stack.Push(sub);
+            }
         }
 
         public static string CoreName(string mangled)
@@ -216,6 +286,20 @@ namespace KErrorLog
                         });
                     }
                 }
+            }
+
+            // 2.5 C ランタイムの内部の関数(ランタイムがリンクされていない)
+            if (CrtNames.Contains(CoreName(s.Mangled)))
+            {
+                return Get(groups, order, "crt", g =>
+                {
+                    g.Title = "C ランタイム(CRT)の内部の関数が見つかりません";
+                    g.Explain.Add("これらはコンパイラが自動で呼び出す関数で、ランタイム ライブラリ (vcruntime / ucrt) が提供します。ランタイムがリンクされていない構成で出ます。");
+                    g.Remedies.Add("リンカー > 入力 > 「すべての既定のライブラリを無視」が「はい (/NODEFAULTLIB)」になっていないか確かめます。");
+                    g.Remedies.Add("カーネル モードやスタートアップを自作する構成なら、_fltused や __security_cookie などを自分で定義します。");
+                    g.Remedies.Add("/GS (バッファー セキュリティ チェック) を切ると、__security_cookie の参照は消えます。");
+                    g.Remedies.Add("/MT と /MD の混在や、別のコンパイラで作った .lib のときも出ます。ランタイム ライブラリをそろえます。");
+                });
             }
 
             // 3. Windows / DirectX

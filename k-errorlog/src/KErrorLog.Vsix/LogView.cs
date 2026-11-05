@@ -216,7 +216,8 @@ namespace KErrorLog
             {
                 Foreground = Theme.BrushFor(Role.Link),
                 Cursor = System.Windows.Input.Cursors.Hand,
-                ToolTip = !string.IsNullOrEmpty(r.File) ? r.File + (r.Line > 0 ? " (" + r.Line + ")" : "") : "ソリューション内を検索"
+                ToolTip = !string.IsNullOrEmpty(r.File) ? r.File + (r.Line > 0 ? " (" + r.Line + ")" : "")
+                    : !string.IsNullOrEmpty(r.Url) ? "ブラウザーで開く: " + r.Url : "ソリューション内を検索"
             };
             Run captured = r;
             link.Click += (s, e) =>
