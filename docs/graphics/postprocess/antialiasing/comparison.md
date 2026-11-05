@@ -1460,26 +1460,26 @@ float2 main(float4 pos : SV_Position) : SV_Target {
   //    周りに、もっと強い平行な辺があれば、この辺は目に見えないとして捨てる。
   //    近傍に何を選ぶかは、論文の図 5 を見ずに、ここで決めた一例:
   //    右隣の辺 / 下隣の辺 / 左隣のさらに左の辺 / 上隣のさらに上の辺 / 隣の画素の同じ向きの辺
-  float c_right = abs(l - L(p + int2(1, 0)));
-  float c_bottom = abs(l - L(p + int2(0, 1)));
-  float c_left_2 = abs(l_left - L(p + int2(-2, 0)));
-  float c_top_2 = abs(l_top - L(p + int2(0, -2)));
+  float c_right = abs(l - L(p + int2(1, 0)));   // 右隣との差
+  float c_bottom = abs(l - L(p + int2(0, 1)));   // 下隣との差
+  float c_left_2 = abs(l_left - L(p + int2(-2, 0)));   // 左隣とその左の差（左の辺と一直線上の辺）
+  float c_top_2 = abs(l_top - L(p + int2(0, -2)));   // 上隣とその上の差（上の辺と一直線上の辺）
 
   // 左の辺に平行な辺: 上と下の画素の「左の辺」。
-  float c_left_up = abs(L(p + int2(0, -1)) - L(p + int2(-1, -1)));
-  float c_left_down = abs(L(p + int2(0, 1)) - L(p + int2(-1, 1)));
+  float c_left_up = abs(L(p + int2(0, -1)) - L(p + int2(-1, -1)));   // 上の画素の左の辺
+  float c_left_down = abs(L(p + int2(0, 1)) - L(p + int2(-1, 1)));   // 下の画素の左の辺
   // 上の辺に平行な辺: 左と右の画素の「上の辺」。
-  float c_top_left = abs(L(p + int2(-1, 0)) - L(p + int2(-1, -1)));
-  float c_top_right = abs(L(p + int2(1, 0)) - L(p + int2(1, -1)));
+  float c_top_left = abs(L(p + int2(-1, 0)) - L(p + int2(-1, -1)));   // 左の画素の上の辺
+  float c_top_right = abs(L(p + int2(1, 0)) - L(p + int2(1, -1)));   // 右の画素の上の辺
 
-  float max_left = max(max(c_left_up, c_left_down), max(c_right, c_left_2));
-  float max_top = max(max(c_top_left, c_top_right), max(c_bottom, c_top_2));
+  float max_left = max(max(c_left_up, c_left_down), max(c_right, c_left_2));   // 左の辺の周りで最も強いコントラスト
+  float max_top = max(max(c_top_left, c_top_right), max(c_bottom, c_top_2));   // 上の辺の周りで最も強いコントラスト
 
   // 自分の辺が、周りの最大の g_local_ratio 倍より小さければ、見えない辺として消す。
-  edges.x *= (c_left >= g_local_ratio * max_left);
-  edges.y *= (c_top >= g_local_ratio * max_top);
+  edges.x *= (c_left >= g_local_ratio * max_left);   // 弱ければ 0（辺なし）にする
+  edges.y *= (c_top >= g_local_ratio * max_top);   // 上の辺も同じ
 
-  return edges;
+  return edges;   // x = 左の辺、y = 上の辺
 }
 ```
 
@@ -1522,28 +1522,28 @@ YCoCg 変換は Karis が近傍の箱を細くするために使ったとサー�
 // 5 回のバイリニア読みで近似した Catmull-Rom。履歴の再サンプルで、ぼけが溜まるのを抑える。
 // （サーベイが、UE4 や SMAA T2x が同じ種類の近似を使うと書いている。コードはよく知られた形で、論文のものではない）
 float4 SampleCatmullRom(Texture2D<float4> tex, float2 uv) {
-  float2 pos = uv * g_size;
-  float2 center = floor(pos - 0.5) + 0.5;
-  float2 f = pos - center;
-  float2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
-  float2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
-  float2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
-  float2 w3 = f * f * (-0.5 + 0.5 * f);
-  float2 w12 = w1 + w2;
-  float2 offset12 = w2 / w12;
+  float2 pos = uv * g_size;   // テクセル単位の位置
+  float2 center = floor(pos - 0.5) + 0.5;   // サンプル位置を含むテクセルの中心
+  float2 f = pos - center;   // そのテクセル中心からの小数のずれ（0〜1）
+  float2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));   // Catmull-Rom の重み。左の端のテクセル
+  float2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);   // 左の真ん中のテクセル
+  float2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));   // 右の真ん中のテクセル
+  float2 w3 = f * f * (-0.5 + 0.5 * f);   // 右の端のテクセル
+  float2 w12 = w1 + w2;   // 真ん中の 2 つは 1 回のバイリニアで読むので、重みを足す
+  float2 offset12 = w2 / w12;   // バイリニアの読み位置を、2 つの重みの比にずらす
 
-  float2 p0 = (center - 1.0) * g_inv_size;
-  float2 p3 = (center + 2.0) * g_inv_size;
-  float2 p12 = (center + offset12) * g_inv_size;
+  float2 p0 = (center - 1.0) * g_inv_size;   // 左（上）の端のテクセルの UV
+  float2 p3 = (center + 2.0) * g_inv_size;   // 右（下）の端のテクセルの UV
+  float2 p12 = (center + offset12) * g_inv_size;   // 真ん中 2 つをまとめて読む UV
 
-  float4 result = tex.SampleLevel(g_linear_clamp, float2(p12.x, p0.y), 0) * (w12.x * w0.y)
-                + tex.SampleLevel(g_linear_clamp, float2(p0.x, p12.y), 0) * (w0.x * w12.y)
-                + tex.SampleLevel(g_linear_clamp, float2(p12.x, p12.y), 0) * (w12.x * w12.y)
-                + tex.SampleLevel(g_linear_clamp, float2(p3.x, p12.y), 0) * (w3.x * w12.y)
-                + tex.SampleLevel(g_linear_clamp, float2(p12.x, p3.y), 0) * (w12.x * w3.y);
+  float4 result = tex.SampleLevel(g_linear_clamp, float2(p12.x, p0.y), 0) * (w12.x * w0.y)   // 上の端 × 真ん中
+                + tex.SampleLevel(g_linear_clamp, float2(p0.x, p12.y), 0) * (w0.x * w12.y)   // 左の端 × 真ん中
+                + tex.SampleLevel(g_linear_clamp, float2(p12.x, p12.y), 0) * (w12.x * w12.y)   // 真ん中 × 真ん中
+                + tex.SampleLevel(g_linear_clamp, float2(p3.x, p12.y), 0) * (w3.x * w12.y)   // 右の端 × 真ん中
+                + tex.SampleLevel(g_linear_clamp, float2(p12.x, p3.y), 0) * (w12.x * w3.y);   // 真ん中 × 下の端
   // 角の 4 タップを省いたので、残りの重みの合計で割る。
-  float weight = w12.x * w0.y + w0.x * w12.y + w12.x * w12.y + w3.x * w12.y + w12.x * w3.y;
-  return result / weight;
+  float weight = w12.x * w0.y + w0.x * w12.y + w12.x * w12.y + w3.x * w12.y + w12.x * w3.y;   // 使った 5 回分の重みの合計
+  return result / weight;   // 角の 4 回を省いた分を正規化する
 }
 ```
 
@@ -1553,12 +1553,12 @@ float4 SampleCatmullRom(Texture2D<float4> tex, float2 uv) {
 // 箱の中心から履歴へ向かう線を、箱の表面で止める。
 // （サーベイは「履歴と今のサンプルを結ぶ線分を箱で切る」と書く。ここは中心へ向かう簡易版）
 float3 ClipToBox(float3 history, float3 box_min, float3 box_max) {
-  float3 center = 0.5 * (box_max + box_min);
+  float3 center = 0.5 * (box_max + box_min);   // 箱の中心
   float3 extent = 0.5 * (box_max - box_min) + 1e-5;   // 0 割りを避ける。足した処理
-  float3 v = history - center;
-  float3 a = abs(v / extent);
-  float m = max(a.x, max(a.y, a.z));
-  return (m > 1.0) ? center + v / m : history;
+  float3 v = history - center;   // 中心から履歴へのベクトル
+  float3 a = abs(v / extent);   // 箱の大きさで割った大きさ（1 を超えれば箱の外）
+  float m = max(a.x, max(a.y, a.z));   // 3 軸のうち最も外へはみ出した比
+  return (m > 1.0) ? center + v / m : history;   // はみ出しているなら、箱の表面まで縮める
 }
 ```
 
@@ -1566,52 +1566,52 @@ float3 ClipToBox(float3 history, float3 box_min, float3 box_max) {
 
 ```hlsl
 float4 main(float4 pos : SV_Position) : SV_Target {
-  int2 p = int2(pos.xy);
-  float2 uv = (pos.xy) * g_inv_size;
+  int2 p = int2(pos.xy);   // 整数の画素座標（Load 用）
+  float2 uv = (pos.xy) * g_inv_size;   // 画素の中心の UV（pos.xy は +0.5 済み）
 
   // 1. 3x3 の近傍を読んで、平均と標準偏差を求める。同時に、いちばん手前の画素を探す。
-  float3 current = 0;
-  float3 m1 = 0, m2 = 0;
-  float closest_depth = 1.0;
-  int2 closest = int2(0, 0);
+  float3 current = 0;   // 真ん中の画素の色（YCoCg）
+  float3 m1 = 0, m2 = 0;   // 色の 1 乗和と 2 乗和（平均と分散のため）
+  float closest_depth = 1.0;   // 3x3 の中で最も手前の深度（小さいほど手前）
+  int2 closest = int2(0, 0);   // その画素の位置（中心からのずれ）
   [unroll] for (int y = -1; y <= 1; ++y) {
     [unroll] for (int x = -1; x <= 1; ++x) {
       float3 c = ToYCoCg(g_current.Load(int3(p + int2(x, y), 0)).rgb);
-      m1 += c;
-      m2 += c * c;
-      if (x == 0 && y == 0) current = c;
-      float d = g_depth.Load(int3(p + int2(x, y), 0));
+      m1 += c;   // 平均用に足す
+      m2 += c * c;   // 分散用に 2 乗を足す
+      if (x == 0 && y == 0) current = c;   // 真ん中だけ取っておく
+      float d = g_depth.Load(int3(p + int2(x, y), 0));   // 深度も同じ 3x3 で読む
       if (d < closest_depth) { closest_depth = d; closest = int2(x, y); }
     }
   }
-  float3 mean = m1 / 9.0;
-  float3 sigma = sqrt(max(m2 / 9.0 - mean * mean, 0.0));
+  float3 mean = m1 / 9.0;   // 9 画素の平均
+  float3 sigma = sqrt(max(m2 / 9.0 - mean * mean, 0.0));   // 分散 = E[x^2] - E[x]^2。誤差で負にならないよう max
 ```
 
 3×3 の近傍を読んで平均と標準偏差を求めます。いちばん手前の深度の画素も同時に探します。動きベクトルを輪郭でそのまま使うと輪郭の外側の背景の速度を拾ってしまうためです。サーベイは小さな 4 タップ程度の膨張で前景の速度を拾う方法を紹介しています。
 
 ```hlsl
   // 2. 分散クリップの箱（サーベイの式 6）。外れ値の暗い点や明るい点に引っ張られにくい。
-  float3 box_min = mean - g_gamma * sigma;
-  float3 box_max = mean + g_gamma * sigma;
+  float3 box_min = mean - g_gamma * sigma;   // 箱の下限（YCoCg）
+  float3 box_max = mean + g_gamma * sigma;   // 箱の上限（YCoCg）
 
   // 3. 動きベクトルは、いちばん手前の画素のものを使う（輪郭の外側を拾わない。Karis の方法）。
-  float2 velocity = g_velocity.Load(int3(p + closest, 0));
-  float2 history_uv = uv - velocity;
+  float2 velocity = g_velocity.Load(int3(p + closest, 0));   // 最も手前の画素の速度（UV の差）
+  float2 history_uv = uv - velocity;   // 前のフレームで同じ点があった UV
 
   // 4. 履歴を再サンプルして、箱で切る。画面の外なら、履歴を使わない。
-  float3 history = ToYCoCg(SampleCatmullRom(g_history, history_uv).rgb);
-  history = ClipToBox(history, box_min, box_max);
-  bool offscreen = any(history_uv < 0.0) || any(history_uv > 1.0);
+  float3 history = ToYCoCg(SampleCatmullRom(g_history, history_uv).rgb);   // Catmull-Rom で再サンプルした履歴
+  history = ClipToBox(history, box_min, box_max);   // 箱の外なら箱の表面へ寄せる
+  bool offscreen = any(history_uv < 0.0) || any(history_uv > 1.0);   // 前のフレームの画面外から来た履歴かどうか
 
   // 5. 明るさで重みを変えて混ぜる（Karis の w(c) = 1 / (1 + L(c))）。
   //    眩しい点が、履歴に長く残って「蛍」になるのを抑える。Y が輝度。
-  float alpha = offscreen ? 1.0 : g_alpha;
-  float w_current = alpha / (1.0 + current.x);
-  float w_history = (1.0 - alpha) / (1.0 + history.x);
-  float3 result = (current * w_current + history * w_history) / (w_current + w_history);
+  float alpha = offscreen ? 1.0 : g_alpha;   // 画面外なら今の色だけ（alpha = 1）
+  float w_current = alpha / (1.0 + current.x);   // 今の色の重み。明るいほど小さい
+  float w_history = (1.0 - alpha) / (1.0 + history.x);   // 履歴の重み。同じく明るいほど小さい
+  float3 result = (current * w_current + history * w_history) / (w_current + w_history);   // 重みで正規化した平均
 
-  return float4(max(FromYCoCg(result), 0.0), 1.0);
+  return float4(max(FromYCoCg(result), 0.0), 1.0);   // RGB へ戻す。負の値は 0 にする
 }
 ```
 
@@ -1777,7 +1777,9 @@ alpha   5 枚   10 枚   15 枚   定常
 0.05    1.5    2.4    3.9   39.0
 0.10    2.2    5.1    9.8   19.0
 0.20    3.8    7.9    8.9    9.0
+```
 
+```text title="実行結果（続き）"
 == Halton(2,3) の 8 サンプル（画素の中心からのずれ、画素単位）==
 1: (+0.000, -0.167)
 2: (-0.250, +0.167)
@@ -1787,14 +1789,18 @@ alpha   5 枚   10 枚   15 枚   定常
 6: (-0.125, -0.278)
 7: (+0.375, +0.056)
 8: (-0.438, +0.389)
+```
 
+```text title="実行結果（続き）"
 == ミップ バイアス = -0.5 * log2(等価サンプル数) ==
 N=   1  bias=-0.00
 N=   2  bias=-0.50
 N=   4  bias=-1.00
 N=   8  bias=-1.50
 N=  16  bias=-2.00
+```
 
+```text title="実行結果（続き）"
 == 1920x1080 のメモリ（MiB）==
 samples  forward(12 B)  deferred(20 B)
     1x        23.7          39.6
