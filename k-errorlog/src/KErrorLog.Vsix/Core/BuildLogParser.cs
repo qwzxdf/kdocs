@@ -36,6 +36,23 @@ namespace KErrorLog
             @"-{3,}.*?(?:プロジェクト|Project):\s*(?<proj>[^,]+?)\s*,\s*(?:構成|Configuration):\s*(?<cfg>.+?)\s*-{3,}",
             RegexOptions.Compiled);
 
+        // lld-link / ld.lld: "lld-link: error: undefined symbol: foo" のあとに、">>> referenced by ..." が続く
+        private static readonly Regex LldUndef = new Regex(
+            @"^(?<tool>[^\s:]*(?:lld|ld|link)[^\s:]*):\s*error:\s*undefined symbol:\s*(?<sym>.+)$", RegexOptions.Compiled);
+        private static readonly Regex LldRef = new Regex(
+            @"^>>>\s*referenced by\s+(?<by>.+)$", RegexOptions.Compiled);
+        private static readonly Regex LldRefObjFunc = new Regex(
+            @"^(?<obj>\S+?):\((?<fn>.*)\)$", RegexOptions.Compiled);
+
+        // GNU ld: "main.o: in function `main':" と、"main.cpp:(.text+0x10): undefined reference to `foo(int)'"
+        private static readonly Regex LdFunc = new Regex(
+            @"^(?:.*?ld[^\s:]*:\s*)?(?<obj>\S+?\.(?:o|obj|a(?:\([^)]*\))?)):\s*in function [`'‘](?<fn>.+?)['’]:?$", RegexOptions.Compiled);
+        private static readonly Regex LdUndef = new Regex(
+            @"^(?:.*?ld[^\s:]*:\s*)?(?<loc>.+?):(?:\((?<sec>[^)]*)\)|\d+)(?::\s*|\s)undefined reference to [`'‘](?<sym>.+)['’]$", RegexOptions.Compiled);
+
+        private static readonly Regex QuotedFirst = new Regex(@"'(?<n>[^']+)'", RegexOptions.Compiled);
+        private static readonly Regex GccNoFile = new Regex(@"^(?<n>\S+): No such file", RegexOptions.Compiled);
+
         private static readonly Regex SummaryLine = new Regex(@"^={5,}\s*(?<s>.*?)\s*={5,}$", RegexOptions.Compiled);
 
         public static BuildReport Parse(string text)
@@ -47,6 +64,7 @@ namespace KErrorLog
             Diag current = null;
             Frame last = null;
             bool skipping = false;
+            string ldObj = "", ldFunc = "";
 
             foreach (string rawLine in text.Split('\n'))
             {
@@ -78,6 +96,58 @@ namespace KErrorLog
                     report.Summary = sm.Groups["s"].Value;
                     raw.Kind = RawKind.Summary;
                     current = null; last = null; skipping = false;
+                    continue;
+                }
+
+                // lld の続きの行(">>> referenced by foo.obj:(func)")
+                if (current != null && current.Kind == DiagKind.Unresolved && line.StartsWith(">>>", StringComparison.Ordinal))
+                {
+                    if (!skipping) { AddLldRef(current, line); current.Raw.Add(line); }
+                    raw.Kind = RawKind.Normal;
+                    continue;
+                }
+
+                // GNU ld
+                Match ldf = LdFunc.Match(line);
+                if (ldf.Success)
+                {
+                    ldObj = ldf.Groups["obj"].Value;
+                    ldFunc = ldf.Groups["fn"].Value;
+                    current = null; last = null; skipping = false;
+                    continue;
+                }
+                Match ldu = LdUndef.Match(line);
+                Match lldu = ldu.Success ? null : LldUndef.Match(line);
+                if (ldu.Success || (lldu != null && lldu.Success))
+                {
+                    var f2 = new Frame { Sev = Sev.Error, Message = line };
+                    raw.Parsed = f2;
+                    raw.Kind = RawKind.Error;
+                    raw.Linker = true;
+
+                    var d2 = new Diag { ProjectNo = projNo, Sev = Sev.Error, Message = line, Kind = DiagKind.Unresolved };
+                    var r2 = new UnresolvedRef();
+                    if (ldu.Success)
+                    {
+                        r2.SymbolDem = r2.SymbolMangled = ldu.Groups["sym"].Value;
+                        r2.FromObj = ldObj.Length > 0 ? ldObj : ldu.Groups["loc"].Value;
+                        r2.FuncDem = r2.FuncMangled = ldFunc;
+                        d2.File = r2.FromObj;
+                    }
+                    else
+                    {
+                        r2.SymbolDem = r2.SymbolMangled = lldu.Groups["sym"].Value.Trim();
+                        d2.File = lldu.Groups["tool"].Value;
+                    }
+                    d2.Unresolved = r2;
+                    f2.File = d2.File;
+                    string key2 = projNo + "|" + DedupKey(d2);
+                    skipping = !seen.Add(key2);
+                    if (skipping) { current = null; last = null; continue; }
+                    d2.Raw.Add(line);
+                    report.Diags.Add(d2);
+                    current = d2;
+                    last = null;
                     continue;
                 }
 
@@ -129,6 +199,41 @@ namespace KErrorLog
             foreach (Diag d in report.Diags)
                 if (d.ProjectNo > 0 && report.Projects.ContainsKey(d.ProjectNo)) d.Project = report.Projects[d.ProjectNo];
             return report;
+        }
+
+        private static void AddLldRef(Diag d, string line)
+        {
+            Match m = LldRef.Match(line);
+            if (!m.Success || d.Unresolved == null) return;
+            string by = m.Groups["by"].Value.Trim();
+            string obj = by, fn = "";
+            Match of = LldRefObjFunc.Match(by);
+            if (of.Success) { obj = of.Groups["obj"].Value; fn = of.Groups["fn"].Value; }
+            UnresolvedRef r = d.Unresolved;
+            if (r.FromObj.Length == 0 && r.FuncDem.Length == 0)
+            {
+                r.FromObj = obj;
+                r.FuncDem = r.FuncMangled = fn;
+            }
+            else
+            {
+                r.More.Add(new KeyValuePair<string, string>(obj, fn));
+            }
+        }
+
+        private static string ExtractMissing(Diag d)
+        {
+            if (d.Code == "C1083" || d.Code == "LNK1104" || d.Code == "LNK1181")
+            {
+                Match m = QuotedFirst.Match(d.Message);
+                return m.Success ? m.Groups["n"].Value : "";
+            }
+            if (d.Code.Length == 0)
+            {
+                Match m = GccNoFile.Match(d.Message);
+                return m.Success ? m.Groups["n"].Value : "";
+            }
+            return "";
         }
 
         private static string DedupKey(Diag d)
@@ -229,6 +334,7 @@ namespace KErrorLog
                 Message = f.Message
             };
             if (d.IsLinker) ParseLinker(d);
+            d.MissingName = ExtractMissing(d);
             return d;
         }
 

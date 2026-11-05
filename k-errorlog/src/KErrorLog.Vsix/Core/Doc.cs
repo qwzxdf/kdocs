@@ -23,8 +23,10 @@ namespace KErrorLog
         public int Col;
         /// <summary>リンクのとき、ソリューション内を検索する語(File が空のとき)。</summary>
         public string Search;
+        /// <summary>リンクのとき、ブラウザーで開く URL(https:// だけ)。</summary>
+        public string Url;
 
-        public bool IsLink { get { return !string.IsNullOrEmpty(File) || !string.IsNullOrEmpty(Search); } }
+        public bool IsLink { get { return !string.IsNullOrEmpty(File) || !string.IsNullOrEmpty(Search) || !string.IsNullOrEmpty(Url); } }
     }
 
     public sealed class DocLine
@@ -97,6 +99,12 @@ namespace KErrorLog
         public LineBuilder SearchLink(string text, string search)
         {
             _line.Runs.Add(new Run { Text = text, Role = Role.Link, Search = search });
+            return this;
+        }
+
+        public LineBuilder UrlLink(string text, string url)
+        {
+            _line.Runs.Add(new Run { Text = text, Role = Role.Link, Url = url });
             return this;
         }
 

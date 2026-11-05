@@ -75,9 +75,15 @@ namespace KErrorLog
     /// <summary>解析した結果を、色つきの文書(Doc)にする。</summary>
     public static class Renderer
     {
+        // 描画中だけ使う(同じスレッドで、同期的に呼ばれる)
+        private static bool _pending;
+        private static readonly Dictionary<string, string[]> LineCache = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+
         public static Doc Render(RenderInput input, RenderOptions opt)
         {
             var doc = new Doc();
+            LineCache.Clear();
+            _pending = input != null && input.Pending;
             BuildReport report = input.Report;
             if (report == null)
             {
@@ -122,6 +128,18 @@ namespace KErrorLog
             if (report.Summary.Length > 0) sub.Add(report.Summary, Role.Dim);
             sub.Done();
 
+            // 同じ内容のエラー(場所だけが違う)は、1 つにまとめる
+            var sameMap = new Dictionary<string, List<Diag>>();
+            foreach (Diag d in report.Diags)
+            {
+                if (d.Kind != DiagKind.Generic || d.IsLinker) continue;
+                string k = SameKey(d);
+                List<Diag> list;
+                if (!sameMap.TryGetValue(k, out list)) sameMap[k] = list = new List<Diag>();
+                list.Add(d);
+            }
+            var sameShown = new HashSet<string>();
+
             bool unresolvedDone = false;
             int shown = 0;
             foreach (Diag d in report.Diags)
@@ -146,12 +164,25 @@ namespace KErrorLog
                 {
                     case DiagKind.MultiDefined: RenderMultiDef(doc, d, opt, sol); break;
                     case DiagKind.Mismatch: RenderMismatch(doc, d, opt, sol); break;
-                    default: RenderGeneric(doc, d, opt, sol); break;
+                    default:
+                        {
+                            string k = SameKey(d);
+                            if (!d.IsLinker && !sameShown.Add(k)) break;
+                            List<Diag> same;
+                            sameMap.TryGetValue(k, out same);
+                            RenderGeneric(doc, d, opt, sol, same);
+                            break;
+                        }
                 }
             }
 
             if (shown == 0 && errors == 0 && report.Diags.Count == 0)
                 new LineBuilder(doc).Space().Add("出力にエラーも警告もありません。", Role.Dim).Done();
+        }
+
+        private static string SameKey(Diag d)
+        {
+            return d.Sev + "|" + d.Code + "|" + d.Message;
         }
 
         private static LineBuilder Line(Doc doc, int indent, Role? bar)
@@ -326,6 +357,8 @@ namespace KErrorLog
             lb.Add(d.Sev == Sev.Error ? "✖ " : "⚠ ", role);
             if (d.Code.Length > 0) lb.Add(d.Code, Role.Code, true).Add("  ", Role.Normal);
             lb.Add(title, role, true);
+            if (Regex.IsMatch(d.Code, @"^[A-Z]{1,4}\d{3,5}$"))
+                lb.Add("  ", Role.Normal).UrlLink("[詳細]", "https://learn.microsoft.com/ja-jp/search/?terms=" + d.Code);
             if (d.Project.Length > 0) lb.Add("   [" + d.Project + "]", Role.Dim);
             lb.Done();
 
@@ -352,7 +385,7 @@ namespace KErrorLog
                 Line(doc, indent, null).Add(r, Role.Dim).Done();
         }
 
-        private static void RenderGeneric(Doc doc, Diag d, RenderOptions opt, string sol)
+        private static void RenderGeneric(Doc doc, Diag d, RenderOptions opt, string sol, List<Diag> same)
         {
             Hint hint = Hints.For(d.Code);
             string title = hint != null ? hint.Title : (d.Sev == Sev.Error ? "エラー" : "警告");
@@ -361,6 +394,18 @@ namespace KErrorLog
             Role baseRole = d.Sev == Sev.Error ? Role.Normal : Role.Dim;
             if (d.Message.Length > 0)
                 Line(doc, 1, null).Message(d.Message, baseRole).Done();
+
+            AddSnippet(doc, d, sol);
+            AddSameLocations(doc, d, same, sol);
+
+            // 足りない #include
+            IncludeAdvisor.Suggestion sug = IncludeAdvisor.Suggest(d);
+            if (sug != null)
+                Line(doc, 1, null).Add("足りない #include の候補: ", Role.Good, true)
+                    .Add(sug.Display, Role.Type, true).Add("   (" + sug.Name + " を使うには)", Role.Dim).Done();
+
+            // 足りないファイル(include、.lib)がソリューションの下にあるか
+            AddFound(doc, d, sol);
 
             // 型の変換: 渡した型と、期待する型
             AddConversion(doc, d);
@@ -387,6 +432,111 @@ namespace KErrorLog
             AddDecls(doc, d, sol);
             AddHintText(doc, hint, 1);
             if (opt.AttachRaw) AddRaw(doc, d, 1);
+        }
+
+        private static readonly HashSet<string> SyntaxCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "C2143", "C2146", "C2059", "C2447", "C2144", "C2181", "C3646", "C2061", "C2238", "C1004", "C1075", "C2001", "X3000", "C2628", "C2062"
+        };
+
+        private static string[] ReadLines(string path)
+        {
+            string[] lines;
+            if (LineCache.TryGetValue(path, out lines)) return lines;
+            try
+            {
+                var fi = new FileInfo(path);
+                lines = fi.Exists && fi.Length < 2 * 1024 * 1024 ? File.ReadAllLines(path) : null;
+            }
+            catch (Exception) { lines = null; }
+            LineCache[path] = lines;
+            return lines;
+        }
+
+        /// <summary>エラーの行のソースを、行番号つきで出す(構文エラーは、1 つ前の行も)。</summary>
+        private static void AddSnippet(Doc doc, Diag d, string sol)
+        {
+            if (!d.HasLocation || !Paths.IsUserFile(d.File, sol)) return;
+            string[] lines = ReadLines(d.File);
+            if (lines == null || d.Line < 1 || d.Line > lines.Length) return;
+
+            int prev = 0;
+            if (SyntaxCodes.Contains(d.Code))
+            {
+                int p = d.Line - 1;
+                while (p >= 1 && lines[p - 1].Trim().Length == 0) p--;
+                if (p >= 1 && p < d.Line) prev = p;
+            }
+            if (prev > 0)
+            {
+                string t = lines[prev - 1].Trim();
+                if (t.Length > 160) t = t.Substring(0, 160) + "…";
+                Line(doc, 2, null).Add(prev.ToString().PadLeft(5) + " | ", Role.Dim).Add(t, Role.Dim).Done();
+            }
+
+            string raw = lines[d.Line - 1];
+            string trimmed = raw.TrimStart();
+            int lead = raw.Length - trimmed.Length;
+            string shown = trimmed.TrimEnd();
+            if (shown.Length > 160) shown = shown.Substring(0, 160) + "…";
+            Line(doc, 2, null).Add(d.Line.ToString().PadLeft(5) + " | ", Role.Dim).Code(shown, false).Done();
+
+            if (d.Col > 0 && raw.IndexOf('\t') < 0)
+            {
+                int col0 = d.Col - 1 - lead;
+                if (col0 >= 0 && col0 < shown.Length)
+                    Line(doc, 2, null).Add(new string(' ', 8 + col0) + "^", Role.Error, true).Done();
+            }
+        }
+
+        private static void AddSameLocations(Doc doc, Diag d, List<Diag> same, string sol)
+        {
+            if (same == null || same.Count <= 1) return;
+            Line(doc, 1, null).Add("同じ内容が、ほか " + (same.Count - 1) + " か所でも出ています", Role.Warning).Done();
+            int n = 0;
+            foreach (Diag o in same)
+            {
+                if (ReferenceEquals(o, d) || !o.HasLocation) continue;
+                if (++n > 8) break;
+                Line(doc, 2, null).Link(Paths.Display(o.File, sol) + "(" + o.Line + ")", o.File, o.Line, o.Col).Done();
+            }
+            if (same.Count - 1 > 8) Line(doc, 2, null).Add("… ほか " + (same.Count - 1 - 8) + " か所", Role.Dim).Done();
+        }
+
+        private static void AddFound(Doc doc, Diag d, string sol)
+        {
+            if (d.MissingName.Length == 0) return;
+            bool isLib = d.Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase);
+            string name = d.MissingName.Replace('/', '\\');
+            while (name.StartsWith("..\\", StringComparison.Ordinal) || name.StartsWith(".\\", StringComparison.Ordinal))
+                name = name.Substring(name.IndexOf('\\') + 1);
+
+            if (d.Found.Count == 0)
+            {
+                if (_pending)
+                    Line(doc, 1, null).Add("ソリューションの下で、" + d.MissingName + " を探しています…", Role.Hint, false, true).Done();
+                else if (!string.IsNullOrEmpty(sol))
+                    Line(doc, 1, null).Add(d.MissingName + " は、ソリューションの下には見つかりませんでした。導入(vcpkg など)の有無と、綴りを確かめます。", Role.Dim).Done();
+                return;
+            }
+
+            Line(doc, 1, null).Add("見つかった場所", Role.Good, true).Done();
+            foreach (string f in d.Found.Take(3))
+                Line(doc, 2, null).Link(Paths.Display(f, sol), f, 0, 0).Done();
+
+            string first = d.Found[0];
+            string dir;
+            try
+            {
+                dir = isLib
+                    ? Path.GetDirectoryName(first)
+                    : first.Substring(0, Math.Max(0, first.Length - (name.Length + 1)));
+            }
+            catch (Exception) { return; }
+            if (string.IsNullOrEmpty(dir)) return;
+            Line(doc, 1, null).Add("対処: ", Role.Hint, true)
+                .Add(isLib ? "リンカー > 全般 > 追加のライブラリ ディレクトリ に " : "C/C++ > 全般 > 追加のインクルード ディレクトリ に ", Role.Normal)
+                .Add(dir, Role.Type).Add(" を追加します。", Role.Normal).Done();
         }
 
         private static Frame FindUserFrame(Diag d, string sol)

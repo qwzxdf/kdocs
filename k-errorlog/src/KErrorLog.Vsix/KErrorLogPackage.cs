@@ -114,7 +114,7 @@ namespace KErrorLog
                 Syms = Diagnoser.Collect(report),
                 Ctx = new AnalysisContext { SolutionDir = SolutionDir(), Platform = ActivePlatform() }
             };
-            input.Pending = input.Syms.Count > 0;
+            input.Pending = input.Syms.Count > 0 || Diagnoser.NeedsFileSearch(report);
 
             CancelEnrich();
             _current = input;
@@ -146,7 +146,14 @@ namespace KErrorLog
             var token = cts.Token;
             var ignored = JoinableTaskFactory.RunAsync(async delegate
             {
-                try { await Task.Run(() => Diagnoser.Enrich(input.Syms, input.Ctx, token)); }
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        Diagnoser.Enrich(input.Syms, input.Ctx, token);
+                        Diagnoser.EnrichFiles(input.Report, input.Ctx, token);
+                    });
+                }
                 catch (Exception ex) { Log("enrich failed: " + ex.Message); }
 
                 await JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -217,6 +224,8 @@ namespace KErrorLog
             {
                 if (!string.IsNullOrEmpty(run.File)) OpenFile(run.File, run.Line, run.Col);
                 else if (!string.IsNullOrEmpty(run.Search)) FindInSolution(run.Search);
+                else if (!string.IsNullOrEmpty(run.Url) && run.Url.StartsWith("https://learn.microsoft.com/", StringComparison.Ordinal))
+                    System.Diagnostics.Process.Start(run.Url);
             }
             catch (Exception ex) { Log("link failed: " + ex.Message); }
         }
