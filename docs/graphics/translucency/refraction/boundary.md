@@ -86,13 +86,120 @@ refract_uv = lerp(screen_uv, refract_uv, keep);
 
 ### 別の方法：屈折面のマスク {#mask}
 
-深度を使わない方法もあります。Sousa（GPU Gems 2、第 19 章）は不透明なシーンのコピーのアルファ チャンネルを使います。アルファを白でクリアして屈折する物を描いた所だけ黒で書きます。屈折する物のシェーダーはずらした先のアルファを見て、黒（＝屈折面の上）のときだけずらした先の色を使います。白（＝屈折面の外）のときはずらさない位置の色を使います。
+深度を使わない方法もあります。Sousa（GPU Gems 2、第 19 章）はこの問題を「リフラクション リーク」と呼んでいます。章ではずらし量を小さくして目立たなくする案を先に挙げたうえで、それだと屈折面のでこぼこの強さに上限ができてしまうので、別の解を取っています。
 
-仕組みが単純で深度を読まずに済みます。ただし、この仕組みから考えるとずらした先が屈折面の輪郭の外に出た画素は、手前の物でなくても戻されます。背後の壁が輪郭の外へ続いていても、屈折面の外は白なのでずらしが効きません。輪郭の近くで屈折が弱く見えるはずです。これは私が仕組みから考えたことで、実際に動かして確かめてはいません。Sousa の章も手前の物の色が背景の色に置き換わるので、アーティファクトが見えることがあると書いています。
+その解が不透明なシーンのコピー（章の記号では S）のアルファ チャンネルに、屈折面のマスクを置く方法です。手順は 3 つです。
 
-深度の方法はずらした先が輪郭の外でも背後の物ならずらしを残せます。そのかわり深度バッファを SRV として読める形にしておく必要があります。
+1. S のアルファを白（1）でクリアします。
+2. 屈折する物をアルファにだけ黒（0）で描きます。
+3. 屈折する物のシェーダーはずらした先のアルファを見ます。黒ならずらした先の色を使います。白（＝屈折面の外）ならずらさない位置の色を使います。
 
-アルファのマスクはコピーにアルファ チャンネルがあれば足ります。深度の比較は読める深度バッファが要ります。手前の物を見分けられる点はどちらも同じです。
+Sousa は屈折面の外に出る画素を元の位置の色に置き換えるので、結果は不正確だと自分で書いています。屈折では真後ろではない物が見えることもあるからです。それでも実用上はうまくいって、効率もよいとしています。置き換えるときに手前の物の色を背景の色に差し替える形になるので、わずかなアーティファクトは残るとも書いています。
+
+章のコード（Example 19-2）は、ずらした先の色 `vRefrA` とずらさない位置の色 `vRefrB` を読み `vRefrB * vRefrA.w + vRefrA * (1 - vRefrA.w)` で混ぜます。アルファが 1 なら B、0 なら A です。これを HLSL（SM5）で書き直したものが、次のコードです。章のコードそのままではありません。
+
+```hlsl
+Texture2D<float4> g_scene_copy : register(t0);   // 不透明パスの色。アルファは 1 でクリア済み
+SamplerState g_linear_clamp : register(s0);
+
+cbuffer MaskCB : register(b0) {
+  float4x4 g_view;
+  float2 g_inv_screen_size;     // 1 / (幅, 高さ)
+  float g_refraction_strength;  // UV の最大ずらし量（一例: 0.05）
+  float g_pad;
+  float3 g_tint;
+  float g_pad2;
+};
+
+struct PSInput {
+  float4 position : SV_Position;
+  float3 world_normal : NORMAL;
+};
+
+// ① マスクを書く。屈折する物を、不透明パスのあとに（深度テストあり、深度書き込みなしで）描く。
+// ブレンドの書き込みマスクはアルファだけにして、色は触らない。アルファ 0 が「屈折面がある」印。
+// 手前の物に隠れた画素は、深度テストで落ちるので、アルファは 1 のまま残る。
+float4 WriteMask(PSInput input) : SV_Target {
+  return float4(0, 0, 0, 0);
+}
+
+// ② 屈折面を描く。コピーはマスクを書いたあとに取る。
+float4 RefractWithMask(PSInput input) : SV_Target {
+  float2 screen_uv = input.position.xy * g_inv_screen_size;
+
+  float3 view_normal = mul((float3x3)g_view, normalize(input.world_normal));
+  float2 offset = view_normal.xy * g_refraction_strength * float2(1, -1);  // 画面の y は下向き
+
+  // A: ずらした位置。B: ずらさない位置。
+  float4 a = g_scene_copy.SampleLevel(g_linear_clamp, screen_uv + offset, 0);
+  float4 b = g_scene_copy.SampleLevel(g_linear_clamp, screen_uv, 0);
+
+  // A のアルファが 1（屈折面の外）なら B、0（屈折面の中）なら A。途中の値は輪郭の補間。
+  float3 background = lerp(a.rgb, b.rgb, a.a);
+  return float4(background * g_tint, 1.0);
+}
+```
+
+`WriteMask` は屈折面をアルファだけに書くパスです。ブレンド ステートで書き込みマスクをアルファだけにして、色には触りません。深度テストは有効にしておきます。そうすると、手前の物に隠れた屈折面の画素はテストに落ちるので、アルファが 1 のまま残ります。この「深度テストに落ちた所は白のまま」という点は、章の文章からの私の読みで章がそう書いているわけではありません。
+
+`RefractWithMask` は A と B を読んで A のアルファで混ぜます。バイリニアで読むと屈折面の輪郭の画素でアルファが 0 と 1 の間になり、輪郭がなめらかに切り替わります。
+
+この方式はずらした先が屈折面の輪郭の外に出た画素が、手前の物でなくても戻されます。背後の壁が輪郭の外へ続いていても、屈折面の外は白なのでずらしが効きません。輪郭の近くで屈折が弱く見えるはずです。ここは章の説明（屈折面の外は元の画素を使う）から導いたもので、動かして確かめてはいません。
+
+深度の方法はずらした先が輪郭の外でも背後の物ならずらしを残せます。そのかわり深度バッファを SRV として読める形にしておく必要があります。アルファのマスクはコピーにアルファ チャンネルがあれば足りて、深度を読みません。手前の物を見分けられる点はどちらも同じです。
+
+### 確かめるデバッグ表示 {#debug-view}
+
+深度の方法は画面で何が起きているかが見えにくいので、戻す重みを色にして見るシェーダーを用意しておくと調整が早く進みます。画面の外を読んでいる画素も青で塗って見分けます。
+
+```hlsl
+Texture2D<float> g_scene_depth : register(t1);   // 不透明パスの深度
+SamplerState g_point_clamp : register(s1);
+
+cbuffer DebugCB : register(b0) {
+  float2 g_inv_screen_size;
+  float g_refraction_strength;
+  float g_depth_fade;
+  float g_near;
+  float g_far;
+  float2 g_pad;
+  float4x4 g_view;
+};
+
+float LinearDepth(float z) {
+  return g_near * g_far / (g_far - z * (g_far - g_near));
+}
+
+struct PSInput {
+  float4 position : SV_Position;
+  float3 world_normal : NORMAL;
+};
+
+// 戻す重み keep を色にして見る。デバッグ用。
+//   赤   : 読み先がガラスの手前（keep = 0）。完全に戻している
+//   緑   : 問題なし（keep = 1）。ずらしをそのまま使っている
+//   黄   : 途中（0 < keep < 1）。戻す幅の中
+//   青   : 読み先が画面の外。端の弱めが足りない
+float4 DebugKeep(PSInput input) : SV_Target {
+  float2 screen_uv = input.position.xy * g_inv_screen_size;
+  float3 view_normal = mul((float3x3)g_view, normalize(input.world_normal));
+  float2 refract_uv = screen_uv + view_normal.xy * g_refraction_strength * float2(1, -1);
+
+  // 画面の外を読んでいる画素は、青で塗る。
+  if (any(refract_uv < 0.0) || any(refract_uv > 1.0)) {
+    return float4(0, 0, 1, 1);
+  }
+
+  float glass_depth = LinearDepth(input.position.z);
+  float scene_depth = LinearDepth(g_scene_depth.SampleLevel(g_point_clamp, refract_uv, 0));
+  float keep = saturate((scene_depth - glass_depth) / g_depth_fade + 1.0);
+
+  // keep が 0 なら赤、1 なら緑、間は黄色くなる。
+  return float4(1.0 - keep, keep, 0.0, 1.0);
+}
+```
+
+屈折面に赤が出たらそこは手前の物のせいで戻されています。人の輪郭の付近だけなら正常です。赤が大きな面で出ているならガラスが深度を書いていないか深度の向き（リバース Z）を確かめます。青が出たら画面の端の弱める幅が、ずらしの強さより小さいということです。黄色は戻す幅の中にある画素で、細い帯になっていれば想定どおりです。`fxc`（ps_5_0）でコンパイルして確かめました。実行はしていません。
 
 ## 画面の端 {#screen-edge}
 
@@ -312,7 +419,7 @@ strength 0.10: 端から 192 px 以内の画素は、外を読む可能性があ
 
 ## 参考
 
-- Tiago Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, Addison-Wesley, 2005. <https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-19-generic-refraction-simulation>（「手前の物」の節に、屈折面のマスクと重なるガラスの限界の話がある。NVIDIA の Web 版を取得して要点を確認した。全文とコードは読んでいない）
+- Tiago Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, Addison-Wesley, 2005. <https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-19-generic-refraction-simulation>（19.1 基本の方法、19.2 屈折面のマスク、19.4 まとめの限界を参照。NVIDIA の Web 版の本文とコード（Example 19-1〜19-5）を全文読んだ。図は読んでいない。19.3 の水とガラスの例はこのページでは解説していない）
 - Chris Wyman, "An Approximate Image-Space Approach for Interactive Refraction", ACM Transactions on Graphics 24(3), SIGGRAPH 2005（このページの作成時には読み直していない）
 - Martin Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007（読み直していない）
 - 深度の比較、画面の端の弱め数値実験はこのページで考えた方法と計算で、上の資料の内容ではない
