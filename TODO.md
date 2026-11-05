@@ -163,7 +163,7 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 ### 2026-10-31 の作業
 
 - 2-7: C# 連携の第 33〜50 章にタイトルの（新規）（変更）と章頭の表を足し、第 41・42・46 章に置き換えの注記を足し、第 50 章の `LogService` の差分を直し、第 52 章の表 10 個を文章に直した
-- 2-5: 読点（13 ファイル）、`translucency/refraction/boundary.md`（約 40 文 → 114 文、図 4 枚、走査線の混入と飛びを数える C++ を MSVC で実行、HLSL を `fxc` で確認。Sousa の GPU Gems 2 第 19 章は Web 版の要点のみ確認）、太字（12 ページ）、定型句（「効率的」など 25 か所と、「必要があります」47 か所）、「このページでは」で始まる導入 2 ページを整えた
+- 2-5: 読点（13 ファイル）、`translucency/refraction/boundary.md`（約 40 文 → 114 文、図 4 枚、走査線の混入と飛びを数える C++ を MSVC で実行、HLSL を `fxc` で確認。Sousa の GPU Gems 2 第 19 章は Web 版の要点のみ確認）、`postprocess/antialiasing/comparison.md`（13 文 → 約 200 文、図 3 枚＋既存の動く図、SMAA 論文（Jimenez 他 2012）とサーベイ（Yang 他 2020）を全文読んで書いた。HLSL 3 本（辺検出・TAA 解像・T2x）を `fxc` で、C++ を MSVC `/W4` で実行して確認。FXAA・MSAA の原典は未読）、太字（12 ページ）、定型句（「効率的」など 25 か所と、「必要があります」47 か所）、「このページでは」で始まる導入 2 ページを整えた
 - 2-4-2: `graphics` の 282 ページの「このページを読む前に」から、本文で使っていない MVP 変換と GPU パイプラインのリンクを外した
 - 2-4-1: `type_traits`・`functional` の演算子・`cmath` の特殊関数・`ratio` の接頭辞・`cctype`・`cwctype` の約 160 ページで、同じ文章の所を、ページごとの具体的な話に差し替えた
 - STL `numeric` の `cfloat`・`climits`・`complex`・`cstdint`・`numbers`・`ratio`・`cmath` の 3 ページを書き直して 2-3-13 を完了
