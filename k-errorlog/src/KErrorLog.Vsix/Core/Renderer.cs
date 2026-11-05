@@ -105,8 +105,10 @@ namespace KErrorLog
             string sol = input.Ctx.SolutionDir;
 
             int errors = report.ErrorCount;
+            // 集計の行(LNK1120 など)しか読めなかったときも、ビルドは失敗している
+            bool onlySummary = errors == 0 && report.Diags.Any(d => d.IsSummary);
             int warnings = report.WarningCount;
-            int linker = report.Diags.Count(d => d.Sev == Sev.Error && d.IsLinker);
+            int linker = report.Diags.Count(d => d.Sev == Sev.Error && d.IsLinker && !d.IsSummary);
 
             var head = new LineBuilder(doc);
             if (errors > 0)
@@ -114,6 +116,11 @@ namespace KErrorLog
                 head.Add("✖ ビルドに失敗しました", Role.Error, true);
                 head.Add("   エラー " + errors + " 件", Role.Error);
                 head.Add(" (リンカー " + linker + " / コンパイラ " + (errors - linker) + ")", Role.Dim);
+            }
+            else if (onlySummary)
+            {
+                head.Add("✖ ビルドに失敗しました", Role.Error, true);
+                head.Add("   リンカーの集計行だけを読めました。「原文」表示で全文を確かめてください", Role.Dim);
             }
             else
             {
@@ -145,7 +152,16 @@ namespace KErrorLog
             foreach (Diag d in report.Diags)
             {
                 if (d.Sev == Sev.Warning && !opt.ShowWarnings) continue;
-                if (d.Code == "LNK1120" || d.Code == "LNK1169") continue;
+                if (d.IsSummary) continue;
+
+                // 同じ内容は 1 つにまとめて出すので、2 つ目以降は数えない(上限に入れない)
+                List<Diag> same = null;
+                if (d.Kind == DiagKind.Generic && !d.IsLinker)
+                {
+                    string k = SameKey(d);
+                    if (!sameShown.Add(k)) continue;
+                    sameMap.TryGetValue(k, out same);
+                }
 
                 if (d.Kind == DiagKind.Unresolved)
                 {
@@ -164,15 +180,7 @@ namespace KErrorLog
                 {
                     case DiagKind.MultiDefined: RenderMultiDef(doc, d, opt, sol); break;
                     case DiagKind.Mismatch: RenderMismatch(doc, d, opt, sol); break;
-                    default:
-                        {
-                            string k = SameKey(d);
-                            if (!d.IsLinker && !sameShown.Add(k)) break;
-                            List<Diag> same;
-                            sameMap.TryGetValue(k, out same);
-                            RenderGeneric(doc, d, opt, sol, same);
-                            break;
-                        }
+                    default: RenderGeneric(doc, d, opt, sol, same); break;
                 }
             }
 

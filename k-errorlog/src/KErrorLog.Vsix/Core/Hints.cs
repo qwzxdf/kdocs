@@ -290,6 +290,10 @@ namespace KErrorLog
             Add("d2d1.lib", "D2D1CreateFactory", "D2D1MakeRotateMatrix", "D2D1CreateDevice", "D2D1CreateDeviceContext", "D2D1MakeSkewMatrix", "D2D1InvertMatrix");
             Add("dwrite.lib", "DWriteCreateFactory");
             Add("xaudio2.lib", "XAudio2Create");
+            Add("opengl32.lib", "glClear", "glClearColor", "glViewport", "glDrawArrays", "glDrawElements", "glEnable", "glDisable", "glBindTexture", "glGenTextures",
+                "glTexImage2D", "glTexParameteri", "glBegin", "glEnd", "glVertex3f", "glColor3f", "glMatrixMode", "glLoadIdentity", "glFlush", "glFinish", "glGetString",
+                "glGetError", "glBlendFunc", "glDepthFunc", "glPixelStorei", "glReadPixels", "glDeleteTextures", "glTexCoord2f", "glPushMatrix", "glPopMatrix",
+                "glTranslatef", "glRotatef", "glScalef", "glOrtho", "glLineWidth", "glPointSize", "glScissor", "glCullFace", "glFrontFace", "glGetIntegerv");
             Add("opengl32.lib", "wglCreateContext", "wglMakeCurrent", "wglDeleteContext", "wglGetProcAddress", "wglGetCurrentContext", "wglGetCurrentDC", "wglSwapBuffers");
             Add("glu32.lib", "gluPerspective", "gluLookAt", "gluOrtho2D", "gluErrorString");
             Add("mfplat.lib", "MFStartup", "MFShutdown", "MFCreateMediaType", "MFCreateAttributes", "MFCreateMemoryBuffer", "MFCreateSample");
@@ -304,14 +308,13 @@ namespace KErrorLog
             Add("netapi32.lib", "NetUserGetInfo", "NetApiBufferFree", "NetWkstaGetInfo");
             Add("pdh.lib", "PdhOpenQuery", "PdhAddCounter", "PdhCollectQueryData", "PdhGetFormattedCounterValue");
 
+            // 接頭辞で当てるのは、Windows / DirectX 以外には使われにくい名前だけにする。
+            // SH、Path、Crypt、MF、gl、time のような短い語は、自分の DLL の C API と衝突するので、表の完全一致だけで当てる。
             Win32Prefix = new[]
             {
-                new[] { "D3D12", "d3d12.lib" }, new[] { "D3D11", "d3d11.lib" }, new[] { "D3DCompile", "d3dcompiler.lib" }, new[] { "D3DX", "d3dx9.lib" },
+                new[] { "D3D12", "d3d12.lib" }, new[] { "D3D11", "d3d11.lib" }, new[] { "D3DCompile", "d3dcompiler.lib" },
                 new[] { "Dwm", "dwmapi.lib" }, new[] { "XInput", "xinput.lib" }, new[] { "WSA", "ws2_32.lib" }, new[] { "WinHttp", "winhttp.lib" },
-                new[] { "SetupDi", "setupapi.lib" }, new[] { "wgl", "opengl32.lib" }, new[] { "glu", "glu32.lib" }, new[] { "gl", "opengl32.lib" },
-                new[] { "SH", "shell32.lib" }, new[] { "Shell", "shell32.lib" }, new[] { "Path", "shlwapi.lib" }, new[] { "BCrypt", "bcrypt.lib" },
-                new[] { "Crypt", "advapi32.lib" }, new[] { "MF", "mfplat.lib" }, new[] { "time", "winmm.lib" }, new[] { "IID_", "dxguid.lib" },
-                new[] { "CLSID_", "uuid.lib" }
+                new[] { "SetupDi", "setupapi.lib" }, new[] { "wgl", "opengl32.lib" }, new[] { "glu", "glu32.lib" }, new[] { "BCrypt", "bcrypt.lib" }
             };
         }
 

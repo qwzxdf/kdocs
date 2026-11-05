@@ -146,18 +146,13 @@ namespace KErrorLog
             var token = cts.Token;
             var ignored = JoinableTaskFactory.RunAsync(async delegate
             {
-                try
-                {
-                    await Task.Run(() =>
-                    {
-                        Diagnoser.Enrich(input.Syms, input.Ctx, token);
-                        Diagnoser.EnrichFiles(input.Report, input.Ctx, token);
-                    });
-                }
+                Diagnoser.EnrichResult result = null;
+                try { result = await Task.Run(() => Diagnoser.Compute(input, token)); }
                 catch (Exception ex) { Log("enrich failed: " + ex.Message); }
 
                 await JoinableTaskFactory.SwitchToMainThreadAsync();
                 if (token.IsCancellationRequested || !ReferenceEquals(_current, input)) return;
+                if (result != null) Diagnoser.Apply(result);   // 画面が読むオブジェクトは、UI スレッドでだけ書き換える
                 input.Pending = false;
                 var window = FindToolWindow(typeof(ErrorLogToolWindow), 0, false) as ErrorLogToolWindow;
                 if (window != null) window.View.Redraw();
