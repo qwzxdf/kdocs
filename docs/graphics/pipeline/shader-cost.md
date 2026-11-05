@@ -46,7 +46,6 @@ tags:
 演算の書き方を命令数で比べました。小さな関数に分けて `fxc` の `/O3` でコンパイルし、命令数と特殊な演算の数を数えます。入力は定数バッファから読んで、定数畳み込みを防いでいます。
 
 ```hlsl
-```hlsl
 // ---------- A. 演算 ----------
 float4 MulSq(float2 uv : TEXCOORD0) : SV_Target { return g_a.x * g_a.x; }                          // x * x
 float4 PowSq(float2 uv : TEXCOORD0) : SV_Target { return pow(g_a.x, 2.0); }                         // pow(x, 2)
@@ -62,7 +61,6 @@ float4 Normalize(float2 uv : TEXCOORD0) : SV_Target { return float4(normalize(g_
 float4 NormalizeManual(float2 uv : TEXCOORD0) : SV_Target { return float4(g_a.xyz * rsqrt(dot(g_a.xyz, g_a.xyz)), 0); }
 float4 Mad(float2 uv : TEXCOORD0) : SV_Target { return g_a * g_b + g_c; }                           // 乗算 + 加算
 float4 MatVec(float2 uv : TEXCOORD0) : SV_Target { return mul(g_a, g_m); }                          // 4x4 行列 × ベクトル
-```
 ```
 
 ```text title="fxc /O3 の命令数（ps_5_0）"
@@ -95,7 +93,6 @@ MatVec             instructions=4   texture=0  special=0  flow=0
 読み込みを数える前にメモリを待つ間の動きを整理します。GPU はあるウェーブがメモリを待つ間に別のウェーブを実行して、待ちを隠します。ところが、読み込みの結果で次の座標が決まる「依存した読み込み」が連なると、1 つのウェーブの中で待ちが直列になります。
 
 ```hlsl
-```hlsl
 // ---------- C. テクスチャ読み込み ----------
 float4 Tex4Independent(float2 uv : TEXCOORD0) : SV_Target {                                         // 座標が決まっていて、4 回が互いに独立
   return g_tex0.Sample(g_samp, uv) + g_tex1.Sample(g_samp, uv) + g_tex2.Sample(g_samp, uv) + g_tex3.Sample(g_samp, uv);
@@ -114,7 +111,6 @@ float4 TexPacked(float2 uv : TEXCOORD0) : SV_Target {                           
   return g_packed.Sample(g_samp, uv);
 }
 ```
-```
 
 ```text title="fxc /O3 の命令数（テクスチャ読み込み）"
 Tex4Independent    instructions=7   texture=4  special=0  flow=0
@@ -130,7 +126,6 @@ TexPacked          instructions=1   texture=1  special=0  flow=0
 ## ループ {#loop}
 
 ```hlsl
-```hlsl
 // ---------- D. ループ ----------
 float4 LoopRuntime(float2 uv : TEXCOORD0) : SV_Target {
   float4 sum = 0;
@@ -143,7 +138,6 @@ float4 LoopUnrolled(float2 uv : TEXCOORD0) : SV_Target {
   return sum;
 }
 ```
-```
 
 `[loop]` のままだとループ本体は 1 回分の読み込み（テクスチャ 1、命令 13）で分岐の命令が 2 つ付きます。`[unroll]` すると 8 回分が展開されて、テクスチャ 8、命令 19 になり分岐はなくなります。展開すると命令は増えますがループの管理（カウンターの更新と比較）が消え読み込みを並べて発行できます。回数が小さくて固定なら展開が有利なことが多く、回数が大きいまたは実行時に決まるならループのままにします。
 
@@ -152,12 +146,10 @@ float4 LoopUnrolled(float2 uv : TEXCOORD0) : SV_Target {
 ### `[branch]` と `[flatten]` {#branch-flatten}
 
 ```hlsl
-```hlsl
 // ---------- B. 分岐 ----------
 float Heavy(float x) { return pow(sin(x) * 0.5 + 0.5, 3.0) + sqrt(abs(cos(x))); }                   // 重い処理の例
 float4 BranchHeavy(float2 uv : TEXCOORD0) : SV_Target { [branch] if (g_flag != 0) return Heavy(g_a.x); else return g_a.x; }
 float4 FlattenHeavy(float2 uv : TEXCOORD0) : SV_Target { [flatten] if (g_flag != 0) return Heavy(g_a.x); else return g_a.x; }
-```
 ```
 
 重い処理（`Heavy`）を `if` で囲んだ形を `[branch]` と `[flatten]` で比べると、`[branch]` は 9 命令（分岐 3）、`[flatten]` は 8 命令（分岐 0）でした。`[flatten]` は両方の道を計算して結果を選びます。重い道が重くないなら `[flatten]` で足ります。重い道を飛ばしたいなら `[branch]` にします。ただし、飛ばせるのはそのウェーブの全スレッドが同じ側に進むときだけです。
@@ -192,7 +184,6 @@ C++ でレジスタ ファイルを「1 レーンあたり合計 256 レジス�
 
 ライトを 4 つ回す簡単な鏡面つきのシェーダーを 2 通りに書いて比べました。
 
-```hlsl
 ```hlsl
 // ---------- E. 組み合わせ: 同じ見た目の 2 通りの書き方 ----------
 cbuffer LightCB : register(b1) {
@@ -264,7 +255,6 @@ float4 ShadeAfter(ShadeIn i) : SV_Target {
   return float4(sum * pack.b, 1.0);
 }
 ```
-```
 
 書き換え前は粗さ・金属・AO を 3 枚のテクスチャから読みライトごとに視線方向を `normalize` し、`pow(2.0, …)` を毎回計算しています。書き換え後は 3 つを 1 枚に詰め視線方向と `exp2` を外へ出し、`normalize` を `rsqrt` に直しています。
 
@@ -288,7 +278,6 @@ float4 ShadeAfter(ShadeIn i) : SV_Target {
 
 ## 数字を出した C++ {#experiment}
 
-```cpp
 ```cpp
 // シェーダーのコストの考え方を数える。GPU の実機の数字ではなく、モデルの計算。
 //   [1] 分岐: スレッドごとにランダムな条件のときウェーブ（W スレッド）が両方の道を通る確率と、期待コスト
@@ -357,7 +346,6 @@ int main() {
   }
   return 0;
 }
-```
 ```
 
 ```text title="実行結果"

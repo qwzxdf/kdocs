@@ -55,7 +55,6 @@ tags:
 最も簡単で効果が大きい方法です。法線が上を向く面には空の色を下を向く面には地面の色を間は線形に補間します。
 
 ```hlsl
-```hlsl
 // ================= ① 半球ライト =================
 
 // 法線の上下で空の色と地面の色を補間する最小の環境光。
@@ -63,7 +62,6 @@ float3 HemisphereAmbient(float3 normal, float3 sky_color, float3 ground_color) {
   float up = normal.y * 0.5 + 0.5;                       // 0（真下）〜 1（真上）
   return lerp(ground_color, sky_color, up);
 }
-```
 ```
 
 `normal.y * 0.5 + 0.5` は法線の y 成分（−1〜1）を補間の重み（0〜1）に直しています。真上を向く面は 1 になって空の色、真横は 0.5 で両者の平均、真下は 0 で地面の色になります。物の上面が空の色、下面が地面の色になるので立体感が出ます。
@@ -83,7 +81,6 @@ Ramamoorthi と Hanrahan（2001）は、放射照度が環境光 L と余弦の�
 基底関数は次の 9 つです（論文の式 3）。順番は 00、1−1、10、11、2−2、2−1、20、21、22 です。
 
 ```hlsl
-```hlsl
 // 実数球面調和の基底（論文の式 3）。順番: 00, 1-1, 10, 11, 2-2, 2-1, 20, 21, 22。
 void ShBasis(float3 d, out float basis[9]) {
   basis[0] = 0.282095;
@@ -97,7 +94,6 @@ void ShBasis(float3 d, out float basis[9]) {
   basis[8] = 0.546274 * (d.x * d.x - d.y * d.y);         // Y_22
 }
 ```
-```
 
 右側のコメントにある `∝ y` などはその基底が方向のどの成分に比例するかです。l = 1 の 3 つは方向 d の x・y・z そのものに比例します。つまり、「上が明るく下が暗い」という大まかな偏りを表します。l = 2 の 5 つは x と y の積などの 2 次の項で、少し細かい偏りを表します。l = 0 は定数で全体の平均の明るさです。
 
@@ -105,7 +101,6 @@ void ShBasis(float3 d, out float basis[9]) {
 
 係数は空のキューブマップの全画素について、`放射輝度 × 基底 × 立体角` を足して求めます（論文の式 10 を離散化したもの）。まず、キューブの面の画素から方向を作る関数を用意します。
 
-```hlsl
 ```hlsl
 // キューブの面 f、面内の座標 (u, v) ∈ [-1, 1] から、方向（正規化前）を作る。D3D のキューブの向きの規約。
 float3 CubeDirection(uint face, float2 uv) {
@@ -119,7 +114,6 @@ float3 CubeDirection(uint face, float2 uv) {
   return d;
 }
 ```
-```
 
 面の番号 0〜5 は+X、−X、+Y、−Y、+Z、−Z の順です。uv は面の中の画素の位置を [−1, 1] に直したもので、この規約は Direct3D のキューブマップの向きに合わせています。**使うキューブマップの向きの規約が違うならここを合わせます。** 規約が食い違うと SH の上下や左右が反転します。症状は「空の青い側が下から当たる」ように見えることです。
 
@@ -131,7 +125,6 @@ float3 CubeDirection(uint face, float2 uv) {
 
 計算シェーダーでは 1 つのグループ（8 × 8 画素）が、自分の担当する画素の寄与を足し合わせグループごとの部分和を作ります。
 
-```hlsl
 ```hlsl
 groupshared float3 g_reduce[64][9];                      // 8x8 スレッド × 9 係数
 
@@ -170,13 +163,11 @@ void ProjectFaceCS(uint3 gid : SV_GroupID, uint3 tid : SV_GroupThreadID, uint3 d
   }
 }
 ```
-```
 
 `g_reduce` は 64 スレッド × 9 係数の `groupshared` 配列です。各スレッドが自分の画素の `放射輝度 × 基底 × dΩ` を 9 個書き込みます。その後は二分木の縮約です。stride を 32、16、8、4、2、1 と半分にしながら前半のスレッドが、stride だけ離れたスレッドの値を足します。`GroupMemoryBarrierWithGroupSync()` を各段階の後に置いて書き込みの完了を待ちます。これを省くと足す前の値を読むスレッドが出て、結果が実行のたびに変わります。
 
 最後に、グループの代表（`gindex == 0`）が部分和を `g_partial` に書きます。面ごとグループごとに 9 個の `float4` の場所を決めます（w は使いません）。
 
-```hlsl
 ```hlsl
 // ================= ③ 部分和を足す =================
 
@@ -190,7 +181,6 @@ void SumPartialsCS(uint3 tid : SV_GroupThreadID) {
   g_sh_out[tid.x] = float4(sum, 0);                      // 放射輝度 L の SH 係数 L_lm
 }
 ```
-```
 
 2 つ目の計算シェーダーは 1 グループ 9 スレッドで、スレッドが 1 つの係数を担当し、全グループの部分和を足します。32 × 32 の面ならグループは面ごとに 16 個、全体で 96 個です。部分和のバッファは 96 × 9 個の `float4` で、約 13.5 KB です。足すグループ数が 96 なので、1 スレッドのループは 96 回で済みます。
 
@@ -198,7 +188,6 @@ void SumPartialsCS(uint3 tid : SV_GroupThreadID) {
 
 係数 `L_lm` を持っていれば法線 n の放射照度は、論文の式 13 の展開形で求まります。
 
-```hlsl
 ```hlsl
 // ================= ④ 放射照度 =================
 
@@ -214,7 +203,6 @@ float3 IrradianceFromSH(float3 sh[9], float3 n) {
        + 2.0 * c2 * (sh[3] * n.x + sh[1] * n.y + sh[2] * n.z);                    // L11, L1-1, L10
 }
 ```
-```
 
 c1〜c5 は `Â_l` と基底の係数を掛け合わせた定数です。このページの C++ で `c1 = Â2 · 0.546274`、`c2 = Â1 · 0.488603 / 2`、`c3 = Â2 · 3 · 0.315392`、`c4 = Â0 · 0.282095`、`c5 = Â2 · 0.315392` を計算し論文の 6 桁の値と一致することを確かめました（c4 だけ最後の桁が 1 違いますが、丸めの差です）。式の中身は l = 2 の項（`c1`、`c3`、`c5` の行）、l = 0 の項（`c4`）、l = 1 の項（`c2` の行）の順に並んでいます。
 
@@ -222,7 +210,6 @@ c1〜c5 は `Â_l` と基底の係数を掛け合わせた定数です。この�
 
 論文は同じ計算を行列の形でも書いています（式 11・12）。法線を `(x, y, z, 1)` の 4 次元ベクトルにして、4 × 4 の対称行列 M で `nᵗ M n` を求める形です。
 
-```hlsl
 ```hlsl
 // 論文の式 11・12: E(n) = nᵗ M n（M は 4x4 対称行列、色ごと）。係数から M を組み立てておけば、評価は行列とベクトルの積だけ。
 float4x4 IrradianceMatrix(float3 sh[9], int channel) {
@@ -240,7 +227,6 @@ float EvaluateMatrix(float4x4 m, float3 n) {
   return dot(nt, mul(m, nt));                            // nᵗ M n
 }
 ```
-```
 
 行列を色（RGB）ごとに 1 個ずつあらかじめ組み立てておけば、画素シェーダーは行列とベクトルの積だけを評価します。利点は式が単純なことです。欠点は `float4x4` を 3 個（48 個の float）送るので、9 個の `float4`（36 個の float）で済む展開形より定数が増えることです。結果はどちらも同じです。
 
@@ -248,7 +234,6 @@ float EvaluateMatrix(float4x4 m, float3 n) {
 
 SH の環境光と太陽の直接光を画素シェーダーで足します。
 
-```hlsl
 ```hlsl
 // ================= 画素シェーダー（確認用）=================
 
@@ -274,7 +259,6 @@ float4 SkyLightPS(float4 pos : SV_Position, float3 normal : NORMAL, float3 albed
   return float4(result + spec * 0.0 + check * 0.0, 1.0);
 }
 ```
-```
 
 太陽は `g_sun_illuminance * saturate(dot(n, g_sun_dir))` で平行光源として別に足します。**太陽を空のキューブマップに含めて SH にすると、二重に数えるうえに SH が大きく壊れます**（次の節で数字を出します）。最後の行の `albedo_in / 3.14159265` はランバート反射の `albedo / π` です。
 
@@ -282,7 +266,6 @@ float4 SkyLightPS(float4 pos : SV_Position, float3 normal : NORMAL, float3 albed
 
 HLSL と同じ基底、同じキューブの面の規約で C++ に同じ計算を書き厳密な値と比べました。最初に準備の部分です。空の色を決める関数 `Sky` と基底 `Basis` を置きます。
 
-```cpp
 ```cpp
 struct V3 { double x, y, z; };
 static V3 operator*(V3 a, double s) { return {a.x * s, a.y * s, a.z * s}; }
@@ -309,11 +292,9 @@ static V3 Sky(V3 d) {
 
 using Sh = std::array<V3, 9>;
 ```
-```
 
 `Sky` は上が青、地平線が明るい白っぽい色、下が暗い地面、という単純な空です（値は一例）。`pow(1.0 - d.y, 3.0)` で地平線に近いほど白くなります。次に、基準の値を出す 2 つの投影です。1 つは球面を (θ, φ) の細かい格子で直接積分するもの（基準）、もう 1 つは HLSL と同じ手順で、キューブの面から投影するものです。
 
-```cpp
 ```cpp
 // 球面を (θ, φ) の格子で積分して、SH9 の係数を求める（基準値）。
 static Sh ProjectGrid(const std::function<V3(V3)>& f, int n_theta = 400) {
@@ -368,11 +349,9 @@ static Sh ProjectCube(const std::function<V3(V3)>& f, int n, double* total_omega
   return sh;
 }
 ```
-```
 
 `ProjectGrid` はθ を 400 分割、φ を 800 分割して `sin θ dθ dφ` を立体角にします。`ProjectCube` は HLSL の `CubeDirection` と立体角の式をそのまま使っています。次に、放射照度の評価です。
 
-```cpp
 ```cpp
 static const double c1 = 0.429043, c2 = 0.511664, c3 = 0.743125, c4 = 0.886227, c5 = 0.247708;   // 定数: 論文の値。Â_l と基底の係数の積（[1] で確かめる）
 
@@ -407,11 +386,9 @@ static V3 Hemisphere(V3 n, V3 sky, V3 ground) {
   return ground * (1 - up) + sky * up;                   // 下の色と上の色の線形補間
 }
 ```
-```
 
 `IrrSh` は HLSL の `IrradianceFromSH` と同じです。`IrrExact` は `max(0, n·ω)` をそのまま格子で積分する厳密な値です。`Hemisphere` は半球ライトです。これらを `main` で呼んで比べます。
 
-```cpp
 ```cpp
 int main() {
   // ---- 1. 定数 c1〜c5 は Â_l と基底の係数から出る ----
@@ -523,7 +500,6 @@ int main() {
               std::pow(3.0, -1.5), std::pow(2.0, -1.5));
   return 0;
 }
-```
 ```
 
 ```text title="実行結果"
@@ -649,7 +625,6 @@ normals with negative SH9 irradiance: 29.7%
 光沢のある面（金属、水面）には空の細かい景色が映ります。拡散と違って法線ではなく反射ベクトルで環境マップを引き粗さに応じてぼかした（ミップの）高い層を選びます。
 
 ```hlsl
-```hlsl
 // ================= ⑤ 鏡面の環境光 =================
 
 TextureCube<float4> g_specular_cube : register(t1);     // 粗さごとにぼかしたミップつきのキューブマップ
@@ -662,7 +637,6 @@ float3 SampleSpecularEnv(float3 reflect_dir, float roughness) {
   float mip = roughness * g_max_mip;                     // 粗さに比例してミップを選ぶ（簡易）。本番は split-sum の事前積分
   return g_specular_cube.SampleLevel(g_linear_clamp, reflect_dir, mip).rgb;
 }
-```
 ```
 
 `roughness * g_max_mip` は粗さに比例してミップを選ぶ最も簡単な近似です。本来のミップは粗さに対して線形に並んでいないので、実際には粗さごとの GGX のローブで畳み込んだキューブマップ（split-sum の第 1 項）を使います。そのつくり方と視線による補正項（BRDF の LUT）は、[Prefiltering (Split-Sum)](../../reflections/probes/prefilter.md) で説明しています。この関数は名前の位置を示すだけの簡易版です。

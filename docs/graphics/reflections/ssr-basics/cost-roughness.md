@@ -46,7 +46,6 @@ SSR の時間のほとんどはレイマーチの深度の読み込みです。1
 反射がほとんど見えない画素はトレースしません。粗さが大きい面と反射率の低い面です。
 
 ```hlsl
-```hlsl
 // ================= ② 画素を除外する =================
 
 // 反射がほぼ見えない画素。非金属の F0 は約 0.04、金属は 1 に近い。
@@ -55,7 +54,6 @@ bool ShouldSkipSsr(float roughness, float metallic) {
   float visible = f0_scale * (1.0 - roughness);          // 反射の見えやすさの目安（足した式）
   return roughness > g_skip_roughness || visible < 0.01;
 }
-```
 ```
 
 `f0_scale` は垂直に見たときの反射率 F0 の目安です。非金属は約 0.04（4 %）、金属は 1 に近い値です。`visible` は F0 に `(1 - roughness)` を掛けた見えやすさの目安で、このページが決めた式です。しきい値 0.01 は反射が 1 % を下回ると、見えにくいという意味の一例です。
@@ -68,7 +66,6 @@ bool ShouldSkipSsr(float roughness, float metallic) {
 
 画素ごとに分岐しても同じ warp（wave）の中に除外する画素としない画素が混ざると結局、全員が待たされます。そこで、8 × 8 のタイルで分類して、要るタイルだけをあとからトレースします。
 
-```hlsl
 ```hlsl
 // ================= ③ タイル分類 =================
 
@@ -90,7 +87,6 @@ void ClassifyTilesCS(uint3 gid : SV_GroupID, uint3 dtid : SV_DispatchThreadID, u
   }
 }
 ```
-```
 
 `s_need` はタイル内で共有する旗です。1 画素でも SSR が要るなら 1 にします（`InterlockedOr`）。`GroupMemoryBarrierWithGroupSync()` を旗を立てる前後に置いて、立て終わってから読みます。これを省くと旗を立てる前に読んで、要るタイルを落とします。
 
@@ -100,7 +96,6 @@ void ClassifyTilesCS(uint3 gid : SV_GroupID, uint3 dtid : SV_DispatchThreadID, u
 
 トレースを半分の解像度（画素数 1/4）で行い結果をフル解像度に戻します。ただ拡大すると物の境界で隣の物の当たりを拾います。深度で重みづけして混ぜます（バイラテラル）。
 
-```hlsl
 ```hlsl
 // ================= ④ 半解像度 → フル解像度 =================
 
@@ -137,7 +132,6 @@ float4 UpsampleHit(uint2 p) {
   return wsum > 1e-4 ? float4(sum / wsum, hit_rate) : float4(0, 0, 0, 0);
 }
 ```
-```
 
 混ぜるのは色ではなく「当たった UV とレイの長さ」です。色はフル解像度の画素の位置で引き直すので、境界で色が滲みません。`hp` はフル解像度の画素中心を半解像度の座標系に直した位置で `-0.5` は、画素の中心を合わせる補正です。これを忘れると結果が半画素ずれます。
 
@@ -164,7 +158,6 @@ C++ で出した値を読みます。粗さ 0.1 の半角は 1.15°（50 %）、
 レイは 1 本だけ飛ばして当たった画素の色を粗さに応じたミップで読みます。反射する物が遠いほどぼけが大きくなる現実の見え方もレイの長さに応じて円錐を太くすれば、近似できます。
 
 ```hlsl
-```hlsl
 // ================= ① 粗さ → ミップ =================
 
 // GGX の反射ローブの「半分の光が入る半角」（中央値）。ハーフベクトルの角 θh は tan θh = α·sqrt(u/(1-u))（u = 累積確率）。
@@ -188,7 +181,6 @@ float3 ResolveReflection(float2 hit_uv, float ray_length, float hit_depth, float
   return g_lit_scene_mips.SampleLevel(g_linear_clamp, hit_uv, mip).rgb;     // 3 重線形補間でミップ間も滑らか
 }
 ```
-```
 
 `RoughnessToHalfAngle` は上の `2 atan(α)` です。`ConeToMip` はレイの長さ `ray_length` で円錐の直径を求め（`2 × 長さ × tan 半角`）、当たった深度での 1 画素の幅で割って、画素数にし `log2` でミップに直します。`tan` は半角が π/2 に近づくと発散するので、1.5 rad で打ち切ります（足した処理）。
 
@@ -200,7 +192,6 @@ float3 ResolveReflection(float2 hit_uv, float ray_length, float hit_depth, float
 
 粗さが一定を超えたら SSR をやめて、反射プローブの色に切り替えます。急に切り替えると粗さの境で縞が出るので、幅を持たせて混ぜます。
 
-```hlsl
 ```hlsl
 // ================= ⑤ プローブとの混ぜ =================
 
@@ -223,7 +214,6 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
   return float4(BlendWithProbe(ssr, h.a, probe, mat.x), 1.0);
 }
 ```
-```
 
 `rough_fade` は粗さが `g_fade_start`（例: 0.5）から `g_skip_roughness`（例: 0.7）の間で、0 から 1 に上がる重みです。トレースが外れた画素（`ssr_hit` が 0 に近い）は、粗さに関係なくプローブを使います。`max` で両方の条件の大きいほうを取るので、どちらか一方でも満たせばプローブに寄ります。
 
@@ -231,7 +221,6 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
 
 ここまでの数字は次の C++ で出しました。
 
-```cpp
 ```cpp
 // SSR のコストと粗さの数字を出す。① GGX 反射ローブの幅 ② 円錐 → ミップ ③ 画素数 x 本数 x 歩数 ④ 除外できる画素の割合
 #include <algorithm>
@@ -294,7 +283,6 @@ int main() {
   std::printf("non-metal threshold of the 2nd rule: rough > %.3f\n", 1 - 0.01 / 0.04);
   return 0;
 }
-```
 ```
 
 ```text title="実行結果"
