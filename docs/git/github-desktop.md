@@ -16,6 +16,9 @@ Git を初めて使う人が最初につまずくのは、コマンドの数と�
     - ボタンに枝の名前が出るので、違う枝にコミットする事故を押す前に気づける
     - 履歴を整理する操作は少ない。必要になったら SourceTree などに移ればよい
 
+!!! note "このサイトの基本の道具は、SourceTree です"
+    このサイトの他のページは、SourceTree の画面で説明しています（[SourceTree の画面](sourcetree.md)）。このページは、GitHub Desktopで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
+
 !!! info "このページを読む前に"
     - [Git の考え方](concepts.md)
     - [GitHub を使う](github.md)（アカウントとリポジトリ）
@@ -136,7 +139,7 @@ GitHub Desktop は絞った機能を提供するツールです。
     コミット前に左の一覧のチェックを目で確認します。ビルド生成物が出るなら `.gitignore` が足りません。[.gitignore](gitignore.md) を見直してください。
 
 ??? failure "Push が拒否された"
-    他の人が先にプッシュしています。先に Pull してからもう一度 Push します。強制プッシュは共有している枝では使いません。[事故と対処](accidents.md#force)
+    他の人が先にプッシュしています。先に Pull してからもう一度 Push します。強制プッシュは共有している枝では使いません。[事故の対処](accidents.md#force)
 
 ## これだけ覚える {#summary}
 
@@ -149,5 +152,5 @@ GitHub Desktop は絞った機能を提供するツールです。
 
 - [SourceTree](sourcetree.md)
 - [Visual Studio から Git を使う](vs-git.md)
-- [事故と対処](accidents.md)
+- [事故の対処](accidents.md)
 

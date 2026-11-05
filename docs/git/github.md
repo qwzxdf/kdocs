@@ -17,8 +17,8 @@ Git と GitHub はよく混同されます。Git は履歴を管理する道具�
     - 変更はプルリクエストで `main` に入れる。レビューと自動チェックの入り口になる
 
 !!! info "このページを読む前に"
-    - [リモートと push・pull・fetch](remote.md)
-    - [インストールと最初の設定](install.md)
+    - [リモートとプッシュ・プル](remote.md)
+    - [SourceTree のインストールと最初の設定](install.md)
 
 ## アカウントとリポジトリ {#account}
 
@@ -32,20 +32,9 @@ github.com でアカウントを作ります。メールアドレスは[Git の�
 - Add .gitignore: 管理しないファイルの一覧。テンプレートから「C++」または「VisualStudio」を選ぶ
 - Choose a license: 公開するときの利用条件。公開しないなら不要
 
-GitHub 側に README や `.gitignore` を作る場合、手元のプロジェクトを載せるときは先に `clone` から始めるのが簡単です。
+GitHub 側に README や `.gitignore` を作った場合は、SourceTree の新しいタブ（＋）の「クローン」に、リポジトリの URL（GitHub のページの緑の「Code」ボタンで、コピーできる）を入れて、持ってきます（[リモートとプッシュ・プル](remote.md#clone)）。クローンしたフォルダーに、プロジェクトのファイルを入れて、コミットして、プッシュします。
 
-```bash
-git clone https://github.com/ユーザー名/MyGame.git
-# このフォルダーにプロジェクトのファイルを入れて、add / commit / push
-```
-
-手元にすでにプロジェクトがあって、あとから GitHub に載せるなら GitHub 側で<strong>空のリポジトリ</strong>（README などを追加しない）を作ります。
-
-```bash
-cd MyGame
-git remote add origin https://github.com/ユーザー名/MyGame.git
-git push -u origin main
-```
+手元にすでにプロジェクトがあって、あとから GitHub に載せるなら、GitHub 側では<strong>空のリポジトリ</strong>（README などを追加しない）を作ります。そのあと、SourceTree でそのプロジェクトを開き、ツールバーの「設定」の「リモート」タブで、`origin` という名前で、GitHub の URL を登録します（[リモートを登録する](remote.md#add)）。登録したら、「プッシュ」で送ります。
 
 ## Public と Private {#visibility}
 
@@ -55,7 +44,7 @@ Public のリポジトリは世界中の誰でも見られます。ソースコ�
 
 ## 認証 {#auth}
 
-GitHub に push や clone をするとき本人確認が必要です。いまの GitHub はアカウントのパスワードは受け付けません。次の 3 つのうちどれかを使います。
+GitHub にプッシュやクローンをするとき、本人確認が必要です。いまの GitHub はアカウントのパスワードは受け付けません。次の 3 つのうちどれかを使います。
 
 <strong>Git Credential Manager（GCM）</strong>は、Git for Windows に同梱されている仕組みです。最初に push するとブラウザーが開き GitHub にサインインして許可すると、Windows に認証情報が保存されます。次から入力は要りません。ふつうの学生はこれで十分です。
 
@@ -71,8 +60,8 @@ GitHub に push や clone をするとき本人確認が必要です。いまの
 
 流れは次のとおりです。
 
-1. 枝を切って作業して push する（`git push -u origin feature/enemy`）
-2. GitHub のリポジトリを開くと「Compare & pull request」ボタンが出る。押す
+1. 枝を切って作業して、プッシュする（SourceTree の「プッシュ」の画面で、その枝にチェックを入れる）
+2. GitHub のリポジトリを開くと「Compare & pull request」ボタンが出る。押す（SourceTree で、枝を右クリックして「プルリクエストを作成」を選んでも、開ける）
 3. タイトルと説明を書いて、「Create pull request」
 4. レビューを受ける。直す指摘があれば同じ枝に push する（PR に自動で反映される）
 5. 承認されたら「Merge pull request」で合体。終わった枝は消す
@@ -81,11 +70,9 @@ PR の説明に書くことは何を変えたかなぜ変えたかどう確認�
 
 マージのボタンには 3 種類の方式があります。
 
-| 方式 | 履歴の形 | 向いている場面 |
-| --- | --- | --- |
-| Create a merge commit | マージコミットが 1 つ付く。枝の履歴がそのまま残る | 履歴の経緯を残したい |
-| Squash and merge | 枝の全コミットを 1 つにまとめて入れる | 枝の途中のコミットが雑でも、`main` をきれいにしたい |
-| Rebase and merge | 枝のコミットを一直線に積み直す | 履歴を一直線にしたい |
+- <strong>Create a merge commit</strong>: マージコミットが 1 つ付く。枝の履歴がそのまま残る。履歴の経緯を残したいとき
+- <strong>Squash and merge</strong>: 枝の全コミットを 1 つにまとめて入れる。枝の途中のコミットが雑でも、`main` をきれいにしたいとき
+- <strong>Rebase and merge</strong>: 枝のコミットを一直線に積み直す。履歴を一直線にしたいとき
 
 チームで 1 つに決めておくと `main` の履歴が読みやすくなります。迷ったら Squash and merge が扱いやすいです。
 
@@ -130,6 +117,6 @@ Issue はバグ報告、やることの管理、相談を書き込む掲示板�
 
 ## 関連ページ {#related}
 
-- [リモートと push・pull・fetch](remote.md)
+- [リモートとプッシュ・プル](remote.md)
 - [チーム開発の進め方](team.md)
 - [GitHub Actions で自動ビルド](../vs/github-actions.md)

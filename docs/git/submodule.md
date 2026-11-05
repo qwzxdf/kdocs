@@ -17,8 +17,11 @@ tags:
     - 扱いが難しい面もある。vcpkg などのパッケージ管理で足りるならそちらが楽
 
 !!! info "このページを読む前に"
-    - [リモートと push・pull・fetch](remote.md)
+    - [リモートとプッシュ・プル](remote.md)
     - [外部ライブラリの入れ方](../vs/libraries.md)（vcpkg との使い分け）
+
+!!! note "SourceTree での操作"
+    SourceTree のメニュー「リポジトリ」に、「サブモジュールを追加...」があります。追加・更新の意味は、このページのコマンドと同じです。サブモジュールは、使いこなすのが難しい機能なので、慣れるまでは、コマンドで状態を確かめながら進めてください。
 
 ## 追加する {#add}
 
@@ -143,4 +146,4 @@ git commit -m "ImGui のサブモジュールを削除"
 
 - [外部ライブラリの入れ方](../vs/libraries.md)
 - [パッケージ管理の比較](../vs/package-managers.md)
-- [リモートと push・pull・fetch](remote.md)
+- [リモートとプッシュ・プル](remote.md)

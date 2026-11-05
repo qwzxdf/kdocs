@@ -18,7 +18,10 @@ Git LFS（Large File Storage）は、<strong>大きなファイルの中身を�
 
 !!! info "このページを読む前に"
     - [記録する](commit.md)（コミット）と [.gitignore](gitignore.md)
-    - [事故と対処](accidents.md#bigfile)（巨大ファイルを入れてしまう事故）
+    - [事故の対処](accidents.md#bigfile)（巨大ファイルを入れてしまう事故）
+
+!!! note "SourceTree での操作"
+    SourceTree のメニュー「リポジトリ」に、「Git LFS」の項目があります（初期化・ファイルの追跡など）。ファイルを右クリックして「Git LFS のファイルを追跡」を選ぶ方法もあります。このページのコマンドは、その操作の意味を説明するものです。
 
 ## 導入 {#setup}
 
