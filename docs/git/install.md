@@ -1,106 +1,70 @@
 ---
-title: インストールと最初の設定
+title: SourceTree のインストールと最初の設定
 tags:
   - Git
 ---
 
-# インストールと最初の設定
+# SourceTree のインストールと最初の設定
 
-Git は入れただけでは使い始められません。コミットには「誰が作ったか」が必ず付くので、名前とメールアドレスを先に教える必要があります。さらに Windows では改行コードの扱いを決めておかないとあとで「全行が変更されたことになる」という困った差分に悩まされます。
+Git は「黒い画面にコマンドを打つ道具」という印象が強く、そこで挫折する人が多くいます。でも、履歴の確認・コミット・ブランチ・マージのような毎日の作業は、画面で見ながらクリックして済ませられます。このサイトでは、そのための道具として <strong>SourceTree</strong>（Atlassian 製の無料の Git クライアント）を前提に説明します。
 
-このページはインストールから、最初に 1 回だけ行う設定までを順に説明します。設定は一度済ませれば新しいリポジトリでも使い回せます。
+このページでは、SourceTree を入れて、最初の 1 回だけ必要な設定（名前とメールアドレス、改行、GitHub との接続）までを済ませます。
 
 !!! tip "ポイント"
-    - Visual Studio のインストーラーにも Git は入っている。ただし、コマンドを使うなら Git for Windows を別に入れておくと分かりやすい
-    - 最初の 1 回は `user.name` と `user.email` を必ず設定する。これが無いとコミットできない
-    - 設定は 3 段階（システム、ユーザー、リポジトリ）。ふつうはユーザー全体（`--global`）に書く
-    - GitHub に載せるなら認証の方法（Git Credential Manager か SSH）も決めておく
+    - SourceTree は Git 本体を使って動く。SourceTree のインストーラーが Git も入れてくれる（すでに入っていればそれを使える）
+    - 最初に名前とメールアドレスを登録する。これが無いと、コミットに作者を付けられない
+    - 改行コードの自動処理は、オプションの「Git」タブで確かめる。「true」のままで始めてよい
+    - GitHub との接続は、Git Credential Manager（ブラウザーでサインインするだけ）が楽
 
 !!! info "このページを読む前に"
     - [Git の考え方](concepts.md)（用語と 3 つの場所）
 
 ## インストール {#install}
 
-Windows には Git for Windows を使います。公式サイト（git-scm.com）からインストーラーを入れる方法のほかに、`winget` でも入ります。
+SourceTree の公式サイト（sourcetreeapp.com）からインストーラーをダウンロードして実行します。起動すると、Atlassian アカウントでのサインインを求められます。ここは「Bitbucket の代わりに別のアカウントを使う」を選ぶか、Atlassian アカウントを作ります。Git の使い方とは関係なく、GitHub にだけ載せたい場合も、SourceTree を使うこと自体にこのアカウントが要ります。
 
-```bash
-winget install --id Git.Git -e
-```
+次に、Git 本体と Mercurial を入れるかを聞かれます。<strong>Git だけ</strong>にチェックを入れて進みます（Mercurial は別の管理ソフトで、ゲーム制作ではほぼ使いません）。すでに Git for Windows が入っている PC なら、その Git を使うかを聞かれることがあります。どちらでも動きます。
 
-インストーラーは質問が多いのですが、ほとんど既定のままで構いません。次の項目だけは意味を知っておいてください。
+最後に、名前とメールアドレスの入力欄が出ます。ここで入れたものが、コミットの作者として記録されます。
 
-<strong>既定のエディター</strong>は `git commit` でメッセージを書くときに開くエディターです。既定では Vim が選ばれていて、Vim の操作を知らないと閉じ方が分からなくなります。Visual Studio Code や Notepad++ など使い慣れたものを選んでください。あとから `git config --global core.editor` で変えられます。
+!!! note "このサイトの画像について"
+    画像は SourceTree 3.4 の日本語表示です。新しい版や英語表示では、ボタンの位置や言葉が少し違います。
 
-<strong>改行コードの扱い</strong>は「Checkout Windows-style, commit Unix-style」（`core.autocrlf=true`）が既定です。後述のとおり本格的に使うなら `.gitattributes` に任せるほうが確実です。
+## 画面の見方 {#screen}
 
-<strong>既定のブランチ名</strong>は `main` を選びます。古い資料では `master` が出てきますが、いまの GitHub は `main` が標準です。
+初めて開くと、まだリポジトリが無いので、空の画面が出ます。リポジトリを開くと、次のような画面になります（画面の全体像は [SourceTree の画面](sourcetree.md) で、部品ごとに詳しく説明します）。
 
-<strong>PATH の設定</strong>は「Git from the command line and also from 3rd-party software」を選びます。これで PowerShell やコマンド プロンプト、Visual Studio から `git` が呼べます。
+![SourceTree の履歴画面。上にツールバー、左にサイドバー、中央にコミットの一覧、下に変更の詳細](img/st-history.png)
 
-インストールしたら新しいターミナルを開いて、次のコマンドで確認します。
-
-```bash
-git --version
-```
-
-```text title="実行結果（バージョンは環境によって違う）"
-git version 2.55.0.windows.5
-```
-
-バージョンが表示されれば成功です。
+- 上のバーに、毎日使う操作（コミット・プル・プッシュ・フェッチ・ブランチ・マージ・スタッシュ・破棄・タグ）が並ぶ
+- 左のサイドバーで、見る画面（ファイルステータス・履歴・検索）と、ブランチ・タグ・リモートを選ぶ
+- 中央の一覧が、コミットの履歴。枝分かれと合流が線で描かれる
 
 ## 名前とメールアドレス {#user}
 
-最初にコミットに付く作者の情報を設定します。
+名前とメールアドレスは、<strong>すべてのコミットに付く署名</strong>です。あとから履歴を見たとき「誰が書いたか」が分かるように使われます。
 
-```bash
-git config --global user.name "Taro Yamada"
-git config --global user.email "taro@example.com"
-```
+SourceTree では、メニューの「ツール → オプション」を開き、「全般」タブの「デフォルトユーザー情報」に、フルネームとメールアドレスを入れます。
 
-`--global` は「このパソコンのこのユーザー全体に有効」という意味です。これを付けないといまいるリポジトリだけに設定されます。
+メールアドレスは、GitHub に登録したものと同じにしてください。違うアドレスでコミットすると、GitHub 上でそのコミットが自分のものとして結び付かず、貢献として数えられません。公開したくないときは、GitHub の設定にある noreply アドレス（`12345678+name@users.noreply.github.com` の形）を使えます。
 
-メールアドレスは GitHub に登録したものと同じにしてください。違うアドレスでコミットすると、GitHub 上で「誰のコミットか」が結び付かず自分の貢献として数えられません。メールアドレスを公開したくないときは、GitHub の設定で用意されている noreply アドレス（`12345678+name@users.noreply.github.com` の形）を使えます。
+## オプションの「Git」タブ {#options}
 
-設定は次のコマンドでまとめて確認できます。
+同じオプションの「Git」タブで、Git の動きの既定値を確かめます。
 
-```bash
-git config --global --list
-```
+![オプションの Git タブ。リベースの既定、改行の自動処理、強制プッシュのチェックなどがある](img/st-options-git.png)
 
-## 設定の 3 段階 {#levels}
+最初に見ておく項目は、次の 3 つです。
 
-設定はどこに書くかで効く範囲が変わります。範囲が狭いほうが優先されます。
-
-| 範囲 | オプション | 保存先 |
-| --- | --- | --- |
-| システム全体 | `--system` | Git のインストール先の `etc/gitconfig` |
-| ユーザー全体 | `--global` | `C:\Users\<名前>\.gitconfig` |
-| そのリポジトリだけ | （なし） | リポジトリ内の `.git/config` |
-
-ふつうは `--global` に書きます。「このリポジトリだけ会社のメールアドレスを使いたい」のような場合にリポジトリの中で `--global` を付けずに設定します。
-
-## 入れておくと便利な設定 {#useful}
-
-次の設定は必須ではありませんが、入れておくと事故が減ります。
-
-```bash
-git config --global init.defaultBranch main
-git config --global core.editor "code --wait"
-git config --global pull.rebase false
-git config --global fetch.prune true
-git config --global push.autoSetupRemote true
-```
-
-`init.defaultBranch` は `git init` で作るリポジトリの最初の枝の名前です。`core.editor` に `code --wait` を指定するとメッセージの入力に Visual Studio Code が使えます。`--wait` はエディターを閉じるまで Git を待たせるために必要です。
-
-`pull.rebase false` は `git pull` を「取り込み → マージ」として動かす設定です。Git は設定が無いと pull のたびに警告を出すので、決めておくと静かになります。`fetch.prune true` はリモートで消された枝の記録を手元からも自動で消します。`push.autoSetupRemote true` は新しい枝を最初に push するとき `-u` を付け忘れても自動で上流を設定してくれます。
+- <strong>改行の自動処理を設定する</strong>は、「true」のままで構いません。Windows の改行（CRLF）と、Linux・macOS の改行（LF）の違いを、Git が吸収してくれます。チームで改行がそろわない問題が起きたら、[Git の考え方](concepts.md) と `.gitattributes` の節（下の「改行コードの問題」）を読んでください
+- <strong>強制プッシュを有効にする</strong>は、チェックを外したままにします。強制プッシュは、リモートの履歴を上書きする危ない操作です。使うことになった場面は [事故の対処](accidents.md) で説明します
+- <strong>追跡ブランチでは常にマージの代わりにリベースする</strong>も、外したままにします。意味が分かってから変えれば十分です
 
 ## 改行コードの問題 {#eol}
 
-Windows の改行は CRLF、Linux と macOS は LF です。チームに両方の人がいると同じファイルの全行が「変更された」と表示される事故が起きます。
+Windows の改行は CRLF、Linux と macOS は LF です。チームに両方の人がいると、同じファイルの全行が「変更された」と表示される事故が起きます。
 
-一番確実なのはリポジトリに `.gitattributes` を置いて、改行の扱いをファイルごとに決めてしまうことです。
+一番確実なのは、リポジトリに `.gitattributes` というファイルを置いて、改行の扱いをファイルごとに決めてしまうことです。メモ帳などで作って、リポジトリのフォルダーに置き、コミットします。
 
 ```text title=".gitattributes"
 * text=auto
@@ -110,44 +74,38 @@ Windows の改行は CRLF、Linux と macOS は LF です。チームに両方�
 *.bat text eol=crlf
 ```
 
-`* text=auto` はテキストファイルかどうかを Git が判断して、リポジトリ内では LF にそろえる指定です。ただし、Visual Studio のソリューション（`.sln`）やバッチ ファイル（`.bat`）は CRLF のほうが安全なので、個別に指定しています。詳しくは [.editorconfig](../vs/editorconfig.md) と [文字コードを UTF-8 にしよう](../vs/utf8.md) を参照してください。
+`* text=auto` は、テキストかどうかを Git が判断して、リポジトリの中では LF にそろえる指定です。ただし、Visual Studio のソリューション（`.sln`）やバッチ ファイル（`.bat`）は CRLF のほうが安全なので、個別に指定しています。詳しくは [.editorconfig](../vs/editorconfig.md) と [文字コードを UTF-8 にしよう](../vs/utf8.md) を参照してください。
 
-## GitHub との認証 {#auth}
+## GitHub との接続 {#auth}
 
-GitHub のリポジトリに push するときパスワードの入力を求められます。いまの GitHub はパスワードでの認証を受け付けず次のどちらかを使います。
+GitHub のリポジトリを使うときは、サインインが要ります。いまの GitHub は、パスワードでの認証を受け付けません。次のどちらかを使います。
 
-<strong>Git Credential Manager</strong> は、Git for Windows に同梱されています。初めて push や clone をするとブラウザーが開き GitHub にサインインすると、認証情報が Windows の資格情報マネージャーに保存されます。次からは入力が要りません。<strong>学生の最初の 1 本としてはこれが一番楽です。</strong>
+<strong>Git Credential Manager</strong> は、Git for Windows に同梱されています。初めてプッシュやクローンをするとブラウザーが開き、GitHub にサインインすると、認証情報が Windows の資格情報マネージャーに保存されます。次からは入力が要りません。学生の最初の 1 本としては、これが一番楽です。オプションの「Git」タブにある「Git Credential Manager 経由で認証情報を管理する」のチェックが入っていることを確かめてください。
 
-<strong>SSH 鍵</strong>はパスワードの代わりに鍵のペアで認証する方法です。パソコンで鍵を作って公開鍵を GitHub に登録します。
+<strong>SSH 鍵</strong> は、パスワードの代わりに鍵のペアで認証する方法です。SourceTree の「ツール → SSH キーの作成/インポート」から、画面の指示で鍵を作れます（PuTTYgen という道具が開きます）。公開鍵を GitHub の「Settings → SSH and GPG keys」に貼り付けます。秘密鍵は、誰にも渡さないでください。
 
-```bash
-ssh-keygen -t ed25519 -C "taro@example.com"
-```
-
-作られた `~/.ssh/id_ed25519.pub` の中身を GitHub の「Settings → SSH and GPG keys」に貼り付けます。以後はリポジトリの URL を `https://...` ではなく `git@github.com:ユーザー名/MyGame.git` の形にして使います。秘密鍵（`id_ed25519`、`.pub` が付かないほう）は誰にも渡さないでください。
-
-どちらを選んでも中身の Git の使い方は変わりません。認証の詳しい話は [GitHub を使う](github.md#auth) にもあります。
+どちらを選んでも、そのあとの Git の使い方は変わりません。接続の詳しい話は [GitHub を使う](github.md#auth) にあります。
 
 ## よくあるミス {#mistakes}
 
-??? failure "`Please tell me who you are` と出てコミットできない"
-    `user.name` と `user.email` が未設定です。上の手順で設定してからもう一度コミットします。
+??? failure "コミットのとき「作者が分からない」と言われる"
+    名前とメールアドレスが未設定です。「ツール → オプション → 全般」で入れてから、もう一度コミットします。
 
-??? failure "メッセージ入力で Vim が開いて、閉じ方が分からない"
-    Vim の画面なら `Esc` を押して `:wq` と打って Enter でメッセージを保存して閉じます。保存せずに閉じるなら `:q!` です。あとで `core.editor` を使い慣れたエディターにしてください。
+??? failure "メールアドレスが GitHub のものと違い、貢献として数えられない"
+    すでにあるコミットのアドレスは、あとからは簡単に直せません。これからのコミットのために、オプションのメールアドレスを直してください。
 
-??? failure "メールアドレスが GitHub のものと違い貢献として数えられない"
-    すでにあるコミットのアドレスは、あとからは簡単に直せません。これからのコミットのために `user.email` を直してください。
+??? failure "全ファイルが変更されたことになる"
+    改行コードが人によって違います。`.gitattributes` を置くと、そろいます。
 
 ## これだけ覚える {#summary}
 
-- 最初に `user.name` と `user.email` を設定する
-- 設定はふつう `--global` に書く
-- 改行の扱いは `.gitattributes` に任せる
-- GitHub への認証は Git Credential Manager が楽
+- 毎日の操作は SourceTree の画面でできる。コマンドは、困ったときだけ使う
+- 最初に名前とメールアドレスを入れる（ツール → オプション → 全般）
+- 強制プッシュは、チェックを外したままにする
+- GitHub への接続は、Git Credential Manager が楽
 
 ## 関連ページ {#related}
 
-- [Git の考え方](concepts.md)
-- [記録する（add と commit）](commit.md)
+- [SourceTree の画面](sourcetree.md)
+- [記録する（ステージ・コミット）](commit.md)
 - [GitHub を使う](github.md)
