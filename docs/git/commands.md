@@ -11,13 +11,16 @@ tags:
 !!! info "このページを読む前に"
     - 個々の使い方は、各リンク先のページを先に読んでください。ここは引くためのページです
 
+!!! note "画面でできることは、画面で"
+    このサイトは、SourceTree の画面で操作することを前提にしています。この表のコマンドは、画面で届かないとき、または画面の操作の意味を確かめたいときのためのものです。コマンドは、ツールバーの「ターミナル」で開く画面に入力します。
+
 ## 設定と準備 {#setup}
 
 | やりたいこと | コマンド | 詳しく |
 | --- | --- | --- |
 | 名前を設定 | `git config --global user.name "名前"` | [最初の設定](install.md#user) |
 | メールアドレスを設定 | `git config --global user.email "a@b.c"` | [最初の設定](install.md#user) |
-| 設定を一覧 | `git config --global --list` | [最初の設定](install.md#levels) |
+| 設定を一覧 | `git config --global --list` | [最初の設定](install.md#user) |
 | リポジトリを作る | `git init` | [記録する](commit.md#init) |
 | リモートから持ってくる | `git clone <URL>` | [リモート](remote.md#clone) |
 
@@ -118,4 +121,4 @@ git diff                          # 何を直したか
 ## 関連ページ {#related}
 
 - [Git の考え方](concepts.md)
-- [事故と対処](accidents.md)
+- [事故の対処](accidents.md)

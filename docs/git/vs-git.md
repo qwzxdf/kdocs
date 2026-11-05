@@ -17,6 +17,9 @@ C++ のゲームを作るときはほとんどの時間を Visual Studio の中�
     - コンフリクトは「マージ エディター」が 3 画面で表示する
     - 画面の表示が何を意味するか迷ったら、`git status` で状態を見ると読み取れる
 
+!!! note "このサイトの基本の道具は、SourceTree です"
+    このサイトの他のページは、SourceTree の画面で説明しています（[SourceTree の画面](sourcetree.md)）。このページは、Visual Studioで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
+
 !!! info "このページを読む前に"
     - [Visual Studio の準備](../vs/setup.md)（Git は、インストール時に選ぶ項目の 1 つ）
     - [Git の考え方](concepts.md)、[記録する（status・add・commit）](commit.md)

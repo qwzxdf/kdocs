@@ -2,6 +2,7 @@ nav:
   - index.md
   - concepts.md
   - install.md
+  - sourcetree.md
   - commit.md
   - log.md
   - undo.md
@@ -15,7 +16,6 @@ nav:
   - rebase.md
   - tag.md
   - vs-git.md
-  - sourcetree.md
   - github-desktop.md
   - accidents.md
   - team.md
