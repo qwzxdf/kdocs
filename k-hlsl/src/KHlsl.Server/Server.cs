@@ -196,8 +196,14 @@ namespace KHlsl.Server
                     break;
                 case "textDocument/onTypeFormatting":
                 {
+                    // トリガー文字(} ;)が、キャレットの直前に本当にあるときだけ整形する。
+                    // IME の確定などで古い位置のまま届いた要求で、別の行や文字を書き換えないため。
                     int line = (int)p["position"]["line"];
-                    Respond(id, FormatRequest(p, line, line));
+                    int col = (int)p["position"]["character"];
+                    string ch = (string)p["ch"];
+                    string[] ls = HlslFormatter.SplitLines(TextOf((string)p["textDocument"]["uri"]));
+                    bool ok = ch != null && ch.Length == 1 && line < ls.Length && col >= 1 && col <= ls[line].Length && ls[line][col - 1] == ch[0];
+                    Respond(id, ok ? FormatRequest(p, line, line) : new JArray());
                     break;
                 }
                 case "khlsl/cbuffers": Respond(id, CBuffersRequest(p)); break;
