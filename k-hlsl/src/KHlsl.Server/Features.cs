@@ -42,7 +42,39 @@ namespace KHlsl.Server
         }
 
         // ---- 補完 ----
+        /// <summary>補完の結果に、置き換える範囲(キャレットより前の語だけ)を付ける。
+        /// 範囲を付けないと、VS はキャレットの前後の語をまとめて置き換えるので、IME の確定(Enter)などで後ろの文字が消えることがある。</summary>
         private JToken Completion(JToken p)
+        {
+            var res = CompletionCore(p);
+            try
+            {
+                var c = MakeCtx(p);
+                string text = c.Text;
+                int off = Math.Min(c.Offset, text.Length);
+                int ls = off;
+                while (ls > 0 && text[ls - 1] != '\n') ls--;
+                string before = text.Substring(ls, off - ls);
+                // #include のファイル名は、\ や . を含むので対象外
+                if (Regex.IsMatch(before, @"^\s*#\s*include")) return res;
+                int ws = before.Length;
+                while (ws > 0 && (char.IsLetterOrDigit(before[ws - 1]) || before[ws - 1] == '_')) ws--;
+                int line = 0;
+                for (int i = 0; i < ls; i++) if (text[i] == '\n') line++;
+                var items = res == null ? null : res["items"] as JArray;
+                if (items == null) return res;
+                var range = Range(line, ws, line, before.Length);
+                foreach (JObject it in items)
+                {
+                    if (it["textEdit"] != null) continue;
+                    it["textEdit"] = new JObject { ["range"] = range.DeepClone(), ["newText"] = (string)it["label"] };
+                }
+            }
+            catch (Exception) { }
+            return res;
+        }
+
+        private JToken CompletionCore(JToken p)
         {
             var c = MakeCtx(p);
             string m = c.Masked;
