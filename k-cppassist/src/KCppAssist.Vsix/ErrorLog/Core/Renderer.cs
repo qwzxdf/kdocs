@@ -389,10 +389,15 @@ namespace KCppAssist.ErrorLog
             Role role = d.Sev == Sev.Error ? Role.Error : Role.Warning;
             var lb = new LineBuilder(doc).Rule().Space();
             lb.Add(d.Sev == Sev.Error ? "✖ " : "⚠ ", role);
-            if (d.Code.Length > 0) lb.Add(d.Code, Role.Code, true).Add("  ", Role.Normal);
+            bool msCode = Regex.IsMatch(d.Code, @"^[A-Z]{1,4}\d{3,5}$");
+            if (d.Code.Length > 0)
+            {
+                // エラー コードを押すと、公式のページを検索する(Microsoft のコードだけ)
+                if (msCode) lb.UrlLink(d.Code, "https://learn.microsoft.com/ja-jp/search/?terms=" + d.Code);
+                else lb.Add(d.Code, Role.Code, true);
+                lb.Add("  ", Role.Normal);
+            }
             lb.Add(title, role, true);
-            if (Regex.IsMatch(d.Code, @"^[A-Z]{1,4}\d{3,5}$"))
-                lb.Add("  ", Role.Normal).UrlLink("[詳細]", "https://learn.microsoft.com/ja-jp/search/?terms=" + d.Code);
             if (d.Project.Length > 0) lb.Add("   [" + d.Project + "]", Role.Dim);
             lb.Done();
 
