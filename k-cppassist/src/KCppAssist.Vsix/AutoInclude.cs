@@ -74,6 +74,7 @@ namespace KCppAssist
             ITextDocument doc;
             if (owner.Documents.TryGetTextDocument(view.TextBuffer, out doc)) path = doc.FilePath;
             errors = owner.Tags.CreateTagAggregator<IErrorTag>(view);
+            if (path != null) RenameHub.Ensure(path);
             timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle, view.VisualElement.Dispatcher);
             timer.Tick += OnTick;
             view.TextBuffer.Changed += OnChanged;
@@ -225,14 +226,15 @@ namespace KCppAssist
 
                     var res = IncludeService.Resolve(chain, path, root, opt, false);
                     if (res == null || res.Token == null) continue;                         // 知らない名前、または複数あって決まらない
-                    if (inHeader && res.Source != IncludeService.TableSource) continue;     // ヘッダーでは、表のものだけ自動
+                    if (inHeader && res.Source == IncludeService.IndexSource && !opt.IncludeAutoInHeaders) continue;   // ヘッダーでは、ソリューションの型は自動で足さない(設定で変えられる)
                     if (IncludeService.WouldCycle(res.File, path)) continue;
                     var edit = IncludeEditor.Plan(text, res.Token, stem, eol);
                     if (edit == null) continue;                                             // すでにある
 
                     var tracker = snap.CreateTrackingSpan(start, end - start, SpanTrackingMode.EdgeExclusive);
                     IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, owner.Undo, "K-CppAssist: #include を追加");
-                    added.Add(new Added { Ident = tracker, Name = id.Value, Text = edit.Text, Until = DateTime.UtcNow.AddSeconds(40) });
+                    if (opt.IncludeRevertSeconds > 0)
+                        added.Add(new Added { Ident = tracker, Name = id.Value, Text = edit.Text, Until = DateTime.UtcNow.AddSeconds(opt.IncludeRevertSeconds) });
                     IncludeService.Status(id.Value + " のために " + res.Token + " を追加しました (" + res.Source + ")");
                     done++;
                     applied = true;

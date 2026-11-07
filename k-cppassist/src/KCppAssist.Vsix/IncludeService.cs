@@ -31,6 +31,7 @@ namespace KCppAssist
 
         public const string TableSource = "表";
         public const string IndexSource = "索引";
+        public const string CustomSource = "設定";
 
         internal static OptionsPage Options
         {
@@ -82,12 +83,22 @@ namespace KCppAssist
         /// </summary>
         public static Resolution Resolve(string name, string curPath, string root, OptionsPage opt, bool manual)
         {
-            string std = StdHeaders.Lookup(name);
-            if (std != null) return new Resolution { Token = std, Source = TableSource };
-            if (name.StartsWith("std::", StringComparison.Ordinal)) return null;
-
             int k = name.LastIndexOf("::", StringComparison.Ordinal);
             string last = k < 0 ? name : name.Substring(k + 2);
+
+            // 自分で決めた対応(設定)は、組み込みの表より先
+            var custom = StdHeaders.ParseCustom(opt == null ? "" : opt.IncludeCustom);
+            string chosen;
+            if (custom.TryGetValue(name, out chosen) || custom.TryGetValue(last, out chosen))
+                return new Resolution { Token = chosen, Source = CustomSource };
+
+            if (opt == null || opt.IncludeUseTable)
+            {
+                string std = StdHeaders.Lookup(name);
+                if (std != null) return new Resolution { Token = std, Source = TableSource };
+            }
+            if (name.StartsWith("std::", StringComparison.Ordinal)) return null;
+            if (opt != null && !opt.IncludeUseIndex) return null;
             if (!manual && Split(opt == null ? "" : opt.IncludeDeny).Contains(last)) return null;
 
             var files = Index.Lookup(last).Where(f => !string.Equals(f, curPath, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -193,6 +204,8 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             KCppAssistPackage.Log("include: " + message);
+            var o = Options;
+            if (o != null && !o.ShowStatusMessages) return;
             var bar = Package.GetGlobalService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsStatusbar)) as Microsoft.VisualStudio.Shell.Interop.IVsStatusbar;
             if (bar != null) bar.SetText("K-CppAssist: " + message);
         }
