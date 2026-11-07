@@ -24,6 +24,9 @@ namespace KCppAssist
             public int NameStart;       // 修飾(Class::)を含む、名前の頭の位置
             public int Enclosing;       // Chain の先頭の、囲んでいる namespace・クラスの数(残りは Class::Func の修飾)
             public int End;             // 定義なら本体の「}」の位置、宣言なら「;」の位置
+            public int BodyOpen = -1;   // 定義の本体の「{」の位置(宣言は -1)
+            public bool InTemplate;     // template のクラスの中にある(cpp に書くには template<…> の修飾が要る)
+            public int InitStart = -1;  // コンストラクターの初期化子リストの「:」の位置(なければ -1)
 
             public string Inner(string text) { return text.Substring(Open + 1, Close - Open - 1); }
         }
@@ -45,22 +48,27 @@ namespace KCppAssist
             string m = CppText.Mask(text);
             var sigs = new List<Sig>();
             var stack = new Stack<KeyValuePair<bool, string>>();   // (クラスか, 名前)。名前空間は (false, null)
+            var templ = new Stack<bool>();                          // stack と同じ深さで、template のクラスか
             int n = m.Length, i = 0, stmt = 0;
             while (i < n)
             {
                 char c = m[i];
                 if (c == ';') { stmt = ++i; continue; }
-                if (c == '}') { if (stack.Count > 0) stack.Pop(); stmt = ++i; continue; }
+                if (c == '}') { if (stack.Count > 0) { stack.Pop(); templ.Pop(); } stmt = ++i; continue; }
                 if (c == '{')
                 {
                     string head = Head(m, stmt, i);
                     Match cm;
                     if (!EnumHead.IsMatch(head) && (cm = ClassHead.Match(head)).Success)
+                    {
                         stack.Push(new KeyValuePair<bool, string>(true, cm.Groups[1].Value));
+                        templ.Push(Regex.IsMatch(head, @"\btemplate\s*<") || templ.Contains(true));
+                    }
                     else if (NsHead.IsMatch(head))
                     {
                         var nm = NsName.Match(head);
                         stack.Push(new KeyValuePair<bool, string>(false, nm.Success ? Regex.Replace(nm.Groups[1].Value, @"\s+", "") : null));
+                        templ.Push(false);
                     }
                     else
                     {
@@ -81,6 +89,7 @@ namespace KCppAssist
                     var top = stack.Count > 0 ? stack.Peek() : new KeyValuePair<bool, string>(false, null);
                     int after;
                     Sig s = TryFunction(m, stmt, i, close, top, EnclosingNames(stack), out after);
+                    if (s != null) s.InTemplate = templ.Contains(true);
                     if (s != null)
                     {
                         sigs.Add(s);
@@ -146,6 +155,7 @@ namespace KCppAssist
             // ')' のあと、最初の ';' か本体の '{' まで
             int n = m.Length, j = close + 1;
             bool body = false;
+            int initStart = -1;
             while (j < n)
             {
                 char d = m[j];
@@ -156,6 +166,7 @@ namespace KCppAssist
                 if (d == ':' && !(j + 1 < n && m[j + 1] == ':') && !(j > 0 && m[j - 1] == ':'))
                 {
                     // コンストラクターの初期化子リスト。メンバー{...} は初期化、それ以外の '{' が本体
+                    initStart = j;
                     j++;
                     while (j < n)
                     {
@@ -199,6 +210,7 @@ namespace KCppAssist
             int arrow = tail.IndexOf("->", StringComparison.Ordinal);
             if (arrow >= 0) tail = tail.Substring(0, arrow);
             sig.IsConst = Regex.IsMatch(tail, @"\bconst\b");
+            if (body) { sig.BodyOpen = j; sig.InitStart = initStart; }
             if (body)
             {
                 int e = MatchClose(m, j, '{', '}');

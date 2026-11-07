@@ -165,6 +165,20 @@ namespace KCppAssist
             }
         }
 
+        /// <summary>(位置, 置き換える長さ, 文字)の編集を、同じスナップショットの位置で、まとめて 1 回の Undo で適用する。</summary>
+        public static void ApplyEdits(ITextBuffer buffer, List<Tuple<int, int, string>> edits, ITextUndoHistoryRegistry undo, string description)
+        {
+            ITextUndoHistory history = null;
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            using (var tx = history == null ? null : history.CreateTransaction(description))
+            {
+                var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
+                foreach (var e in edits.OrderByDescending(x => x.Item1)) edit.Replace(e.Item1, e.Item2, e.Item3);
+                edit.Apply();
+                if (tx != null) tx.Complete();
+            }
+        }
+
         /// <summary>補完リストが出ている、ビルド中、エディターにフォーカスがない、のどれか。</summary>
         public static bool IsBusy(IWpfTextView view, IAsyncCompletionBroker completion)
         {

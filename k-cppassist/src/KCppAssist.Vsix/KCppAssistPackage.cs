@@ -49,6 +49,7 @@ namespace KCppAssist
         internal const int CmdInclude = 0x0104;
         internal const int CmdSync = 0x0105;
         internal const int CmdCreate = 0x0106;
+        internal const int CmdMove = 0x0109;
 
         internal static KCppAssistPackage Instance { get; private set; }
 
@@ -83,6 +84,7 @@ namespace KCppAssist
                 commands.AddCommand(new MenuCommand((s, e) => ShowWindow(true, true), new CommandID(CmdSet, CmdErrorLog)));
                 commands.AddCommand(new MenuCommand((s, e) => RunRename(), new CommandID(CmdSet, CmdRename)));
                 commands.AddCommand(new MenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
+                commands.AddCommand(new MenuCommand((s, e) => RunMove(), new CommandID(CmdSet, CmdMove)));
                 commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
             }
             await InitializeErrorLogAsync();
