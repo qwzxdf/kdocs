@@ -115,7 +115,7 @@
   link: 3d/mesh-textures.md
 - terms: [シェーダー, shader, シェーダ, HLSL]
   text: GPU 上で動く、頂点や色を計算する小さなプログラム。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [ドローコール, ドロー コール, 描画命令, draw call, Draw Call, ドロー コール数]
   text: CPU が GPU に出す、1 回の描画の命令。多いと CPU が重くなる。
   link: graphics/draw-call/draw-calls.md
@@ -292,10 +292,10 @@
   link: libs/jolt/vehicles.md
 - terms: [GPU, グラフィックスカード, グラフィックボード]
   text: 描画専用の部品。大量の頂点・ピクセルを、並列に計算する。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [CPU]
   text: プログラムを実行する、コンピューターの頭脳。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [バッファ, buffer, Buffer]
   text: データを置いておく、メモリの置き場。GPU 用のものは、頂点バッファ・定数バッファなど。
   link: 3d/mesh-textures.md
@@ -310,13 +310,13 @@
   link: 3d/model-basics.md
 - terms: [レンダーターゲット, render target, レンダー ターゲット, RTV]
   text: 描画の結果を書き込む先の画像（テクスチャ）。画面そのもの、または画面外のテクスチャ。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [SRV, シェーダーリソースビュー, Shader Resource View]
   text: シェーダーから、テクスチャなどを読むための見え方（ビュー）。
   link: libs/imgui/textures.md
 - terms: [スワップチェーン, swap chain, SwapChain, ダブルバッファ]
   text: 画面に出す画像と、描画中の画像を、交互に入れ替える仕組み。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [VSync, 垂直同期]
   text: 画面の更新タイミングに、描画を合わせる設定。フレームを一定にするが、遅延や待ちが出る。
   link: engine/game-loop.md
@@ -652,13 +652,13 @@
   link: optimize/frame-budget.md
 - terms: [ラスタライズ, rasterize, ラスタライザ, rasterizer, ラスタライザー]
   text: 三角形を、画面のどのピクセルに当たるかに変換する処理（GPU の固定機能）。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [ピクセルシェーダー, pixel shader, フラグメントシェーダー, fragment shader]
   text: 画面の 1 ピクセルごとに動き、その色を計算するシェーダー。重くなりやすい。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [頂点シェーダー, vertex shader]
   text: 頂点 1 つごとに動き、位置を変換するシェーダー。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [コンピュートシェーダー, compute shader, コンピュート シェーダー]
   text: 描画ではなく、汎用の計算を GPU でさせるシェーダー。ライト カリングや GPU カリングに使う。
   link: graphics/draw-call/gpu-driven.md
@@ -1003,13 +1003,13 @@
   link: basics/compiler.md
 - terms: [ピクセル, pixel]
   text: 画面を作る、小さな点 1 つ。1920×1080 の画面なら、約 207 万個ある。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [アニメーション, animation]
   text: 時間とともに、動きや見た目を変えること。キャラの動き、UI の動きなど。
   link: 3d/skinning-animation.md
 - terms: [API, Application Programming Interface]
   text: プログラムから、ほかの機能（OS・ライブラリ・GPU）を呼び出すための窓口。DirectX も API の 1 つ。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [ベクトル, vector]
   text: 向きと大きさを持つ量。ゲームでは、位置・速度・方向を表す数のならび（x, y, z）。std::vector（配列）とは別物。
   link: gamemath/vectors.md
@@ -1168,7 +1168,7 @@
   link: optimize/data-layout.md
 - terms: [ハードウェア, hardware]
   text: コンピューターの機械そのもの（CPU・GPU・メモリなど）。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [ライセンス, license]
   text: ライブラリやデータを使うときの、使用条件。MIT・Apache・GPL など。
   link: libs/index.md
@@ -1222,7 +1222,7 @@
   link: vs/index.md
 - terms: [パイプライン, pipeline]
   text: 処理を、段階に分けて、順に流す仕組み。描画では、頂点 → ラスタライズ → ピクセルの流れ。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [チャンネル, channel]
   text: 色の成分（R・G・B・A）や、音の系統。
   link: gamemath/color.md
@@ -1327,7 +1327,7 @@
   link: libs/recast/crowd.md
 - terms: [RT]
   text: Render Target（レンダーターゲット）の略。描画の結果を書く先の画像。
-  link: graphics/draw-call/overview.md
+  link: graphics/overview.md
 - terms: [チャンク, chunk]
   text: 大きなデータを、区切った 1 つのかたまり。マップを一定の大きさに分けたものなど。
   link: gamemath/grids.md

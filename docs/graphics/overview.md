@@ -12,12 +12,12 @@ tags:
 !!! tip "ポイント"
     - フレーム時間は<strong>CPU と GPU の遅いほう</strong>で決まる。
     - 流れは<strong>命令の作成 → 頂点 → ラスタライズ → ピクセル → 書き込み</strong>。
-    - まずどちらが遅いかを見分ける。詳しくは[何が重いのか](../optimization/bottlenecks.md)。
+    - まずどちらが遅いかを見分ける。詳しくは[何が重いのか](optimization/bottlenecks.md)。
 
 !!! info "このページを読む前に"
-    - [Draw Call](index.md)（このセクション全体の地図と、読む順番）
-    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
-    - [Bottlenecks](../optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+    - [Draw Call](draw-call/index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Bottlenecks](optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
 
 ## 描画の流れ
 
@@ -49,7 +49,7 @@ CPU:  [フレーム N の更新・命令の記録][フレーム N+1 の更新・
 GPU:            [フレーム N−1 の描画]          [フレーム N の描画]        [フレーム N+1 …]
 ```
 
-CPU はフレーム N の命令を作っている間に GPU は、1 つ前のフレーム N−1 を描いています（フレーム イン フライト。[Frame Resources](../../directx/dx12/frame-resources.md)）。このため 1 フレームの時間はおおよそCPU と GPU の遅いほうで決まります。
+CPU はフレーム N の命令を作っている間に GPU は、1 つ前のフレーム N−1 を描いています（フレーム イン フライト。[Frame Resources](../directx/dx12/frame-resources.md)）。このため 1 フレームの時間はおおよそCPU と GPU の遅いほうで決まります。
 
 | CPU の時間 | GPU の時間 | フレーム時間 | 速くするには |
 | --- | --- | --- | --- |
@@ -94,11 +94,11 @@ device->CreateSamplerState(&desc, &debug_sampler);
 - 命令の生成: GPU が理解できる命令の列に変換して書き込む（ドライバー）
 - 同期の管理: 読み書きの衝突の整理（D3D11 はドライバーが D3D12 はアプリが行う）
 
-1 回の命令は数マイクロ秒から十数マイクロ秒（環境により大きく変わる）で、<strong>数千回、積み重なると数十 ミリ秒</strong>になります。そのため、同じメッシュをインスタンスでまとめる状態を変えない順に並べるといった対策が効きます（[Draw Calls and Batching](draw-calls.md)）。D3D12 はこの CPU の負荷が小さく、複数のスレッドで命令を記録できます。
+1 回の命令は数マイクロ秒から十数マイクロ秒（環境により大きく変わる）で、<strong>数千回、積み重なると数十 ミリ秒</strong>になります。そのため、同じメッシュをインスタンスでまとめる状態を変えない順に並べるといった対策が効きます（[Draw Calls and Batching](draw-call/draw-calls.md)）。D3D12 はこの CPU の負荷が小さく、複数のスレッドで命令を記録できます。
 
 ## CPU 時間を測る
 
-CPU 側の時間は `std::chrono` で測れます。ただし、<strong>GPU の時間は別</strong>で GPU タイムスタンプ（[GPU Queries and Timing](../../directx/dx11/query-timing.md)）で測ります。
+CPU 側の時間は `std::chrono` で測れます。ただし、<strong>GPU の時間は別</strong>で GPU タイムスタンプ（[GPU Queries and Timing](../directx/dx11/query-timing.md)）で測ります。
 
 ```cpp
 #include <chrono>
@@ -130,9 +130,9 @@ void RenderScene() {
 
 ## 関連ページ
 
-- [描画の流れ（入門）：図で最初から追う](../../3d/render-flow/index.md)
-- [Optimization](../optimization/index.md)
-- [何が重いのか](../optimization/bottlenecks.md)
-- [計測（プロファイリング）](../../optimize/measure.md)
-- [フレーム時間の設計](../../optimize/frame-budget.md)
+- [描画の流れ（入門）：図で最初から追う](../3d/render-flow/index.md)
+- [Optimization](optimization/index.md)
+- [何が重いのか](optimization/bottlenecks.md)
+- [計測（プロファイリング）](../optimize/measure.md)
+- [フレーム時間の設計](../optimize/frame-budget.md)
 

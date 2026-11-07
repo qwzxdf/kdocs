@@ -1,4 +1,5 @@
 # 移動したページ（古いパス: 新しいパス）。hooks/redirects.py が、古い URL に転送ページを作る
+graphics/draw-call/overview.md: graphics/overview.md
 graphics/pipeline/2d.md: graphics/draw-call/2d.md
 graphics/pipeline/async-compute.md: graphics/optimization/async-compute.md
 graphics/pipeline/bandwidth.md: graphics/optimization/bandwidth.md
@@ -23,7 +24,7 @@ graphics/pipeline/lod.md: graphics/draw-call/lod.md
 graphics/pipeline/low-res-effects.md: graphics/optimization/low-res-effects.md
 graphics/pipeline/mesh-shaders.md: graphics/draw-call/mesh-shaders.md
 graphics/pipeline/overdraw.md: graphics/optimization/overdraw.md
-graphics/pipeline/overview.md: graphics/draw-call/overview.md
+graphics/pipeline/overview.md: graphics/overview.md
 graphics/pipeline/shader-cost.md: graphics/optimization/shader-cost.md
 graphics/pipeline/texture-streaming.md: graphics/optimization/texture-streaming.md
 graphics/pipeline/tools.md: graphics/optimization/tools.md
@@ -53,7 +54,7 @@ rendering/low-res-effects.md: graphics/optimization/low-res-effects.md
 rendering/mesh-shaders.md: graphics/draw-call/mesh-shaders.md
 rendering/overdraw.md: graphics/optimization/overdraw.md
 rendering/particles.md: graphics/translucency/particles-cost.md
-rendering/pipeline.md: graphics/draw-call/overview.md
+rendering/pipeline.md: graphics/overview.md
 rendering/postprocess.md: graphics/postprocess/cost.md
 rendering/shader-cost.md: graphics/optimization/shader-cost.md
 rendering/shadows.md: graphics/shadows/cost.md
