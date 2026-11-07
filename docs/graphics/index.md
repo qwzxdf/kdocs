@@ -12,9 +12,7 @@ tags:
 
 ## セクションの地図
 
-各分野をタップ（クリック）すると、ページの一覧が開きます。分野は、ゲームの絵を作る順に近い並びで、光と影、物と素材、世界、画面の仕上げ、描画全体と最適化の 5 つに分けています。各分野の最初のリンクは、その分野のトップです。
-
-### 光と影
+各分野をタップ（クリック）すると、ページの一覧が開きます。各分野の最初のリンクは、その分野のトップです。
 
 ??? abstract map "Shadows"
     [Shadows のトップ](shadows/index.md)
@@ -80,8 +78,6 @@ tags:
     - [Ray-Traced Reflections](reflections/rt-reflections/index.md)
     - [Reflection Comparison](reflections/comparison.md)
 
-### 物と素材
-
 ??? abstract map "Translucency"
     [Translucency のトップ](translucency/index.md)
 
@@ -96,8 +92,6 @@ tags:
 
     - [Skin Overview](skin-hair/skin/index.md)
     - [Hair Overview](skin-hair/hair/index.md)
-
-### 世界
 
 ??? abstract map "Terrain"
     [Terrain のトップ](terrain/index.md)
@@ -127,8 +121,6 @@ tags:
     - [Clouds](atmosphere/clouds/index.md)
     - [God Rays](atmosphere/god-rays/index.md)
 
-### 画面の仕上げ
-
 ??? abstract map "Post-Processing"
     [Post-Processing のトップ](postprocess/index.md)
 
@@ -143,8 +135,6 @@ tags:
     - [Outlines and Toon](postprocess/stylized/index.md)
     - [Post-Processing Cost](postprocess/cost.md)
     - [TAA, Upscaling and VRS Cost](postprocess/taa-upscaling-cost.md)
-
-### 描画全体と最適化
 
 ??? abstract map "Pipeline and Optimization"
     [Pipeline and Optimization のトップ](pipeline/index.md)
