@@ -274,6 +274,16 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string MoveKey { get; set; } = "Alt+M";
 
+        [Category("キー")]
+        [DisplayName("#include を前方宣言にする")]
+        [Description(KeyHelp)]
+        public string ForwardKey { get; set; } = "Alt+D";
+
+        [Category("include 整理")]
+        [DisplayName("使っていない #include を、ヘッダーからも消す")]
+        [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
+        public bool RemoveUnusedInHeaders { get; set; } = false;
+
         [Category("Quick Fix")]
         [DisplayName("電球(Quick Fix)に出す")]
         [Description("true: Ctrl+. の電球に、宣言・定義の相手を作る、引数を合わせる、変数に型を付ける、を出す。")]
@@ -294,6 +304,7 @@ namespace KCppAssist
                 RenameKey = Current(KCppAssistPackage.CmdRename);
                 CreateKey = Current(KCppAssistPackage.CmdCreate);
                 MoveKey = Current(KCppAssistPackage.CmdMove);
+                ForwardKey = Current(KCppAssistPackage.CmdForward);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -315,6 +326,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdRename, RenameKey);
                 Assign(KCppAssistPackage.CmdCreate, CreateKey);
                 Assign(KCppAssistPackage.CmdMove, MoveKey);
+                Assign(KCppAssistPackage.CmdForward, ForwardKey);
             }
             catch (Exception ex)
             {

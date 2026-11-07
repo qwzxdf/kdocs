@@ -10,9 +10,40 @@
       <Group guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" priority="0x0610">
         <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
       </Group>
+      <!-- プロジェクト・ソリューションを右クリックしたときのメニュー -->
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" priority="0x0710">
+        <Parent guid="guidVsMainMenu" id="IDM_VS_CTXT_PROJNODE" />
+      </Group>
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" priority="0x0710">
+        <Parent guid="guidVsMainMenu" id="IDM_VS_CTXT_SOLNNODE" />
+      </Group>
     </Groups>
 
     <Buttons>
+      <Button guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0110" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: #include を整理（プロジェクト全体）</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0111" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: 使っていない #include を消す（プロジェクト全体）</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdTidyFile" priority="0x0112" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: このファイルの #include を整理</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdForward" priority="0x0113" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: #include を前方宣言にする</ButtonText>
+        </Strings>
+      </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
@@ -70,6 +101,13 @@
     </Buttons>
   </Commands>
 
+  <CommandPlacements>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0001"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0001"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
+  </CommandPlacements>
+
   <KeyBindings>
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidVSStd97" key1="Q" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidVSStd97" key1="W" mod1="Alt" />
@@ -79,11 +117,14 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidVSStd97" key1="G" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidVSStd97" key1="R" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidVSStd97" key1="M" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidVSStd97" key1="D" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
     <GuidSymbol name="guidVsMainMenu" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
       <IDSymbol name="IDM_EXTENSIONS_MENU" value="0x0091" />
+      <IDSymbol name="IDM_VS_CTXT_PROJNODE" value="0x0402" />
+      <IDSymbol name="IDM_VS_CTXT_SOLNNODE" value="0x0403" />
     </GuidSymbol>
 
     <GuidSymbol name="guidVSStd97" value="{5EFC7975-14BC-11CF-9B2B-00AA00573819}" />
@@ -102,6 +143,12 @@
       <IDSymbol name="CmdRename" value="0x0108" />
       <IDSymbol name="CmdCreate" value="0x0106" />
       <IDSymbol name="CmdMove" value="0x0109" />
+      <IDSymbol name="KCppAssistProjGroup" value="0x1001" />
+      <IDSymbol name="KCppAssistSolnGroup" value="0x1002" />
+      <IDSymbol name="CmdTidyProject" value="0x010A" />
+      <IDSymbol name="CmdUnusedProject" value="0x010B" />
+      <IDSymbol name="CmdForward" value="0x010C" />
+      <IDSymbol name="CmdTidyFile" value="0x010D" />
     </GuidSymbol>
   </Symbols>
 
