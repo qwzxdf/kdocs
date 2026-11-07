@@ -20,6 +20,12 @@
     </Groups>
 
     <Buttons>
+      <Button guid="guidKCppAssistCmdSet" id="CmdHelp" priority="0x0102" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist の使い方...</ButtonText>
+        </Strings>
+      </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0110" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
@@ -149,6 +155,7 @@
       <IDSymbol name="CmdUnusedProject" value="0x010B" />
       <IDSymbol name="CmdForward" value="0x010C" />
       <IDSymbol name="CmdTidyFile" value="0x010D" />
+      <IDSymbol name="CmdHelp" value="0x010E" />
     </GuidSymbol>
   </Symbols>
 
