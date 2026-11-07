@@ -24,17 +24,22 @@ Visual Studio でビルドすると、`x64/` や `.vs/` に巨大な一時ファ
 `.gitignore` はリポジトリのフォルダーに置く、ただのテキストファイルです。各行が管理しないファイルやフォルダーを指すパターンです。
 
 ```gitignore
-# Visual Studio
+# Visual Studio（VisualStudio.gitignore の主な部分）
 .vs/
 *.user
 *.suo
 
 # ビルドの出力
+[Dd]ebug/
+[Rr]elease/
 x64/
-Debug/
-Release/
+x86/
 out/
 build/
+*.obj
+*.pdb
+*.ilk
+*.exe
 
 # vcpkg
 vcpkg_installed/
@@ -79,6 +84,26 @@ C++ と Visual Studio のプロジェクトでは、おおむね次の分類で�
 
 入れすぎる事故にも注意してください。たとえば `*.exe` を無視していて、配布用の外部ツールを置きたいならそのファイルだけ `!tools/foo.exe` のように例外にします。`.sln`、`.vcxproj`、`.vcxproj.filters`、ソース、リソース、`.editorconfig`、`.gitattributes` は管理に入れます。
 
+## Debug の下の lib を無視しない {#keep-lib}
+
+`Debug/` や `x64/` をまるごと無視すると、その下に置いた <strong>自前のライブラリ（`.lib` や `.dll`）まで無視されます</strong>。ビルドの出力と外から持ってきたライブラリは別物です。たとえば `ThirdParty/FMOD/lib/x64/` のような名前の置き場は、`x64/` のパターンに引っかかります。クローンした友だちの PC で「リンクできない」となる原因です。
+
+VisualStudio のテンプレートは `*.lib` を無視しません（`*.obj` `*.pdb` `*.ilk` などの中間ファイルを無視します）。`*.lib` を足すのはやめてください。出力先のフォルダー名だけで無視すると、巻き込みが起きます。対策は次の 3 つです。
+
+1. ライブラリは `Debug/` `x64/` の外に置く（`ThirdParty/` や `libs/` など）。出力先と置き場所を分ける
+2. 置き場が出力先と同じ名前になるなら `/` で始めて直下だけにする（`/x64/` なら、リポジトリ直下の `x64/` だけが対象になる）
+3. それでも引っかかるなら例外を書く
+
+```gitignore
+x64/
+# 外部ライブラリの置き場にある x64 は無視しない
+!ThirdParty/**/x64/
+```
+
+例外は <strong>上の無視より後ろに書きます</strong>。行の後ろにコメントは書けません（`#` は行の先頭だけ）。また、無視されたフォルダーの中身はあとから `!*.lib` と書いても戻りません（フォルダーごと無視されると、Git は中を見ないからです）。フォルダーそのものを例外にしてください。
+
+無視されているかは次の節の `git check-ignore -v` で確かめられます。SourceTree ではファイルステータスにそのファイルが出てこないことで分かります。
+
 ## テンプレートを使う {#template}
 
 一から書くのは大変なので GitHub が配っているテンプレートを元にするのが手早い方法です。GitHub でリポジトリを作るときの「Add .gitignore」で「VisualStudio」を選ぶか、`github/gitignore` リポジトリの `VisualStudio.gitignore` をコピーします。Visual Studio でプロジェクトを作るとき「Git リポジトリを作成」を選ぶと、C++ 用の `.gitignore` が自動で置かれます。
@@ -94,7 +119,7 @@ C++ と Visual Studio のプロジェクトでは、おおむね次の分類で�
 
 フォルダーごとならコマンドが早いです（ツールバーの「ターミナル」から開けます）。
 
-（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+（コマンドを打つ画面の開き方は[SourceTree の画面](sourcetree.md#terminal)にあります。）
 
 ```bash
 git rm -r --cached x64/                     # フォルダーごと、追跡だけを外す
@@ -114,7 +139,7 @@ git check-ignore -v x64/Debug/MyGame.exe
 ```
 
 ```text title="実行結果の形"
-.gitignore:5:x64/	x64/Debug/MyGame.exe
+.gitignore:9:x64/	x64/Debug/MyGame.exe
 ```
 
 左が「どのファイルの何行目のルールか」、右が対象のファイルです。意図せず無視されているファイルがあるときは、これで原因が分かります。

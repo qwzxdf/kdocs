@@ -64,6 +64,27 @@ class _Step:
         return True
 
 
+
+def grab_hwnd(hwnd):
+    """ウィンドウを PrintWindow で撮る。他のウィンドウに隠れていても、実寸のまま撮れる（最小化中は不可）。"""
+    import ctypes
+    from ctypes import wintypes
+    u, g = ctypes.windll.user32, ctypes.windll.gdi32
+    r = wintypes.RECT(); u.GetWindowRect(hwnd, ctypes.byref(r))
+    w, h = r.right - r.left, r.bottom - r.top
+    dc = u.GetWindowDC(hwnd); mdc = g.CreateCompatibleDC(dc)
+    bmp = g.CreateCompatibleBitmap(dc, w, h); g.SelectObject(mdc, bmp)
+    u.PrintWindow(hwnd, mdc, 2)          # 2 = PW_RENDERFULLCONTENT（WPF・GPU 描画も写る）
+    class BIH(ctypes.Structure):
+        _fields_ = [('s', wintypes.DWORD), ('w', wintypes.LONG), ('h', wintypes.LONG), ('p', wintypes.WORD),
+                    ('b', wintypes.WORD), ('c', wintypes.DWORD), ('si', wintypes.DWORD), ('x', wintypes.LONG),
+                    ('y', wintypes.LONG), ('u', wintypes.DWORD), ('i', wintypes.DWORD)]
+    bi = BIH(ctypes.sizeof(BIH), w, -h, 1, 32, 0, 0, 0, 0, 0, 0)
+    buf = ctypes.create_string_buffer(w * h * 4)
+    g.GetDIBits(mdc, bmp, 0, h, buf, ctypes.byref(bi), 0)
+    g.DeleteObject(bmp); g.DeleteDC(mdc); u.ReleaseDC(hwnd, dc)
+    return Image.frombuffer('RGB', (w, h), buf, 'raw', 'BGRX', 0, 1)
+
 class ST:
     def __init__(self):
         self.app = Application(backend='uia').connect(path='SourceTree.exe')
@@ -234,6 +255,13 @@ class ST:
     def shot(self, name, mode='main', pad=0):
         """実寸の PNG を docs/git/img/<name>.png に保存する。
         main: 本体 / top: 手前のダイアログ / union: すべてのウィンドウを含む範囲。"""
+        if mode == 'bg':     # 前面に出さず、隠れたままで本体を撮る
+            img = grab_hwnd(self.main().handle)
+            OUT.mkdir(parents=True, exist_ok=True)
+            path = OUT / f'{name}.png'
+            img.quantize(colors=256, dither=Image.Dither.NONE).save(path, optimize=True)
+            print(f'{name}.png', img.size, path.stat().st_size // 1024, 'KB (bg)')
+            return
         self.front()
         wins = [w for w in self.app.windows() if w.is_visible()]
         boxes = [(_frame(w.handle), w) for w in wins]
