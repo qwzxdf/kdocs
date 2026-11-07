@@ -45,7 +45,7 @@ tags:
 | [Shadow Map Raymarching](shadowmap-march.md) | 正確な筋 |
 | [Volume-Based God Rays](volume.md) | froxel による方式 |
 | [Light Shaft Meshes](mesh-shafts.md) | 最も軽い方式 |
-| [Underwater God Rays](underwater.md) | 水中での表現 |
+| [God Rays in Air and Water](underwater.md) | 空気中との違い（色・減衰・向き・揺れ）。水中の作り方は[水のセクション](../../water/underwater/god-rays.md) |
 | [Tuning the Look](tuning.md) | 強さ・色・ノイズ |
 
 ## ゴッド レイとは

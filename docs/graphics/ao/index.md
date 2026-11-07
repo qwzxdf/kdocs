@@ -30,6 +30,9 @@ tags:
 | [HBAO](hbao.md) | 地平線（ホライゾン）を探して、遮蔽を積分する方式 |
 | [HBAO+](hbao-plus.md) | NVIDIA の高速版。フル解像度・キャッシュ効率 |
 | [GTAO](gtao.md) | コサイン重みを正しく積分する。バウンス・スペキュラ遮蔽も |
+| [XeGTAO](xegtao.md) | GTAO の論文に書かれていない実装の細部（深度の読み方・サンプルの配り方）を埋める |
+| [ASSAO and CACAO](assao-cacao.md) | サンプル数を画素ごとに適応させて、取りの回数を減らす |
+| [MSSAO](mssao.md) | 半径が大きくても重くならないよう、複数の解像度で求めて混ぜる |
 | [Ray-Traced, Distance-Field and Voxel AO](world-space/index.md) | 画面に頼らない方式 |
 | [AO Filtering](filtering/index.md) | バイラテラル ブラー・アップサンプル・ノイズ・時間蓄積 |
 | [AO Comparison](comparison.md) | 原理・入力・コスト・弱点の一覧と選び方 |

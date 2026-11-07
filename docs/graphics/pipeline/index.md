@@ -24,11 +24,12 @@ tags:
 | [Memory Bandwidth](bandwidth.md) | 帯域とは何か、G-Buffer が重い理由、フォーマットの選び方 | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-vram">💾 VRAM 減</span> |
 | [Forward and Deferred](forward-deferred.md) | ライティングの基本の 2 方式。何が改善するのか | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [Tiled and Clustered](light-culling.md) | ライトをタイル・3 次元のセルに分ける | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [Visibility Buffer](visibility-buffer.md) | G-Buffer を三角形の ID だけに | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [Draw Calls and Batching](draw-calls.md) | CPU 側の負担、バッチ・インスタンシング・ステートの整理 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
 | [Culling](culling.md) | 視錐台・オクルージョン・距離。見えないものを描かない | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [GPU Driven Rendering](gpu-driven.md) | カリングと描画命令を GPU が作る | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
+| [GPU Driven (D3D12)](gpu-driven-dx12/index.md) | D3D12 で組む GPU Driven。ExecuteIndirect・カリングの Compute | — |
 | [Mesh Shader and Meshlet](mesh-shaders.md) | 三角形の塊単位の細かいカリング | <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
-| [Visibility Buffer](visibility-buffer.md) | G-Buffer を三角形の ID だけに | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [オーバードローと Z プリパス](overdraw.md) | 無駄に塗る問題・Early-Z・小さな三角形 | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
 | [低解像度のエフェクト](low-res-effects.md) | AO・ブルーム・霧などを縮小バッファで | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
 | [Hi-Z and Screen-Space Tracing](hiz.md) | 階層的な深度。反射・AO・オクルージョンの高速化 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |

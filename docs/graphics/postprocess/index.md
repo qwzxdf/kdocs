@@ -13,14 +13,16 @@ tags:
 | ページ | 内容 |
 | --- | --- |
 | [Tone Mapping and Exposure](tonemapping/index.md) | HDR → LDR。露出・Reinhard・フィルミック・ACES・AgX・色相の保ち方・自動露出・ガンマ |
+| [Color Grading](color-grading/index.md) | 基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方 |
 | [Bloom](bloom/index.md) | 明るい部分のにじみ。しきい値・ダウンサンプル・ガウス・Dual Filter・Karis・合成 |
+| [Lens Effects](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
 | [Depth of Field (DOF)](dof/index.md) | 錯乱円・ギャザー・スキャッター・前景と背景・ボケの形 |
 | [Motion Blur](motion-blur/index.md) | 速度バッファ・カメラ・オブジェクト・ぼかしの実装・タイル最大速度・強さと TAA |
 | [Anti-Aliasing](antialiasing/index.md) | MSAA・FXAA・SMAA・TAA・TAA の課題・比較 |
 | [Upscaling](upscaling/index.md) | 低解像度で描いて拡大する。FSR・DLSS・XeSS |
-| [Color Grading](color-grading/index.md) | 基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方 |
-| [Lens Effects](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
 | [Outlines and Toon](stylized/index.md) | 背面法・画面空間エッジ・セル シェーディング・ポスタライズとハーフトーン |
+| [Post-Processing Cost](cost.md) | 全画面の効果をまとめて軽くする |
+| [TAA, Upscaling and VRS Cost](taa-upscaling-cost.md) | 低解像度で描いて時間情報で補う、軽量化 |
 
 ## 処理の順序
 
