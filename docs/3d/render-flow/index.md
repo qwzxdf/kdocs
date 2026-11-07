@@ -131,5 +131,5 @@ tags:
 - [3D ゲーム](../index.md)
 - [モデルの基本](../model-basics.md)
 - [座標変換（MVP）](../transforms-mvp.md)
-- [描画のしくみ（最適化の入口）](../../graphics/draw-call/overview.md)
+- [描画のしくみ（最適化の入口）](../../graphics/overview.md)
 - [シェーダー](../../graphics/index.md)

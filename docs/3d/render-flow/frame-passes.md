@@ -301,6 +301,6 @@ tags:
 
 - [描画の流れ（入門）](index.md)
 - [画面に出す](present.md)
-- [描画のしくみ（最適化の入口）](../../graphics/draw-call/overview.md)
+- [描画のしくみ（最適化の入口）](../../graphics/overview.md)
 - [フォワードとディファード](../../graphics/lighting/forward-deferred.md)
 - [シェーダー](../../graphics/index.md)

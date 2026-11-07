@@ -19,7 +19,7 @@ tags:
 
 | ページ | 内容 | 減らせるもの |
 | --- | --- | --- |
-| [Rendering Pipeline Overview](../draw-call/overview.md) | CPU から画面までの流れと、基本用語 | — |
+| [Rendering Pipeline Overview](../overview.md) | CPU から画面までの流れと、基本用語 | — |
 | [Bottlenecks](bottlenecks.md) | CPU と GPU、頂点・ピクセル・帯域。どう見分けるか | — |
 | [Memory Bandwidth](bandwidth.md) | 帯域とは何か、G-Buffer が重い理由、フォーマットの選び方 | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-vram">💾 VRAM 減</span> |
 | [Forward and Deferred](../lighting/forward-deferred.md) | ライティングの基本の 2 方式。何が改善するのか | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |

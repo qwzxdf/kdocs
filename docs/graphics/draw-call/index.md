@@ -15,7 +15,7 @@ GPU の中での負荷（帯域、オーバードロー、シェーダー）は�
 
 | ページ | 内容 |
 | --- | --- |
-| [Rendering Pipeline Overview](overview.md) | CPU から画面までの流れと、基本用語 |
+| [Rendering Pipeline Overview](../overview.md) | CPU から画面までの流れと、基本用語 |
 | [Draw Calls and Batching](draw-calls.md) | CPU 側の負担、バッチ・インスタンシング・ステートの整理 |
 | [Culling](culling.md) | 視錐台・オクルージョン・距離。見えないものを描かない |
 | [LOD and Impostors](lod.md) | 遠くの物の詳細度を下げる |
@@ -26,6 +26,7 @@ GPU の中での負荷（帯域、オーバードロー、シェーダー）は�
 
 ## 関連ページ
 
+- [Rendering Pipeline Overview](../overview.md)
 - [Lighting](../lighting/index.md)
 - [Optimization](../optimization/index.md)
 - [深度とカリング](../../3d/depth-culling.md)
