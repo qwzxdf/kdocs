@@ -5,4 +5,5 @@ nav:
   - configuration.md
   - platform.md
   - build.md
+  - build-advanced.md
   - msvc.md
