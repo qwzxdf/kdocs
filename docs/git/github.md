@@ -46,7 +46,7 @@ Public のリポジトリは世界中の誰でも見られます。ソースコ�
 
 GitHub にプッシュやクローンをするとき、本人確認が必要です。いまの GitHub はアカウントのパスワードは受け付けません。次の 3 つのうちどれかを使います。
 
-<strong>Git Credential Manager（GCM）</strong>は、Git for Windows に同梱されている仕組みです。最初に push するとブラウザーが開き GitHub にサインインして許可すると、Windows に認証情報が保存されます。次から入力は要りません。ふつうの学生はこれで十分です。
+<strong>Git Credential Manager（GCM）</strong>は、Git for Windows に同梱されている仕組みです。最初にプッシュするとブラウザーが開き GitHub にサインインして許可すると、Windows に認証情報が保存されます。次から入力は要りません。ふつうの学生はこれで十分です。
 
 <strong>SSH 鍵</strong>は鍵のペアで認証します。[最初の設定](install.md#auth) で作った公開鍵を GitHub の「Settings → SSH and GPG keys → New SSH key」に貼ります。以後は URL を `git@github.com:ユーザー名/MyGame.git` の形で使います。
 
@@ -61,20 +61,20 @@ GitHub にプッシュやクローンをするとき、本人確認が必要で�
 流れは次のとおりです。
 
 1. 枝を切って作業して、プッシュする（SourceTree の「プッシュ」の画面で、その枝にチェックを入れる）
-2. GitHub のリポジトリを開くと「Compare & pull request」ボタンが出る。押す（SourceTree で、枝を右クリックして「プルリクエストを作成」を選んでも、開ける）
-3. タイトルと説明を書いて、「Create pull request」
-4. レビューを受ける。直す指摘があれば同じ枝に push する（PR に自動で反映される）
-5. 承認されたら「Merge pull request」で合体。終わった枝は消す
+2. GitHub のリポジトリを開くと「Compare & プル request」ボタンが出る。押す（SourceTree で、枝を右クリックして「プルリクエストを作成」を選んでも、開ける）
+3. タイトルと説明を書いて、「Create プル request」
+4. レビューを受ける。直す指摘があれば同じ枝にプッシュする（PR に自動で反映される）
+5. 承認されたら「Merge プル request」で合体。終わった枝は消す
 
 PR の説明に書くことは何を変えたかなぜ変えたかどう確認したかの 3 つです。詳しくは [チーム開発の進め方](team.md#pr) にあります。
 
 マージのボタンには 3 種類の方式があります。
 
-- <strong>Create a merge commit</strong>: マージコミットが 1 つ付く。枝の履歴がそのまま残る。履歴の経緯を残したいとき
-- <strong>Squash and merge</strong>: 枝の全コミットを 1 つにまとめて入れる。枝の途中のコミットが雑でも、`main` をきれいにしたいとき
-- <strong>Rebase and merge</strong>: 枝のコミットを一直線に積み直す。履歴を一直線にしたいとき
+- <strong>Create a マージ commit</strong>: マージコミットが 1 つ付く。枝の履歴がそのまま残る。履歴の経緯を残したいとき
+- <strong>Squash and マージ</strong>: 枝の全コミットを 1 つにまとめて入れる。枝の途中のコミットが雑でも、`main` をきれいにしたいとき
+- <strong>Rebase and マージ</strong>: 枝のコミットを一直線に積み直す。履歴を一直線にしたいとき
 
-チームで 1 つに決めておくと `main` の履歴が読みやすくなります。迷ったら Squash and merge が扱いやすいです。
+チームで 1 つに決めておくと `main` の履歴が読みやすくなります。迷ったら Squash and マージが扱いやすいです。
 
 ## Issue {#issue}
 
@@ -95,14 +95,14 @@ Issue はバグ報告、やることの管理、相談を書き込む掲示板�
 
 - 完成した作品の公開には GitHub の「Releases」が使える。ビルド済みの実行ファイルを zip にして添付すると、ソースをビルドしなくても遊んでもらえる。バージョンの印は [タグ](tag.md) で付ける
 - 自動ビルドは [GitHub Actions](../vs/github-actions.md)。PR のたびにビルドが通るかを確認できる
-- 大きなアセットは [Git LFS](git-lfs.md)。GitHub は 1 ファイル 100 MB を超えると push を拒否する
+- 大きなアセットは [Git LFS](git-lfs.md)。GitHub は 1 ファイル 100 MB を超えるとプッシュを拒否する
 
 ## よくあるミス {#mistakes}
 
-??? failure "パスワードや API キーをコミットして push してしまった"
+??? failure "パスワードや API キーをコミットしてプッシュしてしまった"
     Public のリポジトリならすぐに悪用されます。ファイルを消しても履歴に残ります。<strong>まずそのキーを無効にして作り直してください。</strong>履歴からの削除はあとで行います。[事故と対処](accidents.md#secret) を見てください。
 
-??? failure "push しようとすると、認証で失敗し続ける"
+??? failure "プッシュしようとすると、認証で失敗し続ける"
     古い認証情報が残っています。Windows の資格情報マネージャーで、`git:https://github.com` を削除してからやり直します。
 
 ??? failure "Public にしたら、課題が見えていた"

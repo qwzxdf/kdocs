@@ -72,16 +72,16 @@ tags:
 | 合体を取りやめる | `git merge --abort` | [マージ](merge.md#abort) |
 | 枝を消す | `git branch -d <名前>` | [ブランチ](branch.md#merge-delete) |
 | 枝の名前を変える | `git branch -m <旧> <新>` | [ブランチ](branch.md#rename) |
-| 枝を付け替える | `git rebase <枝>` | [rebase](rebase.md) |
-| コミットを 1 つ持ってくる | `git cherry-pick <ID>` | [rebase](rebase.md#cherry-pick) |
+| 枝を付け替える | `git rebase <枝>` | [リベース](rebase.md) |
+| コミットを 1 つ持ってくる | `git cherry-pick <ID>` | [リベース](rebase.md#cherry-pick) |
 
 ## 共有する {#remote}
 
 | やりたいこと | コマンド | 詳しく |
 | --- | --- | --- |
 | リモートを登録 | `git remote add origin <URL>` | [リモート](remote.md#add) |
-| 最初の push | `git push -u origin main` | [リモート](remote.md#push) |
-| push | `git push` | [リモート](remote.md#push) |
+| 最初のプッシュ | `git push -u origin main` | [リモート](remote.md#push) |
+| プッシュ | `git push` | [リモート](remote.md#push) |
 | 持ってくるだけ | `git fetch` | [リモート](remote.md#fetch) |
 | 持ってきて合体 | `git pull` | [リモート](remote.md#pull) |
 | リモートの枝を消す | `git push origin --delete <枝>` | [リモート](remote.md#remote-branch) |
@@ -90,9 +90,9 @@ tags:
 
 | やりたいこと | コマンド | 詳しく |
 | --- | --- | --- |
-| 変更をしまう | `git stash` / `git stash -u` | [stash](stash.md) |
-| しまった変更を戻す | `git stash pop` | [stash](stash.md#basic) |
-| stash の一覧 | `git stash list` | [stash](stash.md#list) |
+| 変更をしまう | `git stash` / `git stash -u` | [スタッシュ](stash.md) |
+| しまった変更を戻す | `git stash pop` | [スタッシュ](stash.md#basic) |
+| スタッシュの一覧 | `git stash list` | [スタッシュ](stash.md#list) |
 | タグを付ける | `git tag -a v1.0.0 -m "メッセージ"` | [タグ](tag.md#create) |
 | タグを送る | `git push origin v1.0.0` | [タグ](tag.md#push) |
 
