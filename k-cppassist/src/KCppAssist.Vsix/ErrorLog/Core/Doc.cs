@@ -29,6 +29,10 @@ namespace KCppAssist.ErrorLog
         public int Toggle;
         /// <summary>リンクのとき、窓の中でジャンプする先の名前(DocLine.Anchor)。</summary>
         public string Jump;
+        /// <summary>空でなければ、押すと File の Line 行の右辺を static_cast&lt;Fix&gt;(...) で包む修正のリンク。</summary>
+        public string Fix;
+        /// <summary>修正のとき、ビルドの時点の行の中身(行が変わっていないかの確認用)。</summary>
+        public string FixLine;
 
         public bool IsLink { get { return !string.IsNullOrEmpty(File) || !string.IsNullOrEmpty(Search) || !string.IsNullOrEmpty(Url) || Toggle > 0 || !string.IsNullOrEmpty(Jump); } }
     }
@@ -105,6 +109,12 @@ namespace KCppAssist.ErrorLog
         public LineBuilder ToggleMark(int group)
         {
             _line.Runs.Add(new Run { Text = "▸ ", Role = Role.Dim, Toggle = group });
+            return this;
+        }
+
+        public LineBuilder FixLink(string text, string file, int line, int col, string type, string lineText)
+        {
+            _line.Runs.Add(new Run { Text = text, Role = Role.Good, Bold = true, File = file, Line = line, Col = col, Fix = type, FixLine = lineText });
             return this;
         }
 

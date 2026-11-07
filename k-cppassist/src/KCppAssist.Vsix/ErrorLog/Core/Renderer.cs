@@ -505,6 +505,7 @@ namespace KCppAssist.ErrorLog
                     .Add(sug.Display, Role.Type, true).Add("   (" + sug.Name + " を使うには)", Role.Dim).Done();
             AddFound(doc, d, sol);
             AddConversion(doc, d);
+            AddNarrowFix(doc, d, sol);
 
             Frame userFrame = FindUserFrame(d, sol);
             bool insideLibrary = d.HasLocation && Paths.IsLibraryFile(d.File);
@@ -531,6 +532,22 @@ namespace KCppAssist.ErrorLog
             if (hasSpecific && !specificCoversHint) AddHintText(doc, hint, 1);
             AddExample(doc, hint);
             EndGroup(doc, head, g);
+        }
+
+        /// <summary>縮小変換(double から int など)の行に、「static_cast を付ける」修正のリンクを出す。</summary>
+        private static void AddNarrowFix(Doc doc, Diag d, string sol)
+        {
+            if (!NarrowFix.IsCandidate(d.Code) || !d.HasLocation || !Paths.IsUserFile(d.File, sol)) return;
+            string type = NarrowFix.TargetType(d.Message);
+            if (type == null) return;
+            string[] lines = ReadLines(d.File);
+            if (lines == null || d.Line < 1 || d.Line > lines.Length) return;
+            string line = lines[d.Line - 1];
+            NarrowFix.Plan plan = NarrowFix.Make(line, type);
+            if (plan == null) return;
+            Line(doc, 1, null).Add("修正: ", Role.Good, true)
+                .FixLink("右辺を static_cast<" + type + ">(…) にする", d.File, d.Line, d.Col, type, line.Trim())
+                .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
         }
 
         private static readonly HashSet<string> NoteCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
