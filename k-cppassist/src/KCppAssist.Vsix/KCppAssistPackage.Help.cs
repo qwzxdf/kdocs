@@ -12,11 +12,8 @@ namespace KCppAssist
         internal const int CmdHelp = 0x010E;
         private const string DocsUrl = "https://qwzxdf.github.io/kdocs/kcppassist/";
 
-        internal const int CmdDockLog = 0x010F;
-
         private void RegisterHelpCommand(OleMenuCommandService commands)
         {
-            commands.AddCommand(new MenuCommand((s, e) => DockErrorLog(), new CommandID(CmdSet, CmdDockLog)));
             commands.AddCommand(new MenuCommand((s, e) => ShowHelp(), new CommandID(CmdSet, CmdHelp)));
         }
 
@@ -49,30 +46,6 @@ namespace KCppAssist
   拡張機能 → K-CppAssist の設定...  キーの変更、各機能の ON/OFF
 
 注意: 使っていない #include の削除は、名前の使われ方だけで判断します。削除したあとは、ビルドして確かめてください。";
-
-        /// <summary>K-ErrorLog を、下のパネル(出力・エラー一覧の仲間)にドッキングし直す。浮いたままになったときの救済。</summary>
-        private void DockErrorLog()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
-            {
-                var window = FindToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), 0, true) as KCppAssist.ErrorLog.ErrorLogToolWindow;
-                var frame = window == null ? null : window.Frame as Microsoft.VisualStudio.Shell.Interop.IVsWindowFrame;
-                if (frame == null) return;
-                frame.Show();
-                // いまの状態を調べて、浮いていれば、ドッキング(だめなら、タブ)にする
-                object mode;
-                frame.GetProperty((int)Microsoft.VisualStudio.Shell.Interop.__VSFPROPID.VSFPROPID_FrameMode, out mode);
-                Log("errorlog frame mode before: " + mode);
-                frame.SetProperty((int)Microsoft.VisualStudio.Shell.Interop.__VSFPROPID.VSFPROPID_FrameMode, (int)Microsoft.VisualStudio.Shell.Interop.VSFRAMEMODE.VSFM_Dock);
-                frame.GetProperty((int)Microsoft.VisualStudio.Shell.Interop.__VSFPROPID.VSFPROPID_FrameMode, out mode);
-                Log("errorlog frame mode after: " + mode);
-                frame.Show();
-                var bar = GetService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsStatusbar)) as Microsoft.VisualStudio.Shell.Interop.IVsStatusbar;
-                if (bar != null) bar.SetText("K-CppAssist: K-ErrorLog をドッキングしました (状態: " + mode + ")");
-            }
-            catch (Exception ex) { Log("dock errorlog failed: " + ex); }
-        }
 
         private void ShowHelp()
         {
