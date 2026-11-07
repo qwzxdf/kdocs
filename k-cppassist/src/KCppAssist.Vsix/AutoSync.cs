@@ -97,6 +97,12 @@ namespace KCppAssist
 
         private void OnChanged(object sender, TextContentChangedEventArgs e)
         {
+            try { OnChangedCore(e); }
+            catch (Exception ex) { KCppAssistPackage.Log("sync OnChanged failed: " + ex.Message); }
+        }
+
+        private void OnChangedCore(TextContentChangedEventArgs e)
+        {
             if (path == null || !IsAuto) return;
             // 相手の編集としてこちらに写された変更は、また相手へ戻さない
             if (e.EditTag is string && (string)e.EditTag == SyncService.EditTag) { baseline = Build(e.After); return; }

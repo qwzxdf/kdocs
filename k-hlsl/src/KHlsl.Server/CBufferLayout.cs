@@ -236,12 +236,18 @@ namespace KHlsl.Server
         /// <summary>struct を、cbuffer の先頭に置いたときのレイアウト。</summary>
         public static LBlock LayoutStruct(TypeTable table, LayoutOptions opt, string name)
         {
+            return LayoutStruct(table, opt, name, 0);
+        }
+
+        // depth は、基底クラスをたどる深さ。struct A : B と struct B : A のような循環(打ちかけのコードで起こる)で、無限に再帰しないための上限
+        private static LBlock LayoutStruct(TypeTable table, LayoutOptions opt, string name, int depth)
+        {
             StructDef def;
             if (!table.Structs.TryGetValue(Resolve(table, name), out def)) return null;
             var b = LayoutBody(table, opt, "struct", def.Name, null, def.Src, def.BodyStart, def.BodyEnd, def.Line);
             if (def.Base != null)
             {
-                var baseBlock = LayoutStruct(table, opt, def.Base);
+                var baseBlock = depth >= 8 ? null : LayoutStruct(table, opt, def.Base, depth + 1);
                 if (baseBlock != null)
                 {
                     // 基底クラスのメンバーが先に来る。派生側を、その後ろへ置き直す

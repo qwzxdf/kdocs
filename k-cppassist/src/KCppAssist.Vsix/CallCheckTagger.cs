@@ -173,8 +173,12 @@ namespace KCppAssist
 
         private void OnChanged(object sender, TextContentChangedEventArgs e)
         {
-            Schedule();
-            if (path != null && IncludeService.IsHeader(path)) CallCheckHub.HeaderEdited(this);
+            try
+            {
+                Schedule();
+                if (path != null && IncludeService.IsHeader(path)) CallCheckHub.HeaderEdited(this);
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("call check OnChanged failed: " + ex.Message); }
         }
 
         /// <summary>少し待ってから、調べ直す(続けて呼ばれたら、最後の 1 回だけ)。</summary>
