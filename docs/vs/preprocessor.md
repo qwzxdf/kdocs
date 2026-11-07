@@ -16,7 +16,7 @@ C++ のビルドではコンパイルの前に**プリプロセッサ**が `#inc
     - `_DEBUG` と `NDEBUG` は Visual Studio が自動で定義する。自分の機能スイッチ（`ENABLE_PROFILER` など）もプロパティで切り替えられる。
 
 !!! info "このページを読む前に"
-    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [vs/index.md](index.md)（このセクション全体の地図と読む順番）
     - [インストールとプロジェクトの作成](setup.md)（Visual Studio の準備）
 
 ## マクロの定義のしかた
@@ -58,14 +58,12 @@ target_compile_definitions(app PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN MY_LEVEL=3)
 #include <windows.h>
 ```
 
-| 方法 | 長所 | 短所 |
-| --- | --- | --- |
-| プロパティ・`/D` | 全ファイルに効く。書き忘れがない | プロジェクトの設定を見ないと分からない |
-| ソースの `#define` | コードを見れば、分かる | ファイルごとに書く必要がある。`#include` より前に書かないと効かない |
-| 共通ヘッダ | まとめて書ける | include の順番に依存して、ずれやすい |
+- <strong>プロパティ・`/D`</strong>: 長所: 全ファイルに効く。書き忘れがない。短所: プロジェクトの設定を見ないと分からない
+- <strong>ソースの `#define`</strong>: 長所: コードを見れば、分かる。短所: ファイルごとに書く必要がある。`#include` より前に書かないと効かない
+- <strong>共通ヘッダー</strong>: 長所: まとめて書ける。短所: include の順番に依存して、ずれやすい
 
 !!! warning "ソースで定義するなら include より前"
-    `#include <windows.h>` の後に `#define NOMINMAX` と書いても、もう手遅れです（`windows.h` が、`min` / `max` マクロを定義済み）。プロパティで全体に定義するのが、確実です。
+    `#include <windows.h>` の後に `#define NOMINMAX` と書いても、もう手遅れです（`windows.h` が `min` / `max` マクロを定義済み）。プロパティで全体に定義するのが、確実です。
 
 ### プロパティ シート
 
@@ -100,15 +98,15 @@ error C2589: '(': '::' の右側のトークンが正しくありません
 
 - `NOMINMAX` を定義（推奨）: `min` / `max` マクロを定義させない。`std::min` が普通に使える
 - `(std::min)(a, b)`: カッコでマクロの展開を避ける。応急処置
-- `#undef min`: あとから消す。他のヘッダへの影響が読みにくい
+- `#undef min`: あとから消す。他のヘッダーへの影響が読みにくい
 
 `NOMINMAX` は最初からプロパティに入れておくのが、定石です。
 
 ### WIN32_LEAN_AND_MEAN
 
-`<windows.h>` が読み込むあまり使わないヘッダ（`winsock.h`、`ole2.h`、`commdlg.h` など）を省略します。コンパイルが速くなり`winsock.h` と `winsock2.h` の衝突も防げます。
+`<windows.h>` が読み込むあまり使わないヘッダー（`winsock.h`、`ole2.h`、`commdlg.h` など）を省略します。コンパイルが速くなり`winsock.h` と `winsock2.h` の衝突も防げます。
 
-- ビルドが速くなる: 読むヘッダが減る（[ビルド時間の最適化](../optimize/build-time.md)）
+- ビルドが速くなる: 読むヘッダーが減る（[ビルド時間の最適化](../optimize/build-time.md)）
 - Winsock の衝突を防ぐ: `winsock2.h` を使うとき `windows.h` が古い `winsock.h` を先に読むと、再定義エラーになる
 - 注意: `shellapi.h`、`ole2.h`、`commdlg.h` などが必要なら自分で include する
 
@@ -147,11 +145,9 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 
 標準ライブラリのイテレータの検査（範囲外アクセスなどを実行時に検出）の強さです。
 
-| 値 | 意味 |
-| --- | --- |
-| 0 | 検査なし（Release の既定） |
-| 1 | 検査あり（軽め） |
-| 2 | 検査あり（Debug の既定）。遅い |
+- <strong>0</strong>: 検査なし（Release の既定）
+- <strong>1</strong>: 検査あり（軽め）
+- <strong>2</strong>: 検査あり（Debug の既定）。遅い
 
 !!! warning "ライブラリとプロジェクトで、値をそろえる"
     異なる値でビルドしたオブジェクトをリンクすると、`LNK2038`（不一致が検出されました）になります。外部ライブラリを Release で、自分のプロジェクトを Debug でビルドすると、起きます（[よくあるエラー](errors.md)）。
@@ -163,14 +159,12 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 - `_CRTDBG_MAP_ALLOC`: メモリリークの行番号つきの報告（[デバッグ](debugging.md)）
 - `_HAS_CXX23` など: 標準ライブラリの対応状況（通常は、`/std:c++latest` で自動）
 - `NDEBUG`: assert を無効にする（Release で、自動定義）
-- `_DEBUG`: Debug で、自動定義。デバッグ専用のコードの切り替え
+- `_DEBUG`: Debug で自動定義。デバッグ専用のコードの切り替え
 
 ## Debug と Release の切り替え
 
-| マクロ | 定義される構成 | 用途 |
-| --- | --- | --- |
-| `_DEBUG` | Debug（Visual Studio が、自動で） | デバッグ専用のコード（検査、ログ） |
-| `NDEBUG` | Release（自動で） | `assert` の無効化。ターゲット製品用 |
+- <strong>`_DEBUG`</strong>: 定義される構成: Debug（Visual Studio が、自動で）。用途: デバッグ専用のコード（検査、ログ）
+- <strong>`NDEBUG`</strong>: 定義される構成: Release（自動で）。用途: `assert` の無効化。ターゲット製品用
 
 ```cpp
 #ifdef _DEBUG
@@ -184,7 +178,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 
 - `_DEBUG` と `NDEBUG` は両方とも未定義にもできる: 構成を自作した場合は、どちらを定義するかを決める
 - `#ifdef` の中身はコンパイルされない: Release でビルドエラーになる、Debug だけにある変数に注意
-- assert: `NDEBUG` で、消える。副作用のある式を入れない
+- assert: `NDEBUG` で消える。副作用のある式を入れない
 
 ## 自分で作る機能スイッチ
 
@@ -200,7 +194,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 
 - プロファイラーの有効化: `ENABLE_PROFILER`（Debug と Profile 構成だけ）
 - デバッグ描画: `ENABLE_DEBUG_DRAW`
-- チートコマンド・開発メニュー: `ENABLE_DEV_MENU`（製品では、無効）
+- チートコマンド・開発メニュー: `ENABLE_DEV_MENU`（製品では無効）
 - ログのレベル: `LOG_LEVEL=2`
 - プラットフォームの切り替え: `PLATFORM_WINDOWS`、`PLATFORM_SWITCH`
 
@@ -211,7 +205,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 - マクロの名前の衝突: `DEBUG`、`ERROR`、`min` などの短い名前は他のライブラリと衝突。プレフィックス（`MYGAME_`）をつける
 - `#if` と `#ifdef`: `#ifdef X` は「定義されているか」。`#if X` は「値が 0 でないか」（`X=0` で定義したときの挙動が違う）
 - マクロより `constexpr` / `if constexpr`: 型チェックが効く。可能ならそちら
-- 使いすぎ: `#ifdef` だらけは、読みにくい。切り替えは1 か所（インターフェース）にまとめる
+- 使いすぎ: `#ifdef` だらけは読みにくい。切り替えは1 か所（インターフェース）にまとめる
 
 ## ライブラリのマクロ
 
@@ -276,13 +270,11 @@ Visual Studio の DLL プロジェクトには `プロジェクト名_EXPORTS` �
 
 ライブラリのビルドと使う側で、定義をそろえる必要があるものがあります。
 
-| ライブラリ | 例 | 注意 |
-| --- | --- | --- |
-| Jolt Physics | `JPH_DEBUG_RENDERER`、`JPH_PROFILE_ENABLED`、`JPH_DOUBLE_PRECISION` | 食い違うとクラスの大きさが変わって、クラッシュ（[Jolt](../libs/jolt/index.md)） |
-| ImGui | `IMGUI_DEFINE_MATH_OPERATORS` | ライブラリ側と使う側で、同じ `imconfig.h` を見る |
-| simdjson | `SIMDJSON_*` | ビルドのオプション |
-| nlohmann/json | `JSON_USE_IMPLICIT_CONVERSIONS=0`、`JSON_NOEXCEPTION` | 全部のファイルで同じ設定 |
-| 標準ライブラリ | `_ITERATOR_DEBUG_LEVEL`、`_HAS_EXCEPTIONS` | ライブラリとプロジェクトで、そろえる |
+- <strong>Jolt Physics</strong>: 例: `JPH_DEBUG_RENDERER`、`JPH_PROFILE_ENABLED`、`JPH_DOUBLE_PRECISION`。注意: 食い違うとクラスの大きさが変わって、クラッシュ（[Jolt](../libs/jolt/index.md)）
+- <strong>ImGui</strong>: 例: `IMGUI_DEFINE_MATH_OPERATORS`。注意: ライブラリ側と使う側で、同じ `imconfig.h` を見る
+- <strong>simdjson</strong>: 例: `SIMDJSON_*`。注意: ビルドのオプション
+- <strong>nlohmann/json</strong>: 例: `JSON_USE_IMPLICIT_CONVERSIONS=0`、`JSON_NOEXCEPTION`。注意: 全部のファイルで同じ設定
+- <strong>標準ライブラリ</strong>: 例: `_ITERATOR_DEBUG_LEVEL`、`_HAS_EXCEPTIONS`。注意: ライブラリとプロジェクトで、そろえる
 
 vcpkg や CMake で入れると、ビルドの定義が自動でそろいます。手作業で設定するときはライブラリのドキュメントの「ビルド設定」の節を必ず読みます。
 
@@ -293,7 +285,7 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 - `_M_X64` / `_M_ARM64`: CPU の種類（64 ビット x86 / ARM）
 - `_WIN32` / `_WIN64`: Windows。64 ビットでも `_WIN32` は定義される
 - `__FILE__` / `__LINE__`: ファイル名と行番号（ログ・assert に）
-- `__has_include(<header>)`: ヘッダが存在するか（C++17）。`#if __has_include(<print>)`
+- `__has_include(<header>)`: ヘッダーが存在するか（C++17）。`#if __has_include(<print>)`
 - **`__cpp_lib_*`**: 標準ライブラリの機能が使えるか（`__cpp_lib_print`、`__cpp_lib_flat_map` など）
 
 ```cpp
@@ -312,13 +304,13 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 
 - **プロパティの画面**: 構成・プラットフォームを選んで、値を直接確認
 - `/P`（プリプロセス結果をファイルに出力）: マクロ展開後のソースを `.i` ファイルに。どう展開されたかを見る
-- `/showIncludes`: どのヘッダをどの順に読んだか
+- `/showIncludes`: どのヘッダーをどの順に読んだか
 - `#pragma message("...")`: コンパイル時にメッセージを出す。`#pragma message("MYLEVEL = " _CRT_STRINGIZE(MY_LEVEL))`
 - `/d1PP`（`/E` と併用）: 展開の様子を詳しく
 - IntelliSense の淡色表示: `#ifdef` で無効な部分が灰色になる
 
 !!! note "IntelliSense が、プロパティの設定を見ていないとき"
-    プロパティで定義したマクロは、IntelliSense にも反映されますが、CMake プロジェクトなどでは、反映が遅れることがあります。ビルドして確認します。
+    プロパティで定義したマクロは、IntelliSense にも反映されますが、CMake プロジェクトなどでは反映が遅れることがあります。ビルドして確認します。
 
 ## よくあるミス
 
@@ -341,7 +333,7 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
     同じ構成（Debug / Release）で、ライブラリをビルドし直します。
 
 ??? failure "`IMGUI_DEFINE_MATH_OPERATORS` を `imgui_internal.h` の後に定義した"
-    include の前に定義します。プロパティで全体にすると、確実です。
+    include の前に定義します。プロパティで全体にすると確実です。
 
 ??? failure "短いマクロの名前（`DEBUG`、`ERROR`）が他のライブラリと衝突する"
     プレフィックス（`MYGAME_DEBUG`）をつけます。

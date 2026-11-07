@@ -6,7 +6,7 @@ tags:
 
 # AddressSanitizer
 
-C++ では**配列の範囲外アクセス**や解放したメモリを使うミスが起きても、その場では何も起きず、あとでまったく別の場所で壊れることがあります。原因が見つけにくいメモリのバグです。AddressSanitizer（アドレス サニタイザー、ASan）は実行中にメモリアクセスを監視し、不正があった瞬間に止めて、詳しく教えてくれるツールです。Visual Studio 2026 の MSVC で、使えます。このページは有効にする方法、見つけられるバグ、エラー出力の読み方、注意点をまとめます。
+C++ では**配列の範囲外アクセス**や解放したメモリを使うミスが起きても、その場では何も起きずあとでまったく別の場所で壊れることがあります。原因が見つけにくいメモリのバグです。AddressSanitizer（アドレス サニタイザー、ASan）は実行中にメモリアクセスを監視し、不正があった瞬間に止めて詳しく教えてくれるツールです。Visual Studio 2026 の MSVC で、使えます。このページは有効にする方法、見つけられるバグ、エラー出力の読み方、注意点をまとめます。
 
 !!! tip "ポイント"
     - ASan は <strong>範囲外アクセス・解放済みメモリの使用（use-after-free）・二重解放</strong>などを <strong>その場で止めて報告</strong>する。
@@ -17,21 +17,19 @@ C++ では**配列の範囲外アクセス**や解放したメモリを使うミ
     - エラーの先頭の行（種類）と「どこで確保したか」を読む。
 
 !!! info "このページを読む前に"
-    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [vs/index.md](index.md)（このセクション全体の地図と読む順番）
     - [インストールとプロジェクトの作成](setup.md)（Visual Studio の準備）
 
 ## 何を見つけるのか
 
-| バグ | 例 | ASan の報告名 |
-| --- | --- | --- |
-| **ヒープの範囲外アクセス** | `new int[3]` の 5 番目を読む | `heap-buffer-overflow` |
-| スタックの範囲外アクセス | `int a[3];` の 5 番目を書く | `stack-buffer-overflow` |
-| グローバル変数の範囲外 | 静的な配列の外 | `global-buffer-overflow` |
-| 解放済みメモリの使用 | `delete p;` の後で、`*p` | `heap-use-after-free` |
-| 二重解放 | `delete p;` を 2 回 | `attempting double-free` |
-| 不正な解放 | `new[]` を `delete` で | `alloc-dealloc-mismatch` |
-| スコープ外のスタック使用 | 関数を出た後のローカル変数へのポインタ | `stack-use-after-scope` / `stack-use-after-return` |
-| `memcpy` などの範囲外 | `memcpy(dst, src, 100)`（dst が 10 バイト） | `*-buffer-overflow` |
+- <strong>**ヒープの範囲外アクセス**</strong>: 例: `new int[3]` の 5 番目を読む。ASan の報告名: `heap-buffer-overflow`
+- <strong>スタックの範囲外アクセス</strong>: 例: `int a[3];` の 5 番目を書く。ASan の報告名: `stack-buffer-overflow`
+- <strong>グローバル変数の範囲外</strong>: 例: 静的な配列の外。ASan の報告名: `global-buffer-overflow`
+- <strong>解放済みメモリの使用</strong>: 例: `delete p;` の後で `*p`。ASan の報告名: `heap-use-after-free`
+- <strong>二重解放</strong>: 例: `delete p;` を 2 回。ASan の報告名: `attempting double-free`
+- <strong>不正な解放</strong>: 例: `new[]` を `delete` で。ASan の報告名: `alloc-dealloc-mismatch`
+- <strong>スコープ外のスタック使用</strong>: 例: 関数を出た後のローカル変数へのポインタ。ASan の報告名: `stack-use-after-scope` / `stack-use-after-return`
+- <strong>`memcpy` などの範囲外</strong>: 例: `memcpy(dst, src, 100)`（dst が 10 バイト）。ASan の報告名: `*-buffer-overflow`
 
 !!! note "メモリリークは見つからない（MSVC）"
     Linux の LeakSanitizer のようなリークの検出は、MSVC の ASan ではサポートされません。リークの調査は[デバッグのやり方](debugging.md)の CRT のリーク検出やプロファイラーのメモリ使用量で行います。
@@ -53,7 +51,7 @@ p[5] = 100;
 
 ### 2. プロパティで有効にする
 
-1. プロジェクトを選んで、メニューのプロジェクト → プロパティを開く
+1. プロジェクトを選んでメニューのプロジェクト → プロパティを開く
 2. 構成を Debug、プラットフォームを x64 にする
 3. C/C++ → 全般 → Address Sanitizer を有効にする → はい (/fsanitize=address)
 4. ビルドしてデバッグ実行（F5）する
@@ -66,7 +64,7 @@ p[5] = 100;
 
 ### 3. 競合する設定を直す
 
-ASan は次の設定と併用できません。エラーや警告が出たら、直します。
+ASan は次の設定と併用できません。エラーや警告が出たら直します。
 
 - `/RTC1`（ランタイム エラー チェック）: C/C++ → コード生成 → 基本ランタイム チェック → 既定（なし）
 - `/ZI`（編集して続行）: C/C++ → 全般 → デバッグ情報の形式 → `/Zi`（プログラム データベース）
@@ -141,7 +139,7 @@ allocated by thread T0 here:
 - `allocated by thread T0 here:`: そのメモリを確保した場所（`main.cpp:2`）
 - `freed by thread T0 here:`（use-after-free のとき）: 解放した場所。誰が解放したか
 
-読む順番：(1) 種類、(2) アクセスの場所（#0）、(3) 確保・解放の場所。use-after-free では、解放した場所と使った場所の 2 つを見比べます。
+読む順番：(1) 種類、(2) アクセスの場所（#0）、(3) 確保・解放の場所。use-after-free では解放した場所と使った場所の 2 つを見比べます。
 
 ### use-after-free の例
 
@@ -314,7 +312,7 @@ CMake に `SANITIZE` オプションを作って、切り替えられるよう�
 !!! abstract "まとめ"
     - [x] AddressSanitizer は、範囲外アクセス・use-after-free・二重解放を その場で止めて報告する
     - [x] 有効化はC/C++ → 全般 → Address Sanitizer を有効にする（/fsanitize=address）。インストーラーでコンポーネントが必要
-    - [x] `/RTC1`・`/ZI`・増分リンクは、外す
+    - [x] `/RTC1`・`/ZI`・増分リンクは外す
     - [x] 報告は 「種類」→「アクセスした場所」→「確保・解放した場所」の順に読む
     - [x] 約 2 倍遅い。開発・テスト・CI だけ。メモリリーク・スレッドの競合・未初期化は、見つからない
 

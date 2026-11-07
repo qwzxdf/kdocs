@@ -1,27 +1,28 @@
 nav:
   - index.md
   - setup.md
+  - first-run.md
   - terms
   - settings.md
-  - utf8.md
-  - editorconfig.md
-  - github-actions.md
+  - project-types.md
+  - include-dirs.md
+  - preprocessor.md
   - libraries.md
   - package-managers.md
+  - cmake.md
+  - ninja.md
+  - utf8.md
+  - editorconfig.md
+  - clang-tidy.md
   - debugging.md
   - asan.md
-  - clang-tidy.md
-  - unit-test.md
+  - error-messages.md
+  - errors.md
+  - tips.md
   - profiler.md
   - tracy.md
   - renderdoc-pix.md
   - gpu-debug.md
-  - preprocessor.md
-  - include-dirs.md
-  - project-types.md
-  - tips.md
-  - errors.md
-  - error-messages.md
-  - cmake.md
-  - ninja.md
+  - unit-test.md
+  - github-actions.md
   - ...
