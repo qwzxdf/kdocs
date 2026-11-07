@@ -107,7 +107,7 @@ namespace KCppAssist.ErrorLog
                 case "C2065":
                 case "C3861":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」は、この場所から見えていません。" + q[0] + " を宣言しているヘッダーを #include します(カーソルを名前に置いて Alt+F)。std の名前なら、std:: を付けます。綴りの間違いも確かめます。";
+                        return "「" + q[0] + "」が、この場所から見えていません。まず綴りを確かめます。次に、" + q[0] + " を宣言しているヘッダーの #include(カーソルを名前に置いて Alt+F)と、std の名前なら std:: を確かめます。";
                     break;
                 case "C2039":
                     if (q.Count >= 2)

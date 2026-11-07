@@ -194,6 +194,21 @@ namespace KCppAssist
             var frame = (IVsWindowFrame)window.Frame;
             if (activate) frame.Show();
             else frame.ShowNoActivate();
+            GrowWindow(frame);
+        }
+
+        /// <summary>下のパネルが低すぎると 1〜2 件しか見えないので、低いときだけ高くする(高くしてあるものは触らない)。</summary>
+        private void GrowWindow(IVsWindowFrame frame)
+        {
+            try
+            {
+                object o;
+                if (frame.GetProperty((int)__VSFPROPID.VSFPROPID_ExtWindowObject, out o) != 0) return;
+                var w = o as EnvDTE.Window;
+                if (w == null || w.Height >= 300) return;
+                w.Height = 380;
+            }
+            catch (Exception ex) { Log("grow window failed: " + ex.Message); }
         }
 
         // ---- リンクを押したとき ----

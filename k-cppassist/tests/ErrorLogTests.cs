@@ -75,7 +75,7 @@ static class P
         }));
         Check("order advice shown", casc.Contains("まず:") && casc.Contains("一番上のエラーから"));
         Check("cascade note on 2nd error", casc.Contains("連鎖の可能性") && casc.Contains("C2065"));
-        Check("specific name used", casc.Contains("「GraphicsModule」は、この場所から見えていません"));
+        Check("specific name used", casc.Contains("「GraphicsModule」が、この場所から見えていません"));
         Check("fix with Alt+F mentioned", casc.Contains("Alt+F"));
 
         string syn = Render(string.Join("\n", new[]

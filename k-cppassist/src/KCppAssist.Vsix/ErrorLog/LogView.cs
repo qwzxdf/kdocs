@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -13,11 +14,15 @@ namespace KCppAssist.ErrorLog
         private readonly RichTextBox _rtb = new RichTextBox();
         private readonly CheckBox _raw = new CheckBox { Content = "原文", ToolTip = "ビルド出力を、整理せずに色だけ付けて表示します" };
         private readonly CheckBox _warn = new CheckBox { Content = "警告も表示" };
-        private readonly CheckBox _trace = new CheckBox { Content = "経路を全部表示", ToolTip = "テンプレートの経路のうち、ライブラリ内の段も省略せずに出します" };
-        private readonly CheckBox _attach = new CheckBox { Content = "原文を併記", ToolTip = "整理した各項目の下に、元のメッセージも出します" };
+        private readonly MenuItem _trace = new MenuItem { Header = "経路を全部表示", IsCheckable = true, ToolTip = "テンプレートの経路のうち、ライブラリ内の段も省略せずに出します" };
+        private readonly MenuItem _attach = new MenuItem { Header = "原文を併記", IsCheckable = true, ToolTip = "整理した各項目の下に、元のメッセージも出します" };
+        private readonly MenuItem _expandAll = new MenuItem { Header = "すべての詳細を開く", IsCheckable = true, ToolTip = "各エラーの ▸ を、すべて開いた状態にします" };
+        private readonly MenuItem _copyRawItem = new MenuItem { Header = "原文をコピー", ToolTip = "ビルド出力をそのままコピーします(AI や質問に貼る用)" };
+        private readonly Button _more = new Button { Content = "…", ToolTip = "そのほかの表示とコピー" };
+        private readonly HashSet<int> _open = new HashSet<int>();
+        private readonly Dictionary<string, Paragraph> _anchors = new Dictionary<string, Paragraph>();
         private readonly Button _reload = new Button { Content = "再読み込み" };
         private readonly Button _copy = new Button { Content = "コピー", ToolTip = "いま表示している内容を、文字としてコピーします" };
-        private readonly Button _copyRaw = new Button { Content = "原文をコピー", ToolTip = "ビルド出力をそのままコピーします(AI や質問に貼る用)" };
         private readonly WrapPanel _bar = new WrapPanel { Margin = new Thickness(6, 4, 6, 4) };
 
         private RenderInput _input;
@@ -31,30 +36,42 @@ namespace KCppAssist.ErrorLog
 
         public LogView()
         {
-            foreach (CheckBox c in new[] { _raw, _warn, _trace, _attach })
+            foreach (CheckBox c in new[] { _raw, _warn })
             {
                 c.Margin = new Thickness(0, 0, 12, 0);
                 c.VerticalAlignment = VerticalAlignment.Center;
                 c.Click += (s, e) => Rebuild();
             }
             _warn.IsChecked = false;
+            foreach (MenuItem m in new[] { _trace, _attach, _expandAll }) m.Click += (s, e) => Rebuild();
 
-            foreach (Button b in new[] { _reload, _copy, _copyRaw })
+            foreach (Button b in new[] { _reload, _copy, _more })
             {
                 b.Padding = new Thickness(8, 2, 8, 2);
                 b.Margin = new Thickness(0, 0, 8, 0);
             }
             _reload.Click += (s, e) => { if (RefreshRequested != null) RefreshRequested(); };
             _copy.Click += (s, e) => CopyText(_doc.ToPlainText());
-            _copyRaw.Click += (s, e) => CopyText(_input != null && _input.Report != null ? _input.Report.RawText : "");
+            _copyRaw_Click();
+            var menu = new ContextMenu();
+            menu.Items.Add(_expandAll);
+            menu.Items.Add(_trace);
+            menu.Items.Add(_attach);
+            menu.Items.Add(new Separator());
+            menu.Items.Add(_copyRawItem);
+            _more.ContextMenu = menu;
+            _more.Click += (s, e) =>
+            {
+                menu.PlacementTarget = _more;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+                menu.IsOpen = true;
+            };
 
             _bar.Children.Add(_reload);
-            _bar.Children.Add(_raw);
             _bar.Children.Add(_warn);
-            _bar.Children.Add(_trace);
-            _bar.Children.Add(_attach);
+            _bar.Children.Add(_raw);
             _bar.Children.Add(_copy);
-            _bar.Children.Add(_copyRaw);
+            _bar.Children.Add(_more);
 
             _rtb.IsReadOnly = true;
             _rtb.IsDocumentEnabled = true;                 // Hyperlink を押せるようにする
@@ -76,6 +93,11 @@ namespace KCppAssist.ErrorLog
             ApplyColors();
         }
 
+        private void _copyRaw_Click()
+        {
+            _copyRawItem.Click += (s, e) => CopyText(_input != null && _input.Report != null ? _input.Report.RawText : "");
+        }
+
         private void OnThemeChanged(ThemeChangedEventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() => { ApplyColors(); Rebuild(); }));
@@ -90,8 +112,8 @@ namespace KCppAssist.ErrorLog
             _rtb.Background = new SolidColorBrush(back);
             _rtb.Foreground = new SolidColorBrush(fore);
             _bar.Background = new SolidColorBrush(back);
-            foreach (CheckBox c in new[] { _raw, _warn, _trace, _attach }) c.Foreground = new SolidColorBrush(fore);
-            foreach (Button b in new[] { _reload, _copy, _copyRaw })
+            foreach (CheckBox c in new[] { _raw, _warn }) c.Foreground = new SolidColorBrush(fore);
+            foreach (Button b in new[] { _reload, _copy, _more })
             {
                 b.Foreground = new SolidColorBrush(fore);
                 b.Background = new SolidColorBrush(Theme.ButtonBackground);
@@ -103,6 +125,7 @@ namespace KCppAssist.ErrorLog
         public void SetInput(RenderInput input)
         {
             _input = input;
+            _open.Clear();
             Rebuild();
         }
 
@@ -144,6 +167,13 @@ namespace KCppAssist.ErrorLog
 
         private void Rebuild()
         {
+            double keep = _rtb.VerticalOffset;
+            RebuildCore();
+            if (keep > 0) _rtb.Dispatcher.BeginInvoke(new Action(() => _rtb.ScrollToVerticalOffset(keep)), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        private void RebuildCore()
+        {
             try
             {
                 if (_input == null || _input.Report == null)
@@ -178,21 +208,23 @@ namespace KCppAssist.ErrorLog
                 PageWidth = double.NaN
             };
 
+            _anchors.Clear();
             foreach (DocLine line in doc.Lines)
             {
+                if (line.DetailGroup > 0 && _expandAll.IsChecked != true && !_open.Contains(line.DetailGroup)) continue;
                 if (line.RuleAbove)
                 {
                     var rule = new Paragraph(new System.Windows.Documents.Run(" "))
                     {
                         FontSize = 2,
-                        Margin = new Thickness(0, 10, 0, 4),
+                        Margin = new Thickness(0, 5, 0, 1),
                         BorderBrush = Theme.BrushFor(Role.Dim),
                         BorderThickness = new Thickness(0, 1, 0, 0)
                     };
                     fd.Blocks.Add(rule);
                 }
 
-                var p = new Paragraph { Margin = new Thickness(0, line.SpaceBefore ? 8 : 0, 0, 0) };
+                var p = new Paragraph { Margin = new Thickness(0, line.SpaceBefore ? 3 : 0, 0, 0) };
                 double left = line.Indent * 20;
                 if (line.Bar != null)
                 {
@@ -206,6 +238,7 @@ namespace KCppAssist.ErrorLog
                     p.Margin = new Thickness(left, p.Margin.Top, 0, 0);
                 }
 
+                if (!string.IsNullOrEmpty(line.Anchor)) _anchors[line.Anchor] = p;
                 foreach (Run r in line.Runs) p.Inlines.Add(MakeInline(r));
                 if (line.Runs.Count == 0) p.Inlines.Add(new System.Windows.Documents.Run(" "));
                 fd.Blocks.Add(p);
@@ -215,13 +248,42 @@ namespace KCppAssist.ErrorLog
 
         private Inline MakeInline(Run r)
         {
-            var text = new System.Windows.Documents.Run(r.Text)
+            string shownText = r.Text;
+            if (r.Toggle > 0) shownText = _expandAll.IsChecked == true || _open.Contains(r.Toggle) ? "▾ " : "▸ ";
+            var text = new System.Windows.Documents.Run(shownText)
             {
                 Foreground = Theme.BrushFor(r.Role),
                 FontWeight = r.Bold ? FontWeights.SemiBold : FontWeights.Normal,
                 FontStyle = r.Italic ? FontStyles.Italic : FontStyles.Normal
             };
             if (!r.IsLink) return text;
+
+            if (r.Toggle > 0 || !string.IsNullOrEmpty(r.Jump))
+            {
+                var inner = new Hyperlink(text)
+                {
+                    Foreground = r.Toggle > 0 ? Theme.BrushFor(Role.Dim) : Theme.BrushFor(Role.Link),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    TextDecorations = r.Toggle > 0 ? null : TextDecorations.Underline,
+                    ToolTip = r.Toggle > 0 ? "押すと、詳細を開閉します" : "このファイルの最初のエラーへ移動します"
+                };
+                int group = r.Toggle;
+                string jump = r.Jump;
+                inner.Click += (s, e) =>
+                {
+                    if (group > 0)
+                    {
+                        if (!_open.Add(group)) _open.Remove(group);
+                        Rebuild();
+                    }
+                    else
+                    {
+                        Paragraph target;
+                        if (_anchors.TryGetValue(jump, out target)) target.BringIntoView();
+                    }
+                };
+                return inner;
+            }
 
             var link = new Hyperlink(text)
             {
