@@ -6,160 +6,570 @@ tags:
 
 # Minimal Code
 
-<strong>ここまでの手順を最小のコードでつなげて見ます</strong>。<strong>1 本の平行光（太陽）</strong>に対するシャドウ マップの全体の流れです。実際の製品ではバイアス・フィルタ・カスケードを足します。このページでは全体のコードの流れを示します。
+シャドウ マップの説明は光の行列、深度の描画、比較、とページが分かれていて全部がどうつながるのかが見えにくくなります。このページでは平行光（太陽）1 本のシャドウ マップを動く最小の形にまとめます。リソースを作るシャドウ パスで深度を描く、メイン パスで読んで比べるの 3 段階です。バイアスやフィルタを足す前の素の形なので、そのまま製品には使えませんが、影が出ないときに「どの段階が壊れているか」を切り分ける土台になります。
+
+数字は C++（`g++ -std=c++23 -Wall -Wextra`）でシャドウ マップを CPU 上で作って数えました。床 1 枚と箱 1 個を 512×512 の深度に書き床の 14400 点の影を、レイと箱の交差テストの正解と比べています。HLSL は `fxc`（`vs_5_0`、`ps_5_0`）に通しました。D3D11 の C++ は `g++ -fsyntax-only` で構文だけ確かめています。DirectXMath は手元の環境に無いため、型と関数の宣言だけの代用品で通したので、行列の中身は確かめていません。画面には出していません。参考資料は**今回は読んでいません**。
 
 !!! tip "ポイント"
-    - 全体 ＝ 光の行列 → 深度パス → 比較（ライティング）。
-    - 最小版はバイアス・フィルタなし。これにバイアスと PCF を足して実用に。
+    - 全体は光の行列を作る深度だけを描く（シャドウ パス）、深度を読んで比べる（メイン パス）、の 3 段階です。
+    - 同じテクスチャを深度書き込み（DSV）と読み出し（SRV）に同時にバインドしてはいけません。メイン パスの `OMSetRenderTargets` で DSV が外れてから、SRV にバインドします。
+    - バイアスなしだと床の 14400 点のうち 6858 点（47.6%）が自分の影になります。バイアスを 0.001（60 m の奥行きで 0.06 m）にすると、間違いは 6 点に減ります。
+    - バイアスを 0.01（0.6 m）まで上げると、今度は光の漏れが 49 点に増えます。バイアスは小さければよいでも大きければよいでもありません。
+    - V の反転を忘れると、バイアスを正しく入れても 6872 点（47.7%）が間違います。影が出ない上下が逆、のどちらかに見えます。
 
 !!! info "このページを読む前に"
     - [Shadow Map Basics](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
     - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
-## 全体のコード（最小）
-```hlsl
-Texture2D<float> shadow_tex : register(t5);
-SamplerComparisonState shadow_sampler : register(s5);
+## 全体の流れ {#flow}
 
-cbuffer ShadowConstant : register(b3) {
-  row_major float4x4 light_view_projection;
-  float shadow_bias;
+<svg class="fig flow" viewBox="0 0 620 270" role="img" aria-label="最小のシャドウ マップの流れ"><defs><marker id="f1" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">全体の流れ</text><rect x="20" y="50" width="150" height="56" rx="9" fill="rgba(76,139,245,0.22)" stroke="currentColor"/><text x="95.0" y="78.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">光の行列</text><rect x="210" y="50" width="170" height="56" rx="9" fill="rgba(76,139,245,0.22)" stroke="currentColor"/><text x="295.0" y="78.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">シャドウ パス</text><rect x="420" y="50" width="170" height="56" rx="9" fill="rgba(229,170,40,0.28)" stroke="currentColor"/><text x="505.0" y="78.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">シャドウ マップ</text><rect x="420" y="170" width="170" height="56" rx="9" fill="rgba(76,139,245,0.22)" stroke="currentColor"/><text x="505.0" y="198.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">メイン パス</text><rect x="210" y="170" width="170" height="56" rx="9" fill="rgba(76,139,245,0.22)" stroke="currentColor"/><text x="295.0" y="198.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">比較(影の係数)</text><rect x="20" y="170" width="150" height="56" rx="9" fill="rgba(76,139,245,0.22)" stroke="currentColor"/><text x="95.0" y="198.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">画面の色</text><line x1="170" y1="78" x2="208" y2="78" stroke="currentColor" stroke-width="2" marker-end="url(#a1)"/><line x1="380" y1="78" x2="418" y2="78" stroke="currentColor" stroke-width="2" marker-end="url(#a1)"/><line x1="505" y1="108" x2="505" y2="168" stroke="currentColor" stroke-width="2" marker-end="url(#a1)"/><line x1="418" y1="198" x2="382" y2="198" stroke="currentColor" stroke-width="2" marker-end="url(#a1)"/><line x1="208" y1="198" x2="172" y2="198" stroke="currentColor" stroke-width="2" marker-end="url(#a1)"/><text x="95" y="128" text-anchor="middle" style="font-size:11px;font-weight:400">LookAtLH × 平行投影</text><text x="295" y="128" text-anchor="middle" style="font-size:11px;font-weight:400">深度だけを描く</text><text x="505" y="248" text-anchor="middle" style="font-size:11px;font-weight:400">DSV を外して SRV に</text><text x="295" y="248" text-anchor="middle" style="font-size:11px;font-weight:400">SampleCmpLevelZero</text><text x="95" y="248" text-anchor="middle" style="font-size:11px;font-weight:400">光 × 影 + 環境光</text></svg>
+
+1. 起動時にシャドウ マップ（深度のテクスチャ）、比較サンプラー、シャドウ パス用のラスタライザー ステートを作ります。
+2. 毎フレーム、光の行列（ビューと平行投影）を作ります。対象の範囲の中心から光が来る側へ半径だけ離れた位置に光の目を置き中心を向かせます。
+3. シャドウ パスで色は描かず深度だけを描きます。ピクセル シェーダーは付けません。
+4. メイン パスでシャドウ マップを読む側（SRV）にして、各ピクセルのワールド位置を光の UV と深さに変え記録された深さと比べます。
+
+この流れの途中が壊れているとき影は出ないか縞が出るかずれます。以降の節で段階ごとにコードを見ていきます。
+
+## 起動時：リソースを作る {#create}
+
+最初は必要なリソースを入れる箱です。
+
+```cpp
+#include <DirectXMath.h>
+#include <d3d11.h>
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
+using namespace DirectX;
+
+// ---- 最小のシャドウ マップ（D3D11）：リソースの作成、シャドウ パス、メイン パス ----
+
+struct ShadowResources {
+  ComPtr<ID3D11Texture2D> texture;           // R32_TYPELESS。DSV と SRV の両方から見る
+  ComPtr<ID3D11DepthStencilView> dsv;        // シャドウ パスで書く
+  ComPtr<ID3D11ShaderResourceView> srv;      // メイン パスで読む
+  ComPtr<ID3D11SamplerState> comparison_sampler;
+  ComPtr<ID3D11RasterizerState> shadow_rs;   // ハードウェアのバイアス入り
+  UINT size = 0;
+};
+```
+
+シャドウ マップのテクスチャは `R32_TYPELESS`（型なし）で作ります。同じメモリを書き込みでは `D32_FLOAT` の DSV として、読み出しでは `R32_FLOAT` の SRV として見るためです。型ありで作ると片方のビューが作れません。
+
+```cpp
+// ① 起動時に 1 回: シャドウ マップ、比較サンプラー、ラスタライザー ステートを作る。
+bool CreateShadowResources(ID3D11Device* device, UINT size, ShadowResources* out) {
+  out->size = size;
+
+  D3D11_TEXTURE2D_DESC td = {};
+  td.Width = td.Height = size;
+  td.MipLevels = 1;
+  td.ArraySize = 1;
+  td.Format = DXGI_FORMAT_R32_TYPELESS;                        // 同じメモリを D32 の書き込みと R32 の読み出しに使うための型なし
+  td.SampleDesc.Count = 1;
+  td.Usage = D3D11_USAGE_DEFAULT;
+  td.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+  if (FAILED(device->CreateTexture2D(&td, nullptr, &out->texture))) return false;
+```
+
+`Width` と `Height` は同じ値にします。解像度が高いほど影の縁は細かくなりますが、メモリと書き込みの時間も増えます。2048 では半径 50 m の範囲で 1 テクセルが 0.0488 m（約 4.9 cm）、1024 なら 0.0977 m、4096 なら 0.0244 m です。`BindFlags` に深度ステンシルとシェーダー リソースの両方を立てるのは、同じテクスチャを両方に使うからです。
+
+```cpp
+  D3D11_DEPTH_STENCIL_VIEW_DESC dd = {};
+  dd.Format = DXGI_FORMAT_D32_FLOAT;                           // 書き込み側の見え方
+  dd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+  if (FAILED(device->CreateDepthStencilView(out->texture.Get(), &dd, &out->dsv))) return false;
+
+  D3D11_SHADER_RESOURCE_VIEW_DESC sd = {};
+  sd.Format = DXGI_FORMAT_R32_FLOAT;                           // 読み出し側の見え方
+  sd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  sd.Texture2D.MipLevels = 1;
+  if (FAILED(device->CreateShaderResourceView(out->texture.Get(), &sd, &out->srv))) return false;
+```
+
+DSV と SRV の `Format` を型なしの元に合わせて別の名前（`D32_FLOAT` と `R32_FLOAT`）にします。ここが合っていないと `CreateDepthStencilView` か `CreateShaderResourceView` が失敗します。
+
+```cpp
+  D3D11_SAMPLER_DESC sm = {};
+  sm.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;   // 比較してから線形補間する(4 点の比較結果を混ぜる)
+  sm.AddressU = sm.AddressV = sm.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+  sm.BorderColor[0] = sm.BorderColor[1] = sm.BorderColor[2] = sm.BorderColor[3] = 1.0f;   // マップの外 = 深さ 1 = 光が当たる
+  sm.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;             // 自分の深さ <= 記録された深さ なら 1
+  sm.MaxLOD = D3D11_FLOAT32_MAX;
+  if (FAILED(device->CreateSamplerState(&sm, &out->comparison_sampler))) return false;
+```
+
+比較サンプラーです。`ComparisonFunc` を `LESS_EQUAL` にして自分の深さが記録された深さ以下なら 1（光が当たる）、そうでなければ 0（影）を返します。`COMPARISON_MIN_MAG_LINEAR_MIP_POINT` は周りの 4 テクセルをそれぞれ比較してから線形補間するので、影の縁が少しなめらかになります。`BORDER` と境界色 1.0 はマップの外側を「深さ 1.0（何もない）」として扱い、影にしないための組み合わせです。この色を 0 にするとマップの外がすべて影になります。
+
+```cpp
+  D3D11_RASTERIZER_DESC rs = {};
+  rs.FillMode = D3D11_FILL_SOLID;
+  rs.CullMode = D3D11_CULL_BACK;                               // 表だけ描く。ピーターパンニングは減るが薄い板は影を落とさない
+  rs.FrontCounterClockwise = FALSE;                            // CW が表
+  rs.DepthBias = 1000;                                         // D24 なら 1000 x 2^-24 の深度。ここは D32 float なので意味が違う
+  rs.SlopeScaledDepthBias = 1.5f;                              // 面の傾きに比例して足す
+  rs.DepthBiasClamp = 0.01f;                                   // 足す量の上限
+  rs.DepthClipEnable = TRUE;
+  return SUCCEEDED(device->CreateRasterizerState(&rs, &out->shadow_rs));
+}
+```
+
+シャドウ パスのラスタライザー ステートです。`CullMode` は `BACK` にして表だけを描きます。`DepthBias = 1000` は D24 の深度では `1000 × 2^-24 = 5.96e-5` で、100 m の奥行きなら 0.00596 m です。ただし、ここで使っているのは D32 の float 深度なので、固定小数点の式は当てはまりません（float では、バイアスの単位が深度の指数部で変わります）。`SlopeScaledDepthBias` は面が光に対して斜めなほど多く足す量で、`DepthBiasClamp` はその上限です。バイアスの考え方は [Shadow Bias](../bias/index.md) で扱います。このページの数字はハードウェアのバイアスではなく、シェーダーの比較で引く量（`g_shadow_bias`）で数えています。
+
+## 毎フレーム：光の行列 {#matrix}
+
+```cpp
+// 光の行列を作る。center は影を作りたい範囲の中心、radius はその半径(メートル)。
+// 返す shadow_matrix は、ワールド → 光の (u, v, 深さ)。行ベクトルなので 掛ける順は 左から右。
+XMMATRIX BuildShadowMatrices(XMFLOAT3 light_dir, XMFLOAT3 center, float radius, XMMATRIX* light_view_projection) {
+  const XMVECTOR dir = XMVector3Normalize(XMLoadFloat3(&light_dir));           // 光が進む向き
+  const XMVECTOR target = XMLoadFloat3(&center);
+  const XMVECTOR eye = target - dir * radius;                                  // 光の位置は、光が来る側へ radius だけ離す
+  const XMMATRIX view = XMMatrixLookAtLH(eye, target, XMVectorSet(0, 1, 0, 0));   // 光が真上や真下を向くと up と平行になり行列が壊れる。その向きでは up を別の軸にする(足した注意)
+  const XMMATRIX proj = XMMatrixOrthographicOffCenterLH(-radius, radius, -radius, radius, 0.0f, 2.0f * radius);   // 平行投影
+  const XMMATRIX ndc_to_uv = XMMATRIX(0.5f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, -0.5f, 0.0f, 0.0f,                 // V は下向きなので Y を反転する
+                                      0.0f, 0.0f, 1.0f, 0.0f,                  // 深さはそのまま(D3D の NDC 深度は 0〜1)
+                                      0.5f, 0.5f, 0.0f, 1.0f);
+  *light_view_projection = view * proj;
+  return view * proj * ndc_to_uv;
+}
+```
+
+`eye` は `target − dir × radius` です。光が進む向きの逆へ半径だけ下がった位置に光の目を置きます。ビューは `XMMatrixLookAtLH` で作ります。平行投影は `XMMatrixOrthographicOffCenterLH(-r, r, -r, r, 0, 2r)` で横と縦に ±r、奥行きに 0 から 2r の範囲を正規化デバイス座標に写します。
+
+最後の `ndc_to_uv` が V を下向きにする行列です。NDC では Y が上向きですが、テクスチャの V は下向きなので、Y を `−0.5` 倍して `0.5` を足します。この反転を忘れたとき CPU で動かした結果は、バイアス 0.001 で 6872 点（47.7%）が間違いました。偽の影になる側の間違いです（光の漏れは 0 点）。深さの方は NDC のまま 0〜1 を使えるので、Z の列は 1 のままです。
+
+参考までにこのシーンの光の座標は次のようになります。光の向き (0.487, −0.811, 0.324)、半径 r = 30 m、深さの範囲 0〜60 m のとき光の目は (−14.60, 24.33, −9.73) です。箱の天面の中心 (0, 3, 0) は、NDC で (0.0000, 0.0585, 0.4594) に写ります。NDC の Z が 0.4594 なら光の目から約 27.6 m の位置です。
+
+## 毎フレーム：シャドウ パス {#shadow-pass}
+
+```cpp
+// ② 毎フレーム: シャドウ パス。深度だけを描く。
+void BeginShadowPass(ID3D11DeviceContext* ctx, const ShadowResources& s, ID3D11VertexShader* shadow_vs) {
+  ID3D11ShaderResourceView* null_srv = nullptr;
+  ctx->PSSetShaderResources(5, 1, &null_srv);                  // 前フレームの SRV を外す(読み書きの同時バインドを避ける)
+  ctx->OMSetRenderTargets(0, nullptr, s.dsv.Get());            // 色は要らない。深度だけ
+  ctx->ClearDepthStencilView(s.dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);   // 1.0 = 何も描かれていない
+  D3D11_VIEWPORT vp = {0, 0, static_cast<float>(s.size), static_cast<float>(s.size), 0.0f, 1.0f};
+  ctx->RSSetViewports(1, &vp);
+  ctx->RSSetState(s.shadow_rs.Get());
+  ctx->VSSetShader(shadow_vs, nullptr, 0);
+  ctx->PSSetShader(nullptr, nullptr, 0);                       // ピクセル シェーダーなし(深度だけなら要らない)
+}
+```
+
+先頭で前のフレームの SRV を外します。前のフレームでメイン パスが SRV としてバインドしたままだとこれから DSV として書く同じテクスチャと衝突して、書き込みが無視されます。`OMSetRenderTargets(0, nullptr, dsv)` で色の出力をなくし深度だけを描きます。`Clear` は 1.0 に初期化します。1.0 は「何も描かれていない（一番奥）」で、描かれていない場所が影にならないようにする値です。ビューポートはシャドウ マップの大きさに合わせます。ピクセル シェーダーを外すのは、深度だけなら要らないからで描画が速くなります。
+
+頂点シェーダーは位置を光のクリップ空間へ変換するだけです。
+
+```hlsl
+cbuffer LightPassCB : register(b0) {
+  row_major float4x4 g_light_view_projection;   // シャドウ パス用: ワールド → 光のクリップ空間
+};
+
+cbuffer SceneCB : register(b1) {
+  row_major float4x4 g_view_projection;         // メイン パス用: ワールド → カメラのクリップ空間
+  row_major float4x4 g_shadow_matrix;           // ワールド → 光の UV と深度（ndc_to_uv まで掛けたもの）
+  float3 g_light_dir;                           // 光が進む向き（正規化済み）。照らす側へ向かうベクトルの逆が L
+  float  g_ambient;                             // 環境光の強さ。影の中でも残る
+  float3 g_light_color;                         // 光の色（放射照度）
+  float  g_shadow_bias;                         // 深度の比較にだけ使う、足したバイアス（0〜1 の深度の単位）
+};
+
+cbuffer ObjectCB : register(b2) {
+  row_major float4x4 g_world;                   // モデル → ワールド（法線は一様なスケールのみ想定）
+  float3 g_albedo;                              // 反射率
+  float  _pad;
+};
+
+Texture2D<float> g_shadow_map : register(t5);                 // 光から見た深度（R32_FLOAT の SRV）
+SamplerComparisonState g_shadow_sampler : register(s5);       // 比較サンプラー（LESS_EQUAL・境界色 1.0）
+
+// ---------------- シャドウ パス: 位置だけを光のクリップ空間へ。ピクセル シェーダーは付けない ----------------
+float4 ShadowVS(float3 position : POSITION) : SV_Position {
+  float4 world = mul(float4(position, 1.0), g_world);        // モデル → ワールド
+  return mul(world, g_light_view_projection);                  // → 光のクリップ空間（深度が書かれる）
+}
+```
+
+`g_light_view_projection` はワールドから光のクリップ空間への行列です。行ベクトルなので `mul(ベクトル, 行列)` の順で、`g_world` を先に掛けます。`SV_Position` に書いた値がそのままシャドウ マップの深度になります。
+
+## 毎フレーム：メイン パス {#main-pass}
+
+```cpp
+// ③ 毎フレーム: メイン パス。シャドウ マップを SRV として読む。
+void BeginMainPass(ID3D11DeviceContext* ctx, const ShadowResources& s, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv,
+                   const D3D11_VIEWPORT& main_viewport) {
+  ctx->OMSetRenderTargets(1, &rtv, dsv);                       // シャドウの DSV はここで外れる。外れてから SRV にバインドする
+  ctx->RSSetViewports(1, &main_viewport);
+  ID3D11ShaderResourceView* srv = s.srv.Get();
+  ID3D11SamplerState* smp = s.comparison_sampler.Get();
+  ctx->PSSetShaderResources(5, 1, &srv);                       // t5
+  ctx->PSSetSamplers(5, 1, &smp);                              // s5
+}
+```
+
+`OMSetRenderTargets` でカメラの色と深度をバインドし直すとシャドウの DSV は自動的に外れます。外れたあとで `PSSetShaderResources` で t5 に SRV を `PSSetSamplers` で s5 に比較サンプラーをバインドします。順序を逆にすると同じリソースが DSV と SRV に同時にバインドされた状態になり、Direct3D のデバッグ層が警告を出して、SRV を `null` にします。結果として、影がなくなったり全部影になったりします。
+
+メインの頂点シェーダーとピクセル シェーダーです。
+
+```hlsl
+// ---------------- メイン パス ----------------
+struct MainVSOut {
+  float4 position : SV_Position;
+  float3 world_position : TEXCOORD0;
+  float3 world_normal : TEXCOORD1;
+};
+
+MainVSOut MainVS(float3 position : POSITION, float3 normal : NORMAL) {
+  MainVSOut o;
+  float4 world = mul(float4(position, 1.0), g_world);
+  o.world_position = world.xyz;                                // 影の判定に使う
+  o.world_normal = mul(normal, (float3x3)g_world);             // 一様なスケールなら、そのまま回せる
+  o.position = mul(world, g_view_projection);
+  return o;
 }
 
-float3 Shade(float3 world_pos, float3 N, float3 L, float3 albedo, float3 light_color) {
-  float shadow = ShadowFactor(world_pos);
-  return albedo * light_color * saturate(dot(N, L)) * shadow;
-}
-```
-
-## 最小のシャドウ マップ（全体の流れ）
-
-ここまでのページの内容を <strong>1 つの、流れ</strong>にまとめます。<strong>太陽（平行光源）</strong>の 1 枚の、シャドウ マップです。座標系は左手系・Y 上、時計回りが表です。
-
-### ① リソースを作る（起動時）
-
-```cpp
-// シャドウ マップ（2048×2048）、DSV、SRV、比較サンプラー、ラスタライザー ステート。
-CreateShadowMap(device, 2048, &shadow_tex, &shadow_dsv, &shadow_srv);   // Rendering Depth のコード
-
-D3D11_SAMPLER_DESC sd = {};
-sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 1.0f;
-sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-sd.MaxLOD = D3D11_FLOAT32_MAX;
-device->CreateSamplerState(&sd, &shadow_sampler);
-
-// シャドウ パス用: ハードウェアのバイアス（Constant Bias / Slope-Scale Bias）。
-D3D11_RASTERIZER_DESC rs = {};
-rs.FillMode = D3D11_FILL_SOLID;
-rs.CullMode = D3D11_CULL_BACK;
-rs.FrontCounterClockwise = FALSE;
-rs.DepthBias = 1000;                          // 24 ビット深度なら、この値 × 最小の深度の刻み
-rs.SlopeScaledDepthBias = 1.5f;
-rs.DepthBiasClamp = 0.01f;
-rs.DepthClipEnable = TRUE;
-device->CreateRasterizerState(&rs, &shadow_rs);
-```
-
-### ② 毎フレーム：シャドウ パス
-
-```cpp
-// 光の行列を作る（Light Matrix）。
-Matrix light_view = DirectX::XMMatrixLookAtLH(eye, center, up);
-Matrix light_proj = DirectX::XMMatrixOrthographicOffCenterLH(-r, r, -r, r, 0.0f, 2.0f * r);
-Matrix shadow_matrix = light_view * light_proj * ndc_to_uv;
-
-// 深度だけを描く。
-context->OMSetRenderTargets(0, nullptr, shadow_dsv.Get());
-context->ClearDepthStencilView(shadow_dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-context->RSSetViewports(1, &shadow_viewport);
-context->RSSetState(shadow_rs.Get());
-context->VSSetShader(shadow_vs.Get(), nullptr, 0);
-context->PSSetShader(nullptr, nullptr, 0);
-UpdateLightCB(light_view * light_proj);
-DrawShadowCasters();
-```
-
-### ③ 毎フレーム：メイン パス
-
-```cpp
-// メインの描画: シャドウ マップを SRV として読む（DSV としては、外す）。
-context->OMSetRenderTargets(1, scene_rtv.GetAddressOf(), scene_dsv.Get());   // シャドウ DSV は、外れる
-context->RSSetViewports(1, &main_viewport);
-context->RSSetState(main_rs.Get());
-context->PSSetShaderResources(5, 1, shadow_srv.GetAddressOf());
-context->PSSetSamplers(5, 1, shadow_sampler.GetAddressOf());
-UpdateShadowCB(shadow_matrix);
-DrawScene();
-```
-
-<strong>同じテクスチャを DSV と SRV に、同時にバインドしない</strong>ことに、注意します。メインの `OMSetRenderTargets` でシャドウ DSV が、<strong>外れる</strong>ので SRV として、読めます。
-
-### ④ シェーダー
-
-```hlsl
-// メイン パスの、ピクセル シェーダー（抜粋）。
-cbuffer ShadowCB : register(b2) { float4x4 g_shadow_matrix; };
-Texture2D<float> g_shadow_map : register(t5);
-SamplerComparisonState g_shadow_sampler : register(s5);
-
+// 影の係数。1 = 光が当たる、0 = 影。範囲外は光が当たる側に倒す。
 float ShadowFactor(float3 world_pos) {
-  float4 p = mul(float4(world_pos, 1.0), g_shadow_matrix);
-  float3 coord = p.xyz / p.w;                                         // xy = UV、z = 深度
-  if (any(coord.xy < 0.0) || any(coord.xy > 1.0) || coord.z > 1.0) return 1.0;
-  return g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z);
+  float4 p = mul(float4(world_pos, 1.0), g_shadow_matrix);    // 光の UV と深度（平行光なので w は 1）
+  float3 coord = p.xyz / p.w;                                  // xy = UV（V は下向き）、z = 光からの深さ
+  if (any(coord.xy < 0.0) || any(coord.xy > 1.0) || coord.z > 1.0) return 1.0;   // マップの外: 影にしない
+  return g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z - g_shadow_bias);  // bias を引いて比較
 }
+```
 
-float4 main(PSInput input) : SV_Target {
-  float3 N = normalize(input.world_normal);
-  float n_dot_l = saturate(dot(N, -g_light_dir));
-  float shadow = ShadowFactor(input.world_position);
-  float3 diffuse = g_albedo * g_light_color * n_dot_l * shadow;      // 影の中は、直接光が 0
-  float3 ambient = g_albedo * g_ambient;                              // 環境光は、影に関係なく残る
+頂点シェーダーはワールド位置とワールド法線を渡します。ワールド位置は影の判定に使います。ピクセル側で `ShadowFactor` がワールド位置に `g_shadow_matrix`（光のビュー × 投影 × `ndc_to_uv`）を掛けて、光の (u, v, 深さ) を作ります。平行光なので `w` は 1 ですが、点光源などに使い回せるよう割り算を残してあります。マップの外（`coord.xy` が 0〜1 を外れる、または `coord.z` が 1 を超える）は影にしないよう 1 を返します。そうしないとシャドウ マップの端を越えた所が、一斉に明るさを失うか一斉に影になります。
+
+`SampleCmpLevelZero` に渡す深さから `g_shadow_bias` を引くのは、自分の面を自分の影にしないための最小の対処です。引く値が小さすぎると縞（シャドウ アクネ）が、大きすぎると影が物から浮きます。
+
+```hlsl
+float4 MainPS(MainVSOut i) : SV_Target {
+  float3 N = normalize(i.world_normal);                        // 補間で長さが縮むので、正規化し直す
+  float n_dot_l = saturate(dot(N, -g_light_dir));              // 光に向く面ほど明るい。-g_light_dir が面から光への向き
+  float shadow = ShadowFactor(i.world_position);              // 影の係数
+  float3 diffuse = g_albedo * g_light_color * n_dot_l * shadow;   // 影の中は直接光が 0
+  float3 ambient = g_albedo * g_ambient;                       // 環境光は影に関係なく残る
   return float4(diffuse + ambient, 1.0);
 }
 ```
 
-## 動かないときの点検
+`N` は補間で長さが縮むので正規化し直します。`n_dot_l` は `−g_light_dir`（面から光へ向かう向き）との内積で、光に向く面ほど明るくなります。影の係数 `shadow` は直接光にだけ掛けます。環境光（`ambient`）は影に関係なく残すので、影の中が真っ黒にはなりません。
 
-- 影が全く出ない: シャドウ パスで物が描かれているか（PIX / RenderDoc で、シャドウ マップの内容を見る）。光の行列が正しいか
-- 影が上下逆: NDC → UV の変換で、`y` を反転したか（`ndc.y * -0.5 + 0.5`）
-- 全体が縞模様（シャドウ アクネ）: バイアスが足りない（[Shadow Bias](../bias/index.md)）
-- 影が物から浮いている: バイアスが大きすぎる（ピーター パンニング）
-- 影がずれている: 光の行列がシャドウ パスとメイン パスで、同じか。カメラの位置を使っていないか
-- 影が常に真っ暗: 比較関数の向き（reversed-Z）。範囲外の境界色
-- 影の端がギザギザ: 解像度を上げる、PCF（[PCF](../pcf.md)）
-- 地形の遠くで影が無い: シャドウ マップの、範囲（`radius`）が足りない。カスケード（[CSM](../cascaded.md)）
+## CPU で動かした結果 {#result}
 
-デバッグには <strong>シャドウ マップを画面に表示</strong>するのが最も効果的です。深度を白黒で画面の隅に描きます。
+床の上から見ると箱の影は次のようになります（バイアス 0.001、512×512）。
+
+<svg class="fig flow" viewBox="0 0 640 364" role="img" aria-label="床の影"><defs><marker id="f2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">CPU で動かした影の位置</text><rect x="30" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="40" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="52" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="64" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="76" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="88" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="100" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="112" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="124" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="136" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="294" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="306" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="318" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="330" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="342" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="354" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="366" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="378" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="390" y="148" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="402" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="148" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="282" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="294" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="306" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="318" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="330" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="342" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="354" y="160" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="366" y="160" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="378" y="160" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="390" y="160" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="402" y="160" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="414" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="160" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="282" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="294" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="306" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="318" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="330" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="342" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="354" y="172" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="366" y="172" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="378" y="172" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="390" y="172" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="402" y="172" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="414" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="172" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="282" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="294" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="306" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="318" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="330" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="342" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="354" y="184" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="366" y="184" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="378" y="184" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="390" y="184" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="402" y="184" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="414" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="184" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="282" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="294" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="306" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="318" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="330" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="342" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="354" y="196" width="12" height="12" fill="rgba(229,170,40,0.75)"/><rect x="366" y="196" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="378" y="196" width="12" height="12" fill="rgba(60,60,60,0.65)"/><rect x="390" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="196" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="208" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="220" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="232" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="244" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="256" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="268" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="280" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="292" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="304" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="42" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="54" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="66" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="78" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="90" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="102" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="114" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="126" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="138" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="150" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="162" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="174" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="186" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="198" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="210" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="222" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="234" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="246" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="258" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="270" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="282" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="294" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="306" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="318" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="330" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="342" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="354" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="366" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="378" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="390" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="402" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="414" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="426" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="438" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="450" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="462" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="474" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="486" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="498" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="510" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="522" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="534" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="546" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="558" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="570" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="582" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="594" y="316" width="12" height="12" fill="rgba(76,139,245,0.10)"/><rect x="30" y="40" width="576" height="288" fill="none" stroke="currentColor"/><text x="318" y="348" text-anchor="middle" style="font-size:12px;font-weight:400">床の上から見た図(24 m × 12 m)。濃い所が影、黄色が箱の真上。光は左下から右上へ</text></svg>
+
+光は左下（-X、-Z 側）から右上（+X、+Z 側）へ進みます。箱は床の中央に立っていて影は箱の右側と上側（+Z 側）へ伸びます。箱の真上の部分（黄色）は床の判定ではなく箱の天面なので除きました。形は箱の高さ 3 m と光の傾きから決まる平行四辺形で、レイの交差テストの正解と 14400 点中 6 点の違いまで一致しました。
+
+バイアスを変えたとき床の 14400 点のうち何点が間違うかを数えました。
+
+<svg class="fig flow" viewBox="0 0 700 320" role="img" aria-label="バイアスと間違い"><defs><marker id="f3" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">バイアスと間違いの数</text><line x1="80" y1="250" x2="600" y2="250" stroke="currentColor" stroke-width="1.5"/><line x1="80" y1="250" x2="80" y2="60" stroke="currentColor" stroke-width="1.5"/><rect x="100" y="67.8" width="32" height="182.2" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="116" y="62.77761186422185" text-anchor="middle" style="font-size:11px;font-weight:700">6858</text><rect x="134" y="250.0" width="32" height="0.0" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="150" y="245.0" text-anchor="middle" style="font-size:11px;font-weight:700">0</text><text x="133" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0</text><rect x="184" y="71.0" width="32" height="179.0" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="200" y="65.9545770113834" text-anchor="middle" style="font-size:11px;font-weight:700">5879</text><rect x="218" y="250.0" width="32" height="0.0" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="234" y="245.0" text-anchor="middle" style="font-size:11px;font-weight:700">0</text><text x="217" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0.0001</text><rect x="268" y="79.3" width="32" height="170.7" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="284" y="74.30838950674115" text-anchor="middle" style="font-size:11px;font-weight:700">3921</text><rect x="302" y="250.0" width="32" height="0.0" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="318" y="245.0" text-anchor="middle" style="font-size:11px;font-weight:700">0</text><text x="301" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0.0003</text><rect x="352" y="209.9" width="32" height="40.1" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="368" y="204.8578430993228" text-anchor="middle" style="font-size:11px;font-weight:700">6</text><rect x="386" y="250.0" width="32" height="0.0" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="402" y="245.0" text-anchor="middle" style="font-size:11px;font-weight:700">0</text><text x="385" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0.001</text><rect x="436" y="209.9" width="32" height="40.1" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="452" y="204.8578430993228" text-anchor="middle" style="font-size:11px;font-weight:700">6</text><rect x="470" y="202.5" width="32" height="47.5" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="486" y="197.5" text-anchor="middle" style="font-size:11px;font-weight:700">9</text><text x="469" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0.003</text><rect x="520" y="213.0" width="32" height="37.0" fill="rgba(229,72,77,0.45)" stroke="currentColor"/><text x="536" y="208.03781560677692" text-anchor="middle" style="font-size:11px;font-weight:700">5</text><rect x="554" y="169.3" width="32" height="80.7" fill="rgba(76,139,245,0.45)" stroke="currentColor"/><text x="570" y="164.29892479403912" text-anchor="middle" style="font-size:11px;font-weight:700">49</text><text x="553" y="268" text-anchor="middle" style="font-size:11px;font-weight:400">0.01</text><text x="72" y="254.0" text-anchor="end" style="font-size:11px;font-weight:400">0</text><text x="72" y="204.5338474549843" text-anchor="end" style="font-size:11px;font-weight:400">10</text><text x="72" y="158.7947347453245" text-anchor="end" style="font-size:11px;font-weight:400">100</text><text x="72" y="111.47938131973237" text-anchor="end" style="font-size:11px;font-weight:400">1000</text><text x="72" y="63.99793720434903" text-anchor="end" style="font-size:11px;font-weight:400">10000</text><text x="340.0" y="290" text-anchor="middle" style="font-size:12px;font-weight:400">バイアス(0〜1 の深度の単位。60 m の奥行きで 0.001 = 0.06 m)</text><text x="84" y="52" text-anchor="start" style="font-size:12px;font-weight:400">間違えた点の数(14400 点中、対数)。赤: 偽の影、青: 光の漏れ</text></svg>
+
+- バイアス 0: 6858 点が偽の影（47.6%）。床の自分の深さが記録された深さと量子化の誤差でわずかに食い違い半分近くが影になります。
+- 0.0001: 5879 点
+- 0.0003: 3921 点
+- 0.001（60 m の奥行きで 0.06 m）: 6 点。偽の影が 6 点、光の漏れが 0 点です。残る 6 点は影の縁の 1 テクセルのずれで、解像度の限界です。
+- 0.003（0.18 m）: 15 点（偽の影 6、光の漏れ 9）
+- 0.01（0.6 m）: 54 点（偽の影 5、光の漏れ 49）
+
+真の影の点は 700 点でした。バイアスが大きいと箱の根元で影が浮き 49 点（真の影の 7.0%）の光の漏れが出ます。これが「ピーターパンニング」の入口です。
+
+ハードウェアのバイアスの目安も数えました。D24 の `DepthBias` は 1 単位が `2^-24` の深度です。100 m の奥行きで 1 → 0.00001 m、100 → 0.00060 m、1000 → 0.00596 m、10000 → 0.05960 m です。面が光の視線に対して斜めなほど同じバイアスでは足りなくなります。テクセル 0.0488 m として `1.5 × 傾き × テクセル` は、10 度の面で 0.0129 m、45 度で 0.0732 m、80 度で 0.4151 m です。斜めの面に固定のバイアスで足りるはずがないことが、数字で分かります。
+
+## 動かないときの点検 {#debug}
+
+症状ごとに疑う場所を決めておくと早く切り分けられます。
+
+- 影がまったく出ない: シャドウ パスで物が描かれていません。RenderDoc や PIX でシャドウ マップの内容を見ます。光の行列が正しいかも見ます。
+- 影が上下逆: NDC から UV への変換で Y を反転していません。上のとおり CPU の再現では 47.7% が間違いました。
+- 全体が縞模様（シャドウ アクネ）: バイアスが足りません。バイアスなしで 47.6% でした。
+- 影が物から浮く: バイアスが大きすぎます。0.01 で光の漏れが 49 点でした。
+- 影がずれる: 光の行列が、シャドウ パスとメイン パスで違います。カメラの位置を使っていないかも確かめます。
+- 影が常に真っ暗: 比較関数の向きや範囲外の境界色を疑います。反転 Z を使うなら比較は `GREATER_EQUAL` で、境界色は 0.0 です。
+- 影の端がギザギザ: 解像度を上げるか[PCF](../pcf.md) を足します。
+- 遠くに影が出ない: シャドウ マップの範囲（`radius`）が足りません。[CSM](../cascaded.md) を使います。
+
+デバッグにはシャドウ マップを画面の隅に表示するのが最も効きます。
 
 ```hlsl
-// デバッグ表示: シャドウ マップの深度をグレースケールで、画面に表示する。
-float d = g_shadow_map.Load(int3(pos.xy, 0));
-return float4(d.xxx, 1.0);
+float4 DebugShadowMapPS(float4 pos : SV_Position) : SV_Target {
+  float d = g_shadow_map.Load(int3(pos.xy, 0));               // 0 = 光に近い（黒）、1 = 何も描かれていない（白）
+  return float4(d.xxx, 1.0);
+}
 ```
 
-## よくあるミス
+深度を白黒で出します。物が描かれた所は黒に近く（光に近い）、何もない所は白（1.0）になります。形が逆さなら V の反転、真っ白なら何も描かれていない、真っ黒なら範囲が狭すぎると読めます。
 
-??? failure "最小のコードのまま製品に使って、アクネ・ジャギーが出る"
-    <strong>バイアス（[Shadow Bias](../bias/index.md)）とフィルタ（[PCF](../pcf.md)）を足す</strong>。
+## よくあるミス {#mistakes}
 
-## これだけ覚える
+??? failure "最小のコードのまま製品に使って、縞や縁のギザギザが出る"
+    バイアスなしの最小の形で、床の 47.6% が偽の影になります。縞が出たらバイアス（[Shadow Bias](../bias/index.md)）とフィルタ（[PCF](../pcf.md)）を足します。
+
+??? failure "メイン パスで、シャドウ マップが読めない（真っ白か真っ黒）"
+    同じテクスチャが DSV と SRV に同時にバインドされています。メイン パスの `OMSetRenderTargets` で DSV を外してから SRV をバインドし、次のシャドウ パスの前に SRV を外します。
+
+??? failure "影が上下逆に出る"
+    `ndc_to_uv` の Y を反転していません。NDC は Y が上向き V は下向きです。
+
+??? failure "シャドウ マップの端で、影が急に消える"
+    境界色が 0.0 で、`BORDER` のマップの外が影になっています。1.0 にするか `ShadowFactor` で範囲外を明示的に 1 にします（反転 Z なら逆です）。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 最小のコードで、全体の流れを確認
-    - [x] 実用にはバイアスとフィルタが必須
+    - [x] 全体は光の行列、深度パス、比較の 3 段階
+    - [x] DSV と SRV に同時にバインドしない。メイン パスで DSV を外してから SRV に
+    - [x] NDC から UV で Y を反転する
+    - [x] バイアスなしだと床の 47.6% が偽の影。実用にはバイアスとフィルタが必須
 
-## 参考
+## C++ で数えたもの {#numbers}
 
-- Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978（シャドウ マップの原典）
-- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+```cpp
+// 最小のシャドウ マップを CPU で動かして、点検の項目を数える。g++ -std=c++23 -Wall -Wextra
+// 平行光 1 本、床 1 枚と箱 1 個。シャドウ マップは深度だけを持つ。座標系は左手系・Y 上、行ベクトル。
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdio>
+#include <vector>
+
+struct V3 {
+  double x, y, z;
+};
+V3 operator+(V3 a, V3 b) { return {a.x + b.x, a.y + b.y, a.z + b.z}; }  // ベクトルの和
+V3 operator-(V3 a, V3 b) { return {a.x - b.x, a.y - b.y, a.z - b.z}; }  // ベクトルの差
+V3 operator*(V3 a, double s) { return {a.x * s, a.y * s, a.z * s}; }  // スカラー倍
+double Dot(V3 a, V3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }  // 内積
+V3 Cross(V3 a, V3 b) { return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x}; }  // 外積(左手系でも式は同じ。向きの解釈だけが変わる)
+V3 Norm(V3 a) { const double l = std::sqrt(Dot(a, a)); return {a.x / l, a.y / l, a.z / l}; }  // 長さ 1 に正規化(長さ 0 は扱わない)
+
+// 光の基底（XMMatrixLookAtLH と同じ並び）。ワールドの点を (x, y, z) の光空間へ。
+struct LightSpace {
+  V3 eye, ax, ay, az;  // 光の目の位置と、光の x・y・z 軸
+  double r, zn, zf;  // 平行投影の半幅と奥行きの範囲
+  // 光空間 → 正規化デバイス座標（x, y は -1〜1、z は 0〜1。XMMatrixOrthographicOffCenterLH の中央版）
+  V3 ToNdc(V3 p) const {
+    const V3 d = p - eye;  // 光の目から見た相対位置
+    const V3 v{Dot(d, ax), Dot(d, ay), Dot(d, az)};  // 光の軸への射影 = 光空間の座標
+    return {v.x / r, v.y / r, (v.z - zn) / (zf - zn)};  // x, y は半幅 r で割って -1〜1 に、z は 0〜1 に
+  }
+};
+
+LightSpace MakeLight(V3 light_dir, V3 center, double r) {
+  LightSpace L;  // 結果を入れる箱
+  L.az = Norm(light_dir);                           // 光が進む向きを +Z にする
+  L.eye = center - L.az * r;                        // 光の目の位置は、対象の中心から光の来る側へ r だけ
+  const V3 up{0, 1, 0};  // ワールドの上向き(光が真上を向くと平行になる)
+  L.ax = Norm(Cross(up, L.az));                     // XMMatrixLookAtLH: x = up × z
+  L.ay = Cross(L.az, L.ax);                         // y = z × x
+  L.r = r; L.zn = 0.0; L.zf = 2.0 * r;  // 平行投影の範囲: 横縦 ±r、奥行き 0〜2r
+  return L;
+}
+
+struct Tri {
+  V3 a, b, c;  // 三角形の 3 頂点
+};
+
+struct ShadowMap {
+  int n;  // 一辺の画素数
+  std::vector<double> depth;  // 0〜1。最も手前（光に近い）の面の深さ
+  explicit ShadowMap(int size) : n(size), depth(static_cast<size_t>(size) * size, 1.0) {}  // 深度は 1.0(何も描かれていない)で初期化
+};
+
+// 三角形の深度を、重心座標で補間してシャドウ マップへ書く（深度テストは小さい方が勝つ）。
+void RasterizeDepth(ShadowMap& m, const LightSpace& L, const Tri& t) {
+  const V3 p0 = L.ToNdc(t.a), p1 = L.ToNdc(t.b), p2 = L.ToNdc(t.c);  // 3 頂点を光の NDC へ
+  auto to_px = [&](V3 p) { return V3{(p.x * 0.5 + 0.5) * m.n, (-p.y * 0.5 + 0.5) * m.n, p.z}; };  // y を反転
+  const V3 a = to_px(p0), b = to_px(p1), c = to_px(p2);  // 画素座標へ(x は右、y は下向き、z は深さ)
+  const int x0 = std::max(0, static_cast<int>(std::floor(std::min({a.x, b.x, c.x}))));  // 三角形の外接矩形(画面の外は切る)
+  const int x1 = std::min(m.n - 1, static_cast<int>(std::ceil(std::max({a.x, b.x, c.x}))));  // 同上(右端)
+  const int y0 = std::max(0, static_cast<int>(std::floor(std::min({a.y, b.y, c.y}))));  // 同上(上端)
+  const int y1 = std::min(m.n - 1, static_cast<int>(std::ceil(std::max({a.y, b.y, c.y}))));  // 同上(下端)
+  const double area = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);  // 三角形の符号付き面積の 2 倍
+  if (std::fabs(area) < 1e-12) return;  // 面積 0(光と平行な面)は何も描かない
+  for (int y = y0; y <= y1; ++y) {  // 矩形の中の全画素を調べる
+    for (int x = x0; x <= x1; ++x) {
+      const double px = x + 0.5, py = y + 0.5;       // 画素の中心
+      const double w0 = ((b.x - px) * (c.y - py) - (b.y - py) * (c.x - px)) / area;  // 重心座標 w0
+      const double w1 = ((c.x - px) * (a.y - py) - (c.y - py) * (a.x - px)) / area;  // 重心座標 w1
+      const double w2 = 1.0 - w0 - w1;  // 重心座標 w2(3 つの和は 1)
+      if (w0 < 0 || w1 < 0 || w2 < 0) continue;  // どれか負なら三角形の外
+      const double z = w0 * a.z + w1 * b.z + w2 * c.z;  // 深さを重心座標で補間(平行投影なので線形でよい)
+      double& d = m.depth[static_cast<size_t>(y) * m.n + x];  // この画素の深度
+      d = std::min(d, z);  // 小さい方(光に近い方)を残す = 深度テスト
+    }
+  }
+}
+
+// 点が影かどうか（SampleCmpLevelZero の最小版: 点サンプリング、LESS_EQUAL、範囲外は光が当たる）。
+bool InShadow(const ShadowMap& m, const LightSpace& L, V3 p, double bias, bool flip_v) {
+  const V3 ndc = L.ToNdc(p);  // 点を光の NDC へ
+  const double u = ndc.x * 0.5 + 0.5;  // U(左が 0)
+  const double v = flip_v ? -ndc.y * 0.5 + 0.5 : ndc.y * 0.5 + 0.5;  // V(下が 1)。flip_v が false なら反転を忘れた場合
+  if (u < 0 || u > 1 || v < 0 || v > 1 || ndc.z > 1) return false;  // マップの外は影にしない(境界色 1.0 と同じ)
+  const int tx = std::min(m.n - 1, static_cast<int>(u * m.n));  // 点サンプリング: 画素の番号(右端を超えないよう切る)
+  const int ty = std::min(m.n - 1, static_cast<int>(v * m.n));  // 同上(縦)
+  const double stored = m.depth[static_cast<size_t>(ty) * m.n + tx];  // 記録された、光に一番近い面の深さ
+  return !(ndc.z - bias <= stored);                  // 自分の深さが、記録された深さ以下なら光が当たる
+}
+
+// 正解: 点から光へ向かうレイが、箱に当たるか（スラブ法）。
+bool RayHitsBox(V3 p, V3 to_light, V3 bmin, V3 bmax) {
+  double t0 = 0.0, t1 = 1e30;  // レイが箱の中にいる区間 [t0, t1]
+  const double o[3] = {p.x, p.y, p.z}, d[3] = {to_light.x, to_light.y, to_light.z};  // レイの原点と向きを配列にする
+  const double lo[3] = {bmin.x, bmin.y, bmin.z}, hi[3] = {bmax.x, bmax.y, bmax.z};  // 箱の最小・最大の角
+  for (int i = 0; i < 3; ++i) {  // x, y, z の 3 組のスラブ(平らな板)
+    if (std::fabs(d[i]) < 1e-12) {  // レイがこの軸に平行
+      if (o[i] < lo[i] || o[i] > hi[i]) return false;  // 板の外なら当たらない
+      continue;
+    }
+    double ta = (lo[i] - o[i]) / d[i], tb = (hi[i] - o[i]) / d[i];  // 板に入る・出る時刻
+    if (ta > tb) std::swap(ta, tb);  // 向きが逆なら入れ替える
+    t0 = std::max(t0, ta); t1 = std::min(t1, tb);  // 3 組の区間の共通部分を取る
+    if (t0 > t1) return false;  // 共通部分が空なら外れ
+  }
+  return true;
+}
+
+int main() {
+  const V3 light_dir = Norm({0.6, -1.0, 0.4});       // 光が進む向き（上から斜めに）
+  const double r = 30.0;  // 光の範囲の半径(m)
+  const LightSpace L = MakeLight(light_dir, {0, 0, 0}, r);  // 対象の中心は原点
+  const V3 bmin{-2, 0, -2}, bmax{2, 3, 2};           // 箱: 床の上、高さ 3 m
+
+  ShadowMap map(512);  // 512×512 の深度(本文の 2048 より小さくして速くした)
+  // 床（y = 0、±20 m の正方形）2 枚と、箱の 12 枚。
+  std::vector<Tri> tris;  // 描く三角形の一覧
+  const double F = 20.0;  // 床の半分の大きさ(m)
+  tris.push_back({{-F, 0, -F}, {-F, 0, F}, {F, 0, F}});  // 床の三角形 1
+  tris.push_back({{-F, 0, -F}, {F, 0, F}, {F, 0, -F}});  // 床の三角形 2
+  const V3 c[8] = {{bmin.x, bmin.y, bmin.z}, {bmax.x, bmin.y, bmin.z}, {bmax.x, bmin.y, bmax.z}, {bmin.x, bmin.y, bmax.z},  // 箱の 8 頂点(下の面 4 つ、上の面 4 つ)
+                   {bmin.x, bmax.y, bmin.z}, {bmax.x, bmax.y, bmin.z}, {bmax.x, bmax.y, bmax.z}, {bmin.x, bmax.y, bmax.z}};
+  const int f[6][4] = {{0, 1, 2, 3}, {4, 7, 6, 5}, {0, 4, 5, 1}, {1, 5, 6, 2}, {2, 6, 7, 3}, {3, 7, 4, 0}};  // 箱の 6 面(各 4 頂点)
+  for (auto& q : f) {  // 1 面を 2 枚の三角形に分ける
+    tris.push_back({c[q[0]], c[q[1]], c[q[2]]});
+    tris.push_back({c[q[0]], c[q[2]], c[q[3]]});
+  }
+  for (const Tri& t : tris) RasterizeDepth(map, L, t);  // 全部の三角形を深度に描く = シャドウ パス
+
+  std::printf("-- light space\n");
+  std::printf("light dir (%.3f, %.3f, %.3f), eye (%.2f, %.2f, %.2f), r = %.0f m, depth range 0..%.0f m\n", L.az.x, L.az.y, L.az.z, L.eye.x, L.eye.y, L.eye.z, r, L.zf);
+  const V3 ndc_box = L.ToNdc({0, 3, 0});  // 箱の天面の中心の光空間での位置
+  std::printf("box top center -> ndc (%.4f, %.4f, %.4f)\n", ndc_box.x, ndc_box.y, ndc_box.z);
+
+  // 床の格子点を、床の少し上（面から 1e-6 だけ上）で判定して、正解と比べる。
+  const int G = 120;  // 床の格子は 120×120 = 14400 点
+  const double span = 12.0;  // 床の ±12 m の範囲を調べる
+  auto count = [&](double bias, bool flip) {  // バイアスと V 反転の有無ごとに、間違いを数える
+    int wrong = 0, shadow_truth = 0, acne = 0, leak = 0;  // 間違い・本当の影・偽の影・光の漏れ
+    for (int j = 0; j < G; ++j) {
+      for (int i = 0; i < G; ++i) {
+        const V3 p{-span + 2 * span * (i + 0.5) / G, 0.0, -span + 2 * span * (j + 0.5) / G};
+        const bool truth = RayHitsBox(p + V3{0, 1e-6, 0}, light_dir * -1.0, bmin, bmax);
+        const bool got = InShadow(map, L, p, bias, flip);
+        shadow_truth += truth;
+        if (truth != got) { ++wrong; if (got) ++acne; else ++leak; }
+      }
+    }
+    std::printf("bias %.5f, flip_v %d: wrong %5d / %d (false shadow %5d, light leak %5d), true shadow points %d\n", bias, flip, wrong, G * G, acne, leak, shadow_truth);
+  };
+  std::printf("-- accuracy against a ray test (floor points)\n");
+  for (double b : {0.0, 0.0001, 0.0003, 0.001, 0.003, 0.01}) count(b, true);
+  std::printf("-- forgetting the V flip\n");
+  count(0.001, false);
+
+  // 上から見た図（#: 影、.: 光、B: 箱の真上）。
+  std::printf("-- top view of the floor (bias 0.001), # = shadow\n");
+  for (int j = 0; j < 24; ++j) {
+    for (int i = 0; i < 48; ++i) {
+      const V3 p{-span + 2 * span * (i + 0.5) / 48, 0.0, span - 2 * span * (j + 0.5) / 24};
+      const bool inbox = p.x > bmin.x && p.x < bmax.x && p.z > bmin.z && p.z < bmax.z;
+      std::putchar(inbox ? 'B' : (InShadow(map, L, p, 0.001, true) ? '#' : '.'));
+    }
+    std::putchar('\n');
+  }
+
+  std::printf("-- resolution and hardware bias\n");
+  for (int size : {1024, 2048, 4096}) std::printf("%d x %d, r = 50 m: one texel = %.4f m\n", size, size, 2.0 * 50.0 / size);
+  const double unit24 = 1.0 / 16777216.0;
+  for (int bias : {1, 100, 1000, 10000}) std::printf("DepthBias %5d on D24: %.3e depth = %.5f m over a 100 m depth range\n", bias, bias * unit24, bias * unit24 * 100.0);
+  const double slope_texel = 0.0488;
+  for (double deg : {10.0, 45.0, 80.0}) {
+    const double s = std::tan(deg * 3.14159265358979323846 / 180.0);
+    std::printf("surface %2.0f deg from the light's view plane: depth slope %.3f, 1.5 x slope x texel = %.4f m\n", deg, s, 1.5 * s * slope_texel);
+  }
+  return 0;
+}
+```
+
+```text title="実行結果"
+-- light space
+light dir (0.487, -0.811, 0.324), eye (-14.60, 24.33, -9.73), r = 30 m, depth range 0..60 m
+box top center -> ndc (0.0000, 0.0585, 0.4594)
+-- accuracy against a ray test (floor points)
+bias 0.00000, flip_v 1: wrong  6858 / 14400 (false shadow  6858, light leak     0), true shadow points 700
+bias 0.00010, flip_v 1: wrong  5879 / 14400 (false shadow  5879, light leak     0), true shadow points 700
+bias 0.00030, flip_v 1: wrong  3921 / 14400 (false shadow  3921, light leak     0), true shadow points 700
+bias 0.00100, flip_v 1: wrong     6 / 14400 (false shadow     6, light leak     0), true shadow points 700
+bias 0.00300, flip_v 1: wrong    15 / 14400 (false shadow     6, light leak     9), true shadow points 700
+bias 0.01000, flip_v 1: wrong    54 / 14400 (false shadow     5, light leak    49), true shadow points 700
+-- forgetting the V flip
+bias 0.00100, flip_v 0: wrong  6872 / 14400 (false shadow  6872, light leak     0), true shadow points 700
+-- top view of the floor (bias 0.001), # = shadow
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+.....................##########.................
+....................BBBBBBBB####................
+....................BBBBBBBB####................
+....................BBBBBBBB####................
+....................BBBBBBBB##..................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+-- resolution and hardware bias
+1024 x 1024, r = 50 m: one texel = 0.0977 m
+2048 x 2048, r = 50 m: one texel = 0.0488 m
+4096 x 4096, r = 50 m: one texel = 0.0244 m
+DepthBias     1 on D24: 5.960e-08 depth = 0.00001 m over a 100 m depth range
+DepthBias   100 on D24: 5.960e-06 depth = 0.00060 m over a 100 m depth range
+DepthBias  1000 on D24: 5.960e-05 depth = 0.00596 m over a 100 m depth range
+DepthBias 10000 on D24: 5.960e-04 depth = 0.05960 m over a 100 m depth range
+surface 10 deg from the light's view plane: depth slope 0.176, 1.5 x slope x texel = 0.0129 m
+surface 45 deg from the light's view plane: depth slope 1.000, 1.5 x slope x texel = 0.0732 m
+surface 80 deg from the light's view plane: depth slope 5.671, 1.5 x slope x texel = 0.4151 m
+```
+
+## 参考資料 {#references}
+
+このページの数字は C++ で作った CPU 上の再現で数えたものです。以下の資料は**今回は読んでいません**。
+
+- Lance Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978（シャドウ マップの原典）
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11。バイアス、平行光源、PCF）
 - Microsoft Learn, "D3D11_RASTERIZER_DESC"（`DepthBias`、`SlopeScaledDepthBias`、`DepthBiasClamp`）
 - Microsoft Learn, "D3D11_SAMPLER_DESC"（`D3D11_FILTER_COMPARISON_*`、`ComparisonFunc`）
 
-## 関連ページ
+## 関連ページ {#related}
 
 - [Shadow Map Basics](index.md)
 - [Shadow Bias](../bias/index.md)
