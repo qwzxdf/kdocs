@@ -5,12 +5,12 @@ nav:
   - bandwidth.md
   - forward-deferred.md
   - light-culling.md
+  - visibility-buffer.md
   - draw-calls.md
   - culling.md
   - gpu-driven.md
   - GPU Driven (D3D12): gpu-driven-dx12
   - mesh-shaders.md
-  - visibility-buffer.md
   - overdraw.md
   - low-res-effects.md
   - hiz.md

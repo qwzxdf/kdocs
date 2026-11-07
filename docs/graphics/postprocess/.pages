@@ -1,13 +1,13 @@
 nav:
   - index.md
   - Tone Mapping and Exposure: tonemapping
+  - Color Grading: color-grading
   - Bloom: bloom
+  - Lens Effects: lens-effects
   - Depth of Field (DOF): dof
   - Motion Blur: motion-blur
   - Anti-Aliasing: antialiasing
   - Upscaling: upscaling
-  - Color Grading: color-grading
-  - Lens Effects: lens-effects
   - Outlines and Toon: stylized
   - cost.md
   - taa-upscaling-cost.md

@@ -27,6 +27,8 @@ GI は方式がとても多い分野です。ライトマップ、プローブ�
 | [Voxel GI](voxel-gi.md) | シーンをボクセル化し、コーン トレースで間接光を得る |
 | [DDGI](ddgi.md) | レイトレで更新する動的プローブ。可視性の扱い |
 | [Ray-Traced GI](rt-gi/index.md) | パス トレース的な GI・ReSTIR・Lumen 系の考え方 |
+| [ReSTIR](restir.md) | 光源が数千個あっても、候補を再利用して少ないレイで扱う |
+| [Lumen and Nanite](lumen.md) | UE5 の Lumen と Nanite が、中で何をしているか |
 | [GI Comparison](comparison.md) | 方式の選び方・組み合わせ |
 
 ## 読む順序
