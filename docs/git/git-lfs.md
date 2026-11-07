@@ -27,6 +27,8 @@ Git LFS（Large File Storage）は、<strong>大きなファイルの中身を�
 
 Git for Windows と Visual Studio の Git には、LFS が最初から入っています。リポジトリごとに 1 回、初期化します。
 
+（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+
 ```bash
 git lfs install                   # 自分の環境で LFS を有効にする（最初の 1 回）
 git lfs track "*.png"             # png を LFS で管理する

@@ -25,6 +25,8 @@ tags:
 
 ## 追加する {#add}
 
+（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+
 ```bash
 git submodule add https://github.com/ocornut/imgui.git third_party/imgui
 git commit -m "ImGui をサブモジュールとして追加"

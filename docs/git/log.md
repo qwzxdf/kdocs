@@ -83,6 +83,8 @@ tags:
 
 これは SourceTree の画面にはありません。Git のコマンド `git bisect` を使います（ターミナルは、ツールバーの「ターミナル」から開けます）。
 
+（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+
 ```bash
 git bisect start             # 探索を始める
 git bisect bad               # いまの状態は、動かない

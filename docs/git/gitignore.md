@@ -94,6 +94,8 @@ C++ と Visual Studio のプロジェクトでは、おおむね次の分類で�
 
 フォルダーごとならコマンドが早いです（ツールバーの「ターミナル」から開けます）。
 
+（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+
 ```bash
 git rm -r --cached x64/                     # フォルダーごと、追跡だけを外す
 git commit -m "ビルドの出力を管理から外す"
