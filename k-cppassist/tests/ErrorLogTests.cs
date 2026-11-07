@@ -111,7 +111,7 @@ static class P
         Check("C2589 mentions NOMINMAX", mm.Contains("NOMINMAX"));
 
         string unk = Render("1>C:\\src\\a.cpp(8,40): error C9999: なにかのエラー");
-        Check("unknown code gets fallback", unk.Contains("公式のページ") && unk.Contains("[詳細]"));
+        Check("unknown code gets fallback", unk.Contains("公式のページ") && unk.Contains("エラー コード"));
         string unkw = Render("1>C:\\src\\a.cpp(8,40): warning C9998: なにかの警告", true);
         Check("unknown warning gets fallback", unkw.Contains("ビルドは止まりません"));
 
