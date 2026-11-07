@@ -6,7 +6,7 @@ tags:
 
 # K-CppAssist
 
-メンバー関数の中で `stride_ = device->GetDescriptorHandleIncrementSize(type);` と書くと Visual Studio は `E0020: 識別子 "stride_" が定義されていません` と赤い波線を出します。直すにはヘッダーを開いて `GetDescriptorHandleIncrementSize` の戻り値が何だったかを調べて（`UINT`）、`UINT stride_;` を書き足して元のファイルに戻るという往復が要ります。ゲッターとセッターを作るときも同じ往復をもう一度やります。
+メンバー関数の中で `count_ = items.size();` と書くと Visual Studio は `E0020: 識別子 "count_" が定義されていません` と赤い波線を出します。直すにはヘッダーを開いて `items.size()` の戻り値が何だったかを調べて（`size_t`）、`size_t count_;` を書き足して元のファイルに戻るという往復が要ります。ゲッターとセッターを作るときも同じ往復をもう一度やります。
 
 K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張です。右辺の式から型を決めてクラスの宣言（`.h`）に変数を足します。ローカル変数ならその場で型を付けます。
 
@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.14.2.vsix" download>K-CppAssist 0.14.2 をダウンロード（.vsix、約 194 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.14.3.vsix" download>K-CppAssist 0.14.3 をダウンロード（.vsix、約 194 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -59,7 +59,7 @@ Alt+W を押すと `Alloc` の宣言から、ヘッダーに次の 1 行が入�
 右辺から次の順に決めます。
 
 1. <strong>式そのもの。</strong> `0` は `int`、`1.0f` は `float`、`true` は `bool`、`"abc"` は `const char*`、`static_cast<T>(...)` は `T`、`std::make_unique<T>(...)` は `std::unique_ptr<T>`、`new T` は `T*` です。
-2. <strong>Quick Info（ホバーの内容）。</strong> 関数呼び出しなら戻り値の型を取り出します。`virtual UINT __stdcall ID3D12Device::GetDescriptorHandleIncrementSize(...)` から `UINT` を取ります。変数や引数ならその型を取ります。
+2. <strong>Quick Info（ホバーの内容）。</strong> 関数呼び出しなら戻り値の型を取り出します。`size_t std::vector<int>::size() const` から `size_t` を取ります。変数や引数ならその型を取ります。
 3. <strong>どちらでも決まらないとき。</strong> Alt+W は型の入力欄を出します。Alt+Q は `auto` を入れます。
 
 演算子を含む式（`a + b`、`x < y`、`!flag`、`(float)n`、`&x`）は部分ごとに 1 と 2 で型を決めて、組み立てます。比較と論理演算は `bool` です。算術は C++ の通常の算術変換で、`int + float` は `float`、`float * double` は `double` になります。`UINT + UINT` や `size_t * size_t` のように綴りがそろっていれば、その綴りのままです。`char` や `short` は `int` になります。クラスの型が混じるときは最初のクラスの型（`XMFLOAT3 * float` も `float * XMFLOAT3` も `XMFLOAT3`、`std::string + "x"` は `std::string`）、ポインターに整数を足せばそのポインターの型です。シフトは左の型になります。
@@ -306,6 +306,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 | --- | --- |
 | 0.7.1 | 引数の自動合わせで、相手が開いていなくても開いて書き換えるようにした(書き換えたあとは、作業中のファイルへ戻る) |
 | 0.14.2 | 拡張機能 メニューに「K-ErrorLog を下のパネルにドッキングし直す」を足した。K-ErrorLog の窓が浮いたまま、出力・エラー一覧の仲間にドッキングできないときに使う |
+| 0.14.3 | 0.14.2 で足した「ドッキングし直す」コマンドを外した（何もしなくてもドッキングできていたため）。使い方の説明の例を、短い `count_ = items.size();` に差し替えた |
 | 0.14.1 | 拡張機能 メニューに「K-CppAssist の使い方...」を足した。機能とキーの早見表の窓が開く（Web の説明を開くボタン付き） |
 | 0.14.0 | 関数の本体を ヘッダー ⇄ cpp に移す（Alt+M・電球）を足した。`#include` の整理（プロジェクトの右クリック・拡張機能 メニュー）、使っていない `#include` の削除、`#include` を前方宣言にして cpp に移す（Alt+D・電球）を足した。実際のソース 6 つで、整理が冪等で他の行を変えないこと、関数を移して戻しても本体が変わらないことを確かめた。プロジェクトの右クリックのメニューと、`#include` の整理・前方宣言の画面での動きは、まだ実機で確かめていない |
 | 0.13.1 | 実際のソース（tinyxml2・leveldb・spdlog・yaml-cpp・DirectXTK・Dear ImGui）で全機能を通して見つけた取りこぼしを直した。「名前 = "文字列";」の代入を Alt+Q・Alt+W が見つけられなかった。波括弧のない「if (条件)」「else」の本文の代入、「case A:」を続けた直後の代入、「case Pad::AXES:」のように :: を含むラベルの直後の代入を、見つけられるようにした。長い doc コメントのあとの宣言から Alt+R で作る定義の戻り値に、コメントの文字が混ざる不具合を直した。「class XXX_LIB Name」のように、大文字のマクロが付いたクラスを読めるようにした。「operator=」の行を、メンバー変数と取り違えないようにした。関数の本体の中で定義したクラスは、これまでどおり対象にしない |

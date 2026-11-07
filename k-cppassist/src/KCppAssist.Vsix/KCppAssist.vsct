@@ -20,12 +20,6 @@
     </Groups>
 
     <Buttons>
-      <Button guid="guidKCppAssistCmdSet" id="CmdDockLog" priority="0x0108" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
-        <Strings>
-          <ButtonText>K-ErrorLog を下のパネルにドッキングし直す</ButtonText>
-        </Strings>
-      </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdHelp" priority="0x0102" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
@@ -162,7 +156,6 @@
       <IDSymbol name="CmdForward" value="0x010C" />
       <IDSymbol name="CmdTidyFile" value="0x010D" />
       <IDSymbol name="CmdHelp" value="0x010E" />
-      <IDSymbol name="CmdDockLog" value="0x010F" />
     </GuidSymbol>
   </Symbols>
 

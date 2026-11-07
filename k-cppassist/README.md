@@ -2,7 +2,7 @@
 
 Visual Studio 2022 / 2026 用の拡張です。宣言していない変数に代入したとき、キー 1 つで**型を付けて宣言**します。
 
-メンバー関数の中で `stride_ = device->GetDescriptorHandleIncrementSize(type);` と書くと、Visual Studio は `E0020: 識別子 "stride_" が定義されていません` と赤い波線を出します。直すには、ヘッダーを開いて、`GetDescriptorHandleIncrementSize` の戻り値が何だったかを調べて（`UINT`）、`UINT stride_;` を書き足して、元のファイルに戻る、という手間がかかります。K-CppAssist は、この往復を 1 回のキーにします。
+メンバー関数の中で `count_ = items.size();` と書くと、Visual Studio は `E0020: 識別子 "count_" が定義されていません` と赤い波線を出します。直すには、ヘッダーを開いて、`items.size()` の戻り値が何だったかを調べて（`size_t`）、`size_t count_;` を書き足して、元のファイルに戻る、という手間がかかります。K-CppAssist は、この往復を 1 回のキーにします。
 
 ## 使い方
 
@@ -202,7 +202,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 右辺から、次の順に決めます。
 
 1. **式そのもの。** `0` は `int`、`1.0f` は `float`、`true` は `bool`、`"abc"` は `const char*`、`static_cast<T>(...)` は `T`、`std::make_unique<T>(...)` は `std::unique_ptr<T>`、`new T` は `T*`。
-2. **Quick Info（ホバーの内容）。** 関数呼び出しなら、戻り値の型を取り出します。`virtual UINT __stdcall ID3D12Device::GetDescriptorHandleIncrementSize(...)` から `UINT` を取ります。変数や引数なら、その型を取ります。
+2. **Quick Info（ホバーの内容）。** 関数呼び出しなら、戻り値の型を取り出します。`size_t std::vector<int>::size() const` から `size_t` を取ります。変数や引数なら、その型を取ります。
 3. **どちらでも決まらないとき。** Alt+W は、型の入力欄を出します。Alt+Q は `auto` を入れます。
 
 演算子を含む式（`a + b`、`x < y`、`!flag`、`(float)n`、`&x`）は、部分ごとに 1 と 2 で型を決めて、組み立てます。比較と論理演算は `bool` です。算術は C++ の通常の算術変換で、`int + float` は `float`、`float * double` は `double` になります。`UINT + UINT` や `size_t * size_t` のように綴りがそろっていれば、その綴りのままです。`char` や `short` は `int` になります。クラスの型が混じるときは、最初のクラスの型（`XMFLOAT3 * float` も `float * XMFLOAT3` も `XMFLOAT3`、`std::string + "x"` は `std::string`）、ポインターに整数を足せば、そのポインターの型です。シフトは左の型になります。
