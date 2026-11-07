@@ -1,24 +1,25 @@
 nav:
   - index.md
   - setup.md
-  - first-run.md
-  - terms
   - settings.md
+  - first-run.md
+  - error-messages.md
+  - errors.md
+  - terms
+  - debugging.md
+  - tips.md
   - project-types.md
   - include-dirs.md
   - preprocessor.md
   - libraries.md
   - package-managers.md
-  - cmake.md
-  - ninja.md
   - utf8.md
   - editorconfig.md
   - clang-tidy.md
-  - debugging.md
+  - cmake.md
+  - ninja.md
+  - debugging-advanced.md
   - asan.md
-  - error-messages.md
-  - errors.md
-  - tips.md
   - profiler.md
   - tracy.md
   - renderdoc-pix.md
