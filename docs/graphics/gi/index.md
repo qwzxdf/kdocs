@@ -49,4 +49,4 @@ GI は方式がとても多い分野です。ライトマップ、プローブ�
 - [Ambient Occlusion (AO)](../ao/index.md)
 - [Reflections](../reflections/index.md)
 - [Shadows](../shadows/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

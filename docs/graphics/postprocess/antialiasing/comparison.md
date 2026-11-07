@@ -1851,4 +1851,4 @@ TAA 転送: 63.3 MiB / フレーム, 60 fps で 3.71 GiB/s
 - [SMAA](smaa.md)
 - [TAA](taa.md)
 - [TAA Challenges](taa-challenges.md)
-- [Forward and Deferred](../../pipeline/forward-deferred.md)
+- [Forward and Deferred](../../lighting/forward-deferred.md)

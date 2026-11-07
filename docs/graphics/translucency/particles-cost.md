@@ -18,9 +18,9 @@ tags:
     - 数が多いときはGPU パーティクル（コンピュートで更新）。
 
 !!! info "このページを読む前に"
-    - [Pipeline and Optimization](../pipeline/index.md)（このセクション全体の地図と、読む順番）
+    - [Optimization](../optimization/index.md)（このセクション全体の地図と、読む順番）
     - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
-    - [Bottlenecks](../pipeline/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+    - [Bottlenecks](../optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
 
 ## なぜ重いのか
 
@@ -30,13 +30,13 @@ tags:
 - 大きな板: 画面の大半を覆う 1 枚が数百万ピクセルを塗る
 - 透明部分の無駄: 四角い板の中の透明な部分もシェーダーが実行される
 
-オーバードローを色で可視化する（重なるほど明るくする）とどこが重いのかが一目で分かります（[Profiling Tools](../pipeline/tools.md)）。
+オーバードローを色で可視化する（重なるほど明るくする）とどこが重いのかが一目で分かります（[Profiling Tools](../optimization/tools.md)）。
 
 ## 減らす方法
 
 ### 縮小バッファに描く
 
-煙・霧・炎はもともとぼんやりしているので、**半分や 4 分の 1 の解像度で描いて、最後に合成**しても見た目はあまり変わりません。ピクセル数が 1/4〜1/16 になります（[低解像度のエフェクト](../pipeline/low-res-effects.md)）。
+煙・霧・炎はもともとぼんやりしているので、**半分や 4 分の 1 の解像度で描いて、最後に合成**しても見た目はあまり変わりません。ピクセル数が 1/4〜1/16 になります（[低解像度のエフェクト](../optimization/low-res-effects.md)）。
 
 - 深度テスト: 縮小した深度バッファを使う（最大値・最小値で縮小）
 - 境界のにじみ: 深度を考慮したアップサンプルで、物体の縁を保つ
@@ -210,8 +210,8 @@ context->DrawInstancedIndirect(draw_args_buffer.Get(), 0);        // 4 頂点（
 
 ## 関連ページ
 
-- [Pipeline and Optimization](../pipeline/index.md)
-- [オーバードローと Z プリパス](../pipeline/overdraw.md)
-- [低解像度のエフェクト](../pipeline/low-res-effects.md)
-- [Memory Bandwidth](../pipeline/bandwidth.md)
+- [Optimization](../optimization/index.md)
+- [オーバードローと Z プリパス](../optimization/overdraw.md)
+- [低解像度のエフェクト](../optimization/low-res-effects.md)
+- [Memory Bandwidth](../optimization/bandwidth.md)
 - [Translucency](index.md)

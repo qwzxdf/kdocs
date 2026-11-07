@@ -223,8 +223,8 @@ UV が 0〜1 の外にはみ出したときの挙動は、サンプラーのア�
 </svg>
 
 - 解像度を下げる／アップスケール: ピクセル数を減らす（[TAA・アップスケール](../../graphics/postprocess/taa-upscaling-cost.md)）
-- オーバードローを減らす: 手前から描いて、隠れたピクセルを省略（[Overdraw](../../graphics/pipeline/overdraw.md)）
-- シェーダーを軽く: テクスチャ読み込み・計算を減らす（[Shader Cost](../../graphics/pipeline/shader-cost.md)）
+- オーバードローを減らす: 手前から描いて、隠れたピクセルを省略（[Overdraw](../../graphics/optimization/overdraw.md)）
+- シェーダーを軽く: テクスチャ読み込み・計算を減らす（[Shader Cost](../../graphics/optimization/shader-cost.md)）
 
 ## よくあるミス
 

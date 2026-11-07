@@ -86,4 +86,4 @@ float lit = (dist - kBias <= stored) ? 1.0 : 0.0;
 
 - [Shadows](../index.md)
 - [Cascaded Shadow Maps (CSM)](../cascaded.md)
-- [Tiled and Clustered](../../pipeline/light-culling.md)
+- [Tiled and Clustered](../../lighting/light-culling.md)

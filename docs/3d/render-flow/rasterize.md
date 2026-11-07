@@ -873,7 +873,7 @@ context->RSSetState(rasterizer_state.Get());
 
 - ヘルパー ピクセル: 覆っていないがクワッド計算のために動くピクセル。結果は捨てる
 - 小さい三角形に弱い: 1 ピクセル未満の三角形でも、4 ピクセル分のシェーダーが走る
-- LOD が必要: 遠くのモデルは、頂点数を減らす（[LOD](../../graphics/pipeline/lod.md)）
+- LOD が必要: 遠くのモデルは、頂点数を減らす（[LOD](../../graphics/draw-call/lod.md)）
 
 ## MSAA（マルチサンプル アンチエイリアス）
 
@@ -882,7 +882,7 @@ context->RSSetState(rasterizer_state.Get());
 - サンプル数: 2・4・8 個。多いほど滑らか、メモリと帯域を消費
 - 効く場所: 三角形の外周（辺）のジャギー
 - 効かない場所: テクスチャ内のちらつき・ピクセル シェーダー内の高周波
-- ディファードと相性が悪い: G バッファに複数サンプルが必要で重い（[フォワードとディファード](../../graphics/pipeline/forward-deferred.md)）
+- ディファードと相性が悪い: G バッファに複数サンプルが必要で重い（[フォワードとディファード](../../graphics/lighting/forward-deferred.md)）
 
 ## ラスタライズが見える失敗
 

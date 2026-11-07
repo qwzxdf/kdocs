@@ -181,5 +181,5 @@ annotation->EndEvent();
 - [DirectX 11 Guide](index.md)
 - [ID3D11Device and Device Context](device.md)
 - [GPU Queries and Timing](query-timing.md)
-- [Tools](../../graphics/pipeline/tools.md)
+- [Tools](../../graphics/optimization/tools.md)
 - [Microsoft Learn: Direct3D 11 デバッグ レイヤー](https://learn.microsoft.com/ja-jp/windows/win32/direct3d11/overviews-direct3d-11-devices-layers)

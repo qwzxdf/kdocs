@@ -53,4 +53,4 @@ tags:
 - [Shadows](../shadows/index.md)
 - [Character Shadows and Color](../shadows/special-cases/character-shadows.md)
 - [Cel Shading](../postprocess/stylized/cel-shading.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

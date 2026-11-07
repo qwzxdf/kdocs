@@ -30,7 +30,7 @@ tags:
 | --- | --- | --- |
 | <strong>ヒープ（メモリ領域）</strong> | `new` / `malloc` で確保する自由なメモリ。このページ | — |
 | ヒープ（データ構造） | 「一番大きい要素が先頭に来る」ように並べた配列。`priority_queue` の中身 | [make_heap / push_heap / pop_heap](../stl/algorithms/make_heap.md) |
-| GPU のヒープ（D3D12） | GPU メモリを確保する単位（デフォルト ヒープ・アップロード ヒープ）／記述子を並べるヒープ（ディスクリプタ ヒープ） | [シーン データ（D3D12）](../graphics/pipeline/gpu-driven-dx12/scene-data.md) |
+| GPU のヒープ（D3D12） | GPU メモリを確保する単位（デフォルト ヒープ・アップロード ヒープ）／記述子を並べるヒープ（ディスクリプタ ヒープ） | [シーン データ（D3D12）](../graphics/draw-call/gpu-driven-dx12/scene-data.md) |
 
 以下はメモリ領域としてのヒープの説明です。
 

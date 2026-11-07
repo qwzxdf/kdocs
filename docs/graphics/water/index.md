@@ -53,4 +53,4 @@ tags:
 - [Refraction](../translucency/refraction/index.md)
 - [Reflections](../reflections/index.md)
 - [Terrain](../terrain/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

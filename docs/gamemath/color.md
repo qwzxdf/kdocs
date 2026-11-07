@@ -306,4 +306,4 @@ float Luminance(Vector3 linear_rgb) {
 - [補間（lerp）](interpolation.md)
 - [PBR](../3d/pbr.md)
 - [Post-Processing Cost](../graphics/postprocess/cost.md)
-- [Texture Streaming](../graphics/pipeline/texture-streaming.md)
+- [Texture Streaming](../graphics/optimization/texture-streaming.md)

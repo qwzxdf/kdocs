@@ -18,7 +18,7 @@ Unreal Engine 5 の Lumen と Nanite は、名前だけが先に広まって中�
 !!! info "このページを読む前に"
     - [Global Illumination (GI)](index.md)
     - [DDGI](ddgi.md)（動的なプローブによる GI）
-    - [Mesh Shaders](../pipeline/mesh-shaders.md)（Nanite に近い考え方の入り口）
+    - [Mesh Shaders](../draw-call/mesh-shaders.md)（Nanite に近い考え方の入り口）
 
 ## 読んだ資料 {#sources}
 
@@ -675,5 +675,5 @@ mesh SDF pool = 320 MB (slide), Global SDF coarse mip = 1/4 res
 - [DDGI](ddgi.md)
 - [Voxel GI](voxel-gi.md)
 - [Taxonomy of Methods](theory/taxonomy.md)
-- [Mesh Shaders](../pipeline/mesh-shaders.md)
-- [Visibility Buffer](../pipeline/visibility-buffer.md)
+- [Mesh Shaders](../draw-call/mesh-shaders.md)
+- [Visibility Buffer](../lighting/visibility-buffer.md)

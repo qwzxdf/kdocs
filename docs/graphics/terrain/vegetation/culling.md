@@ -42,7 +42,7 @@ void CullInstances(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-詳しい構成は[GPU Driven](../../pipeline/index.md) と同じ考え方です。
+詳しい構成は[GPU Driven](../../optimization/index.md) と同じ考え方です。
 
 ## カリングを段階にする
 

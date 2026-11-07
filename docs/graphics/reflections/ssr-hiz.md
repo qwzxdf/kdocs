@@ -451,5 +451,5 @@ bool valid = (ray_z - scene_z) < thickness;
 - [Reflections](index.md)
 - [SSR Basics](ssr-basics/index.md)
 - [Stochastic SSR](ssr-stochastic.md)
-- [Hi-Z and Screen-Space Tracing](../pipeline/hiz.md)
+- [Hi-Z and Screen-Space Tracing](../optimization/hiz.md)
 - [SAO (Scalable AO)](../ao/sao.md)

@@ -18,9 +18,9 @@ tags:
     - フィルタリング（PCF）は読み込み回数に比例して重くなる。
 
 !!! info "このページを読む前に"
-    - [Pipeline and Optimization](../pipeline/index.md)（このセクション全体の地図と、読む順番）
+    - [Optimization](../optimization/index.md)（このセクション全体の地図と、読む順番）
     - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
-    - [Bottlenecks](../pipeline/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+    - [Bottlenecks](../optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
 
 ## 何が重いのか
 
@@ -100,7 +100,7 @@ tags:
 - スポットライト 1 個: 1 枚 → 約 1 倍
 - 影つきのライト 10 個（点光源）: 60 面 → 重い
 
-カスケードと光源ごとに光の視錐台でカリングすると、実際に描く量は大きく減ります（[Culling](../pipeline/culling.md)）。
+カスケードと光源ごとに光の視錐台でカリングすると、実際に描く量は大きく減ります（[Culling](../draw-call/culling.md)）。
 
 ## カスケードの分割とちらつきの防止
 
@@ -183,9 +183,9 @@ RenderShadow(dynamic_shadow_map, dynamic_casters);
 
 ## 関連ページ
 
-- [描画の最適化（詳細）](../pipeline/index.md)
-- [Culling](../pipeline/culling.md)
-- [LOD and Impostors](../pipeline/lod.md)
-- [Memory Bandwidth](../pipeline/bandwidth.md)
+- [描画の最適化（詳細）](../optimization/index.md)
+- [Culling](../draw-call/culling.md)
+- [LOD and Impostors](../draw-call/lod.md)
+- [Memory Bandwidth](../optimization/bandwidth.md)
 - [Shadows](index.md)
 - [Cascaded Shadow Maps (CSM)](cascaded.md)
