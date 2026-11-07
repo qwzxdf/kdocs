@@ -17,6 +17,27 @@ namespace KCppAssist
             new KeyValuePair<string, string>("DXGI_", "<dxgi1_6.h>"),
         };
 
+        /// <summary>
+        /// 設定の「名前=ヘッダー」(; か改行で区切る)を読む。ヘッダーは &lt;...&gt; か "..." の形だけ受け付ける。
+        /// </summary>
+        public static Dictionary<string, string> ParseCustom(string text)
+        {
+            var map = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (string.IsNullOrWhiteSpace(text)) return map;
+            foreach (string item in text.Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                int eq = item.IndexOf('=');
+                if (eq <= 0) continue;
+                string name = item.Substring(0, eq).Trim();
+                string header = item.Substring(eq + 1).Trim();
+                if (name.Length == 0 || header.Length < 3) continue;
+                bool angle = header[0] == '<' && header[header.Length - 1] == '>';
+                bool quote = header[0] == '"' && header[header.Length - 1] == '"';
+                if (angle || quote) map[name] = header;
+            }
+            return map;
+        }
+
         /// <summary>名前(std::vector、ComPtr、UINT など)の表のヘッダー(「&lt;vector&gt;」の形)。なければ null。</summary>
         public static string Lookup(string name)
         {

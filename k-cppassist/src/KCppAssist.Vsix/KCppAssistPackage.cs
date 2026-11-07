@@ -30,13 +30,14 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppAssist", "宣言していない変数に型を付ける", "0.7.0")]
+    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ", "0.13.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
+    [ProvideToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
-    public sealed class KCppAssistPackage : AsyncPackage
+    public sealed partial class KCppAssistPackage : AsyncPackage
     {
         public const string PackageGuid = "b2f6c1a8-3d47-4e09-9a5c-81e7d0f4b362";
         internal const string CmdSetGuid = "e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95";
@@ -51,8 +52,12 @@ namespace KCppAssist
 
         internal static KCppAssistPackage Instance { get; private set; }
 
+        /// <summary>設定の「ログを残す」。ログは別のスレッドからも書くので、設定の値を、ここに写して持つ。</summary>
+        internal static volatile bool LogEnabled = true;
+
         internal static void Log(string text)
         {
+            if (!LogEnabled) return;
             try
             {
                 string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-CppAssist");
@@ -66,6 +71,7 @@ namespace KCppAssist
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             Instance = this;
+            LogEnabled = ((OptionsPage)GetDialogPage(typeof(OptionsPage))).WriteLog;
             var commands = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commands != null)
             {
@@ -74,9 +80,13 @@ namespace KCppAssist
                 commands.AddCommand(new MenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
                 commands.AddCommand(new MenuCommand((s, e) => RunInclude(), new CommandID(CmdSet, CmdInclude)));
                 commands.AddCommand(new MenuCommand((s, e) => RunSync(), new CommandID(CmdSet, CmdSync)));
+                commands.AddCommand(new MenuCommand((s, e) => ShowWindow(true, true), new CommandID(CmdSet, CmdErrorLog)));
+                commands.AddCommand(new MenuCommand((s, e) => RunRename(), new CommandID(CmdSet, CmdRename)));
                 commands.AddCommand(new MenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
                 commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
             }
+            await InitializeErrorLogAsync();
+            await InitializeRenameAsync();
             Log("package initialized");
         }
 
@@ -93,6 +103,7 @@ namespace KCppAssist
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             Log((failed ? "FAIL " : "OK ") + message);
+            if (!failed && !((OptionsPage)GetDialogPage(typeof(OptionsPage))).ShowStatusMessages) return;
             var bar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
             if (bar != null) bar.SetText("K-CppAssist: " + message);
         }
