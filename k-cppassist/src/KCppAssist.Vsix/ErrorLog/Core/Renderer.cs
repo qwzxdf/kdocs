@@ -528,7 +528,7 @@ namespace KCppAssist.ErrorLog
             AddDecls(doc, d, sol);
             AddNotes(doc, d);
             // 名前入りの説明を 1 行目に出したときは、一般のヒントを詳細に回す(同じ文になるコードは出さない)
-            bool specificCoversHint = d.Code == "C2065" || d.Code == "C3861" || d.Code == "C2039";
+            bool specificCoversHint = Array.IndexOf(new[] { "C2065", "C3861", "C2039", "C2440", "C2664", "C2665", "C2660", "C2661", "C2672", "C2512", "C2280", "C2676", "C2678", "C2679" }, d.Code) >= 0;
             if (hasSpecific && !specificCoversHint) AddHintText(doc, hint, 1);
             AddExample(doc, hint);
             EndGroup(doc, head, g);
