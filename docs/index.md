@@ -28,7 +28,7 @@ C++ の入門書や cppreference のようなリファレンスは、「何が�
 - [設計](design/index.md)
 - [最適化](optimize/index.md)
 - [DirectX](directx/index.md)
-- [グラフィックス](graphics/index.md)（シェーダーと描画の最適化）
+- [グラフィックス](graphics/index.md)
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)
 - [K-HLSL](khlsl/index.md)（Visual Studio 拡張機能）
