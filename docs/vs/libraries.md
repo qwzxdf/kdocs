@@ -171,15 +171,15 @@ third_party/
 
 ① は C/C++ → 全般 のページです。ヘッダーの探し方は [インクルード ディレクトリとマクロ](include-dirs.md#additional) に画面つきで書いています。
 
-![① C/C++ → 全般 → 追加のインクルード ディレクトリ](img/props-cpp-general.jpg)
+![① C/C++ → 全般 → 追加のインクルード ディレクトリ](img/props-cpp-general.png)
 
 ② はリンカー → 全般 のページの「追加のライブラリ ディレクトリ」です。
 
-![② リンカー → 全般 → 追加のライブラリ ディレクトリ](img/props-linker-general.jpg)
+![② リンカー → 全般 → 追加のライブラリ ディレクトリ](img/props-linker-general.png)
 
 ③ はリンカー → 入力 のページです。先頭の「追加の依存ファイル」に `.lib` の名前を足します。最初から入っている `$(CoreLibraryDependencies);%(AdditionalDependencies)` は消さずに `;` で区切って後ろに足します。
 
-![③ リンカー → 入力 → 追加の依存ファイル](img/props-linker-input.jpg)
+![③ リンカー → 入力 → 追加の依存ファイル](img/props-linker-input.png)
 
 - ② の `$(Configuration)` を使うと Debug のときは Debug の `.lib`、Release のときは Release の `.lib` が自動で選ばれます
 - Debug と Release で `.lib` の名前が違う場合（`mylibd.lib` など）は、構成を個別に選んで③ をそれぞれ設定します

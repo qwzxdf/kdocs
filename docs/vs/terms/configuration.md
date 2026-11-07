@@ -24,7 +24,7 @@ tags:
 
 画面の上のドロップダウンには「Debug」と「x64」が並んでいます。この 2 つの<strong>組み合わせ</strong>が、1 つのビルド設定を決めます。
 
-![標準ツールバー。左のドロップダウンが構成（Debug）、右がプラットフォーム（x64）。その右の緑の三角がデバッグ開始のボタン](../img/toolbar-config.jpg)
+![標準ツールバー。左のドロップダウンが構成（Debug）、右がプラットフォーム（x64）。その右の緑の三角がデバッグ開始のボタン](../img/toolbar-config.png)
 
 - <strong>Debug</strong>: x64: `Debug。Win32: x64` | `Debug | Win32`
 - <strong>Release</strong>: x64: `Release。Win32: x64` | `Release | Win32`
