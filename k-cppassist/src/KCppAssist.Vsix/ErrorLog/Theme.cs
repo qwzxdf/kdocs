@@ -19,16 +19,16 @@ namespace KCppAssist.ErrorLog
             [Role.Note] = Rgb(0x9C, 0xDC, 0xFE),
             [Role.Code] = Rgb(0xD7, 0xBA, 0x7D),
             [Role.Link] = Rgb(0x4F, 0xA3, 0xFF),
-            [Role.Scope] = Rgb(0x9A, 0x9A, 0x9A),
+            [Role.Scope] = Rgb(0xAC, 0xAC, 0xAC),
             [Role.Func] = Rgb(0xDC, 0xDC, 0xAA),
             [Role.Type] = Rgb(0x4E, 0xC9, 0xB0),
             [Role.Keyword] = Rgb(0x56, 0x9C, 0xD6),
             [Role.Number] = Rgb(0xB5, 0xCE, 0xA8),
-            [Role.Punct] = Rgb(0x8C, 0x8C, 0x8C),
+            [Role.Punct] = Rgb(0xA0, 0xA0, 0xA0),
             [Role.Heading] = Rgb(0xFF, 0xFF, 0xFF),
             [Role.Good] = Rgb(0x89, 0xD1, 0x85),
             [Role.Hint] = Rgb(0xCE, 0x91, 0x78),
-            [Role.Dim] = Rgb(0x8C, 0x8C, 0x8C),
+            [Role.Dim] = Rgb(0xB0, 0xB0, 0xB0),
         };
 
         private static readonly Dictionary<Role, Color> Light = new Dictionary<Role, Color>
@@ -47,7 +47,7 @@ namespace KCppAssist.ErrorLog
             [Role.Heading] = Rgb(0x00, 0x00, 0x00),
             [Role.Good] = Rgb(0x2E, 0x7D, 0x32),
             [Role.Hint] = Rgb(0xA3, 0x15, 0x15),
-            [Role.Dim] = Rgb(0x76, 0x76, 0x76),
+            [Role.Dim] = Rgb(0x55, 0x55, 0x55),
         };
 
         private static Color Rgb(byte r, byte g, byte b) { return Color.FromRgb(r, g, b); }

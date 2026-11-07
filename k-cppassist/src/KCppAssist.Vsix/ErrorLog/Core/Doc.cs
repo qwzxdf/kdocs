@@ -25,8 +25,12 @@ namespace KCppAssist.ErrorLog
         public string Search;
         /// <summary>リンクのとき、ブラウザーで開く URL(https:// だけ)。</summary>
         public string Url;
+        /// <summary>1 以上なら、押すとその番号の詳細を開閉する印(▸ / ▾)。</summary>
+        public int Toggle;
+        /// <summary>リンクのとき、窓の中でジャンプする先の名前(DocLine.Anchor)。</summary>
+        public string Jump;
 
-        public bool IsLink { get { return !string.IsNullOrEmpty(File) || !string.IsNullOrEmpty(Search) || !string.IsNullOrEmpty(Url); } }
+        public bool IsLink { get { return !string.IsNullOrEmpty(File) || !string.IsNullOrEmpty(Search) || !string.IsNullOrEmpty(Url) || Toggle > 0 || !string.IsNullOrEmpty(Jump); } }
     }
 
     public sealed class DocLine
@@ -40,6 +44,10 @@ namespace KCppAssist.ErrorLog
         public Role? Bar;
         /// <summary>行の前の空き(段落の区切り)。</summary>
         public bool SpaceBefore;
+        /// <summary>0 でなければ、この番号の詳細の行。開いているときだけ見せる。</summary>
+        public int DetailGroup;
+        /// <summary>ジャンプ先の名前(目次のリンクが指す)。</summary>
+        public string Anchor;
 
         public string PlainText()
         {
@@ -53,6 +61,18 @@ namespace KCppAssist.ErrorLog
     public sealed class Doc
     {
         public List<DocLine> Lines = new List<DocLine>();
+        private int _groups;
+        private int _detail;
+        private int _detailLines;
+
+        /// <summary>新しい詳細の番号を返す(1 から)。</summary>
+        public int NewGroup() { return ++_groups; }
+        /// <summary>これ以降に足す行を、group の詳細にする。</summary>
+        public void BeginDetail(int group) { _detail = group; _detailLines = 0; }
+        /// <summary>詳細の終わり。詳細の行が 1 本もなければ false。</summary>
+        public bool EndDetail() { _detail = 0; return _detailLines > 0; }
+        internal int CurrentDetail { get { return _detail; } }
+        internal void CountDetail() { _detailLines++; }
 
         public string ToPlainText()
         {
@@ -77,6 +97,21 @@ namespace KCppAssist.ErrorLog
         {
             _doc = doc;
             _line.Indent = indent;
+        }
+
+        public LineBuilder Anchor(string name) { _line.Anchor = name; return this; }
+
+        /// <summary>行頭の ▸ 印。押すと group の詳細を開閉する。詳細がなければ、Renderer が空白に直す。</summary>
+        public LineBuilder ToggleMark(int group)
+        {
+            _line.Runs.Add(new Run { Text = "▸ ", Role = Role.Dim, Toggle = group });
+            return this;
+        }
+
+        public LineBuilder JumpLink(string text, string anchor)
+        {
+            _line.Runs.Add(new Run { Text = text, Role = Role.Link, Jump = anchor });
+            return this;
         }
 
         public LineBuilder Bar(Role r) { _line.Bar = r; return this; }
@@ -124,6 +159,7 @@ namespace KCppAssist.ErrorLog
 
         public DocLine Done()
         {
+            if (_doc.CurrentDetail > 0) { _line.DetailGroup = _doc.CurrentDetail; _doc.CountDetail(); }
             _doc.Lines.Add(_line);
             return _line;
         }
