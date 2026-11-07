@@ -108,6 +108,12 @@ namespace KCppAssist
 
         private void OnChanged(object sender, TextContentChangedEventArgs e)
         {
+            try { OnChangedCore(e); }
+            catch (Exception ex) { KCppAssistPackage.Log("auto include OnChanged failed: " + ex.Message); }
+        }
+
+        private void OnChangedCore(TextContentChangedEventArgs e)
+        {
             if (!IsAuto) return;
             if (e.EditTag is string && (string)e.EditTag == IncludeService.EditTag) return;
             bool any = false;

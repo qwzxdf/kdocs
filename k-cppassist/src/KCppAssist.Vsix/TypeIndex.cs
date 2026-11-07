@@ -52,7 +52,10 @@ namespace KCppAssist
             return votes.OrderByDescending(v => v.Value).ThenByDescending(v => v.Key.Length).Select(v => v.Key).ToList();
         }
 
-        private readonly Dictionary<string, Entry> files = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, Entry> files = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
+        // 読み直しは 1 つずつ。ディスクを歩く間は gate(Lookup などが使うロック)を持たない
+        // (持つと、UI スレッドの Lookup が、読み終わるまで止まる)
+        private readonly object refreshGate = new object();
         private Dictionary<string, List<string>> byName = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         private readonly object gate = new object();
         private DateTime lastRefresh = DateTime.MinValue;
@@ -64,12 +67,21 @@ namespace KCppAssist
         public void Refresh(string root, ISet<string> skipDirs, bool force)
         {
             if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return;
-            lock (gate)
+            lock (refreshGate)
             {
-                if (!force && root == lastRoot && (DateTime.UtcNow - lastRefresh).TotalSeconds < 15) return;
-                lastRoot = root;
-                lastRefresh = DateTime.UtcNow;
+                Dictionary<string, Entry> before;
+                bool noRoots;
+                lock (gate)
+                {
+                    if (!force && root == lastRoot && (DateTime.UtcNow - lastRefresh).TotalSeconds < 15) return;
+                    lastRoot = root;
+                    lastRefresh = DateTime.UtcNow;
+                    before = this.files;            // 読み取り専用として使う(差し替えるときは、新しい辞書を作る)
+                    noRoots = includeRoots.Count == 0;
+                }
 
+                // 前回の結果を元に、変わったファイルだけ読み直した、新しい辞書を作る
+                var files = new Dictionary<string, Entry>(before, StringComparer.OrdinalIgnoreCase);
                 var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 bool changed = false;
                 var stack = new Stack<string>();
@@ -112,7 +124,8 @@ namespace KCppAssist
                     catch (Exception) { }
                 }
                 foreach (string gone in files.Keys.Where(k => !seen.Contains(k)).ToList()) { files.Remove(gone); changed = true; }
-                if (changed || includeRoots.Count == 0) includeRoots = LearnRoots(files);
+                List<string> roots = null;
+                if (changed || noRoots) roots = LearnRoots(files);
 
                 var map = new Dictionary<string, List<string>>(StringComparer.Ordinal);
                 foreach (var kv in files)
@@ -122,7 +135,12 @@ namespace KCppAssist
                         if (!map.TryGetValue(name, out list)) map[name] = list = new List<string>();
                         list.Add(kv.Key);
                     }
-                byName = map;
+                lock (gate)
+                {
+                    this.files = files;
+                    if (roots != null) includeRoots = roots;
+                    byName = map;
+                }
             }
         }
 
