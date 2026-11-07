@@ -153,6 +153,32 @@ static class P
         ErrorLogSettings.MaxItems = 400;
         Check("max items truncates", capped.Contains("省略") && capped.Contains("C2065") && !capped.Contains("C2248"));
 
+        // ---- 縮小変換の修正(static_cast) ----
+        Func<string, string, string> nf = (line, ty) =>
+        {
+            var pl = NarrowFix.Make(line, ty);
+            return pl == null ? null : line.Substring(0, pl.Start) + pl.Text + line.Substring(pl.Start + pl.Length);
+        };
+        Check("narrow: decl", nf("  int i = d;", "int") == "  int i = static_cast<int>(d);");
+        Check("narrow: assign", nf("  x = a * 2.5;  // 注", "int") == "  x = static_cast<int>(a * 2.5);  // 注");
+        Check("narrow: paren not doubled", nf("int n = (a + b);", "int") == "int n = static_cast<int>(a + b);");
+        Check("narrow: return", nf("  return v.size();", "int") == "  return static_cast<int>(v.size());");
+        Check("narrow: brace init", nf("  int narrow{3.5};", "int") == "  int narrow{static_cast<int>(3.5)};");
+        Check("narrow: call with commas inside", nf("int n = std::min(a, b);", "int") == "int n = static_cast<int>(std::min(a, b));");
+        Check("narrow: string with = and ; inside", nf("  int k = Foo(\"a=b;\");", "int") == "  int k = static_cast<int>(Foo(\"a=b;\"));");
+        Check("narrow: already cast is left", nf("int i = static_cast<int>(d);", "int") == null);
+        Check("narrow: compound assign refused", nf("  total += d;", "int") == null);
+        Check("narrow: two declarators refused", nf("  int a = x, b = y;", "int") == null);
+        Check("narrow: multi-line refused", nf("  int a = Foo(x,", "int") == null);
+        Check("narrow: for header refused", nf("  for (int i = 0; i < n; ++i) {", "int") == null);
+        Check("narrow: target en", NarrowFix.TargetType("conversion from 'double' to 'int', possible loss of data") == "int");
+        Check("narrow: target ja", NarrowFix.TargetType("'初期化中': 'double' から 'int' への変換です。データが失われる可能性があります") == "int");
+        Check("narrow: target unsigned", NarrowFix.TargetType("conversion from 'size_t' to 'unsigned int', possible loss of data") == "unsigned int");
+        Check("narrow: pointer target refused", NarrowFix.TargetType("conversion from 'int' to 'char *'") == null);
+
+        string ov = Render("1>C:\\src\\a.cpp(15,8): error C3668: 'Derived::Run': オーバーライド指定子 'override' を伴うメソッドは、基底クラス メソッドをオーバーライドしませんでした");
+        Check("C3668 title says the cause", ov.Contains("基底クラスに同じ関数がありません"));
+
         Console.WriteLine("errorlog: pass=" + pass + " fail=" + fail);
         Environment.Exit(fail == 0 ? 0 : 1);
     }

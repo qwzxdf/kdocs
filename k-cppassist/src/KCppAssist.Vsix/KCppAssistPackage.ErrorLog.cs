@@ -211,6 +211,26 @@ namespace KCppAssist
             catch (Exception ex) { Log("grow window failed: " + ex.Message); }
         }
 
+        /// <summary>エラーログの「static_cast にする」を押したとき。その行の右辺を包む(1 回の Undo)。</summary>
+        private void ApplyNarrowFix(ErrorLink run)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var model = (Microsoft.VisualStudio.ComponentModelHost.IComponentModel)GetService(typeof(Microsoft.VisualStudio.ComponentModelHost.SComponentModel));
+            var adapters = model.GetService<Microsoft.VisualStudio.Editor.IVsEditorAdaptersFactoryService>();
+            var undo = model.GetService<Microsoft.VisualStudio.Text.Operations.ITextUndoHistoryRegistry>();
+            var buf = SyncService.OpenForEdit(run.File, adapters);
+            if (buf == null) { _ = ReportAsync("ファイルを開けませんでした: " + run.File, true); return; }
+            var snap = buf.CurrentSnapshot;
+            if (run.Line < 1 || run.Line > snap.LineCount) { _ = ReportAsync("行が見つかりません。ビルドし直してください。", true); return; }
+            var line = snap.GetLineFromLineNumber(run.Line - 1);
+            string text = line.GetText();
+            if (text.Trim() != run.FixLine) { _ = ReportAsync("ファイルがビルドのあとで変わっています。ビルドし直してください。", true); return; }
+            var plan = NarrowFix.Make(text, run.Fix);
+            if (plan == null) { _ = ReportAsync("この行は、自動では直せません。", true); return; }
+            SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-CppAssist: static_cast を付ける");
+            _ = ReportAsync("static_cast<" + run.Fix + ">(…) を付けました(" + run.Line + " 行目)。ビルドし直すと、ログが更新されます。", false);
+        }
+
         // ---- リンクを押したとき ----
 
         internal void OnLink(ErrorLink run)
@@ -218,7 +238,8 @@ namespace KCppAssist
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
-                if (!string.IsNullOrEmpty(run.File)) OpenFile(run.File, run.Line, run.Col);
+                if (!string.IsNullOrEmpty(run.Fix)) ApplyNarrowFix(run);
+                else if (!string.IsNullOrEmpty(run.File)) OpenFile(run.File, run.Line, run.Col);
                 else if (!string.IsNullOrEmpty(run.Search)) FindInSolution(run.Search);
                 else if (!string.IsNullOrEmpty(run.Url) && run.Url.StartsWith("https://learn.microsoft.com/", StringComparison.Ordinal))
                     System.Diagnostics.Process.Start(run.Url);

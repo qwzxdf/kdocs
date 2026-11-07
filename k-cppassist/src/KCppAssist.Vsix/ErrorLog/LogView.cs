@@ -289,7 +289,8 @@ namespace KCppAssist.ErrorLog
             {
                 Foreground = Theme.BrushFor(Role.Link),
                 Cursor = System.Windows.Input.Cursors.Hand,
-                ToolTip = !string.IsNullOrEmpty(r.File) ? r.File + (r.Line > 0 ? " (" + r.Line + ")" : "")
+                ToolTip = !string.IsNullOrEmpty(r.Fix) ? "押すと、" + r.Line + " 行目の右辺を static_cast<" + r.Fix + ">(…) で包みます"
+                    : !string.IsNullOrEmpty(r.File) ? r.File + (r.Line > 0 ? " (" + r.Line + ")" : "")
                     : !string.IsNullOrEmpty(r.Url) ? "ブラウザーで開く: " + r.Url : "ソリューション内を検索"
             };
             Run captured = r;
