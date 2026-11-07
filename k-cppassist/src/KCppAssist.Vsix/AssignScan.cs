@@ -17,7 +17,7 @@ namespace KCppAssist
             public string Rhs;        // 右辺(改行も含めた元の文字。前後の空白は除く)
         }
 
-        private static readonly Regex Label = new Regex(@"\G\s*(?:(?:public|private|protected)\s*:(?!:)|default\s*:(?!:)|case\s+[^:;{}]+:(?!:))\s*");
+        private static readonly Regex Label = new Regex(@"\G\s*(?:(?:(?:public|private|protected)\s*:(?!:)|default\s*:(?!:)|case\s+(?:[^:;{}]|::)+?:(?!:))\s*)+");
         private static readonly Regex Head = new Regex(@"\G\s*(this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)\s*");
 
         /// <summary>caret を含む文が「名前 = 右辺」の形ならそれを返す。そうでなければ null。</summary>
@@ -27,10 +27,17 @@ namespace KCppAssist
             int start = StatementStart(m, caret);
             var lab = Label.Match(m, start);
             if (lab.Success) start = lab.Index + lab.Length;
+            int skipped = SkipControl(m, start);
+            if (skipped != start && caret < skipped) return null;     // 条件の括弧の中にカーソルがあるときは、本体の代入にしない
+            start = skipped;
+            lab = Label.Match(m, start);
+            if (lab.Success) start = lab.Index + lab.Length;
             var head = Head.Match(m, start);
             if (!head.Success) return null;
 
+            // Head の末尾の空白は、Mask で空白にされた文字列リテラルまで飲み込むので、元の text で空白を飛ばし直す
             int rhsStart = head.Index + head.Length;
+            while (rhsStart > head.Index && text[rhsStart - 1] != '=' && char.IsWhiteSpace(m[rhsStart - 1]) && !char.IsWhiteSpace(text[rhsStart - 1])) rhsStart--;
             int end = StatementEnd(m, rhsStart);
             if (end <= rhsStart) return null;
             // この文にカーソルがない(次の文の頭より前に切れた)ときは対象にしない
@@ -45,6 +52,30 @@ namespace KCppAssist
                 RhsStart = rhsStart,
                 Rhs = trimmed,
             };
+        }
+
+        private static readonly Regex Control = new Regex(@"\G\s*(?:(?:if|while|for|switch)\s*(?:constexpr\s*)?\(|else\b)");
+
+        /// <summary>
+        /// 波括弧のない「if (条件) 名前 = 値;」「else 名前 = 値;」「for (…) …」の、制御文の頭(条件の括弧まで)を飛ばして、本体の文の頭を返す。
+        /// 文の頭の探索は「;」「{」「}」まで戻るので、この形では if の頭まで戻ってしまう。
+        /// </summary>
+        private static int SkipControl(string m, int start)
+        {
+            for (int guard = 0; guard < 8; guard++)
+            {
+                var c = Control.Match(m, start);
+                if (!c.Success) return start;
+                int next = c.Index + c.Length;
+                if (m[next - 1] == '(')
+                {
+                    int close = FunctionScan.MatchClose(m, next - 1, '(', ')');
+                    if (close < 0) return start;
+                    next = close + 1;
+                }
+                start = next;
+            }
+            return start;
         }
 
         /// <summary>caret から後ろへ戻って、文の頭(前の「;」「{」「}」の次)を探す。括弧・波括弧が式の中で閉じているものは飛ばす。</summary>

@@ -31,7 +31,7 @@ namespace KCppAssist
         private static readonly Regex EnumHead = new Regex(@"\benum\b", RegexOptions.Compiled);
         private static readonly Regex ClassHead = new Regex(
             @"(?<![\w])(?:class|struct|union)\s+" +
-            @"(?:(?:alignas\s*\([^)]*\)|__declspec\s*\([^)]*\)|\[\[[^\]]*\]\]|[A-Z][A-Z0-9_]*_API|[A-Z][A-Z0-9_]*EXPORT[A-Z0-9_]*)\s+)*" +
+            @"(?:(?:alignas\s*\([^)]*\)|__declspec\s*\([^)]*\)|\[\[[^\]]*\]\]|[A-Z][A-Z0-9_]*_API|[A-Z][A-Z0-9_]*EXPORT[A-Z0-9_]*|[A-Z][A-Z0-9]*_[A-Z0-9_]+)\s+)*" +
             @"([A-Za-z_]\w*)\s*(?:final\s*)?(?::[^;{}]*)?\s*$", RegexOptions.Compiled);
         private static readonly Regex NsHead = new Regex(@"(?:\bnamespace\b[^;{}]*|\bextern\s*)$", RegexOptions.Compiled);
         private static readonly Regex NsName = new Regex(@"\bnamespace\s+((?:[A-Za-z_]\w*\s*::\s*)*[A-Za-z_]\w*)\s*$", RegexOptions.Compiled);

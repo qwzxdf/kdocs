@@ -47,8 +47,8 @@ namespace KCppAssist
             if (ps == null) { why = "引数を読めませんでした (書きかけかもしれません)"; return null; }
 
             // 戻り値の型
-            string before = headerText.Substring(decl.PrefixStart, Math.Max(0, decl.NameStart - decl.PrefixStart));
-            before = CommentRx.Replace(before, " ");
+            // コメントは、Mask で空白にした文字から読む(長い /** ... */ の途中から切り出しても、中身が残らない)
+            string before = CppText.Mask(headerText).Substring(decl.PrefixStart, Math.Max(0, decl.NameStart - decl.PrefixStart));
             while (AccessRx.IsMatch(before)) before = AccessRx.Replace(before, "", 1);
             if (Refuse.IsMatch(before)) { why = "friend・constexpr・template の関数は、雛形を作りません"; return null; }
             before = AttrRx.Replace(before, " ");
@@ -140,7 +140,7 @@ namespace KCppAssist
             var ps = SignatureSync.SplitParams(inner);
             if (ps == null) { why = "引数を読めませんでした (書きかけかもしれません)"; return null; }
 
-            string before = CommentRx.Replace(cppText.Substring(def.PrefixStart, Math.Max(0, def.NameStart - def.PrefixStart)), " ");
+            string before = CppText.Mask(cppText).Substring(def.PrefixStart, Math.Max(0, def.NameStart - def.PrefixStart));
             if (Refuse.IsMatch(before)) { why = "template・constexpr などの関数は、宣言を作りません"; return null; }
             before = AttrRx.Replace(before, " ");
             before = Regex.Replace(before, @"\b(?:static|inline|virtual|_Use_decl_annotations_)\b", " ");

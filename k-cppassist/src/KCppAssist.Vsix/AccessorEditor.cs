@@ -57,6 +57,8 @@ namespace KCppAssist
             if (!m.Success) return null;
             string head = line.TrimStart();
             if (Regex.IsMatch(head, @"^(return|using|typedef|friend|delete|goto|break|continue|public|private|protected)\b")) return null;
+            // Foo& operator=(const Foo&) = delete; は、「operator」という名前の変数に見えてしまう
+            if (Regex.IsMatch(line, @"\boperator\b")) return null;
             return m.Groups[1].Value;
         }
 

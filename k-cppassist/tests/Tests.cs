@@ -152,6 +152,21 @@ static class Tests
         Eq("after lambda call", a == null ? null : a.Name, "z_");
         a = At("void A::F() {\n  foo(1);|\n}");
         Eq("not assignment", a, null);
+        // 右辺が文字列リテラル(Mask で空白になる)でも切り出せる
+        a = At("void F() {\n  if (c) {\n    res|ult = \"NOT_FOUND\";\n  }\n}");
+        Eq("string literal rhs", a == null ? null : a.Name + "=" + a.Rhs, "result=\"NOT_FOUND\"");
+        a = At("void F() {\n  switch (k) {\n    case kOk:\n      ty|pe = \"OK\";\n  }\n}");
+        Eq("string literal rhs after case",a == null ? null : a.Name + "=" + a.Rhs, "type=\"OK\"");
+        a = At("void F() {\n  if (SUCCEEDED(hr))\n    p|Staging = temp;\n}");
+        Eq("braceless if body", a == null ? null : a.Name + "=" + a.Rhs, "pStaging=temp");
+        a = At("void F() {\n  if (x) y = 1;\n  else z|z = 2;\n}");
+        Eq("braceless else body", a == null ? null : a.Name + "=" + a.Rhs, "zz=2");
+        a = At("void F() {\n  if (SUC|CEEDED(hr))\n    pStaging = temp;\n}");
+        Eq("caret in condition", a, null);
+        a = At("void F() {\n  switch (k) {\n    case Pad::AXES:\n      re|sX = 1;\n  }\n}");
+        Eq("case label with ::", a == null ? null : a.Name + "=" + a.Rhs, "resX=1");
+        a = At("void F() {\n  switch (k) {\n    case kA:\n    case kB:\n    case kC:\n      ke|ep = true;\n  }\n}");
+        Eq("stacked case labels", a == null ? null : a.Name + "=" + a.Rhs, "keep=true");
 
         Console.WriteLine("pass=" + pass + " fail=" + fail);
         int f2 = SyncTests.Run() + DefTests.Run();
