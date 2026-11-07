@@ -9,8 +9,8 @@ $csc = Join-Path $vs 'MSBuild\Current\Bin\Roslyn\csc.exe'
 
 # 1. K-CppAssist core
 $out = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-tests.exe'
-$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan', 'DefinitionGen', 'MoveGen') | ForEach-Object { Join-Path $src "$_.cs" }
-& $csc -nologo "-out:$out" -langversion:latest (Join-Path $PSScriptRoot 'Tests.cs') (Join-Path $PSScriptRoot 'SyncTests.cs') (Join-Path $PSScriptRoot 'DefTests.cs') (Join-Path $PSScriptRoot 'MoveTests.cs') @files
+$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan', 'DefinitionGen', 'MoveGen', 'IncludeTidy', 'ForwardDecl') | ForEach-Object { Join-Path $src "$_.cs" }
+& $csc -nologo "-out:$out" -langversion:latest (Join-Path $PSScriptRoot 'Tests.cs') (Join-Path $PSScriptRoot 'SyncTests.cs') (Join-Path $PSScriptRoot 'DefTests.cs') (Join-Path $PSScriptRoot 'MoveTests.cs') (Join-Path $PSScriptRoot 'TidyTests.cs') (Join-Path $PSScriptRoot 'FwdTests.cs') @files
 if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
 & $out
 $code = $LASTEXITCODE

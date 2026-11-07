@@ -95,6 +95,9 @@ namespace KCppAssist
                     else if (decl == Counterpart.Different) list.Add(Action("ヘッダーの宣言の引数を、この定義に合わせる", () => Invoke(p => p.RunSync())));
                 }
 
+                // ヘッダーの #include "..." の行: 前方宣言にする
+                if (header && System.Text.RegularExpressions.Regex.IsMatch(line.GetText(), @"^\s*#\s*include\s*""")) list.Add(Action("#include を前方宣言にして、cpp に #include を移す", () => Invoke(p => p.RunForward())));
+
                 // 本体のある関数: ヘッダーなら cpp へ、cpp の Class::Func ならヘッダーへ、本体を移す
                 if (sig != null && sig.HasBody && !sig.InTemplate)
                 {

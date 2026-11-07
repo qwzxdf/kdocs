@@ -179,6 +179,19 @@ namespace KCppAssist
             }
         }
 
+        /// <summary>a を b に変える、最小の置き換え 1 つ(前と後ろの同じ部分は残す)。同じなら空の一覧。</summary>
+        public static List<Tuple<int, int, string>> Diff(string a, string b)
+        {
+            var list = new List<Tuple<int, int, string>>();
+            if (a == b) return list;
+            int p = 0;
+            while (p < a.Length && p < b.Length && a[p] == b[p]) p++;
+            int sa = a.Length, sb = b.Length;
+            while (sa > p && sb > p && a[sa - 1] == b[sb - 1]) { sa--; sb--; }
+            list.Add(Tuple.Create(p, sa - p, b.Substring(p, sb - p)));
+            return list;
+        }
+
         /// <summary>補完リストが出ている、ビルド中、エディターにフォーカスがない、のどれか。</summary>
         public static bool IsBusy(IWpfTextView view, IAsyncCompletionBroker completion)
         {

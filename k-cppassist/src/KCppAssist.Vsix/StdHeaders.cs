@@ -52,6 +52,28 @@ namespace KCppAssist
             return null;
         }
 
+        // 表に載っている名前が、そのヘッダーの内容をほぼ全部カバーしているもの(使っていない #include の検出に使う)
+        private static readonly HashSet<string> Complete = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "<vector>", "<string>", "<string_view>", "<array>", "<map>", "<unordered_map>", "<set>", "<unordered_set>", "<deque>", "<list>", "<queue>", "<stack>",
+        };
+
+        /// <summary>
+        /// 標準のヘッダー(「&lt;vector&gt;」)が定義している名前(std:: なしの最後の部分)。表が全部をカバーしているヘッダーだけ。それ以外は null。
+        /// </summary>
+        public static HashSet<string> NamesFor(string token)
+        {
+            if (!Complete.Contains(token)) return null;
+            var set = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var kv in Map)
+            {
+                if (!string.Equals(kv.Value, token, StringComparison.OrdinalIgnoreCase)) continue;
+                int k = kv.Key.LastIndexOf("::", StringComparison.Ordinal);
+                set.Add(k < 0 ? kv.Key : kv.Key.Substring(k + 2));
+            }
+            return set.Count == 0 ? null : set;
+        }
+
         private static Dictionary<string, string> Build()
         {
             var m = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -66,7 +88,7 @@ namespace KCppAssist
                     if (n.Length > 0) m["std::" + n] = header;
             };
 
-            std("<string>", "string wstring u8string u16string u32string to_string to_wstring stoi stol stoll stof stod getline char_traits");
+            std("<string>", "string wstring u8string u16string u32string to_string to_wstring stoi stol stoll stoul stoull stof stod stold getline char_traits npos");
             std("<string_view>", "string_view wstring_view");
             std("<vector>", "vector");
             std("<array>", "array");
