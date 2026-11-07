@@ -32,6 +32,9 @@ static class Corpus2
         public int Acc_Members, Acc_Made, Acc_Refused, Acc_NoType, Acc_Fail;
         // #include
         public int Inc_Tried, Inc_Added, Inc_Already, Inc_Fail;
+        // 関数を移す(ヘッダー → cpp → ヘッダー)
+        public int Mv_Tried, Mv_Ok, Mv_Fail;
+        public Dictionary<string, int> Mv_Refused = new Dictionary<string, int>();
         public int Exceptions;
         public List<string> Fails = new List<string>();
         public List<string> Samples = new List<string>();
@@ -170,6 +173,32 @@ static class Corpus2
                     }
                 }
 
+                // Alt+M: ヘッダーの本体つき関数を cpp へ移し、また戻して、本体が変わらないかを見る
+                if (isHeader)
+                {
+                    foreach (var s0 in FunctionScan.Scan(t).Where(s => s.HasBody && s.InClass && s.BodyOpen >= 0))
+                    {
+                        r.Mv_Tried++;
+                        string why;
+                        var plan = MoveGen.ToCpp(t, s0, "", eol, out why);
+                        if (plan == null) { Count(r.Mv_Refused, why); continue; }
+                        string h2 = MoveGen.Apply(t, plan.Source), c2 = MoveGen.Apply("", plan.Target);
+                        var k0 = Keys(s0, t);
+                        var def = FunctionScan.Scan(c2).FirstOrDefault(s => s.HasBody && s.Name == s0.Name && SyncPlan.SameKeysAny(Keys(s, c2), k0));
+                        var decl = FunctionScan.Scan(h2).FirstOrDefault(s => !s.HasBody && s.InClass && s.Name == s0.Name && s.Chain.SequenceEqual(s0.Chain) && SyncPlan.SameKeysAny(Keys(s, h2), k0));
+                        if (def == null || decl == null) { r.Mv_Fail++; Fail(r, "移す 読み直せない: " + Path.GetFileName(f) + " " + s0.Name + " (定義 " + (def != null) + ", 宣言 " + (decl != null) + ")\n" + c2); continue; }
+                        var back = MoveGen.ToHeader(c2, def, h2, decl, eol, out why);
+                        if (back == null) { r.Mv_Fail++; Fail(r, "移す 戻せない: " + Path.GetFileName(f) + " " + s0.Name + ": " + why); continue; }
+                        string h3 = MoveGen.Apply(h2, back.Target);
+                        int bf = s0.InitStart >= 0 ? s0.InitStart : s0.BodyOpen;
+                        string orig = Regex.Replace(t.Substring(bf, s0.End + 1 - bf), @"\s+", "");
+                        var again = FunctionScan.Scan(h3).FirstOrDefault(s => s.HasBody && s.InClass && s.Name == s0.Name && s.Chain.SequenceEqual(s0.Chain) && SyncPlan.SameKeysAny(Keys(s, h3), k0));
+                        string got = again == null ? null : Regex.Replace(h3.Substring(again.InitStart >= 0 ? again.InitStart : again.BodyOpen, again.End + 1 - (again.InitStart >= 0 ? again.InitStart : again.BodyOpen)), @"\s+", "");
+                        if (got != orig) { r.Mv_Fail++; Fail(r, "移す 戻すと本体が変わった: " + Path.GetFileName(f) + " " + s0.Name); }
+                        else r.Mv_Ok++;
+                    }
+                }
+
                 // Alt+F: #include を足す
                 string stem = isHeader ? null : Path.GetFileNameWithoutExtension(f);
                 var tokens = new List<string> { "<vector>", "<cstdint>", "\"zz_new_header.h\"" };
@@ -283,11 +312,12 @@ static class Corpus2
             Console.WriteLine("  Alt+R 定義→宣言: 試した " + r.F2D_Tried + "  読み直して一致 " + r.F2D_Ok + "  失敗 " + r.F2D_Fail + "  作らない理由: " + Hist(r.F2D_Refused));
             Console.WriteLine("  Alt+Q/W 代入文:  行 " + r.As_Lines + "  正しく切り出し " + r.As_Found + "  誤り " + r.As_Wrong + "  式から型が決まった " + r.As_Typed + "  最長 " + r.As_MaxMs.ToString("F1") + " ms");
             Console.WriteLine("  Alt+E ゲッター:  メンバー " + r.Acc_Members + "  作れた " + r.Acc_Made + "  作らない(型で拒否) " + r.Acc_Refused + "  型が読めない(配列・static) " + r.Acc_NoType + "  失敗 " + r.Acc_Fail);
+            Console.WriteLine("  Alt+M 関数を移す: 試した " + r.Mv_Tried + "  往復して本体が一致 " + r.Mv_Ok + "  失敗 " + r.Mv_Fail + "  移さない理由: " + Hist(r.Mv_Refused));
             Console.WriteLine("  Alt+F #include:  試した " + r.Inc_Tried + "  足せた " + r.Inc_Added + "  すでにあった " + r.Inc_Already + "  失敗 " + r.Inc_Fail);
             Console.WriteLine("  対象の組 " + r.Pairs + "(300KB 超で省略 " + r.Skipped + ")  例外 " + r.Exceptions);
             foreach (string f in r.Fails.Take(verbose ? 30 : 8)) Console.WriteLine("    ! " + f);
             if (verbose) foreach (string s in r.Samples.Take(25)) Console.WriteLine("    . " + s);
-            bad += r.D2F_Fail + r.F2D_Fail + r.As_Wrong + r.Acc_Fail + r.Inc_Fail + r.Exceptions;
+            bad += r.D2F_Fail + r.F2D_Fail + r.As_Wrong + r.Acc_Fail + r.Inc_Fail + r.Mv_Fail + r.Exceptions;
         }
         Console.WriteLine("不具合の合計: " + bad);
         return bad == 0 ? 0 : 1;

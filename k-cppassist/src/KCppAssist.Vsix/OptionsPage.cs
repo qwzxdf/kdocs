@@ -269,6 +269,11 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string CreateKey { get; set; } = "Alt+R";
 
+        [Category("キー")]
+        [DisplayName("関数をヘッダー ⇄ cpp に移す")]
+        [Description(KeyHelp)]
+        public string MoveKey { get; set; } = "Alt+M";
+
         [Category("Quick Fix")]
         [DisplayName("電球(Quick Fix)に出す")]
         [Description("true: Ctrl+. の電球に、宣言・定義の相手を作る、引数を合わせる、変数に型を付ける、を出す。")]
@@ -288,6 +293,7 @@ namespace KCppAssist
                 SyncKey = Current(KCppAssistPackage.CmdSync);
                 RenameKey = Current(KCppAssistPackage.CmdRename);
                 CreateKey = Current(KCppAssistPackage.CmdCreate);
+                MoveKey = Current(KCppAssistPackage.CmdMove);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -308,6 +314,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdSync, SyncKey);
                 Assign(KCppAssistPackage.CmdRename, RenameKey);
                 Assign(KCppAssistPackage.CmdCreate, CreateKey);
+                Assign(KCppAssistPackage.CmdMove, MoveKey);
             }
             catch (Exception ex)
             {

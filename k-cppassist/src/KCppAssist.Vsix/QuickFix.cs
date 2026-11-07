@@ -95,6 +95,14 @@ namespace KCppAssist
                     else if (decl == Counterpart.Different) list.Add(Action("ヘッダーの宣言の引数を、この定義に合わせる", () => Invoke(p => p.RunSync())));
                 }
 
+                // 本体のある関数: ヘッダーなら cpp へ、cpp の Class::Func ならヘッダーへ、本体を移す
+                if (sig != null && sig.HasBody && !sig.InTemplate)
+                {
+                    if (header && sig.InClass && sig.Class != null) list.Add(Action("関数の本体を cpp に移す", () => Invoke(p => p.RunMove())));
+                    else if (header && !sig.InClass && sig.Class == null) list.Add(Action("関数の本体を cpp に移す", () => Invoke(p => p.RunMove())));
+                    else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("関数の本体をヘッダーに移す", () => Invoke(p => p.RunMove())));
+                }
+
                 // 宣言していない変数への代入: 型を付ける。メンバー関数の中なら、メンバー変数にもできる
                 var assign = AssignScan.Find(text, caret);
                 if (assign != null)

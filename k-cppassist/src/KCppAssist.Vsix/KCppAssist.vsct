@@ -44,6 +44,11 @@
           <ButtonText>宣言・定義の相手を作る</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdMove" priority="0x0109" type="Button">
+        <Strings>
+          <ButtonText>関数を ヘッダー ⇄ cpp に移す</ButtonText>
+        </Strings>
+      </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRename" priority="0x0108" type="Button">
         <Strings>
           <ButtonText>ファイル名をまとめて変える</ButtonText>
@@ -73,6 +78,7 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRename" editor="guidVSStd97" key1="N" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidVSStd97" key1="G" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidVSStd97" key1="R" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidVSStd97" key1="M" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -95,6 +101,7 @@
       <IDSymbol name="CmdErrorLog" value="0x0107" />
       <IDSymbol name="CmdRename" value="0x0108" />
       <IDSymbol name="CmdCreate" value="0x0106" />
+      <IDSymbol name="CmdMove" value="0x0109" />
     </GuidSymbol>
   </Symbols>
 
