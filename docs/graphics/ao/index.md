@@ -71,5 +71,5 @@ l e g - コサイン重みを正しく
 - [AO Theory](theory/index.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [PBR（物理ベースレンダリング）](../../3d/pbr.md)
-- [Low-Resolution Effects](../pipeline/low-res-effects.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Low-Resolution Effects](../optimization/low-res-effects.md)
+- [Optimization](../optimization/index.md)

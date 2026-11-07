@@ -18,9 +18,9 @@ tags:
     - 効果の順序にも意味がある（HDR のうちに行うものトーンマップ後に行うもの）。
 
 !!! info "このページを読む前に"
-    - [Pipeline and Optimization](../pipeline/index.md)（このセクション全体の地図と、読む順番）
+    - [Optimization](../optimization/index.md)（このセクション全体の地図と、読む順番）
     - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
-    - [Bottlenecks](../pipeline/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+    - [Bottlenecks](../optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
 
 ## 何が重いのか
 
@@ -46,7 +46,7 @@ ALU の計算は安くメモリ読み込みが高いので、計算を足して�
 - **ブルーム**: 段階的に半分に縮小しながらぼかす（ダウンサンプル チェーン）。上りながら足し合わせる
 - 被写界深度のぼかし: 半分解像度でぼかし、境界を深度で合わせて合成する
 - モーション ブラー: タイル単位で最大の動きを求めて、必要な場所だけぼかす
-- SSAO・SSR: 半分解像度で計算して、深度を考慮して拡大する（[低解像度のエフェクト](../pipeline/low-res-effects.md)）
+- SSAO・SSR: 半分解像度で計算して、深度を考慮して拡大する（[低解像度のエフェクト](../optimization/low-res-effects.md)）
 
 ブルームのダウンサンプル チェーンは、1 段ごとに面積が 1/4 になるので、全体で元の約 1.33 倍の計算で済みます。大きなガウスぼかしを 1 回かけるよりもはるかに安くなります。
 
@@ -66,7 +66,7 @@ ALU の計算は安くメモリ読み込みが高いので、計算を足して�
 | RGBA8 | 4 バイト | LDR（トーンマップ後・UI 前） |
 | R8 | 1 バイト | マスク・AO・単色の中間結果 |
 
-中間バッファのフォーマットを軽くするだけで、帯域は大きく減ります（[Memory Bandwidth](../pipeline/bandwidth.md)）。
+中間バッファのフォーマットを軽くするだけで、帯域は大きく減ります（[Memory Bandwidth](../optimization/bandwidth.md)）。
 
 ## 効果の順序
 
@@ -184,8 +184,8 @@ float3 BlurHorizontal(Texture2D<float3> src, SamplerState linear_clamp, float2 u
 
 ## 関連ページ
 
-- [Pipeline and Optimization](../pipeline/index.md)
-- [Memory Bandwidth](../pipeline/bandwidth.md)
-- [低解像度のエフェクト](../pipeline/low-res-effects.md)
+- [Optimization](../optimization/index.md)
+- [Memory Bandwidth](../optimization/bandwidth.md)
+- [低解像度のエフェクト](../optimization/low-res-effects.md)
 - [TAA, Upscaling and VRS Cost](taa-upscaling-cost.md)
 - [Post-Processing](index.md)

@@ -165,7 +165,7 @@ auto finished = upload.End(command_queue.Get());  // std::future。完了を待�
 finished.wait();
 ```
 
-製品ではビルド時に圧縮形式（BC7）の DDS へ変換しておき実行時はそのままアップロードします（[Texture Streaming](../../graphics/pipeline/texture-streaming.md)）。
+製品ではビルド時に圧縮形式（BC7）の DDS へ変換しておき実行時はそのままアップロードします（[Texture Streaming](../../graphics/optimization/texture-streaming.md)）。
 
 ## たくさんのテクスチャをまとめて送る
 
@@ -206,5 +206,5 @@ finished.wait();
 - [ID3D12Device](api/id3d12device.md)
 - [Descriptor](descriptor.md)
 - [Resource Barrier](resource-barrier.md)
-- [Texture Streaming](../../graphics/pipeline/texture-streaming.md)
+- [Texture Streaming](../../graphics/optimization/texture-streaming.md)
 - [Microsoft Learn: アップロードとリードバック](https://learn.microsoft.com/ja-jp/windows/win32/direct3d12/uploading-resources)

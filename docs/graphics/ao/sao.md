@@ -313,7 +313,7 @@ SAO は 5 つのパスで構成されます。
 
 ## 性能の特徴
 
-SAO のコストは主に 3 つで決まります。サンプル数に比例して増えます（9〜13 個が目安）。画素数に比例して増えます（半分の解像度で計算すれば、さらに軽くなります。[低解像度のエフェクト](../pipeline/low-res-effects.md)）。そして、<strong>半径にはほぼ依存しません</strong>。これが「スケーラブル」の意味です。ブラーは分離可能なのでコストは小さいです。
+SAO のコストは主に 3 つで決まります。サンプル数に比例して増えます（9〜13 個が目安）。画素数に比例して増えます（半分の解像度で計算すれば、さらに軽くなります。[低解像度のエフェクト](../optimization/low-res-effects.md)）。そして、<strong>半径にはほぼ依存しません</strong>。これが「スケーラブル」の意味です。ブラーは分離可能なのでコストは小さいです。
 
 ## Alchemy AO との比較
 
@@ -327,7 +327,7 @@ AO の式そのものは Alchemy AO と同じで、変わったのは「読み�
 
 ## より良いやり方
 
-SAO の「深度のミップ」の発想はその後の多くの実装に受け継がれています。最近の実装は深度のミップを Hi-Z（階層化深度バッファ）として使い回します。シーンの他の処理（SSR のレイ マーチ、カリング）と共有できるためです（[Hi-Z and Screen-Space Tracing](../pipeline/hiz.md)）。また、精度を重視するなら SAO の速さの工夫に GTAO の積分を組み合わせた構成を取ります（実際、XeGTAO は深度のミップ チェーンに GTAO の積分を載せています）。
+SAO の「深度のミップ」の発想はその後の多くの実装に受け継がれています。最近の実装は深度のミップを Hi-Z（階層化深度バッファ）として使い回します。シーンの他の処理（SSR のレイ マーチ、カリング）と共有できるためです（[Hi-Z and Screen-Space Tracing](../optimization/hiz.md)）。また、精度を重視するなら SAO の速さの工夫に GTAO の積分を組み合わせた構成を取ります（実際、XeGTAO は深度のミップ チェーンに GTAO の積分を載せています）。
 
 ## よくあるミス
 
@@ -364,5 +364,5 @@ SAO の「深度のミップ」の発想はその後の多くの実装に受け�
 - [Alchemy AO](alchemy-ao.md)
 - [HBAO](hbao.md)
 - [AO Filtering](filtering/index.md)
-- [Low-Resolution Effects](../pipeline/low-res-effects.md)
-- [Hi-Z and Screen-Space Tracing](../pipeline/hiz.md)
+- [Low-Resolution Effects](../optimization/low-res-effects.md)
+- [Hi-Z and Screen-Space Tracing](../optimization/hiz.md)

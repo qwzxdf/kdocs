@@ -17,7 +17,7 @@ tags:
     - インスタンス データの渡し方は 2 通り。<strong>入力レイアウトの `PER_INSTANCE_DATA`</strong>（頂点バッファの 2 本目）、または <strong>`StructuredBuffer` を `SV_InstanceID` で引く</strong>。
     - 描画は `DrawIndexedInstanced`（`DrawInstanced`）。
     - インスタンスの数が GPU で決まるなら `DrawIndexedInstancedIndirect`（間接描画）。
-    - ドロー コールを減らす最も基本の手段（[Draw Calls](../../graphics/pipeline/draw-calls.md)）。
+    - ドロー コールを減らす最も基本の手段（[Draw Calls](../../graphics/draw-call/draw-calls.md)）。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -117,7 +117,7 @@ context->VSSetShaderResources(0, 1, instance_srv.GetAddressOf());
 context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 ```
 
-構造化バッファの作り方は[Structured and Raw Buffers](structured-buffer.md) です。計算シェーダーでカリングした結果をそのまま描画に使う場合（GPU ドリブン）は、この方法が向いています（[GPU Driven Rendering](../../graphics/pipeline/gpu-driven.md)）。
+構造化バッファの作り方は[Structured and Raw Buffers](structured-buffer.md) です。計算シェーダーでカリングした結果をそのまま描画に使う場合（GPU ドリブン）は、この方法が向いています（[GPU Driven Rendering](../../graphics/draw-call/gpu-driven.md)）。
 
 | | `PER_INSTANCE_DATA` | `StructuredBuffer` + `SV_InstanceID` |
 | --- | --- | --- |
@@ -183,7 +183,7 @@ context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);   // 引数は、�
     バッファの要素数が `InstanceCount` より少ない。`DYNAMIC` バッファの `Map` で全インスタンスぶん書いていない。
 
 ??? failure "大量のインスタンスで、フレームレートが落ちる"
-    見えない物（視錐台の外、遠すぎる物）も描いている。カリングしてからインスタンス バッファを作る（[Culling](../../graphics/pipeline/culling.md)）。
+    見えない物（視錐台の外、遠すぎる物）も描いている。カリングしてからインスタンス バッファを作る（[Culling](../../graphics/draw-call/culling.md)）。
 
 ## これだけ覚える
 
@@ -199,6 +199,6 @@ context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);   // 引数は、�
 - [DirectX 11 Guide](index.md)
 - [Input Layout](input-layout.md)
 - [Structured and Raw Buffers](structured-buffer.md)
-- [Draw Calls](../../graphics/pipeline/draw-calls.md)
-- [GPU Driven Rendering](../../graphics/pipeline/gpu-driven.md)
+- [Draw Calls](../../graphics/draw-call/draw-calls.md)
+- [GPU Driven Rendering](../../graphics/draw-call/gpu-driven.md)
 - [Microsoft Learn: ID3D11DeviceContext::DrawIndexedInstanced](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-drawindexedinstanced)

@@ -116,4 +116,4 @@ float3 color = direct + ambient;
 - [Shadow Cost](cost.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [Ambient Occlusion (AO)](../ao/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

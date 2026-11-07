@@ -161,7 +161,7 @@ float3 ParallaxCorrect(float3 r, float3 world_pos, ProbeData p) {
 
 ## クラスターごとの探索 {#cluster}
 
-物ごとに全プローブを調べるのは、数百個あると重すぎます。画面を奥行きも含めて細かい区画（クラスター）に分け各区画に影響するプローブのリストを持ちます。ライトのクラスター分けと同じ構造です（[Tiled and Clustered](../../pipeline/light-culling.md)）。
+物ごとに全プローブを調べるのは、数百個あると重すぎます。画面を奥行きも含めて細かい区画（クラスター）に分け各区画に影響するプローブのリストを持ちます。ライトのクラスター分けと同じ構造です（[Tiled and Clustered](../../lighting/light-culling.md)）。
 
 ```hlsl
 // ================= ⑤ クラスターごとのプローブのリスト =================

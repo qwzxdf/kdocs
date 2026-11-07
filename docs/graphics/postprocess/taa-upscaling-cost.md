@@ -18,9 +18,9 @@ tags:
     - 動的解像度と組み合わせて、フレーム時間を一定に保つ。
 
 !!! info "このページを読む前に"
-    - [Pipeline and Optimization](../pipeline/index.md)（このセクション全体の地図と、読む順番）
+    - [Optimization](../optimization/index.md)（このセクション全体の地図と、読む順番）
     - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
-    - [Bottlenecks](../pipeline/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+    - [Bottlenecks](../optimization/bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
 
 ## TAA（時間的アンチエイリアシング）
 
@@ -265,8 +265,8 @@ DLSS・FSR・XeSS などは TAA と同じ入力を必要とします。
 
 ## 関連ページ
 
-- [Pipeline and Optimization](../pipeline/index.md)
-- [低解像度のエフェクト](../pipeline/low-res-effects.md)
+- [Optimization](../optimization/index.md)
+- [低解像度のエフェクト](../optimization/low-res-effects.md)
 - [フレーム時間の設計](../../optimize/frame-budget.md)
 - [Post-Processing Cost](cost.md)
 - [Anti-Aliasing](antialiasing/index.md)

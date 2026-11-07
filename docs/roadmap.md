@@ -49,7 +49,7 @@ title: 学習ロードマップ
 動くようになったら見た目と速さを磨きます。
 
 1. [グラフィックス](graphics/index.md)：ライティング、影、ポストプロセスの原理
-2. [Pipeline and Optimization](graphics/pipeline/index.md)：描画の流れと、それを軽くする方法
+2. [Optimization](graphics/optimization/index.md)：描画の流れと、それを軽くする方法
 3. [RenderDoc と PIX](vs/renderdoc-pix.md)、[GPU デバッグの流れ](vs/gpu-debug.md)：描画が壊れたときの調べ方
 
 各分野には原理のページと軽くする話（Cost）のページが並んでいます。

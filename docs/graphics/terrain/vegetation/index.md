@@ -100,4 +100,4 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 
 - [Terrain](../index.md)
 - [Alpha Testing](../../translucency/alpha-test/index.md)
-- [Culling](../../pipeline/culling.md)
+- [Culling](../../draw-call/culling.md)

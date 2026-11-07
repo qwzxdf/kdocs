@@ -87,6 +87,6 @@ VsOutput FullscreenVS(uint vertex_id : SV_VertexID) {
 - [シェーダー](../index.md)
 - [Post-Processing Cost](cost.md)
 - [TAA, Upscaling and VRS Cost](taa-upscaling-cost.md)
-- [Low-Resolution Effects](../pipeline/low-res-effects.md)
+- [Low-Resolution Effects](../optimization/low-res-effects.md)
 - [Reflections](../reflections/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

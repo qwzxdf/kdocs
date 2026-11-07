@@ -76,7 +76,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 | 計算シェーダー | [`CSSet…` + `Dispatch`](dx11/compute-shader.md) | [計算用 PSO + `SetComputeRoot…` + `Dispatch`](dx12/compute-shader.md) |
 | UAV | [`CSSetUnorderedAccessViews`](dx11/uav.md) | [UAV ディスクリプタ + UAV バリア](dx12/compute-shader.md) |
 | インスタンス描画 | [`DrawIndexedInstanced`](dx11/instancing-draw.md) | `DrawIndexedInstanced`、`ExecuteIndirect` |
-| 間接描画 | `DrawIndexedInstancedIndirect` | [`ExecuteIndirect`](../graphics/pipeline/gpu-driven-dx12/execute-indirect.md) |
+| 間接描画 | `DrawIndexedInstancedIndirect` | [`ExecuteIndirect`](../graphics/draw-call/gpu-driven-dx12/execute-indirect.md) |
 
 ## 同期
 

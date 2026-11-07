@@ -8,11 +8,18 @@ tags:
 
 # グラフィックス
 
-このセクションは、<strong>ゲームの画面を作る描画手法</strong>を、原理から軽量化まで説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を順に追います。各分野には、その手法を軽くする話（コスト）のページもあります。描画全体の流れと、何が重くなるかは、[Pipeline and Optimization](pipeline/index.md)で説明します。
+このセクションは、<strong>ゲームの画面を作る描画手法</strong>を、原理から軽量化まで説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を順に追います。各分野には、その手法を軽くする話（コスト）のページもあります。描画全体の流れと、何が重くなるかは、[Optimization](optimization/index.md)で説明します。
 
 ## セクションの地図
 
 各分野をタップ（クリック）すると、ページの一覧が開きます。各分野の最初のリンクは、その分野のトップです。
+
+??? abstract map "Lighting"
+    [Lighting のトップ](lighting/index.md)
+
+    - [Forward and Deferred](lighting/forward-deferred.md)
+    - [Tiled and Clustered](lighting/light-culling.md)
+    - [Visibility Buffer](lighting/visibility-buffer.md)
 
 ??? abstract map "Shadows"
     [Shadows のトップ](shadows/index.md)
@@ -136,30 +143,31 @@ tags:
     - [Post-Processing Cost](postprocess/cost.md)
     - [TAA, Upscaling and VRS Cost](postprocess/taa-upscaling-cost.md)
 
-??? abstract map "Pipeline and Optimization"
-    [Pipeline and Optimization のトップ](pipeline/index.md)
+??? abstract map "Draw Call"
+    [Draw Call のトップ](draw-call/index.md)
 
-    - [Rendering Pipeline Overview](pipeline/overview.md)
-    - [Bottlenecks](pipeline/bottlenecks.md)
-    - [Memory Bandwidth](pipeline/bandwidth.md)
-    - [Forward and Deferred](pipeline/forward-deferred.md)
-    - [Tiled and Clustered](pipeline/light-culling.md)
-    - [Visibility Buffer](pipeline/visibility-buffer.md)
-    - [Draw Calls and Batching](pipeline/draw-calls.md)
-    - [Culling](pipeline/culling.md)
-    - [GPU Driven Rendering](pipeline/gpu-driven.md)
-    - [GPU Driven (D3D12)](pipeline/gpu-driven-dx12/index.md)
-    - [Mesh Shader and Meshlet](pipeline/mesh-shaders.md)
-    - [Overdraw](pipeline/overdraw.md)
-    - [Low-Resolution Effects](pipeline/low-res-effects.md)
-    - [Hi-Z and Screen-Space Tracing](pipeline/hiz.md)
-    - [Shader Cost](pipeline/shader-cost.md)
-    - [LOD and Impostors](pipeline/lod.md)
-    - [Texture Streaming](pipeline/texture-streaming.md)
-    - [Async Compute](pipeline/async-compute.md)
-    - [2D Rendering](pipeline/2d.md)
-    - [Profiling Tools](pipeline/tools.md)
-    - [Optimization Case Studies](pipeline/cases.md)
+    - [Rendering Pipeline Overview](draw-call/overview.md)
+    - [Draw Calls and Batching](draw-call/draw-calls.md)
+    - [Culling](draw-call/culling.md)
+    - [LOD and Impostors](draw-call/lod.md)
+    - [GPU Driven Rendering](draw-call/gpu-driven.md)
+    - [GPU Driven (D3D12)](draw-call/gpu-driven-dx12/index.md)
+    - [Mesh Shader and Meshlet](draw-call/mesh-shaders.md)
+    - [2D Rendering](draw-call/2d.md)
+
+??? abstract map "Optimization"
+    [Optimization のトップ](optimization/index.md)
+
+    - [Bottlenecks](optimization/bottlenecks.md)
+    - [Memory Bandwidth](optimization/bandwidth.md)
+    - [Overdraw](optimization/overdraw.md)
+    - [Low-Resolution Effects](optimization/low-res-effects.md)
+    - [Hi-Z and Screen-Space Tracing](optimization/hiz.md)
+    - [Shader Cost](optimization/shader-cost.md)
+    - [Texture Streaming](optimization/texture-streaming.md)
+    - [Async Compute](optimization/async-compute.md)
+    - [Profiling Tools](optimization/tools.md)
+    - [Optimization Case Studies](optimization/cases.md)
 
 ## 読み方
 
@@ -171,7 +179,7 @@ tags:
 | 間接光を入れたい | [GI Theory](gi/theory/index.md) → [Lightmaps](gi/lightmaps/index.md) または [Probe GI](gi/probes/index.md) → 動的にするなら [GI Comparison](gi/comparison.md) |
 | 反射を入れたい | [Reflection Probes](reflections/probes/index.md) → [SSR Basics](reflections/ssr-basics/index.md) → [SSR Fallback and Compositing](reflections/ssr-fallback.md) |
 | 画面の仕上げをしたい | [Tone Mapping and Exposure](postprocess/tonemapping/index.md) → [Bloom](postprocess/bloom/index.md) → [Anti-Aliasing](postprocess/antialiasing/index.md) |
-| 重い・遅いときに直したい | [Pipeline and Optimization](pipeline/index.md)の[手法の地図](pipeline/index.md#手法の地図) → 各分野の「Cost」のページ（[Shadow Cost](shadows/cost.md)・[Post-Processing Cost](postprocess/cost.md) など） |
+| 重い・遅いときに直したい | [Optimization](optimization/index.md)の[手法の地図](optimization/index.md#手法の地図) → 各分野の「Cost」のページ（[Shadow Cost](shadows/cost.md)・[Post-Processing Cost](postprocess/cost.md) など） |
 | 方式を選びたい | 各分野の比較ページ（[Shadow Techniques Compared](shadows/comparison.md)・[AO Comparison](ao/comparison.md)・[GI Comparison](gi/comparison.md)・[Reflection Comparison](reflections/comparison.md)） |
 | アーティファクトを直したい | [AO Artifacts](ao/artifacts/index.md)・[Shadow Bias](shadows/bias/index.md)・[Special Cases](shadows/special-cases/index.md) |
 
@@ -180,4 +188,4 @@ tags:
 - [3D ゲーム](../3d/index.md)
 - [法線とライティング](../3d/lighting-normals.md)
 - [PBR](../3d/pbr.md)
-- [Pipeline and Optimization](pipeline/index.md)
+- [Optimization](optimization/index.md)

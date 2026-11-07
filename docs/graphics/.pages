@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - Lighting: lighting
   - Shadows: shadows
   - Ambient Occlusion (AO): ao
   - Global Illumination (GI): gi
@@ -10,5 +11,6 @@ nav:
   - Water: water
   - Sky and Atmosphere: atmosphere
   - Post-Processing: postprocess
-  - Pipeline and Optimization: pipeline
+  - Draw Call: draw-call
+  - Optimization: optimization
   - ...

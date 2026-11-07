@@ -109,6 +109,6 @@ float3 reflect_dir = reflect(-view_dir, normal);
 - [シェーダー](../index.md)
 - [PBR](../../3d/pbr.md)
 - [法線とライティング](../../3d/lighting-normals.md)
-- [Hi-Z and Screen-Space Tracing](../pipeline/hiz.md)
+- [Hi-Z and Screen-Space Tracing](../optimization/hiz.md)
 - [Ambient Occlusion (AO)](../ao/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)

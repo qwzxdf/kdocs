@@ -78,5 +78,5 @@ D3D12 でアプリが受け持つ仕事を一覧にします。
 - [DirectX 11 Guide](../dx11/index.md)
 - [DirectX の概念](../concepts/index.md)
 - [DX11 と DX12 の対応表](../compare.md)
-- [GPU Driven (D3D12)](../../graphics/pipeline/gpu-driven-dx12/index.md)
+- [GPU Driven (D3D12)](../../graphics/draw-call/gpu-driven-dx12/index.md)
 - [DirectX 12 での初期化まとめ（ImGui）](../../libs/imgui/dx12.md)

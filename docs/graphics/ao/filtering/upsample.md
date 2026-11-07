@@ -18,7 +18,7 @@ tags:
     - [AO Filtering](index.md)（このセクション全体の地図と読む順番）
 
 ## アップサンプル：低解像度から戻す
-AO は<strong>低周波（なめらか）</strong>なので<strong>半分や 1/4 の解像度</strong>で計算して、<strong>拡大</strong>するとコストを大きく減らせます（[低解像度のエフェクト](../../pipeline/low-res-effects.md)）。しかし、単純なバイリニア拡大は境界でにじみます。
+AO は<strong>低周波（なめらか）</strong>なので<strong>半分や 1/4 の解像度</strong>で計算して、<strong>拡大</strong>するとコストを大きく減らせます（[低解像度のエフェクト](../../optimization/low-res-effects.md)）。しかし、単純なバイリニア拡大は境界でにじみます。
 
 <!-- fig:ao-upsample:begin -->
 

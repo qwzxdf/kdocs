@@ -115,7 +115,7 @@ float shadow = SpotShadow(world_pos, light_index);
 float3 lit = EvaluateLight(light, surface) * shadow;
 ```
 
-クラスター ライティング・タイル ベースと組み合わせると、影付きライトの情報をライト リストに含めて、引けるようにします（[ライト カリング](../../pipeline/light-culling.md)）。
+クラスター ライティング・タイル ベースと組み合わせると、影付きライトの情報をライト リストに含めて、引けるようにします（[ライト カリング](../../lighting/light-culling.md)）。
 
 ## バイアスと精度
 バイアスと精度の注意点です。透視投影の深度は非線形で近くに集中して遠くで精度が不足します。近クリップ面を大きく遠クリップ面を短くして精度を保ちます。バイアスは距離によって必要な量が変わるので、ワールド単位の法線オフセットが扱いやすいです（[Shadow Bias](../bias/index.md)）。Reversed-Z はシャドウ マップにも有効です（浮動小数点の深度）。
@@ -260,4 +260,4 @@ for (uint i = 0; i < light_count_in_cluster; ++i) {
 
 - [Point and Spot Light Shadows](index.md)
 - [Virtual Shadow Maps](../virtual-shadow-maps.md)
-- [Tiled and Clustered](../../pipeline/light-culling.md)
+- [Tiled and Clustered](../../lighting/light-culling.md)

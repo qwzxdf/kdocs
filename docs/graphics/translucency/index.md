@@ -49,6 +49,6 @@ tags:
 
 - [シェーダー](../index.md)
 - [Particles and Translucency Cost](particles-cost.md)
-- [Overdraw](../pipeline/overdraw.md)
+- [Overdraw](../optimization/overdraw.md)
 - [Post-Processing](../postprocess/index.md)
-- [Pipeline and Optimization](../pipeline/index.md)
+- [Optimization](../optimization/index.md)
