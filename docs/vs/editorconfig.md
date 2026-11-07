@@ -72,19 +72,15 @@ indent_size = 2
 
 ### charset
 
-| 値 | 意味 | このサイトの推奨 |
-| --- | --- | --- |
-| `utf-8` | UTF-8（BOM なし） | <strong>ソース、シェーダー、設定ファイルはこれ</strong> |
-| `utf-8-bom` | UTF-8（BOM あり） | CSV を Excel で開くなど、特別な場合だけ |
-| `utf-16le` | UTF-16（リトル エンディアン） | `.rc` ファイルなど必要なものだけ |
+- <strong>`utf-8`</strong>: 意味: UTF-8（BOM なし）。このサイトの推奨: <strong>ソース、シェーダー、設定ファイルはこれ</strong>
+- <strong>`utf-8-bom`</strong>: 意味: UTF-8（BOM あり）。このサイトの推奨: CSV を Excel で開くなど特別な場合だけ
+- <strong>`utf-16le`</strong>: 意味: UTF-16（リトル エンディアン）。このサイトの推奨: `.rc` ファイルなど必要なものだけ
 
 ### end_of_line
 
-| 値 | 意味 | 使いどころ |
-| --- | --- | --- |
-| `lf` | `\\n` | Git のリポジトリの中の標準。Linux・macOS・CI |
-| `crlf` | `\\r\\n` | Windows のバッチ ファイル（`.bat`、`.cmd`）、`.sln` |
-| `cr` | `\\r` | ほぼ使わない（古い Mac） |
+- <strong>`lf`</strong>: 意味: `\\n`。使いどころ: Git のリポジトリの中の標準。Linux・macOS・CI
+- <strong>`crlf`</strong>: 意味: `\\r\\n`。使いどころ: Windows のバッチ ファイル（`.bat`、`.cmd`）、`.sln`
+- <strong>`cr`</strong>: 意味: `\\r`。使いどころ: ほぼ使わない（古い Mac）
 
 ### indent_style と indent_size
 
@@ -137,14 +133,12 @@ indent_style = tab
 
 ### パターンの書き方
 
-| パターン | 意味 | 例 |
-| --- | --- | --- |
-| `*` | `/` 以外の任意の文字列 | `*.cpp`（すべての `.cpp`） |
-| `` | `/` も含む任意の文字列（フォルダーをまたぐ） | `/Generated/*.cpp` |
-| `?` | 任意の 1 文字 | `file?.txt` |
-| `[abc]` | `a`、`b`、`c` のどれか 1 文字 | `[Mm]akefile` |
-| `{a,b,c}` | `a`、`b`、`c` のどれか | `*.{cpp,h}` |
-| `{1..5}` | 1 から 5 までの数 | `log{1..5}.txt` |
+- <strong>`*`</strong>: 意味: `/` 以外の任意の文字列。例: `*.cpp`（すべての `.cpp`）
+- <strong>``</strong>: 意味: `/` も含む任意の文字列（フォルダーをまたぐ）。例: `/Generated/*.cpp`
+- <strong>`?`</strong>: 意味: 任意の 1 文字。例: `file?.txt`
+- <strong>`[abc]`</strong>: 意味: `a`、`b`、`c` のどれか 1 文字。例: `[Mm]akefile`
+- <strong>`{a,b,c}`</strong>: 意味: `a`、`b`、`c` のどれか。例: `*.{cpp,h}`
+- <strong>`{1..5}`</strong>: 意味: 1 から 5 までの数。例: `log{1..5}.txt`
 
 注意点です。
 

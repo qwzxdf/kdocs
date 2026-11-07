@@ -145,13 +145,11 @@ target_link_libraries(MyGame PRIVATE nlohmann_json::nlohmann_json)
 
 ## CMake と Visual Studio プロジェクトの比較
 
-| 項目 | `.sln` / `.vcxproj` | CMake |
-| --- | --- | --- |
-| 設定の場所 | プロパティの画面（GUI） | `CMakeLists.txt`（テキスト） |
-| Git での管理 | `.vcxproj` が XML で読みにくい | **差分が読みやすい** |
-| 他の OS | Windows だけ | Windows / Linux / Mac |
-| 学習の難しさ | 画面を見て設定できる | 命令を覚える必要がある |
-| ファイルの追加 | ソリューション エクスプローラーで追加 | `CMakeLists.txt` にファイル名を書く |
+- <strong>設定の場所</strong>: `.sln` / `.vcxproj`: プロパティの画面（GUI）。CMake: `CMakeLists.txt`（テキスト）
+- <strong>Git での管理</strong>: `.sln` / `.vcxproj`: `.vcxproj` が XML で読みにくい。CMake: **差分が読みやすい**
+- <strong>他の OS</strong>: `.sln` / `.vcxproj`: Windows だけ。CMake: Windows / Linux / Mac
+- <strong>学習の難しさ</strong>: `.sln` / `.vcxproj`: 画面を見て設定できる。CMake: 命令を覚える必要がある
+- <strong>ファイルの追加</strong>: `.sln` / `.vcxproj`: ソリューション エクスプローラーで追加。CMake: `CMakeLists.txt` にファイル名を書く
 
 ## CMake で .sln を作る
 

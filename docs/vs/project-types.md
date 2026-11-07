@@ -44,12 +44,10 @@ Visual Studio で新しいプロジェクトを作るとき「**コンソール 
 
 スタートアップ関数の名前はサブシステムと `main` の種類で決まります。
 
-| 自分が書く関数 | スタートアップ関数（リンカーのエントリ ポイント） | 文字 |
-| --- | --- | --- |
-| `int main()` | `mainCRTStartup` | char |
-| `int wmain()` | `wmainCRTStartup` | wchar_t |
-| `int WINAPI WinMain(...)` | `WinMainCRTStartup` | char |
-| `int WINAPI wWinMain(...)` | `wWinMainCRTStartup` | wchar_t |
+- <strong>`int main()`</strong>: スタートアップ関数（リンカーのエントリ ポイント）: `mainCRTStartup`。文字: char
+- <strong>`int wmain()`</strong>: スタートアップ関数（リンカーのエントリ ポイント）: `wmainCRTStartup`。文字: wchar_t
+- <strong>`int WINAPI WinMain(...)`</strong>: スタートアップ関数（リンカーのエントリ ポイント）: `WinMainCRTStartup`。文字: char
+- <strong>`int WINAPI wWinMain(...)`</strong>: スタートアップ関数（リンカーのエントリ ポイント）: `wWinMainCRTStartup`。文字: wchar_t
 
 自分で書くのは左の列にある関数です。スタートアップ関数はサブシステムの設定に合わせて、リンカーが自動で選びます。
 
@@ -100,10 +98,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
 ![リンカー → システム のページ。先頭の「サブシステム」が空のときプロジェクトの種類で決まる](img/props-linker-system.jpg)
 
-| サブシステム | リンカーのオプション | 画面 | 呼ばれる関数 |
-| --- | --- | --- | --- |
-| コンソール | `/SUBSYSTEM:CONSOLE` | コンソールあり | `main` / `wmain` |
-| Windows | `/SUBSYSTEM:WINDOWS` | コンソールなし | `WinMain` / `wWinMain` |
+- <strong>コンソール</strong>: リンカーのオプション: `/SUBSYSTEM:CONSOLE`。画面: コンソールあり。呼ばれる関数: `main` / `wmain`
+- <strong>Windows</strong>: リンカーのオプション: `/SUBSYSTEM:WINDOWS`。画面: コンソールなし。呼ばれる関数: `WinMain` / `wWinMain`
 
 エントリーポイントを名前で直接指定することもできます。リンカー → 詳細設定 → エントリ ポイント にスタートアップ関数の名前（`mainCRTStartup` など）を書きます（`/ENTRY`）。
 
@@ -111,12 +107,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
 サブシステムとエントリ ポイントの組み合わせで、コンソールの有無と書く関数を選べます。
 
-| やりたいこと | サブシステム | エントリ ポイント | 書く関数 |
-| --- | --- | --- | --- |
-| コンソールあり `main` | CONSOLE | （空） | `main` |
-| コンソールなし `WinMain` | WINDOWS | （空） | `wWinMain` |
-| コンソールなし `main` | WINDOWS | `mainCRTStartup` | `main` |
-| コンソールあり `WinMain` | CONSOLE | `wWinMainCRTStartup` | `wWinMain` |
+- <strong>コンソールあり `main`</strong>: サブシステム: CONSOLE。エントリ ポイント: （空）。書く関数: `main`
+- <strong>コンソールなし `WinMain`</strong>: サブシステム: WINDOWS。エントリ ポイント: （空）。書く関数: `wWinMain`
+- <strong>コンソールなし `main`</strong>: サブシステム: WINDOWS。エントリ ポイント: `mainCRTStartup`。書く関数: `main`
+- <strong>コンソールあり `WinMain`</strong>: サブシステム: CONSOLE。エントリ ポイント: `wWinMainCRTStartup`。書く関数: `wWinMain`
 
 ## ゲームでの使いどころ {#game}
 

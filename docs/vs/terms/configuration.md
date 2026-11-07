@@ -26,10 +26,8 @@ tags:
 
 ![標準ツールバー。左のドロップダウンが構成（Debug）、右がプラットフォーム（x64）。その右の緑の三角がデバッグ開始のボタン](../img/toolbar-config.jpg)
 
-| | x64 | Win32 |
-| --- | --- | --- |
-| Debug | `Debug|x64` | `Debug|Win32` |
-| Release | `Release|x64` | `Release|Win32` |
+- <strong>Debug</strong>: x64: `Debug。Win32: x64` | `Debug | Win32`
+- <strong>Release</strong>: x64: `Release。Win32: x64` | `Release | Win32`
 
 プロパティ画面の左上にある「構成」「プラットフォーム」は、どの組み合わせにいま変更を書き込むかの選択です。「すべての構成」を選ぶと Debug と Release の両方に書き込まれます（[C++23 を使えるようにする設定](../settings.md#open)）。
 
@@ -87,13 +85,13 @@ tags:
 - `/MT`: リリース版を実行ファイルに埋め込む（静的リンク）。DLL が要らない
 - `/MTd`: デバッグ版を静的リンクする
 
-リンクするすべての `.lib` で、この設定をそろえる必要があります。Debug の本体に Release 用に作られたライブラリを混ぜると、`LNK2038`（`RuntimeLibrary` の不一致）が出ます。外部ライブラリを vcpkg で入れると、構成に合うものが自動で選ばれます（[外部ライブラリの入れ方](../libraries.md)）。
+リンクするすべての `.lib` でこの設定をそろえる必要があります。Debug の本体に Release 用に作られたライブラリを混ぜると、`LNK2038`（`RuntimeLibrary` の不一致）が出ます。外部ライブラリを vcpkg で入れると、構成に合うものが自動で選ばれます（[外部ライブラリの入れ方](../libraries.md)）。
 
 ### デバッグ ヒープのパターン
 
 Debug の CRT はメモリに目印の値を書き込みます。バグ探しの手がかりになります。
 
-- `0xCDCDCDCD`: 確保したばかりで、まだ何も書いていないヒープ
+- `0xCDCDCDCD`: 確保したばかりでまだ何も書いていないヒープ
 - `0xDDDDDDDD`: 解放したあとのヒープ
 - `0xFDFDFDFD`: 確保した範囲の前後にある、ガード（番兵）。上書きされると解放のときに検出される
 - `0xCCCCCCCC`: 初期化していないローカル変数（スタック。`/RTC1` が有効なとき）
@@ -105,14 +103,12 @@ Debug の CRT はメモリに目印の値を書き込みます。バグ探しの
 
 ## Release でだけ壊れる、よくある原因 {#release-only}
 
-| 原因 | 症状 | 調べ方 |
-| --- | --- | --- |
-| 初期化していない変数 | 値が毎回違う。まれにしか起きない | `/W4` の警告（C4701、C4700）を見る。Debug の `0xCCCCCCCC` を確認 |
-| 未定義動作（範囲外アクセス、符号付き整数のオーバーフロー） | 最適化で、コードが消える・変わる | [AddressSanitizer](../asan.md)、`-fsanitize=undefined` |
-| `assert` の中に副作用がある | Release では `assert` ごと消えて、処理が飛ぶ | `assert(Init())` のような書き方をやめる |
-| 浮動小数点の計算順序 | 結果がごく僅かに違う | `/fp:precise`（既定）か `/fp:strict` で試す |
-| 最適化によるコードの並べ替え | スレッドの同期がおかしくなる | `std::atomic` と `std::mutex` を正しく使う |
-| タイミング | Debug だと遅いので、レースが起きない | スレッド サニタイザーやログで追う |
+- <strong>初期化していない変数</strong>: 症状: 値が毎回違う。まれにしか起きない。調べ方: `/W4` の警告（C4701、C4700）を見る。Debug の `0xCCCCCCCC` を確認
+- <strong>未定義動作（範囲外アクセス、符号付き整数のオーバーフロー）</strong>: 症状: 最適化で、コードが消える・変わる。調べ方: [AddressSanitizer](../asan.md)、`-fsanitize=undefined`
+- <strong>`assert` の中に副作用がある</strong>: 症状: Release では `assert` ごと消えて、処理が飛ぶ。調べ方: `assert(Init())` のような書き方をやめる
+- <strong>浮動小数点の計算順序</strong>: 症状: 結果がごく僅かに違う。調べ方: `/fp:precise`（既定）か `/fp:strict` で試す
+- <strong>最適化によるコードの並べ替え</strong>: 症状: スレッドの同期がおかしくなる。調べ方: `std::atomic` と `std::mutex` を正しく使う
+- <strong>タイミング</strong>: 症状: Debug だと遅いので、レースが起きない。調べ方: スレッド サニタイザーやログで追う
 
 ```cpp
 #include <cassert>
@@ -135,12 +131,10 @@ void Boot() {
 
 ゲーム開発では「Debug は遅すぎて、Release はデバッグしにくい」という悩みが出ます。そこで、第 3 の構成を作ります。
 
-| 構成の名前 | 目的 | 設定の特徴 |
-| --- | --- | --- |
-| Debug | バグ探し | 最適化なし。すべてのチェックが有効 |
-| Profile（または RelWithDebInfo） | 速度の計測 | 最適化あり（`/O2`）。デバッグ情報は付ける（`/Zi`、`/DEBUG`）。アサートは無効 |
-| Release | 製品の確認 | 最適化あり。デバッグ情報は別ファイルに出す |
-| Shipping | 配布 | 製品用。ログとデバッグ機能をマクロで外す |
+- <strong>Debug</strong>: 目的: バグ探し。設定の特徴: 最適化なし。すべてのチェックが有効
+- <strong>Profile（または RelWithDebInfo）</strong>: 目的: 速度の計測。設定の特徴: 最適化あり（`/O2`）。デバッグ情報は付ける（`/Zi`、`/DEBUG`）。アサートは無効
+- <strong>Release</strong>: 目的: 製品の確認。設定の特徴: 最適化あり。デバッグ情報は別ファイルに出す
+- <strong>Shipping</strong>: 目的: 配布。設定の特徴: 製品用。ログとデバッグ機能をマクロで外す
 
 ### 作り方
 
@@ -180,11 +174,9 @@ void Boot() {
 msbuild MyGame.sln /p:Configuration=Release /p:Platform=x64 /m
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `/p:Configuration=Release` | 構成を `Release` にする |
-| `/p:Platform=x64` | プラットフォームを `x64` にする |
-| `/m` | プロジェクトを並列にビルドする |
+- <strong>`/p:Configuration=Release`</strong>: 構成を `Release` にする
+- <strong>`/p:Platform=x64`</strong>: プラットフォームを `x64` にする
+- <strong>`/m`</strong>: プロジェクトを並列にビルドする
 
 CMake を使うときは Debug と Release は「構成の種類（`CMAKE_BUILD_TYPE`）」で決めます。Visual Studio のジェネレーターでは、ビルドするときに `--config Release` で選びます（[CMake で使う](../cmake.md)）。
 

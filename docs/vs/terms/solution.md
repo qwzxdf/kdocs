@@ -23,12 +23,10 @@ tags:
 
 プロジェクトが 1 つだけならソリューションの存在はほとんど意識しません。それでも Visual Studio は必ずソリューションを経由してプロジェクトを開きます。ゲームを作るとすぐに複数のプロジェクトが必要になるからです。
 
-| プロジェクト | 種類 | 役割 |
-| --- | --- | --- |
-| `Game` | 実行ファイル（`.exe`） | ゲーム本体 |
-| `Engine` | 静的ライブラリ（`.lib`） | 描画や入力などの共通部分 |
-| `Editor` | 実行ファイル（`.exe`） | ステージを作るツール |
-| `Tests` | 実行ファイル（`.exe`） | 単体テスト |
+- <strong>`Game`</strong>: 種類: 実行ファイル（`.exe`）。役割: ゲーム本体
+- <strong>`Engine`</strong>: 種類: 静的ライブラリ（`.lib`）。役割: 描画や入力などの共通部分
+- <strong>`Editor`</strong>: 種類: 実行ファイル（`.exe`）。役割: ステージを作るツール
+- <strong>`Tests`</strong>: 種類: 実行ファイル（`.exe`）。役割: 単体テスト
 
 `Game` と `Editor` がどちらも `Engine` を使います。ソリューションに 4 つのプロジェクトを入れておくと次のことができます。
 
@@ -66,13 +64,11 @@ Global
 EndGlobal
 ```
 
-| 部分 | 意味 |
-| --- | --- |
-| `Project("{8BC9CEB8-…}")` | プロジェクトを 1 つ登録する。先頭の GUID はプロジェクトの種類（これは C++ のプロジェクト）。後ろの GUID がそのプロジェクト自身の ID |
-| `"Engine\Engine.vcxproj"` | プロジェクトファイルの場所（`.sln` からの相対パス） |
-| `ProjectDependencies` | このプロジェクトが先に作っておくべき別のプロジェクト |
-| `SolutionConfigurationPlatforms` | ソリューションが持つ構成とプラットフォームの組 |
-| `ProjectConfigurationPlatforms` | 「ソリューションの `Debug|x64` を選んだとき各プロジェクトはどの構成で、ビルドするか」の対応表 |
+- <strong>`Project("{8BC9CEB8-…}")`</strong>: プロジェクトを 1 つ登録する。先頭の GUID はプロジェクトの種類（これは C++ のプロジェクト）。後ろの GUID がそのプロジェクト自身の ID
+- <strong>`"Engine\Engine.vcxproj"`</strong>: プロジェクトファイルの場所（`.sln` からの相対パス）
+- <strong>`ProjectDependencies`</strong>: このプロジェクトが先に作っておくべき別のプロジェクト
+- <strong>`SolutionConfigurationPlatforms`</strong>: ソリューションが持つ構成とプラットフォームの組
+- <strong>`ProjectConfigurationPlatforms`</strong>: 「ソリューションの `Debug | x64` を選んだとき各プロジェクトはどの構成で、ビルドするか」の対応表
 
 `ActiveCfg` が「どの構成を使うか」、`Build.0` が「ビルドの対象に含めるか」です。`Build.0` の行が無いプロジェクトはソリューションのビルドで飛ばされます。
 
@@ -148,10 +144,8 @@ EndGlobal
 
 ソリューションのビルドは**依存の先に書かれたものから**順に作ります。
 
-| 方法 | やり方 | 効果 |
-| --- | --- | --- |
-| プロジェクトの参照 | `Game` を右クリック → 追加 → 参照 → `Engine` にチェック | 依存関係ができる。さらに、`Engine.lib` が自動でリンクされる（[プロジェクト](project.md#reference)） |
-| ビルドの依存関係 | ソリューションを右クリック → プロジェクトの依存関係 | ビルド順だけを決める。リンクはしない |
+- <strong>プロジェクトの参照</strong>: やり方: `Game` を右クリック → 追加 → 参照 → `Engine` にチェック。効果: 依存関係ができる。さらに、`Engine.lib` が自動でリンクされる（[プロジェクト](project.md#reference)）
+- <strong>ビルドの依存関係</strong>: やり方: ソリューションを右クリック → プロジェクトの依存関係。効果: ビルド順だけを決める。リンクはしない
 
 プロジェクトの参照を使えば順番とリンクが一度に決まります。
 
@@ -182,13 +176,11 @@ EndGlobal
 
 ## ソリューションの中の個人用のファイル {#personal}
 
-| ファイル／フォルダー | 内容 | Git |
-| --- | --- | --- |
-| `.vs/` | Visual Studio の一時ファイル（開いているファイル、IntelliSense のキャッシュ、ブレークポイントなど） | 入れない |
-| `*.user` | ユーザーごとの設定（デバッグの引数、作業ディレクトリなど） | 入れない |
-| `*.suo` | 古い形式のソリューションごとの個人設定 | 入れない |
-| `x64/`、`Debug/`、`Release/` | ビルドの結果 | 入れない |
-| `.sln`、`.vcxproj`、`.vcxproj.filters`、`.props` | プロジェクトの定義 | **入れる** |
+- <strong>`.vs/`</strong>: 内容: Visual Studio の一時ファイル（開いているファイル、IntelliSense のキャッシュ、ブレークポイントなど）。Git: 入れない
+- <strong>`*.user`</strong>: 内容: ユーザーごとの設定（デバッグの引数、作業ディレクトリなど）。Git: 入れない
+- <strong>`*.suo`</strong>: 内容: 古い形式のソリューションごとの個人設定。Git: 入れない
+- <strong>`x64/`、`Debug/`、`Release/`</strong>: 内容: ビルドの結果。Git: 入れない
+- <strong>`.sln`、`.vcxproj`、`.vcxproj.filters`、`.props`</strong>: 内容: プロジェクトの定義。Git: **入れる**
 
 `.vs/` を消してもソリューションは壊れません。IntelliSense がおかしいときに Visual Studio を閉じて `.vs/` を削除すると、直ることがよくあります。
 

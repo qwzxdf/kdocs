@@ -4,41 +4,23 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 
 このカテゴリの画面はすべて **Visual Studio 2026（18.x）の日本語版**で撮っています。メニューや設定画面の名前は 2022 までと少し違う所があります（たとえば、オプションは検索つきの設定画面になり新しいソリューションのファイルは `.slnx` になりました）。2022 を使っているときは画面の見た目が違っても、項目の名前をたどれば同じ設定に着けます。コンパイラは `v145` です。
 
-## ページ一覧
+## 読む順番 {#order}
+
+初めてなら、上から順に読みます。段階ごとに、「ここまでできれば次へ」という区切りがあります。
+
+### 1. まず動かす {#start}
+
+C++23 のコードを動かすところまでです。ここまでで、サイトのサンプルが写せます。
 
 | ページ | 内容 |
 | --- | --- |
-| [インストールとプロジェクトの作成](setup.md) | 何を入れるか新しいプロジェクトの作り方、ソリューションとプロジェクトの違い |
+| [インストールとプロジェクトの作成](setup.md) | 何を入れるか、プロジェクトの作り方、ソリューションとプロジェクトの違い |
+| [最初の一歩：ビルドして、実行して、止める](first-run.md) | ツールバー、ビルド、F5 と Ctrl + F5、ブレークポイント |
 | [C++23 を使えるようにする設定](settings.md) | 言語標準、警告、よく変える設定、プロパティ シート |
-| [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
-| [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードをファイルに書いてそろえる。書き方、Visual Studio 独自の設定 |
-| [GitHub Actions で自動ビルド](github-actions.md) | push のたびにビルドとテストを自動で動かす |
-| [clang-tidy と静的解析](clang-tidy.md) | 動かさずに怪しい書き方を見つける。設定と NOLINT |
-| [単体テスト](unit-test.md) | GoogleTest・doctest・Catch2 の選び方と書き方 |
-| [RenderDoc と PIX](renderdoc-pix.md) | フレームを捕まえて、描画呼び出しを 1 つずつ調べる |
-| [GPU デバッグの流れ](gpu-debug.md) | 真っ黒・一部だけ消えるなどの症状からの切り分け |
-| [Tracy](tracy.md) | フレームごとの時間を時間軸で見るプロファイラ |
-| [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
-| [パッケージ管理の比較](package-managers.md) | vcpkg と Conan の違いと選び方、バージョンの固定 |
-| [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
-| [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用をその場で検出 |
-| [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
-| [プリプロセッサマクロ](preprocessor.md) | `NOMINMAX`、`IMGUI_API`、`_DEBUG` などビルド設定でのマクロ |
-| [インクルード ディレクトリとマクロ](include-dirs.md) | 追加のインクルード ディレクトリ、`$(SolutionDir)` などのパス用マクロ |
-| [プロジェクトの種類とエントリーポイント](project-types.md) | コンソールと Windows アプリ、`main` と `WinMain`、サブシステム、DLL |
-| [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
-| [C++ のエラーメッセージの読み方](error-messages.md) | 長いエラーのどこを読むか、テンプレートのエラー |
-| [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け DLL が見つからない、など |
-| [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |
-| [Ninja](ninja.md) | 速いビルド ツール。コマンド ラインや CI でのビルド |
 
-## Git について
+### 2. 言葉を知る {#terms}
 
-Git、GitHub、SourceTree、GitHub Desktop、Git LFS、チーム開発は独立したカテゴリ [Git](../git/index.md) にまとめています。
-
-## 用語
-
-プロジェクトを作ると最初に出てくる 6 つの言葉です。1 つずつ別のページで詳しく説明しています。
+最初に出てくる 6 つの言葉です。分からなくなったら、ここに戻ります。
 
 | 用語 | 意味 |
 | --- | --- |
@@ -48,6 +30,64 @@ Git、GitHub、SourceTree、GitHub Desktop、Git LFS、チーム開発は独立�
 | [プラットフォーム](terms/platform.md) | **x64**（64 ビット）か Win32（32 ビット）。今は **x64 にする** |
 | [ビルド](terms/build.md) | ソースコードを実行できるファイルにすること（コンパイル + リンク） |
 | [MSVC（エムエスブイシー）](terms/msvc.md) | Visual Studio が使うコンパイラ。GCC、Clang とは別のもの |
+
+### 3. プロジェクトを育てる {#project}
+
+ファイルが増え、ライブラリを使い始めたときに読みます。
+
+| ページ | 内容 |
+| --- | --- |
+| [プロジェクトの種類とエントリーポイント](project-types.md) | コンソールと Windows アプリ、`main` と `WinMain`、サブシステム、DLL |
+| [インクルード ディレクトリとマクロ](include-dirs.md) | 追加のインクルード ディレクトリ、`$(SolutionDir)` などのパス用マクロ |
+| [プリプロセッサマクロ](preprocessor.md) | `NOMINMAX`、`IMGUI_API`、`_DEBUG` などビルド設定でのマクロ |
+| [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダーを置く方法、`.lib` / `.dll` を使う方法 |
+| [パッケージ管理の比較](package-managers.md) | vcpkg と Conan の違いと選び方、バージョンの固定 |
+| [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |
+| [Ninja](ninja.md) | 速いビルド ツール。コマンド ラインや CI でのビルド |
+
+### 4. 書き方をそろえる {#style}
+
+チームで書く前に、そろえておきたいことです。
+
+| ページ | 内容 |
+| --- | --- |
+| [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
+| [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードをファイルに書いてそろえる |
+| [clang-tidy と静的解析](clang-tidy.md) | 動かさずに怪しい書き方を見つける。設定と NOLINT |
+
+### 5. 不具合を直す {#debug}
+
+動かない、エラーが出る、落ちる、というときに読みます。
+
+| ページ | 内容 |
+| --- | --- |
+| [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外 |
+| [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用をその場で検出 |
+| [C++ のエラーメッセージの読み方](error-messages.md) | 長いエラーのどこを読むか、テンプレートのエラー |
+| [よくあるエラー](errors.md) | `LNK2019`、`C1083`、DLL が見つからない、など |
+| [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
+
+### 6. 測る・見る {#measure}
+
+遅い、描画がおかしい、というときに読みます。
+
+| ページ | 内容 |
+| --- | --- |
+| [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
+| [Tracy](tracy.md) | フレームごとの時間を時間軸で見るプロファイラ |
+| [RenderDoc と PIX](renderdoc-pix.md) | フレームを捕まえて、描画呼び出しを 1 つずつ調べる |
+| [GPU デバッグの流れ](gpu-debug.md) | 真っ黒・一部だけ消えるなどの症状からの切り分け |
+
+### 7. 自動で確かめる {#auto}
+
+| ページ | 内容 |
+| --- | --- |
+| [単体テスト](unit-test.md) | GoogleTest・doctest・Catch2 の選び方と書き方 |
+| [GitHub Actions で自動ビルド](github-actions.md) | push のたびにビルドとテストを自動で動かす |
+
+## Git について
+
+Git、GitHub、SourceTree、GitHub Desktop、Git LFS、チーム開発は独立したカテゴリ [Git](../git/index.md) にまとめています。
 
 ## 関連ページ
 

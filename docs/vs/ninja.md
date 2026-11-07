@@ -142,8 +142,8 @@ Visual Studio のジェネレーター（`.sln`）では、この出力に対応
 ## ビルドをさらに速くする
 
 - **ccache / sccache**: コンパイル結果をキャッシュして、同じコードの再コンパイルを省く。`-DCMAKE_CXX_COMPILER_LAUNCHER=sccache`
-- プリコンパイル済みヘッダ: `target_precompile_headers(game PRIVATE pch.h)`（[ビルドと CMake の構成](../design/practice/build-cmake.md)）
-- Unity ビルド: 複数の `.cpp` を 1 つにまとめて、コンパイルする（`-DCMAKE_UNITY_BUILD=ON`）。ヘッダの読み込みが減って速くなる。名前の衝突に注意
+- プリコンパイル済みヘッダー: `target_precompile_headers(game PRIVATE pch.h)`（[ビルドと CMake の構成](../design/practice/build-cmake.md)）
+- Unity ビルド: 複数の `.cpp` を 1 つにまとめて、コンパイルする（`-DCMAKE_UNITY_BUILD=ON`）。ヘッダーの読み込みが減って速くなる。名前の衝突に注意
 - ライブラリに分ける: 変更した部分だけ再ビルド
 - `/MP`（MSBuild）の代わりに Ninja の並列: Ninja は、既定で並列
 
