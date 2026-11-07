@@ -135,6 +135,8 @@ namespace KCppAssist.ErrorLog
                         return "「" + q[0] + "」が、この場所から見えていません。まず綴りを確かめます。次に、" + q[0] + " を宣言しているヘッダーの #include(カーソルを名前に置いて Alt+F)と、std の名前なら std:: を確かめます。";
                     break;
                 case "C2039":
+                    if (q.Count >= 2 && (q[1] == "std" || q[1].StartsWith("std::", StringComparison.Ordinal)))
+                        return "「" + q[1] + "」に、「" + q[0] + "」という名前はありません。まず綴りを確かめます(vector を vectr と書く、など)。綴りが合っているなら、その名前を宣言している標準ヘッダーの #include が足りません。";
                     if (q.Count >= 2)
                         return "「" + q[1] + "」に、「" + q[0] + "」という名前のメンバーがありません。綴り、基底クラス、const の違い、クラスの宣言(ヘッダー)を確かめます。";
                     break;
@@ -146,12 +148,100 @@ namespace KCppAssist.ErrorLog
                     if (q.Count > 0)
                         return "「" + q[0] + "」に、実装されていない純粋仮想関数があります。下の補足に、足りない関数が出ます。";
                     break;
+                case "C2440":
+                case "C2664":
+                case "C2665":
+                    {
+                        string a, b, arg;
+                        if (ConvTypes(d.Message, out a, out b, out arg))
+                            return (arg.Length > 0 ? "引数 " + arg + " に渡した" : "") + "「" + a + "」は、「" + b + "」になりません。" + ConvReason(a, b);
+                    }
+                    break;
+                case "C2660":
+                case "C2661":
+                    {
+                        Match n = Regex.Match(d.Message, @"(\d+)\s*(?:個の引数|argument)");
+                        if (q.Count > 0 && n.Success)
+                            return "「" + q[0] + "」は、" + n.Groups[1].Value + " 個の引数を受け取りません。宣言の引数の数(既定値つきの引数を含む)と、呼び出しの引数の数を数え直します。";
+                    }
+                    break;
+                case "C2672":
+                    if (q.Count > 0)
+                        return "「" + q[0] + "」のテンプレート引数が決まりません。同じ型 T に、別の型(int と double など)を渡していないか確かめます。型を Name<double>(…) のように書いて決めるか、concept などの制約を満たす型を渡します。";
+                    break;
+                case "C2512":
+                    if (q.Count > 0)
+                        return "「" + q[0] + "」は、引数なしでは作れません(既定コンストラクターがありません)。作る場所で引数を渡すか、クラスに " + q[0] + "() = default; を足します。メンバーとして持つなら、初期化リストで引数を渡します。";
+                    break;
+                case "C2280":
+                    if (q.Count > 0)
+                        return "「" + q[0] + "」は、delete されているので呼べません。コピーできない型(std::unique_ptr など)をコピーしていないか確かめます。std::move で渡すか、参照で受けます。";
+                    break;
+                case "C2676":
+                case "C2678":
+                case "C2679":
+                    if (q.Count >= 2)
+                        return "「" + q[1] + "」に、演算子「" + q[0] + "」が使えません。その型に演算子が定義されていないか、const の付いた値を書き換えようとしています(代入や += は、const の値には使えません)。";
+                    break;
                 case "C1083":
                     if (d.MissingName.Length > 0)
                         return "「" + d.MissingName + "」が見つかりません。ファイルの場所と、追加のインクルード ディレクトリを確かめます。Alt+F が書く #include は、プロジェクトが使っているフォルダーの基準に合わせたパスです。";
                     break;
             }
             return null;
+        }
+
+        private static readonly Regex CvArgEn = new Regex(@"argument (?<n>\d+) from '(?<a>.+?)' to '(?<b>.+?)'");
+        private static readonly Regex CvArgJa = new Regex(@"引数 (?<n>\d+) を '(?<a>.+?)' から '(?<b>.+?)' (?:に|へ)");
+        private static readonly Regex CvEn = new Regex(@"from '(?<a>.+?)' to '(?<b>.+?)'");
+        private static readonly Regex CvJa = new Regex(@"'(?<a>[^']+?)' から '(?<b>[^']+?)' に変換できません");
+
+        /// <summary>メッセージから、変換元・変換先の型(と、あれば引数の番号)を取り出す。</summary>
+        internal static bool ConvTypes(string msg, out string a, out string b, out string arg)
+        {
+            a = b = arg = "";
+            Match m = CvArgEn.Match(msg);
+            if (!m.Success) m = CvArgJa.Match(msg);
+            if (m.Success) arg = m.Groups["n"].Value;
+            if (!m.Success) m = CvEn.Match(msg);
+            if (!m.Success) m = CvJa.Match(msg);
+            if (!m.Success) return false;
+            a = m.Groups["a"].Value.Trim();
+            b = m.Groups["b"].Value.Trim();
+            a = MessageFormat.PrettyAny(a);
+            b = MessageFormat.PrettyAny(b);
+            return true;
+        }
+
+        private static readonly Regex ArithType = new Regex(@"^(?:const\s+)?(?:(?:unsigned|signed)\s+)?(?:bool|char|wchar_t|short|int|long|long long|float|double|size_t|__int64|u?int\d+_t|UINT|DWORD)$");
+
+        private static bool IsArith(string s) { return ArithType.IsMatch(s); }
+        private static bool IsCString(string s) { return Regex.IsMatch(s, @"^(?:const\s+)?w?char\s*(?:\[\d*\]|\*)$") || s.StartsWith("const char [", StringComparison.Ordinal) || s.StartsWith("const wchar_t [", StringComparison.Ordinal); }
+
+        /// <summary>変換元と変換先の型の組み合わせから、なぜ変換できないかを 1〜2 文で言う。</summary>
+        internal static string ConvReason(string a, string b)
+        {
+            bool bRef = b.EndsWith("&", StringComparison.Ordinal) && !b.EndsWith("&&", StringComparison.Ordinal);
+            bool bConstRef = b.StartsWith("const ", StringComparison.Ordinal);
+            if (bRef && !bConstRef)
+            {
+                if (a.StartsWith("const ", StringComparison.Ordinal))
+                    return "const の付いた値は、const のない参照では受けられません。受ける側の参照に const を付けるか、コピーで受けます。";
+                return "数値や一時オブジェクトのような「名前のない値」は、const のない参照には結びつけられません。変数に入れてから渡すか、受ける側を const 参照にします。";
+            }
+            if (a == "initializer list")
+                return "{ } の中の要素の型が、受け取る側の要素の型に合っていません。1 つずつ型を見比べます。";
+            if (IsCString(a) && IsArith(b))
+                return "文字列(\"…\")を、数値の変数に入れています。数値にしたいなら std::stoi などで変換します。";
+            if (IsArith(a) && b.IndexOf('*') >= 0)
+                return "数値を、ポインターには入れられません(0 と nullptr だけが例外です)。アドレスを入れたいなら、& を付けたか確かめます。";
+            if (IsArith(a) && !IsArith(b))
+                return "数値から「" + b + "」を作る変換が用意されていません。" + b + "(値) のように明示的に作るか、「" + b + "」のコンストラクターが受け取る型を確かめます(std::string なら std::to_string を使います)。";
+            if (!IsArith(a) && IsArith(b))
+                return "「" + a + "」から数値への暗黙の変換はありません。enum class なら static_cast<" + b + ">(値) と書きます。クラスなら、変換演算子の有無を確かめます。";
+            if (a.IndexOf('*') >= 0 && b.IndexOf('*') >= 0)
+                return "指す型が違うポインター同士は、代入できません。const の有無、継承していない型、void* からの変換を確かめます。";
+            return "型の違いの原因を、上の「渡した型」と「期待する型」を見比べて確かめます。const・参照・名前空間の違いで、同じに見えて別の型になることがあります。";
         }
 
         /// <summary>表にないコードのときの、見出しとヒント。</summary>
