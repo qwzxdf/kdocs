@@ -20,12 +20,18 @@ tags:
     - [リモートとプッシュ・プル](remote.md)
     - [外部ライブラリの入れ方](../vs/libraries.md)（vcpkg との使い分け）
 
-!!! note "SourceTree での操作"
-    SourceTree のメニュー「リポジトリ」に、「サブモジュールを追加...」があります。追加・更新の意味は、このページのコマンドと同じです。サブモジュールは、使いこなすのが難しい機能なので、慣れるまでは、コマンドで状態を確かめながら進めてください。
-
 ## 追加する {#add}
 
-（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
+SourceTree ではメニューの「リポジトリ → サブモジュールを追加...」から追加します。
+
+![サブモジュールを追加する画面](img/st-submodule-add.png)
+
+- <strong>元のパス/URL</strong>: 取り込みたいライブラリのリポジトリの URL（GitHub のページの「Code」でコピーできる）。入れると「これは Git リポジトリです」と確認が出る
+- <strong>ローカル相対パス</strong>: 自分のプロジェクトの中の置く場所。`third_party/imgui` のようにまとめる場所を決めておく
+
+「OK」を押すとライブラリが取ってこられファイルステータスに `.gitmodules` などが出てきます。「インデックスに追加」してコミットします。
+
+同じことをコマンドでは次のように書きます（画面の動きの意味の確認用です。コマンドを打つ画面の開き方は[SourceTree の画面](sourcetree.md#terminal)にあります）。
 
 ```bash
 git submodule add https://github.com/ocornut/imgui.git third_party/imgui
@@ -39,9 +45,9 @@ git commit -m "ImGui をサブモジュールとして追加"
 
 どちらも親リポジトリでコミットします。サブモジュールの中身（ImGui のファイル）は、親のコミットには入りません。入るのは「ImGui のこのコミットを使う」という記録だけです。
 
-## clone する側の手順 {#clone}
+## クローンする側の手順 {#clone}
 
-サブモジュールを持つリポジトリを clone しても、サブモジュールのフォルダーは<strong>空</strong>で作られます。
+サブモジュールを持つリポジトリをクローンしても、サブモジュールのフォルダーは<strong>空</strong>で作られます。
 
 ```bash
 git clone --recurse-submodules https://github.com/ユーザー名/MyGame.git
@@ -77,7 +83,7 @@ git add third_party/imgui
 git commit -m "ImGui を v1.91.0 に更新"
 ```
 
-サブモジュールの中はふつう detached HEAD の状態です。これは正常で「特定のコミットを使っている」ことを意味します。
+サブモジュールの中はふつう分離 HEADの状態です。これは正常で「特定のコミットを使っている」ことを意味します。
 
 他の人が親リポジトリを `pull` したあと手元のサブモジュールを新しい記録に合わせるには、次を実行します。
 
@@ -121,26 +127,26 @@ git commit -m "ImGui のサブモジュールを削除"
 扱いが難しい場面もあります。
 
 - 親とサブモジュールの両方を更新する作業は、手順が増えて忘れやすい
-- clone した直後に中身が空になるので、メンバーに説明が要る
+- クローンした直後に中身が空になるので、メンバーに説明が要る
 - 画面ツールによってはサブモジュールの扱いが弱い
 
 単にライブラリを使うだけなら[vcpkg](../vs/libraries.md) などのパッケージ管理のほうが楽です。ライブラリのバージョンを指定できビルドまで自動になります。比較は [パッケージ管理の比較](../vs/package-managers.md) にあります。
 
 ## よくあるミス {#mistakes}
 
-??? failure "clone したら `third_party/imgui` が空だった"
-    `git submodule update --init --recursive` を実行します。次の clone からは `--recurse-submodules` を付けます。
+??? failure "クローンしたら `third_party/imgui` が空だった"
+    `git submodule update --init --recursive` を実行します。次のクローンからは `--recurse-submodules` を付けます。
 
 ??? failure "サブモジュールを更新したのに、他の人の手元に反映されない"
     親リポジトリで `git add` して `commit` と `push` をしていません。サブモジュールの中の変更だけでは親は更新されません。
 
 ??? failure "サブモジュールの中でコミットしたが、消えた"
-    サブモジュールは detached HEAD なので、そのまま作業するとコミットを見失います。サブモジュールの中で枝を作ってから作業して、そのリポジトリへ push します。
+    サブモジュールは分離 HEADなので、そのまま作業するとコミットを見失います。サブモジュールの中で枝を作ってから作業して、そのリポジトリへプッシュします。
 
 ## これだけ覚える {#summary}
 
 - `git submodule add URL 場所` で追加。`.gitmodules` もコミットする
-- clone には `--recurse-submodules`、後からなら `git submodule update --init --recursive`
+- クローンには `--recurse-submodules`、後からなら `git submodule update --init --recursive`
 - 更新は 2 段階。サブモジュールを動かして親でコミットする
 - 単純にライブラリを使うだけなら vcpkg が楽
 
