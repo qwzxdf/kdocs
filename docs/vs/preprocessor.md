@@ -32,7 +32,7 @@ C++ のビルドではコンパイルの前に**プリプロセッサ**が `#inc
 NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)
 ```
 
-![C/C++ → プリプロセッサ のページ。先頭がプリプロセッサの定義。既定で `_UNICODE;UNICODE` が入っている](img/props-preprocessor.jpg)
+![C/C++ → プリプロセッサ のページ。先頭がプリプロセッサの定義。既定で `_UNICODE;UNICODE` が入っている](img/props-preprocessor.png)
 
 - 値付きで定義: `MY_LEVEL=3` のように `=` をつける（コードでは、`MY_LEVEL` が `3` になる）
 - 値なしで定義: `NOMINMAX` だけ（`1` として扱われる）

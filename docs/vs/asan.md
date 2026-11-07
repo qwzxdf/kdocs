@@ -58,7 +58,7 @@ p[5] = 100;
 
 「Address Sanitizer を有効にする」は、C/C++ → 全般 のページを少し下へスクロールした所にあります。その下の「Fuzzer サポートを有効にする（試験段階）」は、別の機能です。
 
-![C/C++ → 全般 の下のほう。Address Sanitizer を有効にする、が「いいえ」になっている](img/props-cpp-general-asan.jpg)
+![C/C++ → 全般 の下のほう。Address Sanitizer を有効にする、が「いいえ」になっている](img/props-cpp-general-asan.png)
 
 ソリューション全体（ライブラリを含む）で有効にするとライブラリの中のバグも見つかります。
 

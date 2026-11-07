@@ -48,7 +48,7 @@ Visual Studio のエディターは、BOM（ファイルの先頭に付く目印
 3. C/C++ → コマンド ライン → 追加のオプション に `/utf-8` を足す
 4. 適用 → OK
 
-![C/C++ → コマンド ライン のページ。下の「追加のオプション」に `/utf-8` を書く](img/props-cmdline.jpg)
+![C/C++ → コマンド ライン のページ。下の「追加のオプション」に `/utf-8` を書く](img/props-cmdline.png)
 
 「すべての構成」に切り替えずに設定すると、Debug だけに入って Release で化けます（[C++23 を使えるようにする設定](settings.md#open)）。
 

@@ -96,7 +96,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 2. 構成を「すべての構成」、プラットフォームを「x64」にする
 3. リンカー → システム → サブシステム を選ぶ
 
-![リンカー → システム のページ。先頭の「サブシステム」が空のときプロジェクトの種類で決まる](img/props-linker-system.jpg)
+![リンカー → システム のページ。先頭の「サブシステム」が空のときプロジェクトの種類で決まる](img/props-linker-system.png)
 
 - <strong>コンソール</strong>: リンカーのオプション: `/SUBSYSTEM:CONSOLE`。画面: コンソールあり。呼ばれる関数: `main` / `wmain`
 - <strong>Windows</strong>: リンカーのオプション: `/SUBSYSTEM:WINDOWS`。画面: コンソールなし。呼ばれる関数: `WinMain` / `wWinMain`

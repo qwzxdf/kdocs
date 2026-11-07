@@ -32,23 +32,23 @@ tags:
 3. 上の スタートアップ アイテムの選択（再生ボタンの横）で、実行する `.exe` を選ぶ
 4. F5 で実行する
 
-![ファイル → 開く。フォルダー、CMake プロジェクトなどが並ぶ](img/file-open-menu.jpg)
+![ファイル → 開く。フォルダー、CMake プロジェクトなどが並ぶ](img/file-open-menu.png)
 
 フォルダーを開くと `CMakeLists.txt` が見つかって、CMake の生成が自動で始まります。下の「出力」の出力元が「CMake」になり生成の経過が出ます。右の「ソリューション エクスプローラー - フォルダー ビュー」には、フォルダーの中身がそのまま並びます。生成の結果は `out/build/<プリセット名>` に置かれます。
 
-![CMake のフォルダーを開いたところ。上のツールバーに「x64 Debug」と「CMakeGame.exe」、下の出力に CMake の生成の結果が出ている](img/cmake-folder.jpg)
+![CMake のフォルダーを開いたところ。上のツールバーに「x64 Debug」と「CMakeGame.exe」、下の出力に CMake の生成の結果が出ている](img/cmake-folder.png)
 
 ツールバーの「x64 Debug」は、`CMakePresets.json` に書いたプリセットです。押すと `x64 Debug`、`x64 Release` と「構成を管理します...」が出ます。Debug と Release はここで切り替えます。
 
-![プリセットのドロップダウン](img/cmake-preset-dropdown.jpg)
+![プリセットのドロップダウン](img/cmake-preset-dropdown.png)
 
 ビルドはメニューの「ビルド」にある「すべてビルド」（Ctrl + Shift + B）です。`.sln` のときの「ソリューションのビルド」に当たります。
 
-![フォルダー ビューのときのビルド メニュー](img/cmake-build-menu.jpg)
+![フォルダー ビューのときのビルド メニュー](img/cmake-build-menu.png)
 
 成功すると出力に「すべてビルド が成功しました。」と出ます。下の画面の「[4/4] Linking CXX executable」は Ninja の進行で、最後が `CMakeGame.exe` のリンクです。
 
-![ビルドの出力](img/cmake-build-output.jpg)
+![ビルドの出力](img/cmake-build-output.png)
 
 Visual Studio のインストーラーで、「Windows 用 C++ CMake ツール」 のコンポーネントが必要です（「C++ によるデスクトップ開発」には、既定で入っています。[インストール](setup.md)）。
 
