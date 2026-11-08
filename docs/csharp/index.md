@@ -144,6 +144,10 @@ Editor/
 |  | [第 52 章 ビルド、テスト、配布](52-build-deploy.md) | Release、配布、CI、テスト |
 | 7 プロセスを分ける | [第 53 章 プロセスを分ける：落ちても生きる構成](53-process-split.md) | RPC、名前付きパイプ + JSON、EngineClient、エンジンを落として確かめる |
 |  | [第 54 章 IEngineService を差し替える](54-remote-engine-service.md) | `RemoteEngineService`、同期と非同期、偽のエンジンでのテスト |
+|  | [第 55 章 エンジンをサーバーにする：EngineHost](55-engine-host.md) | 命令の振り分け、エンジンの起動と見張り、ジョブ オブジェクト |
+|  | [第 56 章 ビューポートを別プロセスから受ける](56-remote-viewport.md) | 共有メモリ、ダブル バッファー、`WriteableBitmap` |
+|  | [第 57 章 落ちたら立て直す](57-recovery.md) | `EngineSupervisor`、シーンの送り直し |
+|  | [第 58 章 AI から操作する：MCP](58-mcp.md) | 手書きの MCP サーバー、道具、Undo と承認 |
 |  | [第 59 章 まとめとこれから](59-next-steps.md) | 設計の振り返りとこれから |
 
 ## この教材の進め方
