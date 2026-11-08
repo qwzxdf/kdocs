@@ -59,17 +59,17 @@ CPU が書くのは 1 と 2 だけです。3 と 4 はすべて GPU の中で完
 
 ```cpp
 struct MaterialData {
-  uint32_t albedo_index;
-  uint32_t normal_index;
-  uint32_t orm_index;
-  uint32_t emissive_index;
-  DirectX::XMFLOAT4 base_color;
-  float roughness;
-  float metallic;
-  uint32_t flags;
-  uint32_t reserved;
+  uint32_t albedo_index;                    // アルベド(色)テクスチャの、ヒープ内の番号
+  uint32_t normal_index;                    // 法線マップの番号
+  uint32_t orm_index;                    // Occlusion / Roughness / Metallic を R / G / B に詰めた 1 枚の番号
+  uint32_t emissive_index;                    // 自己発光テクスチャの番号
+  DirectX::XMFLOAT4 base_color;                    // 基本色の係数(テクスチャがないとき、あるときは乗算)
+  float roughness;                    // ラフネス
+  float metallic;                    // メタリック
+  uint32_t flags;                    // 分岐用のビット(両面、アルファ テストなど)
+  uint32_t reserved;                    // 16 バイト境界にそろえる詰め物
 };
-static_assert(sizeof(MaterialData) == 48);
+static_assert(sizeof(MaterialData) == 48);              // 16 + 16 + 4 + 4 + 4 + 4 + 0 = HLSL の構造体と同じ 48 バイト
 ```
 
 先頭の 4 つの `uint32_t` がヒープの番号です。`orm_index` は Occlusion、Roughness、Metallic を 1 枚の R、G、B に詰めたテクスチャでサンプル回数を減らすための工夫です。残りはテクスチャがないときの係数（`base_color` など）と分岐用のフラグです。
@@ -78,19 +78,19 @@ HLSL 側は同じ並びで宣言します。C++ の `static_assert` とそろえ
 
 ```hlsl
 struct Material {
-  uint albedo_index;
-  uint normal_index;
-  uint orm_index;
-  uint emissive_index;
-  float4 base_color;
-  float roughness;
-  float metallic;
-  uint flags;
-  uint reserved;
+  uint albedo_index;                    // アルベドの番号
+  uint normal_index;                    // 法線マップの番号
+  uint orm_index;                    // ORM テクスチャの番号
+  uint emissive_index;                    // 発光の番号
+  float4 base_color;                    // 基本色の係数
+  float roughness;                    // ラフネス
+  float metallic;                    // メタリック
+  uint flags;                    // フラグ
+  uint reserved;                    // 詰め物
 };
-StructuredBuffer<Material> materials : register(t2);
+StructuredBuffer<Material> materials : register(t2);    // 全マテリアル(ルート SRV で渡される)
 
-static const uint kInvalidTexture = 0xFFFFFFFF;
+static const uint kInvalidTexture = 0xFFFFFFFF;         // 「テクスチャなし」の印(ヒープの外を引かないための判定に使う)
 ```
 
 `kInvalidTexture` は「テクスチャなし」を表す印です。ヒープの範囲外を引くと未定義の動作になるので、シェーダーで必ず確かめてから引きます（分岐の中で `Sample` を呼ぶ落とし穴は、後の節で説明します）。
@@ -100,11 +100,11 @@ static const uint kInvalidTexture = 0xFFFFFFFF;
 バインドレスの土台はシェーダーから見える（shader-visible）CBV/SRV/UAV ヒープを 1 つ、大きく作ることです。作り方は [ID3D12Device の `CreateDescriptorHeap`](../../../directx/dx12/api/id3d12device.md#createdescriptorheap) と [D3D12_DESCRIPTOR_HEAP_DESC](../../../directx/dx12/api/view-structs.md#d3d12_descriptor_heap_desc) で説明しているとおりで、ここでは容量の決め方を押さえます。
 
 ```cpp
-D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
-heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};              // 記述子ヒープの設定
+heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;  // CBV / SRV / UAV の種類
 heap_desc.NumDescriptors = kBindlessCapacity;  // 例: 65536
-heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-heap_desc.NodeMask = 0;
+heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;  // シェーダーから引けるヒープ
+heap_desc.NodeMask = 0;                    // 単一 GPU
 ```
 
 `NumDescriptors` はゲームで同時に読み込むテクスチャ数に余裕を見た値にします。シェーダーから見えるヒープの上限は ResourceBindingTier によって変わります。Tier 1 と Tier 2 では 1,000,000 個までで、Tier 3 はこれを超えて確保できます。実際には数万個で足りることがほとんどなので、最初は 65536 のような値で始めます。
@@ -118,35 +118,35 @@ heap_desc.NodeMask = 0;
 テクスチャを読み込んだら空いている番号を 1 つもらいその位置に SRV を書きます。番号の管理はフリー リストで行います。
 
 ```cpp
-class BindlessHeap {
+class BindlessHeap {                    // バインドレス用の大きなヒープと、空き番号の管理
  public:
   void Initialize(ID3D12Device* device, uint32_t capacity) {
-    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-    desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    desc.NumDescriptors = capacity;
-    desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&heap_)));
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {};               // ヒープの設定
+    desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;  // SRV を置く種類
+    desc.NumDescriptors = capacity;                    // 最大の個数
+    desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;  // シェーダー可視
+    ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&heap_)));  // ヒープを作る
 
     increment_ = device->GetDescriptorHandleIncrementSize(
         D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    cpu_start_ = heap_->GetCPUDescriptorHandleForHeapStart();
+    cpu_start_ = heap_->GetCPUDescriptorHandleForHeapStart();  // 番号 0 の CPU ハンドル(ここから increment_ ずつ進む)
 
     // 小さい番号から順に配るため、逆順に積む。
-    for (uint32_t i = capacity; i > 0; --i) free_list_.push_back(i - 1);
+    for (uint32_t i = capacity; i > 0; --i) free_list_.push_back(i - 1);  // 全番号を空きとして積む(取り出すのは末尾なので、小さい番号から配られる)
   }
 ```
 
 `GetDescriptorHandleIncrementSize` は記述子 1 つの幅（バイト）で、GPU の種類によって違います。n 番目の位置を求めるのに使います。
 
 ```cpp
-  uint32_t Register(ID3D12Device* device, ID3D12Resource* texture,
+  uint32_t Register(ID3D12Device* device, ID3D12Resource* texture,  // 空き番号を 1 つ取り、SRV を書く
                     const D3D12_SHADER_RESOURCE_VIEW_DESC& srv) {
-    assert(!free_list_.empty());
-    uint32_t index = free_list_.back();
-    free_list_.pop_back();
+    assert(!free_list_.empty());                    // 空きがなくなったら容量の見直し
+    uint32_t index = free_list_.back();                 // 末尾 = 一番小さい空き番号
+    free_list_.pop_back();                    // 空きから外す
     device->CreateShaderResourceView(
-        texture, &srv, OffsetHandle(cpu_start_, index, increment_));
-    return index;
+        texture, &srv, OffsetHandle(cpu_start_, index, increment_));  // index 番目の位置にビューを書き込む
+    return index;                    // この番号を MaterialData に入れる
   }
 ```
 
@@ -156,14 +156,14 @@ SRV の記述（`D3D12_SHADER_RESOURCE_VIEW_DESC`）はバインドレスで事�
 
 ```cpp
 D3D12_SHADER_RESOURCE_VIEW_DESC MakeColorTextureSrv(const D3D12_RESOURCE_DESC& desc) {
-  D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-  srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-  srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-  srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-  srv.Texture2D.MostDetailedMip = 0;
-  srv.Texture2D.MipLevels = desc.MipLevels;
-  srv.Texture2D.PlaneSlice = 0;
-  srv.Texture2D.ResourceMinLODClamp = 0.0f;
+  D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};             // ビューの設定
+  srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;         // 色のテクスチャは sRGB で読む(サンプル時にリニアへ変換される)
+  srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;    // シェーダーの Texture2D に対応
+  srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;  // R / G / B / A をそのまま読む(0 のままだと 1 色になる)
+  srv.Texture2D.MostDetailedMip = 0;                    // 一番詳細なミップから
+  srv.Texture2D.MipLevels = desc.MipLevels;             // 全ミップを見せる
+  srv.Texture2D.PlaneSlice = 0;                    // 通常のテクスチャは 0
+  srv.Texture2D.ResourceMinLODClamp = 0.0f;             // ミップの下限なし(ストリーミングで使う)
   return srv;
 }
 ```
@@ -193,23 +193,23 @@ device->CreateShaderResourceView(texture, nullptr, handle);  // リソースの�
 テクスチャを捨てるときその番号をすぐ空き番号に戻してはいけません。GPU がまだ前のフレームの描画で、その記述子を引いているかもしれないからです。そのフレームのフェンス値を記録しておき GPU が完了したあとで番号を返します。
 
 ```cpp
-  void ScheduleRelease(uint32_t index, uint64_t fence_value) {
-    pending_release_.push_back({index, fence_value});
+  void ScheduleRelease(uint32_t index, uint64_t fence_value) {  // 捨てる番号と、それを使いうる最後のフレームのフェンス値を記録する
+    pending_release_.push_back({index, fence_value});   // 解放待ちに積む(すぐには空きに戻さない)
   }
 
-  void CollectGarbage(uint64_t completed_fence_value) {
+  void CollectGarbage(uint64_t completed_fence_value) {  // GPU が終えたフェンス値以下の分を回収する
     auto it = pending_release_.begin();
     while (it != pending_release_.end()) {
-      if (it->fence_value <= completed_fence_value) {
-        free_list_.push_back(it->index);
-        it = pending_release_.erase(it);
+      if (it->fence_value <= completed_fence_value) {   // GPU がもうその記述子を使わない
+        free_list_.push_back(it->index);                // 空き番号に戻す
+        it = pending_release_.erase(it);                // 解放待ちから外す
       } else {
         ++it;
       }
     }
   }
 
-  ID3D12DescriptorHeap* Get() const { return heap_.Get(); }
+  ID3D12DescriptorHeap* Get() const { return heap_.Get(); }  // SetDescriptorHeaps に渡すため
 
  private:
   struct PendingRelease {
@@ -218,10 +218,10 @@ device->CreateShaderResourceView(texture, nullptr, handle);  // リソースの�
   };
 
   ComPtr<ID3D12DescriptorHeap> heap_;
-  D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ = {};
-  UINT increment_ = 0;
-  std::vector<uint32_t> free_list_;
-  std::vector<PendingRelease> pending_release_;
+  D3D12_CPU_DESCRIPTOR_HANDLE cpu_start_ = {};          // 番号 0 の CPU ハンドル
+  UINT increment_ = 0;                    // 記述子 1 個の幅(バイト)
+  std::vector<uint32_t> free_list_;                    // 空き番号
+  std::vector<PendingRelease> pending_release_;         // GPU の完了待ちの番号
 };
 ```
 
@@ -242,70 +242,70 @@ constexpr UINT kRootMaterials = 3;  // t2: マテリアル バッファ（ルー
 ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   D3D12_ROOT_PARAMETER1 params[4] = {};
 
-  params[kRootFrame].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-  params[kRootFrame].Descriptor.ShaderRegister = 0;
-  params[kRootFrame].Descriptor.RegisterSpace = 0;
-  params[kRootFrame].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE;
-  params[kRootFrame].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+  params[kRootFrame].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;  // フレーム定数: ルート CBV
+  params[kRootFrame].Descriptor.ShaderRegister = 0;     // b0
+  params[kRootFrame].Descriptor.RegisterSpace = 0;      // スペース 0
+  params[kRootFrame].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE;  // 特別な指定なし
+  params[kRootFrame].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  // 全ステージから見える
 ```
 
 ルート CBV は定数バッファの GPU アドレスをそのまま渡す口です。記述子ヒープには何も置かないので、ヒープの番号を消費しません。
 
 ```cpp
-  params[kRootDraw].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-  params[kRootDraw].Constants.ShaderRegister = 1;
-  params[kRootDraw].Constants.RegisterSpace = 0;
+  params[kRootDraw].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;  // ドローごとの値: ルート定数
+  params[kRootDraw].Constants.ShaderRegister = 1;       // b1
+  params[kRootDraw].Constants.RegisterSpace = 0;        // スペース 0
   params[kRootDraw].Constants.Num32BitValues = 2;  // instance_index, material_index
-  params[kRootDraw].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+  params[kRootDraw].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;  // 頂点とピクセルの両方で読むので ALL
 ```
 
 この 32 ビット定数がドローごとに変わる値の入り口です。`ExecuteIndirect` がコマンドごとにここへ値を書き込みます。頂点シェーダーでもピクセル シェーダーでも読むので、`ShaderVisibility` は `ALL` にします。`PIXEL` だけにすると頂点シェーダーからは見えません。
 
 ```cpp
-  params[kRootInstances].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-  params[kRootInstances].Descriptor.ShaderRegister = 0;
-  params[kRootInstances].Descriptor.RegisterSpace = 0;
+  params[kRootInstances].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;  // インスタンス バッファ: ルート SRV
+  params[kRootInstances].Descriptor.ShaderRegister = 0;  // t0
+  params[kRootInstances].Descriptor.RegisterSpace = 0;  // スペース 0
   params[kRootInstances].Descriptor.Flags =
       D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
-  params[kRootInstances].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+  params[kRootInstances].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;  // 頂点シェーダーだけが読む
 
-  params[kRootMaterials].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-  params[kRootMaterials].Descriptor.ShaderRegister = 2;
-  params[kRootMaterials].Descriptor.RegisterSpace = 0;
+  params[kRootMaterials].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;  // マテリアル バッファ: ルート SRV
+  params[kRootMaterials].Descriptor.ShaderRegister = 2;  // t2
+  params[kRootMaterials].Descriptor.RegisterSpace = 0;  // スペース 0
   params[kRootMaterials].Descriptor.Flags =
       D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
-  params[kRootMaterials].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+  params[kRootMaterials].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;  // ピクセル シェーダーだけが読む
 ```
 
 インスタンスとマテリアルのバッファは、ルート SRV で渡します。ルート SRV は構造化バッファか生のバッファにしか使えません（型付きのバッファは不可）。`Flags` の `DATA_STATIC_WHILE_SET_AT_EXECUTE` は「このバッファの中身は、ルート引数として設定されている間は変わらない」とドライバーに約束する指定です。約束を守れるならドライバーが最適化しやすくなります。描画中に書き換える（UAV で書く）バッファには付けられません。
 
 ```cpp
-  D3D12_STATIC_SAMPLER_DESC sampler = {};
-  sampler.Filter = D3D12_FILTER_ANISOTROPIC;
-  sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-  sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-  sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-  sampler.MaxAnisotropy = 8;
-  sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-  sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
-  sampler.MaxLOD = D3D12_FLOAT32_MAX;
-  sampler.ShaderRegister = 0;
-  sampler.RegisterSpace = 0;
-  sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+  D3D12_STATIC_SAMPLER_DESC sampler = {};               // ルート シグネチャに埋め込む静的サンプラー
+  sampler.Filter = D3D12_FILTER_ANISOTROPIC;            // 異方性フィルタリング
+  sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;   // U が範囲外なら繰り返す
+  sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;   // V が範囲外なら繰り返す
+  sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;   // W が範囲外なら繰り返す
+  sampler.MaxAnisotropy = 8;                    // 異方性の上限
+  sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;  // 比較サンプラーではない
+  sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;  // BORDER モードを使わないので形だけ
+  sampler.MaxLOD = D3D12_FLOAT32_MAX;                   // 全ミップを使えるようにする
+  sampler.ShaderRegister = 0;                    // s0
+  sampler.RegisterSpace = 0;                    // スペース 0
+  sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;  // ピクセル シェーダーだけ
 ```
 
 サンプラーは静的サンプラーにして、ルート シグネチャに埋め込みます。ヒープの番号を使わずサンプラー ヒープも要りません。`MaxLOD` を `D3D12_FLOAT32_MAX` にするのは全ミップを使えるようにするためで、0 のままだと一番詳細なミップしか使われません。
 
 ```cpp
-  D3D12_VERSIONED_ROOT_SIGNATURE_DESC desc = {};
-  desc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
-  desc.Desc_1_1.NumParameters = _countof(params);
-  desc.Desc_1_1.pParameters = params;
-  desc.Desc_1_1.NumStaticSamplers = 1;
-  desc.Desc_1_1.pStaticSamplers = &sampler;
+  D3D12_VERSIONED_ROOT_SIGNATURE_DESC desc = {};        // バージョン 1.1 の記述
+  desc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;        // 1.1 を使う
+  desc.Desc_1_1.NumParameters = _countof(params);       // パラメーターの数
+  desc.Desc_1_1.pParameters = params;                   // パラメーターの配列
+  desc.Desc_1_1.NumStaticSamplers = 1;                  // 静的サンプラーは 1 つ
+  desc.Desc_1_1.pStaticSamplers = &sampler;             // その配列
   desc.Desc_1_1.Flags =
-      D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-      D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+      D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |  // 頂点バッファから読む通常のドロー用
+      D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;  // ResourceDescriptorHeap[i] を許可する(SM 6.6)
 ```
 
 ここが肝心の `Flags` です。
@@ -315,11 +315,11 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
 `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` は頂点バッファから頂点を読む通常のドローに必要です。メッシュ シェーダー（[メッシュレット](meshlets.md)）の経路では付けません。
 
 ```cpp
-  ComPtr<ID3DBlob> blob, error;
-  HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, &blob, &error);
+  ComPtr<ID3DBlob> blob, error;                    // シリアライズ結果と、失敗時のメッセージ
+  HRESULT hr = D3D12SerializeVersionedRootSignature(&desc, &blob, &error);  // バイト列に変換する
   if (FAILED(hr)) {
-    if (error) OutputDebugStringA(static_cast<const char*>(error->GetBufferPointer()));
-    ThrowIfFailed(hr);
+    if (error) OutputDebugStringA(static_cast<const char*>(error->GetBufferPointer()));  // エラー文を出力ウィンドウに出す
+    ThrowIfFailed(hr);                    // 失敗なら例外
   }
 
   ComPtr<ID3D12RootSignature> root_signature;
@@ -337,15 +337,15 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
 
 ```cpp
 void Renderer::BeginBindless(ID3D12GraphicsCommandList* list, D3D12_GPU_VIRTUAL_ADDRESS frame_cb) {
-  ID3D12DescriptorHeap* heaps[] = {bindless_.Get()};
+  ID3D12DescriptorHeap* heaps[] = {bindless_.Get()};    // バインドレス ヒープ
   list->SetDescriptorHeaps(1, heaps);  // 先にヒープ
-  list->SetGraphicsRootSignature(draw_root_signature_.Get());
+  list->SetGraphicsRootSignature(draw_root_signature_.Get());  // その後でルート シグネチャ
 
-  list->SetGraphicsRootConstantBufferView(kRootFrame, frame_cb);
+  list->SetGraphicsRootConstantBufferView(kRootFrame, frame_cb);  // フレーム定数の GPU アドレス
   list->SetGraphicsRootShaderResourceView(kRootInstances,
-                                          instance_buffer_->GetGPUVirtualAddress());
+                                          instance_buffer_->GetGPUVirtualAddress());  // インスタンス バッファのアドレス
   list->SetGraphicsRootShaderResourceView(kRootMaterials,
-                                          material_buffer_->GetGPUVirtualAddress());
+                                          material_buffer_->GetGPUVirtualAddress());  // マテリアル バッファのアドレス
 }
 ```
 
@@ -359,28 +359,28 @@ void Renderer::BeginBindless(ID3D12GraphicsCommandList* list, D3D12_GPU_VIRTUAL_
 
 ```cpp
 struct IndirectCommand {
-  uint32_t instance_index;
-  uint32_t material_index;
-  D3D12_DRAW_INDEXED_ARGUMENTS draw;
+  uint32_t instance_index;                    // ルート定数の 1 ワード目
+  uint32_t material_index;                    // ルート定数の 2 ワード目
+  D3D12_DRAW_INDEXED_ARGUMENTS draw;                    // 描画の引数(20 バイト)
 };
-static_assert(sizeof(IndirectCommand) == 28);
+static_assert(sizeof(IndirectCommand) == 28);           // 4 + 4 + 20 = 28。ByteStride と一致
 
 ComPtr<ID3D12CommandSignature> CreateCommandSignature(ID3D12Device* device,
                                                       ID3D12RootSignature* root_signature) {
-  D3D12_INDIRECT_ARGUMENT_DESC args[2] = {};
-  args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
-  args[0].Constant.RootParameterIndex = kRootDraw;
-  args[0].Constant.DestOffsetIn32BitValues = 0;
+  D3D12_INDIRECT_ARGUMENT_DESC args[2] = {};            // コマンドの中身を 2 つ並べる
+  args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;  // 1 つ目: ルート定数を書く
+  args[0].Constant.RootParameterIndex = kRootDraw;      // 書き先のパラメーター
+  args[0].Constant.DestOffsetIn32BitValues = 0;         // 定数の先頭から
   args[0].Constant.Num32BitValuesToSet = 2;  // instance_index と material_index の 2 ワード
-  args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+  args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;  // 2 つ目: 描画
 
   D3D12_COMMAND_SIGNATURE_DESC desc = {};
-  desc.ByteStride = sizeof(IndirectCommand);
-  desc.NumArgumentDescs = 2;
-  desc.pArgumentDescs = args;
+  desc.ByteStride = sizeof(IndirectCommand);            // コマンド 1 個の間隔
+  desc.NumArgumentDescs = 2;                    // 引数の数
+  desc.pArgumentDescs = args;                    // 引数の配列
 
   ComPtr<ID3D12CommandSignature> signature;
-  ThrowIfFailed(device->CreateCommandSignature(&desc, root_signature, IID_PPV_ARGS(&signature)));
+  ThrowIfFailed(device->CreateCommandSignature(&desc, root_signature, IID_PPV_ARGS(&signature)));  // ルート定数を書くのでルート シグネチャが必要
   return signature;
 }
 ```
@@ -404,30 +404,30 @@ list->ExecuteIndirect(command_signature_.Get(), kMaxDraws, command_buffer_.Get()
 
 ```hlsl
 cbuffer FrameConstants : register(b0) {
-  float4x4 view_projection;
+  float4x4 view_projection;                    // ワールド → クリップ
 };
 
 cbuffer DrawConstants : register(b1) {
-  uint draw_instance_index;
-  uint draw_material_index;
+  uint draw_instance_index;                    // ExecuteIndirect が書くインスタンス番号
+  uint draw_material_index;                    // ExecuteIndirect が書くマテリアル番号
 };
 
-StructuredBuffer<Instance> instances : register(t0);
-StructuredBuffer<Material> materials : register(t2);
-SamplerState linear_sampler : register(s0);
+StructuredBuffer<Instance> instances : register(t0);    // 全インスタンス
+StructuredBuffer<Material> materials : register(t2);    // 全マテリアル(ルート SRV で渡される)
+SamplerState linear_sampler : register(s0);             // 静的サンプラー
 
 struct VsOutput {
-  float4 position : SV_Position;
-  float3 normal : NORMAL;
-  float2 uv : TEXCOORD0;
+  float4 position : SV_Position;                    // クリップ空間の位置
+  float3 normal : NORMAL;                    // ワールドの法線
+  float2 uv : TEXCOORD0;                    // テクスチャ座標
 };
 
 VsOutput VSMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD0) {
-  Instance instance = instances[draw_instance_index];
+  Instance instance = instances[draw_instance_index];   // このドローのインスタンスを引く
   VsOutput output;
-  output.position = mul(mul(float4(position, 1.0), instance.world), view_projection);
-  output.normal = mul(normal, (float3x3)instance.world);
-  output.uv = uv;
+  output.position = mul(mul(float4(position, 1.0), instance.world), view_projection);  // モデル → ワールド → クリップ(行ベクトル)
+  output.normal = mul(normal, (float3x3)instance.world);  // 法線は回転だけ
+  output.uv = uv;                    // そのまま渡す
   return output;
 }
 ```
@@ -436,12 +436,12 @@ VsOutput VSMain(float3 position : POSITION, float3 normal : NORMAL, float2 uv : 
 
 ```hlsl
 float4 PSMain(VsOutput input) : SV_Target {
-  Material material = materials[draw_material_index];
+  Material material = materials[draw_material_index];   // このドローのマテリアル
 
-  float4 albedo = material.base_color;
-  if (material.albedo_index != kInvalidTexture) {
-    Texture2D<float4> albedo_tex = ResourceDescriptorHeap[material.albedo_index];
-    albedo *= albedo_tex.Sample(linear_sampler, input.uv);
+  float4 albedo = material.base_color;                  // まず基本色(テクスチャがないときはこれだけ)
+  if (material.albedo_index != kInvalidTexture) {       // テクスチャがあるときだけ
+    Texture2D<float4> albedo_tex = ResourceDescriptorHeap[material.albedo_index];  // ヒープの番号を Texture2D として引く
+    albedo *= albedo_tex.Sample(linear_sampler, input.uv);  // テクスチャの色を掛ける
   }
   return albedo;
 }
@@ -454,15 +454,15 @@ float4 PSMain(VsOutput input) : SV_Target {
 ## 対応しているか確かめる
 
 ```cpp
-D3D12_FEATURE_DATA_SHADER_MODEL shader_model = {D3D_SHADER_MODEL_6_6};
+D3D12_FEATURE_DATA_SHADER_MODEL shader_model = {D3D_SHADER_MODEL_6_6};  // 「6.6 は使えるか」と尋ねる
 bool supports_sm66 =
-    SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shader_model,
+    SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shader_model,  // 問い合わせに成功し、
                                           sizeof(shader_model))) &&
-    shader_model.HighestShaderModel >= D3D_SHADER_MODEL_6_6;
+    shader_model.HighestShaderModel >= D3D_SHADER_MODEL_6_6;  // 返ってきた最大のモデルが 6.6 以上
 
 D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
-device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options));
-bool supports_tier3 = options.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;
+device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options));  // リソース バインディングの Tier を調べる
+bool supports_tier3 = options.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER_3;  // Tier 3 ならヒープ全体を制限なく使える
 ```
 
 `HighestShaderModel` は入力として渡した値が使えるかを確かめ使える最大の値に書き換えて返す入出力のメンバーです。6.6 を入れて呼び返ってきた値が 6.6 以上なら対応しています。ResourceBindingTier が 3 であることは、ヒープ全体を制限なく使うための条件で、SM 6.6 の直接参照を使う環境では、Tier 3 相当を前提にして設計するのが無難です。
@@ -472,23 +472,23 @@ bool supports_tier3 = options.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER
 SM 6.6 が使えない環境ではルート シグネチャにサイズが無制限の記述子テーブルを 1 つ置きます。シェーダーではテクスチャの配列として宣言します。
 
 ```cpp
-D3D12_DESCRIPTOR_RANGE1 range = {};
-range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+D3D12_DESCRIPTOR_RANGE1 range = {};                    // 記述子の範囲
+range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;      // SRV の範囲
 range.NumDescriptors = UINT_MAX;  // 無制限
-range.BaseShaderRegister = 0;
+range.BaseShaderRegister = 0;                    // t0 から
 range.RegisterSpace = 1;  // 他の t0 と衝突させない
-range.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE;
-range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+range.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE;  // 実行中に書き換わるかもしれない
+range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;  // 直前の範囲の直後に続ける
 
-D3D12_ROOT_PARAMETER1 table = {};
-table.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-table.DescriptorTable.NumDescriptorRanges = 1;
-table.DescriptorTable.pDescriptorRanges = &range;
-table.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+D3D12_ROOT_PARAMETER1 table = {};                    // ルート パラメーター(記述子テーブル)
+table.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;  // テーブルの種類
+table.DescriptorTable.NumDescriptorRanges = 1;          // 範囲は 1 つ
+table.DescriptorTable.pDescriptorRanges = &range;       // その範囲
+table.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;  // ピクセル シェーダーだけ
 ```
 
 ```hlsl
-Texture2D<float4> textures[] : register(t0, space1);
+Texture2D<float4> textures[] : register(t0, space1);    // 大きさ不定の配列(スペース 1)
 
 float4 c = textures[NonUniformResourceIndex(material.albedo_index)].Sample(linear_sampler, uv);
 ```
@@ -500,7 +500,7 @@ float4 c = textures[NonUniformResourceIndex(material.albedo_index)].Sample(linea
 ドローの前にヒープの先頭の GPU ハンドルを 1 回だけ渡します。
 
 ```cpp
-list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());
+list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());  // ヒープの先頭の GPU ハンドルを渡す
 ```
 
 この方式ではテクスチャの種類ごと（`Texture2D`、`TextureCube`、`Texture2DArray`）に別の空間で配列を宣言します。SM 6.6 の `ResourceDescriptorHeap` は型を左辺で自由に決められるので、そのような分割が不要です。
@@ -517,7 +517,7 @@ list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());
 - ビジビリティ バッファの画素ごとのシェーディング: 非一様（必須）
 
 ```hlsl
-Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.albedo_index)];
+Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.albedo_index)];  // ウェーブ内で番号が違いうるときの引き方
 ```
 
 付けるとハードウェアが「ウェーブの中の異なる番号ごとにループして処理する」命令に切り替えます。番号が全レーンで同じならループは 1 回で済みほとんど遅くなりません。番号が何種類もあるときはその種類の数だけ繰り返すので遅くなります。判断の基準は「同じウェーブに違う番号が入りうるか」です。迷ったら付けます。
@@ -528,8 +528,8 @@ Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.
 
 ```hlsl
 // 危ない: 画素ごとに条件が違うと、Sample の微分（ddx/ddy）が未定義になる。
-if (material.albedo_index != kInvalidTexture) {
-  albedo *= tex.Sample(linear_sampler, uv);
+if (material.albedo_index != kInvalidTexture) {         // テクスチャがあるときだけ
+  albedo *= tex.Sample(linear_sampler, uv);             // Sample の微分は、分岐の中では未定義
 }
 ```
 
@@ -537,9 +537,9 @@ if (material.albedo_index != kInvalidTexture) {
 
 ```hlsl
 float2 dx = ddx(uv);  // 分岐の外で先に計算する
-float2 dy = ddy(uv);
-if (material.albedo_index != kInvalidTexture) {
-  albedo *= tex.SampleGrad(linear_sampler, uv, dx, dy);
+float2 dy = ddy(uv);                    // UV の y 方向の微分
+if (material.albedo_index != kInvalidTexture) {         // テクスチャがあるときだけ
+  albedo *= tex.SampleGrad(linear_sampler, uv, dx, dy);  // 先に求めた微分を渡して、分岐の中でも安全に引く
 }
 ```
 
