@@ -56,4 +56,8 @@ nav:
   - 52-build-deploy.md
   - 53-process-split.md
   - 54-remote-engine-service.md
+  - 55-engine-host.md
+  - 56-remote-viewport.md
+  - 57-recovery.md
+  - 58-mcp.md
   - 59-next-steps.md

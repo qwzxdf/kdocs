@@ -308,8 +308,10 @@ std::string HandleRequest(const std::string& text) {
 ```csharp title="Editor/Engine/EngineClient.cs（新規）"
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
+using System.IO;
 using System.IO.Pipes;
 using System.Text.Json;
+using System.Threading;
 
 namespace Editor.Engine;
 
@@ -545,7 +547,7 @@ editor (C#) is still alive.
 
 この章で作った `EngineClient` は、まだ `IEngineService`（第 33 章）に繋がっていません。次の章で、`IEngineService` の実装をもう 1 つ（パイプ版）にして、ビューモデルがどちらを使っているかを知らないまま差し替えられるようにします。
 
-ビューポートは、今のところ同じプロセスの子ウィンドウです。別プロセスのエンジンが描いた絵を WPF の中に出す方法は、第 56 章で扱います。子ウィンドウとして埋め込む方式は入力のキューが共有されるため、エンジンが固まるとエディタも固まる癖があります。そのため、この部では共有テクスチャを使います。
+ビューポートは、今のところ同じプロセスの子ウィンドウです。別プロセスのエンジンが描いた絵を WPF の中に出す方法は、第 56 章で扱います。子ウィンドウとして埋め込む方式は入力のキューが共有されるため、エンジンが固まるとエディタも固まる癖があります。そのため、この部ではまず共有メモリで絵を受け取る方法を作り、GPU のテクスチャを直接共有する方法は、その先の段階として紹介します。
 
 ## よくあるミス
 
