@@ -233,7 +233,25 @@ namespace KCppAssist
                 if (buf == null) { IncludeService.Status(Path.GetFileName(t0.File) + " を開けませんでした。Alt+G で " + label + " の引数を写せます"); return; }
             }
             var cpList = SignatureSync.SplitParams(t0.Inner);
-            if (cpList == null || buf.CurrentSnapshot.Length != t0.Text.Length) { if (opened) ReturnToWork(); return; }
+            if (cpList == null || buf.CurrentSnapshot.Length != t0.Text.Length)
+            {
+                // 閉じていたファイルを、ディスクから読んだ文字(エンコードの読み違いなど)と、エディターで開いた文字がずれた。
+                // 開いたあとの文字で、相手を探し直す(以前は、ここで黙って止まっていた)
+                var again = SyncPlan.MatchesAny(SyncService.FindTargets(new[] { t0.File }, wantDef, b.Sig, owner.Adapters), t => t.Score, keysOf, oldKeys);
+                if (again.Count == 1 && SignatureSync.SplitParams(again[0].Inner) != null && again[0].Buffer != null && again[0].Buffer.CurrentSnapshot.Length == again[0].Text.Length)
+                {
+                    t0 = again[0];
+                    buf = t0.Buffer;
+                    cpList = SignatureSync.SplitParams(t0.Inner);
+                }
+                else
+                {
+                    if (opened) ReturnToWork();
+                    IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写せませんでした。Alt+G で合わせられます");
+                    KCppAssistPackage.Log("sync: target text mismatch " + t0.File);
+                    return;
+                }
+            }
             string newInner = SignatureSync.Rebuild(oldList, newList, cpList, !wantDef, t0.Inner);
             SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
             if (opened) ReturnToWork();

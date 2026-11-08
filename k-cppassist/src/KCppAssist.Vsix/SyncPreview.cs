@@ -43,8 +43,13 @@ namespace KCppAssist
 
             int first = after.GetLineNumberFromPosition(open);
             int last = after.GetLineNumberFromPosition(Math.Min(after.Length, open + 1 + newLength));
-            int from = Math.Max(0, first - 1);
-            int to = Math.Min(after.LineCount - 1, last + 1);
+            // 書き換える前の行と、あとの行を、並べて見せる(前の行は、あとの行の括弧の中身を、前の中身に戻して作る)
+            int blockStart = after.GetLineFromLineNumber(first).Start.Position;
+            int blockEnd = after.GetLineFromLineNumber(last).End.Position;
+            string block = after.GetText(blockStart, blockEnd - blockStart);
+            int innerAt = Math.Max(0, Math.Min(block.Length, open + 1 - blockStart));
+            int innerLen = Math.Max(0, Math.Min(block.Length - innerAt, newLength));
+            string oldBlock = block.Substring(0, innerAt) + oldInner + block.Substring(innerAt + innerLen);
 
             var mono = new FontFamily("Consolas");
             var panel = new StackPanel { Margin = new Thickness(10, 8, 10, 8) };
@@ -55,30 +60,22 @@ namespace KCppAssist
                 Foreground = Brushes.White,
                 Margin = new Thickness(0, 0, 0, 4),
             });
-            panel.Children.Add(new TextBlock
+            Action<string, Color> addLines = (s, bg) =>
             {
-                Text = "前: (" + Collapse(oldInner) + ")",
-                FontFamily = mono,
-                FontSize = 12,
-                Foreground = new SolidColorBrush(Color.FromRgb(0xB0, 0xB0, 0xB0)),
-                TextDecorations = TextDecorations.Strikethrough,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                Margin = new Thickness(0, 0, 0, 2),
-            });
-            for (int i = from; i <= to; i++)
-            {
-                bool changed = i >= first && i <= last;
-                panel.Children.Add(new TextBlock
-                {
-                    Text = after.GetLineFromLineNumber(i).GetText().Replace("\t", "    "),
-                    FontFamily = mono,
-                    FontSize = 12,
-                    Foreground = changed ? Brushes.White : new SolidColorBrush(Color.FromRgb(0x9A, 0x9A, 0x9A)),
-                    Background = changed ? new SolidColorBrush(Color.FromArgb(0x70, 0x2E, 0xA0, 0x43)) : Brushes.Transparent,
-                    TextTrimming = TextTrimming.CharacterEllipsis,
-                    Padding = new Thickness(2, 0, 2, 0),
-                });
-            }
+                foreach (string ln in s.Replace("\r", "").Split('\n'))
+                    panel.Children.Add(new TextBlock
+                    {
+                        Text = ln.Replace("\t", "    "),
+                        FontFamily = mono,
+                        FontSize = 12,
+                        Foreground = Brushes.White,
+                        Background = new SolidColorBrush(bg),
+                        TextTrimming = TextTrimming.CharacterEllipsis,
+                        Padding = new Thickness(2, 0, 2, 0),
+                    });
+            };
+            addLines(oldBlock, Color.FromArgb(0x70, 0xB0, 0x3A, 0x3A));     // 前(赤)
+            addLines(block, Color.FromArgb(0x70, 0x2E, 0xA0, 0x43));        // あと(緑)
 
             var win = new Window
             {
@@ -125,7 +122,7 @@ namespace KCppAssist
                     var tb = line.GetCharacterBounds(anchor.Caret.Position.BufferPosition);
                     Point c = toDip(el.PointToScreen(new Point(tb.Left - anchor.ViewportLeft, tb.Top - anchor.ViewportTop)));
                     double lineHeight = tb.Bottom - tb.Top;
-                    left = c.X;
+                    left = topLeft.X + 8;                                       // 行の左端にそろえる(右に寄せない)
                     top = c.Y - h - 6;                                          // 行の少し上
                     if (top < topLeft.Y) top = c.Y + lineHeight + 6;            // 上に収まらなければ、行の下
                 }
