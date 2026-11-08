@@ -142,7 +142,8 @@ Editor/
 |  | [第 50 章 ログとエラー処理](50-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
 |  | [第 51 章 スレッド、メモリ、IDisposable](51-threads-memory.md) | スレッドの約束、リーク、IDisposable |
 |  | [第 52 章 ビルド、テスト、配布](52-build-deploy.md) | Release、配布、CI、テスト |
-|  | [第 53 章 まとめとこれから](53-next-steps.md) | 設計の振り返りとこれから |
+| 7 プロセスを分ける | [第 53 章 プロセスを分ける：落ちても生きる構成](53-process-split.md) | RPC、名前付きパイプ + JSON、EngineClient、エンジンを落として確かめる |
+|  | [第 59 章 まとめとこれから](59-next-steps.md) | 設計の振り返りとこれから |
 
 ## この教材の進め方
 
