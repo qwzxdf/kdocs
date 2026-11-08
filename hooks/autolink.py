@@ -13,6 +13,10 @@ Rules:
     alone. Inline code (``std::vector<int>``) is linked when its name matches.
   - Short lowercase STL names in autolinks.yml (``set``, ``list``) only match
     inline code, because they are also ordinary English words.
+  - A source in autolinks.yml may be ``{terms: [...], scope: [folders], exclude: [folders]}``:
+    ``scope`` limits the terms to pages under those folders (docs/ relative),
+    ``exclude`` removes them there. The same term can be registered for several
+    scopes; the deepest matching scope wins, and no match means no link.
   - A target may carry an anchor (``basics/big-o.md#o1``).
 """
 
@@ -28,10 +32,10 @@ _SKIP_CLASSES = {"page-badges", "mem", "md-nav", "headerlink", "perf", "qual", "
 _ASCII_WORD = re.compile(r"[A-Za-z0-9_]")
 _CODE_TITLE = re.compile(r"^(std::[\w:]+|<[\w]+>)$")
 
-_text_terms = []   # [(term, src_path)] longest first
-_term_to_src = {}
+_text_terms = []   # [term] longest first
+_term_to_src = {}  # term -> [(src_path, scope, exclude)]
 _compiled = []
-_code_terms = {}   # normalized code name -> src_path
+_code_terms = {}   # normalized code name -> [(src_path, scope, exclude)]
 _exact_terms = {}  # inline code text that is matched as a whole ("O(1)")
 _repeat = set()
 
@@ -64,10 +68,44 @@ def _normalize_code(text):
     return text.strip()
 
 
-def _register_code(name, src):
+def _register_code(name, src, scope=(), exclude=()):
     for key in {name, name.removeprefix("std::")}:
-        if key and key not in _code_terms:
-            _code_terms[key] = src
+        if not key:
+            continue
+        entries = _code_terms.setdefault(key, [])
+        if (src, scope, exclude) not in entries:
+            entries.append((src, scope, exclude))
+
+
+def _pick(entries, page_uri):
+    """Choose the link target for this page: the deepest matching scope wins.
+
+    An entry without ``scope`` applies everywhere (score 0) except under its
+    ``exclude`` folders. An entry with ``scope`` applies only under those folders.
+    """
+    best, best_score = None, -1
+    for src, scope, exclude in entries:
+        if any(page_uri.startswith(x) for x in exclude):
+            continue
+        if scope:
+            hits = [len(x) for x in scope if page_uri.startswith(x)]
+            if not hits:
+                continue
+            score = max(hits)
+        else:
+            score = 0
+        if score > best_score:
+            best, best_score = src, score
+    return best
+
+
+def _prefixes(value):
+    """['engine', 'design/'] -> ('engine/', 'design/') : folder prefixes under docs/."""
+    out = []
+    for x in value or []:
+        x = str(x)
+        out.append(x if x.endswith("/") or x.endswith(".md") else x + "/")
+    return tuple(out)
 
 
 def on_files(files, config):
@@ -76,6 +114,7 @@ def on_files(files, config):
     _exact_terms.clear()
     _repeat.clear()
 
+    api_pages = []
     for f in files.documentation_pages():
         if f.src_uri.startswith("_"):
             continue
@@ -85,26 +124,58 @@ def on_files(files, config):
         if m:
             for name in _title_names(m.group(1)):
                 _register_code(name, f.src_uri)
+        api_pages.append(f)
 
-    for src, terms in _load_yaml(config).items():
+    _term_to_src.clear()
+    for src, spec in _load_yaml(config).items():
         if src == "_repeat":
-            _repeat.update(str(t) for t in terms or [])
+            _repeat.update(str(t) for t in spec or [])
             continue
+        scope = exclude = ()
+        terms = spec
+        if isinstance(spec, dict):
+            terms = spec.get("terms")
+            scope = _prefixes(spec.get("scope"))
+            exclude = _prefixes(spec.get("exclude"))
         for term in terms or []:
             term = str(term)
             if term in _repeat:
                 _exact_terms[term] = src
             if _CODE_TITLE.match(term) or re.fullmatch(r"[\w:]+", term):
-                _register_code(term, src)
+                _register_code(term, src, scope, exclude)
             # Short STL names (set, list, map...) are ordinary English words too,
             # so they are linked only when written as inline code.
             if src.startswith("stl/") and re.fullmatch(r"[a-z_][a-z0-9_]*", term):
                 continue
-            _text_terms.append((term, src))
+            _term_to_src.setdefault(term, []).append((src, scope, exclude))
 
-    _text_terms.sort(key=lambda t: len(t[0]), reverse=True)
-    _term_to_src.clear()
-    _term_to_src.update({term: src for term, src in _text_terms})
+    # ``api:`` names in a page's front matter link to that page (inline code and
+    # text). DX11 and DX12 pages never link to each other.
+    for f in api_pages:
+        with open(f.abs_src_path, encoding="utf-8") as fp:
+            head = fp.read(1500)
+        fm = re.match(r"---\s*\n(.*?)\n---", head, re.S)
+        if not fm:
+            continue
+        try:
+            meta = yaml.safe_load(fm.group(1)) or {}
+        except yaml.YAMLError:
+            continue
+        exclude = ()
+        if f.src_uri.startswith("directx/dx11/"):
+            exclude = ("directx/dx12/",)
+        elif f.src_uri.startswith("directx/dx12/"):
+            exclude = ("directx/dx11/",)
+        for name in meta.get("api") or []:
+            name = str(name)
+            if not re.fullmatch(r"[A-Za-z_][\w]*", name) or len(name) < 4:
+                continue
+            _register_code(name, f.src_uri, (), exclude)
+            if name not in _term_to_src:
+                _term_to_src.setdefault(name, []).append((f.src_uri, (), exclude))
+
+    _text_terms.extend(_term_to_src)
+    _text_terms.sort(key=len, reverse=True)
     _compiled.clear()
     return files
 
@@ -112,7 +183,7 @@ def on_files(files, config):
 def _text_pattern():
     if not _compiled:
         parts = []
-        for term, _ in _text_terms:
+        for term in _text_terms:
             escaped = re.escape(term)
             if term[0].isascii() and term[0].isalnum():
                 escaped = rf"(?<![A-Za-z0-9_]){escaped}(?![A-Za-z0-9_])"
@@ -166,7 +237,7 @@ def on_page_content(html, page, config, files):
                 code.wrap(make_link(href))
             continue
         key = _normalize_code(code.get_text())
-        src = _code_terms.get(key)
+        src = _pick(_code_terms.get(key, ()), page.file.src_uri)
         if src is None:
             continue
         href = url_for(src)
@@ -187,7 +258,9 @@ def on_page_content(html, page, config, files):
             last = 0
             for m in pattern.finditer(text):
                 term = m.group(0)
-                src = _term_to_src[term]
+                src = _pick(_term_to_src[term], page.file.src_uri)
+                if src is None:
+                    continue
                 href = url_for(src)
                 if href is None:
                     continue
