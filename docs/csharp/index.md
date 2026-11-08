@@ -143,6 +143,7 @@ Editor/
 |  | [第 51 章 スレッド、メモリ、IDisposable](51-threads-memory.md) | スレッドの約束、リーク、IDisposable |
 |  | [第 52 章 ビルド、テスト、配布](52-build-deploy.md) | Release、配布、CI、テスト |
 | 7 プロセスを分ける | [第 53 章 プロセスを分ける：落ちても生きる構成](53-process-split.md) | RPC、名前付きパイプ + JSON、EngineClient、エンジンを落として確かめる |
+|  | [第 54 章 IEngineService を差し替える](54-remote-engine-service.md) | `RemoteEngineService`、同期と非同期、偽のエンジンでのテスト |
 |  | [第 59 章 まとめとこれから](59-next-steps.md) | 設計の振り返りとこれから |
 
 ## この教材の進め方

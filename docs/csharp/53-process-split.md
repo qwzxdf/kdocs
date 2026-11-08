@@ -340,7 +340,7 @@ public sealed class EngineClient : IAsyncDisposable
 
     public async Task ConnectAsync(int timeoutMs = 5000)
     {
-        await _pipe.ConnectAsync(timeoutMs);     // 時間内に繋がらなければ TimeoutException
+        await _pipe.ConnectAsync(timeoutMs).ConfigureAwait(false);     // 時間内に繋がらなければ TimeoutException
         _readLoop = Task.Run(ReadLoopAsync);     // 返事を読むループを、別のタスクで回す
     }
 ```
@@ -362,14 +362,14 @@ public sealed class EngineClient : IAsyncDisposable
         _pending[id] = tcs;
         try
         {
-            await WriteMessageAsync(JsonSerializer.SerializeToUtf8Bytes(new { id, cmd, args }));
+            await WriteMessageAsync(JsonSerializer.SerializeToUtf8Bytes(new { id, cmd, args })).ConfigureAwait(false);
 
             var limit = timeout ?? TimeSpan.FromSeconds(5);
             using var cts = new CancellationTokenSource(limit);
             using (cts.Token.Register(() => tcs.TrySetException(
                        new TimeoutException($"'{cmd}' の返事が {limit.TotalSeconds} 秒以内に来ませんでした。"))))
             {
-                JsonElement reply = await tcs.Task;
+                JsonElement reply = await tcs.Task.ConfigureAwait(false);
                 if (!reply.GetProperty("ok").GetBoolean())
                 {
                     throw new EngineCommandException(reply.GetProperty("error").GetString() ?? "(理由なし)");
@@ -384,7 +384,7 @@ public sealed class EngineClient : IAsyncDisposable
     }
 ```
 
-`Interlocked.Increment` は、複数のスレッドが同時に呼んでも重ならない番号を振ります。`TaskCreationOptions.RunContinuationsAsynchronously` は返事を読むループが `TrySetResult` した瞬間に `await` の続きがそのスレッドで同期的に走ってしまうのを避ける指定です。これを付けないと、返事を読むループの中で呼び出し側の処理が動き、次の返事の読み取りが遅れます。
+`Interlocked.Increment` は、複数のスレッドが同時に呼んでも重ならない番号を振ります。各 `await` の後ろの `.ConfigureAwait(false)` は、「続きを元のスレッドに戻さなくてよい」という指定です。WPF の UI スレッドには、続きを UI スレッドで動かす仕組み（同期コンテキスト）があります。この指定がないと、UI スレッドから `RequestAsync(...).Result` のように待った瞬間に、続きが UI スレッドの空きを待ち、UI スレッドは結果を待つ、という行き違いで固まります。通信のような部品の中では、付けておくのが決まりです。`TaskCreationOptions.RunContinuationsAsynchronously` は返事を読むループが `TrySetResult` した瞬間に `await` の続きがそのスレッドで同期的に走ってしまうのを避ける指定です。これを付けないと、返事を読むループの中で呼び出し側の処理が動き、次の返事の読み取りが遅れます。
 
 時間切れの仕組みは `CancellationTokenSource` に制限時間を渡し、時間が来たら `tcs` に例外を入れる、というものです。この章のサーバーは 1 つずつ順に処理するので、ある要求が遅れると後ろの要求も待たされます。時間切れで呼び出し側が諦めたあと、遅れて返事が届いても、`_pending` に `id` が残っていないので、読み取りのループがその返事を黙って捨てます（次の節で確かめます）。
 
@@ -399,11 +399,11 @@ public sealed class EngineClient : IAsyncDisposable
         BinaryPrimitives.WriteInt32LittleEndian(frame, body.Length);
         body.CopyTo(frame, 4);
 
-        await _writeLock.WaitAsync();            // 複数の命令が同時に書いても、バイトが交ざらないようにする
+        await _writeLock.WaitAsync().ConfigureAwait(false);            // 複数の命令が同時に書いても、バイトが交ざらないようにする
         try
         {
-            await _pipe.WriteAsync(frame);
-            await _pipe.FlushAsync();
+            await _pipe.WriteAsync(frame).ConfigureAwait(false);
+            await _pipe.FlushAsync().ConfigureAwait(false);
         }
         catch (IOException)
         {
@@ -422,7 +422,7 @@ public sealed class EngineClient : IAsyncDisposable
         {
             while (true)
             {
-                await _pipe.ReadExactlyAsync(header);
+                await _pipe.ReadExactlyAsync(header).ConfigureAwait(false);
                 int length = BinaryPrimitives.ReadInt32LittleEndian(header);
                 if (length < 0 || length > MaxMessageSize)
                 {
@@ -430,7 +430,7 @@ public sealed class EngineClient : IAsyncDisposable
                 }
 
                 var body = new byte[length];
-                await _pipe.ReadExactlyAsync(body);
+                await _pipe.ReadExactlyAsync(body).ConfigureAwait(false);
 
                 using var doc = JsonDocument.Parse(body);
                 JsonElement root = doc.RootElement;
@@ -457,8 +457,8 @@ public sealed class EngineClient : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await _pipe.DisposeAsync();
-        if (_readLoop is not null) await _readLoop;
+        await _pipe.DisposeAsync().ConfigureAwait(false);
+        if (_readLoop is not null) await _readLoop.ConfigureAwait(false);
     }
 }
 ```
@@ -575,4 +575,4 @@ editor (C#) is still alive.
 - エンジンの「失敗」（`EngineCommandException`）と、エンジンの「消滅」（`EngineDisconnectedException`）を、別の例外にする。
 - 手元では 1 往復が約 35 μs だった。大量の命令は束ねるか、エンジン側で完結させる。
 
-次の章では、この `EngineClient` を `IEngineService` の実装として組み込みます。
+[第 54 章 IEngineService を差し替える](54-remote-engine-service.md) へ進みます。この章の `EngineClient` を、`IEngineService` の実装として組み込みます。
