@@ -27,46 +27,48 @@ tags:
 
 ```cpp
 void Renderer::CreateHiZ(uint32_t width, uint32_t height) {
-  hiz_width_ = NextPowerOfTwoFloor(width);
-  hiz_height_ = NextPowerOfTwoFloor(height);
-  hiz_mip_count_ = 1 + static_cast<uint32_t>(std::floor(std::log2(std::max(hiz_width_, hiz_height_))));
+  hiz_width_ = NextPowerOfTwoFloor(width);       // 画面以下で最大の 2 のべき乗(1920 → 1024)
+  hiz_height_ = NextPowerOfTwoFloor(height);     // 同じく高さ(1080 → 1024)
+  hiz_mip_count_ = 1 + static_cast<uint32_t>(std::floor(std::log2(std::max(hiz_width_, hiz_height_))));  // 1x1 まで縮めたときのミップ数
 
-  CD3DX12_HEAP_PROPERTIES heap_properties(D3D12_HEAP_TYPE_DEFAULT);
-  CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(
-      DXGI_FORMAT_R32_FLOAT, hiz_width_, hiz_height_, 1, static_cast<UINT16>(hiz_mip_count_), 1, 0,
-      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+  D3D12_HEAP_PROPERTIES heap_properties = MakeHeapProperties(D3D12_HEAP_TYPE_DEFAULT);   // GPU 専用
+  D3D12_RESOURCE_DESC desc = MakeTexture2DDesc(DXGI_FORMAT_R32_FLOAT, hiz_width_, hiz_height_,
+                                               static_cast<UINT16>(hiz_mip_count_), 1,
+                                               D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);  // ミップ付きで、UAV で書ける
   ThrowIfFailed(device_->CreateCommittedResource(&heap_properties, D3D12_HEAP_FLAG_NONE, &desc,
-                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                                                 D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,   // 普段は読み取り状態
                                                  nullptr, IID_PPV_ARGS(&hiz_)));
 
-  hiz_uav_base_ = bindless_heap_.AllocateRange(hiz_mip_count_);
-  hiz_srv_base_ = bindless_heap_.AllocateRange(hiz_mip_count_);
+  hiz_uav_base_ = bindless_heap_.AllocateRange(hiz_mip_count_);   // ミップごとの UAV 用に、連続した番号を確保
+  hiz_srv_base_ = bindless_heap_.AllocateRange(hiz_mip_count_);   // ミップごとの SRV 用の番号
   for (uint32_t mip = 0; mip < hiz_mip_count_; ++mip) {
-    D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {};                    // このミップだけに書くビュー
     uav.Format = DXGI_FORMAT_R32_FLOAT;
     uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-    uav.Texture2D.MipSlice = mip;
+    uav.Texture2D.MipSlice = mip;                                 // 何番目のミップか
     device_->CreateUnorderedAccessView(hiz_.Get(), nullptr, &uav, bindless_heap_.Cpu(hiz_uav_base_ + mip));
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};                     // このミップだけを読むビュー
     srv.Format = DXGI_FORMAT_R32_FLOAT;
     srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srv.Texture2D.MostDetailedMip = mip;
-    srv.Texture2D.MipLevels = 1;
+    srv.Texture2D.MostDetailedMip = mip;                          // 読み始めのミップ
+    srv.Texture2D.MipLevels = 1;                                  // 1 枚だけ
     device_->CreateShaderResourceView(hiz_.Get(), &srv, bindless_heap_.Cpu(hiz_srv_base_ + mip));
   }
 
-  D3D12_SHADER_RESOURCE_VIEW_DESC all_mips = {};
+  D3D12_SHADER_RESOURCE_VIEW_DESC all_mips = {};                  // 判定 CS が好きなミップを引くための、全ミップのビュー
   all_mips.Format = DXGI_FORMAT_R32_FLOAT;
   all_mips.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
   all_mips.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
   all_mips.Texture2D.MostDetailedMip = 0;
-  all_mips.Texture2D.MipLevels = hiz_mip_count_;
+  all_mips.Texture2D.MipLevels = hiz_mip_count_;                  // 全ミップ
   hiz_full_srv_ = bindless_heap_.Allocate();
   device_->CreateShaderResourceView(hiz_.Get(), &all_mips, bindless_heap_.Cpu(hiz_full_srv_));
 }
 ```
+
+Hi-Z は深度の「最大値のミップ マップ」です。ミップ 0 の 1 ピクセルは深度の 2×2 以上の範囲を代表し、ミップ 1 は 2×2 のミップ 0 を代表します。1920×1080 の深度なら 1024×1024 の Hi-Z のミップ 0 から始まり、ミップ 10 の 1×1 までで 11 枚です（`1 + floor(log2(1024)) = 11`）。ミップごとに UAV と SRV を 1 つずつ作るのは、構築 CS が「ミップ i を読みミップ i+1 に書く」ので、1 枚のテクスチャの別々のミップを別々のビューで見せる必要があるからです。
 
 - 2 のべき乗の大きさ: 画面サイズ以下の最大の 2 のべき乗にする。ミップの縮小が割り切れ判定が単純になる（元の深度はサンプリングで縮小して書く）
 - ミップ数: `1 + floor(log2(max(幅, 高さ)))`
@@ -80,17 +82,17 @@ void Renderer::CreateHiZ(uint32_t width, uint32_t height) {
 深度バッファをコンピュートが読むには、型なしフォーマットで作成し DSV と SRV で、別のフォーマットのビューを作ります。
 
 ```cpp
-CD3DX12_RESOURCE_DESC depth_desc =
-    CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32_TYPELESS, width, height, 1, 1, 1, 0,
-                                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+D3D12_RESOURCE_DESC depth_desc =
+    MakeTexture2DDesc(DXGI_FORMAT_R32_TYPELESS, width, height, 1, 1,
+                      D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);   // 型なしで作り、用途ごとに別の形式のビューを作る
 
-D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
+D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};                           // 描画で深度を書くためのビュー
 dsv.Format = DXGI_FORMAT_D32_FLOAT;
 dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 device_->CreateDepthStencilView(depth_.Get(), &dsv, dsv_handle);
 
-D3D12_SHADER_RESOURCE_VIEW_DESC depth_srv = {};
-depth_srv.Format = DXGI_FORMAT_R32_FLOAT;
+D3D12_SHADER_RESOURCE_VIEW_DESC depth_srv = {};                   // コンピュートで深度を読むためのビュー
+depth_srv.Format = DXGI_FORMAT_R32_FLOAT;                         // 深度を普通の float として読む
 depth_srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 depth_srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 depth_srv.Texture2D.MipLevels = 1;
@@ -102,30 +104,32 @@ device_->CreateShaderResourceView(depth_.Get(), &depth_srv, bindless_heap_.Cpu(d
 **ミップ 0**は深度バッファを Hi-Z の大きさに縮小しながらコピーします。ミップ 1 以降は前のミップの 2×2 の最大値です。
 
 ```hlsl
-Texture2D<float> source : register(t0);
-RWTexture2D<float> destination : register(u0);
+Texture2D<float> source : register(t0);          // 1 つ上のミップ(ミップ 1 以降)
+RWTexture2D<float> destination : register(u0);   // 今作るミップ
 
 cbuffer HiZConstants : register(b0) {
-  uint2 source_size;
-  uint2 destination_size;
+  uint2 source_size;                             // 読む側の大きさ(ピクセル)
+  uint2 destination_size;                        // 書く側の大きさ(ピクセル)
 };
 
-float MaxDepth4(uint2 base_texel) {
-  uint2 max_texel = source_size - 1;
-  float d0 = source.Load(int3(min(base_texel + uint2(0, 0), max_texel), 0));
-  float d1 = source.Load(int3(min(base_texel + uint2(1, 0), max_texel), 0));
-  float d2 = source.Load(int3(min(base_texel + uint2(0, 1), max_texel), 0));
-  float d3 = source.Load(int3(min(base_texel + uint2(1, 1), max_texel), 0));
-  return max(max(d0, d1), max(d2, d3));
+float MaxDepth4(uint2 base_texel) {              // 2x2 のうち、最も遠い深度を返す
+  uint2 max_texel = source_size - 1;             // 読んでよい最後のピクセル(奇数サイズの端の対策)
+  float d0 = source.Load(int3(min(base_texel + uint2(0, 0), max_texel), 0));   // 左上
+  float d1 = source.Load(int3(min(base_texel + uint2(1, 0), max_texel), 0));   // 右上
+  float d2 = source.Load(int3(min(base_texel + uint2(0, 1), max_texel), 0));   // 左下
+  float d3 = source.Load(int3(min(base_texel + uint2(1, 1), max_texel), 0));   // 右下
+  return max(max(d0, d1), max(d2, d3));          // 標準 Z は遠いほど大きいので max
 }
 
-[numthreads(8, 8, 1)]
+[numthreads(8, 8, 1)]                            // 8x8 = 64 スレッドで 1 グループ
 void HiZMain(uint3 id : SV_DispatchThreadID) {
-  if (any(id.xy >= destination_size)) return;
-  uint2 base_texel = id.xy * 2;
+  if (any(id.xy >= destination_size)) return;    // 切り上げで余ったスレッドを捨てる
+  uint2 base_texel = id.xy * 2;                  // 書くピクセルに対応する、読み側の左上
   destination[id.xy] = MaxDepth4(base_texel);
 }
 ```
+
+構築はミップを 1 枚ずつ順番にディスパッチします。ミップ 0 の `HiZBaseMain`（深度の大きさと Hi-Z の大きさが違うので比率で範囲を取る）と、ミップ 1 以降の `HiZMain`（2×2 の最大）の 2 本のシェーダーがあります。ミップ 1 を作るときはミップ 0 の書き込みが終わっている必要があるので、ディスパッチの間に UAV バリアを置きます。
 
 - `max`（標準 Z）: 標準 Z では、遠いほど値が大きい。2×2 の最大 ＝ そのブロック内で最も遠い深度。「この範囲のどこを見てもこれより手前には何もない」を表す＝保守的
 - ミップ 0 の縮小: 深度が Hi-Z より大きい（例：1920×1080 → 1024×512）場合、`source_size` と `destination_size` の比でブロックをとる必要がある。簡単な場合、2×2 でなく比率（スケール）で範囲の最大をとる
@@ -136,16 +140,16 @@ void HiZMain(uint3 id : SV_DispatchThreadID) {
 ```hlsl
 [numthreads(8, 8, 1)]
 void HiZBaseMain(uint3 id : SV_DispatchThreadID) {
-  if (any(id.xy >= destination_size)) return;
+  if (any(id.xy >= destination_size)) return;    // 範囲外のスレッドは何もしない
 
-  uint2 begin = id.xy * source_size / destination_size;
-  uint2 end = max((id.xy + 1) * source_size / destination_size, begin + 1);
-  end = min(end, source_size);
+  uint2 begin = id.xy * source_size / destination_size;                              // このピクセルが受け持つ、深度側の範囲の開始
+  uint2 end = max((id.xy + 1) * source_size / destination_size, begin + 1);          // 終わり。範囲が空にならないよう最低 1 ピクセル
+  end = min(end, source_size);                   // 深度の外を読まない
 
-  float result = 0.0;
+  float result = 0.0;                            // 最も近い値(0)から始めて max を取る
   for (uint y = begin.y; y < end.y; ++y) {
     for (uint x = begin.x; x < end.x; ++x) {
-      result = max(result, source.Load(int3(x, y, 0)));
+      result = max(result, source.Load(int3(x, y, 0)));   // 範囲内で最も遠い深度
     }
   }
   destination[id.xy] = result;
@@ -156,36 +160,34 @@ void HiZBaseMain(uint3 id : SV_DispatchThreadID) {
 
 ```cpp
 void Renderer::RecordBuildHiZ(ID3D12GraphicsCommandList* list) {
-  CD3DX12_RESOURCE_BARRIER depth_to_read = CD3DX12_RESOURCE_BARRIER::Transition(
-      depth_.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE,
-      D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+  D3D12_RESOURCE_BARRIER depth_to_read = MakeTransitionBarrier(   // 深度: 書き込み → コンピュートで読める状態
+      depth_.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
   list->ResourceBarrier(1, &depth_to_read);
 
-  CD3DX12_RESOURCE_BARRIER hiz_to_uav = CD3DX12_RESOURCE_BARRIER::Transition(
-      hiz_.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-      D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+  D3D12_RESOURCE_BARRIER hiz_to_uav = MakeTransitionBarrier(      // Hi-Z: 読み取り → 書き込み
+      hiz_.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
   list->ResourceBarrier(1, &hiz_to_uav);
 
   ID3D12DescriptorHeap* heaps[] = {bindless_heap_.Get()};
   list->SetDescriptorHeaps(1, heaps);
   list->SetComputeRootSignature(hiz_root_signature_.Get());
 
-  uint32_t source_width = width_;
+  uint32_t source_width = width_;                // 最初の読み側 = 深度バッファの大きさ
   uint32_t source_height = height_;
-  uint32_t dest_width = hiz_width_;
+  uint32_t dest_width = hiz_width_;              // 最初の書き側 = Hi-Z のミップ 0
   uint32_t dest_height = hiz_height_;
 
-  list->SetPipelineState(hiz_base_pso_.Get());
+  list->SetPipelineState(hiz_base_pso_.Get());   // ミップ 0 は、比率で縮小するシェーダー
   RecordHiZPass(list, bindless_heap_.Gpu(depth_srv_index_), bindless_heap_.Gpu(hiz_uav_base_),
                 source_width, source_height, dest_width, dest_height);
 
-  for (uint32_t mip = 1; mip < hiz_mip_count_; ++mip) {
-    CD3DX12_RESOURCE_BARRIER uav_barrier = CD3DX12_RESOURCE_BARRIER::UAV(hiz_.Get());
+  for (uint32_t mip = 1; mip < hiz_mip_count_; ++mip) {   // ミップ 1 以降は、1 つ上の 2x2 の最大
+    D3D12_RESOURCE_BARRIER uav_barrier = MakeUavBarrier(hiz_.Get());   // 前のミップの書き込み完了を待つ
     list->ResourceBarrier(1, &uav_barrier);
 
-    source_width = dest_width;
+    source_width = dest_width;                   // 読み側 = 直前に書いたミップ
     source_height = dest_height;
-    dest_width = std::max(1u, dest_width / 2);
+    dest_width = std::max(1u, dest_width / 2);   // 書き側は半分(最小 1)
     dest_height = std::max(1u, dest_height / 2);
 
     list->SetPipelineState(hiz_mip_pso_.Get());
@@ -194,12 +196,11 @@ void Renderer::RecordBuildHiZ(ID3D12GraphicsCommandList* list) {
                   dest_height);
   }
 
-  CD3DX12_RESOURCE_BARRIER to_read[2] = {
-      CD3DX12_RESOURCE_BARRIER::Transition(hiz_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                           D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-      CD3DX12_RESOURCE_BARRIER::Transition(depth_.Get(),
-                                           D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                                           D3D12_RESOURCE_STATE_DEPTH_WRITE),
+  D3D12_RESOURCE_BARRIER to_read[2] = {
+      MakeTransitionBarrier(hiz_.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),   // Hi-Z を判定 CS が読む状態へ
+      MakeTransitionBarrier(depth_.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                            D3D12_RESOURCE_STATE_DEPTH_WRITE),                 // 深度は 2 パス目の描画のために戻す
   };
   list->ResourceBarrier(2, to_read);
 }
@@ -207,13 +208,15 @@ void Renderer::RecordBuildHiZ(ID3D12GraphicsCommandList* list) {
 void Renderer::RecordHiZPass(ID3D12GraphicsCommandList* list, D3D12_GPU_DESCRIPTOR_HANDLE source,
                              D3D12_GPU_DESCRIPTOR_HANDLE destination, uint32_t source_width,
                              uint32_t source_height, uint32_t dest_width, uint32_t dest_height) {
-  uint32_t constants[4] = {source_width, source_height, dest_width, dest_height};
-  list->SetComputeRoot32BitConstants(0, 4, constants, 0);
-  list->SetComputeRootDescriptorTable(1, source);
-  list->SetComputeRootDescriptorTable(2, destination);
-  list->Dispatch((dest_width + 7) / 8, (dest_height + 7) / 8, 1);
+  uint32_t constants[4] = {source_width, source_height, dest_width, dest_height};   // HiZConstants と同じ並び
+  list->SetComputeRoot32BitConstants(0, 4, constants, 0);   // ルート定数 4 ワード
+  list->SetComputeRootDescriptorTable(1, source);           // t0: 読むミップ
+  list->SetComputeRootDescriptorTable(2, destination);      // u0: 書くミップ
+  list->Dispatch((dest_width + 7) / 8, (dest_height + 7) / 8, 1);   // 8x8 のグループ数(切り上げ)
 }
 ```
+
+`RecordBuildHiZ` の流れは①深度を読める状態に②Hi-Z を書ける状態に③ミップ 0 を作る、④ミップ 1 以降を 1 枚ずつ作る（間に UAV バリア）、⑤両方の状態を戻すです。ミップ 10 枚ぶんのディスパッチになりますが、ミップが進むごとに仕事は 4 分の 1 になります。
 
 - 深度の遷移: `DEPTH_WRITE` → `NON_PIXEL_SHADER_RESOURCE`。読み終えたら `DEPTH_WRITE` に戻す（2 パス目の描画が同じ深度に書くため）
 - Hi-Z の遷移: 構築中は `UNORDERED_ACCESS`、終わったら読み取り状態へ
@@ -229,52 +232,54 @@ void Renderer::RecordHiZPass(ID3D12GraphicsCommandList* list, D3D12_GPU_DESCRIPT
 <strong>境界ボックス（AABB）</strong>の8 隅をクリップ空間に変換し、画面上の矩形と最も近い深度を求めます。
 
 ```hlsl
-Texture2D<float> hiz : register(t3);
-SamplerState point_sampler : register(s0);
+Texture2D<float> hiz : register(t3);             // 全ミップを持つ Hi-Z
+SamplerState point_sampler : register(s0);       // ポイント サンプラー(補間すると最大値が崩れる)
 
 cbuffer OcclusionConstants : register(b1) {
-  float4x4 view_projection;
-  float2 hiz_size;
-  uint hiz_mip_count;
-  uint pass_index;
+  float4x4 view_projection;                      // ワールド → クリップ
+  float2 hiz_size;                               // Hi-Z のミップ 0 の大きさ(ピクセル)
+  uint hiz_mip_count;                            // ミップ数
+  uint pass_index;                               // 0 = 1 パス目、1 = 2 パス目
 };
 
 bool IsOccluded(float3 center, float radius_unused, float3 aabb_min, float3 aabb_max,
                 float4x4 world) {
-  float2 uv_min = float2(1.0, 1.0);
+  float2 uv_min = float2(1.0, 1.0);              // 画面上の矩形(UV)。最小から始めて、広げていく
   float2 uv_max = float2(0.0, 0.0);
-  float nearest_depth = 1.0;
+  float nearest_depth = 1.0;                     // 物体の最も手前の深度(標準 Z は 0 が手前)
 
-  [unroll] for (int i = 0; i < 8; ++i) {
+  [unroll] for (int i = 0; i < 8; ++i) {         // AABB の 8 隅
     float3 corner = float3((i & 1) ? aabb_max.x : aabb_min.x, (i & 2) ? aabb_max.y : aabb_min.y,
-                           (i & 4) ? aabb_max.z : aabb_min.z);
-    float4 world_position = mul(float4(corner, 1.0), world);
-    float4 clip = mul(world_position, view_projection);
-    if (clip.w <= 0.0) return false;
+                           (i & 4) ? aabb_max.z : aabb_min.z);   // i のビットで最小・最大を選ぶ
+    float4 world_position = mul(float4(corner, 1.0), world);     // モデル → ワールド
+    float4 clip = mul(world_position, view_projection);          // ワールド → クリップ
+    if (clip.w <= 0.0) return false;             // カメラの後ろに角がある: 投影できないので隠れていないと扱う
 
-    float3 ndc = clip.xyz / clip.w;
-    float2 uv = float2(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5);
-    uv_min = min(uv_min, uv);
+    float3 ndc = clip.xyz / clip.w;              // 透視除算
+    float2 uv = float2(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5);    // NDC → UV(y は上が 0 なので反転)
+    uv_min = min(uv_min, uv);                    // 矩形を広げる
     uv_max = max(uv_max, uv);
-    nearest_depth = min(nearest_depth, ndc.z);
+    nearest_depth = min(nearest_depth, ndc.z);   // 一番手前の角の深度
   }
 
-  uv_min = saturate(uv_min);
+  uv_min = saturate(uv_min);                     // 画面の外に出た分を切る
   uv_max = saturate(uv_max);
 
-  float2 size_in_pixels = (uv_max - uv_min) * hiz_size;
-  float mip_level = ceil(log2(max(max(size_in_pixels.x, size_in_pixels.y), 1.0)));
-  mip_level = min(mip_level, float(hiz_mip_count - 1));
+  float2 size_in_pixels = (uv_max - uv_min) * hiz_size;          // 矩形の大きさ(ミップ 0 のピクセル)
+  float mip_level = ceil(log2(max(max(size_in_pixels.x, size_in_pixels.y), 1.0)));   // 矩形が 1〜2 テクセルに収まるミップ
+  mip_level = min(mip_level, float(hiz_mip_count - 1));          // 最後のミップを超えない
 
-  float d0 = hiz.SampleLevel(point_sampler, float2(uv_min.x, uv_min.y), mip_level);
+  float d0 = hiz.SampleLevel(point_sampler, float2(uv_min.x, uv_min.y), mip_level);  // 矩形の 4 隅で Hi-Z を引く
   float d1 = hiz.SampleLevel(point_sampler, float2(uv_max.x, uv_min.y), mip_level);
   float d2 = hiz.SampleLevel(point_sampler, float2(uv_min.x, uv_max.y), mip_level);
   float d3 = hiz.SampleLevel(point_sampler, float2(uv_max.x, uv_max.y), mip_level);
-  float farthest_occluder = max(max(d0, d1), max(d2, d3));
+  float farthest_occluder = max(max(d0, d1), max(d2, d3));       // その範囲で、最も遠い遮蔽物の深度
 
-  return nearest_depth > farthest_occluder;
+  return nearest_depth > farthest_occluder;      // 物体の一番手前が、どの遮蔽物よりも奥なら隠れている
 }
 ```
+
+判定の流れは 4 段階です。①AABB の 8 隅をクリップ空間に変換して、画面上の矩形（`uv_min` と `uv_max`）と一番手前の深度（`nearest_depth`）を求めます。②矩形の大きさ（ピクセル）の `log2` を切り上げたミップを選びます。たとえば矩形が 100 ピクセルなら `ceil(log2(100)) = 7` で、そのミップの 1 テクセルは 128 ピクセルを代表するので、矩形は高々 2×2 テクセルに収まります。③矩形の 4 隅で Hi-Z を引いて、最も遠い値を取ります。④物体の一番手前がその最も遠い遮蔽物より奥なら物体は完全に隠れています。
 
 - `clip.w <= 0`: カメラの後ろ（または近平面をまたぐ）角がある。投影が破綻するので隠れていない（可視）として扱う（保守的）
 - **`uv.y = 0.5 - ndc.y * 0.5`: D3D のテクスチャ座標は、上が 0。NDC の y は上が +1 なので反転**
@@ -312,9 +317,9 @@ bool IsOccluded(float3 center, float radius_unused, float3 aabb_min, float3 aabb
 ### 可視フラグ
 
 ```cpp
-visibility_buffer_ = CreateDefaultBuffer(device_.Get(), sizeof(uint32_t) * kMaxInstances,
-                                         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+visibility_buffer_ = CreateDefaultBuffer(device_.Get(), sizeof(uint32_t) * kMaxInstances,   // 1 インスタンス 1 ワード
+                                         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,         // シェーダーが書く
+                                         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);             // カリング CS が読み書きする状態
 ```
 
 1 インスタンスにつき 1 ワード（0 か 1）のバッファをフレームをまたいで保持します。RWByteAddressBuffer か RWStructuredBuffer\<uint\> として使います。
@@ -324,40 +329,40 @@ visibility_buffer_ = CreateDefaultBuffer(device_.Get(), sizeof(uint32_t) * kMaxI
 カリング CSに `pass_index`（0 か 1）を追加します。
 
 ```hlsl
-RWStructuredBuffer<uint> visibility : register(u2);
+RWStructuredBuffer<uint> visibility : register(u2);   // インスタンスごとの前フレームの可視フラグ(0 / 1)
 
 [numthreads(64, 1, 1)]
 void CullTwoPassMain(uint3 id : SV_DispatchThreadID) {
   uint instance_index = id.x;
-  if (instance_index >= instance_count) return;
+  if (instance_index >= instance_count) return;     // 余ったスレッドを捨てる
 
   Instance instance = instances[instance_index];
   MeshInfo mesh = meshes[instance.mesh_index];
 
-  float3 center = mul(float4(mesh.bounds_center, 1.0), instance.world).xyz;
+  float3 center = mul(float4(mesh.bounds_center, 1.0), instance.world).xyz;   // 境界球をワールドへ
   float radius = mesh.bounds_radius * MaxScale(instance.world);
 
-  bool in_frustum = SphereInFrustum(center, radius);
-  uint was_visible = visibility[instance_index];
+  bool in_frustum = SphereInFrustum(center, radius);   // 視錐台の中か
+  uint was_visible = visibility[instance_index];       // 前フレーム(2 パス目)の結果
 
-  bool draw = false;
+  bool draw = false;                                   // このパスで描くか
   if (pass_index == 0) {
-    draw = in_frustum && (was_visible != 0);
+    draw = in_frustum && (was_visible != 0);           // 1 パス目: 前フレームに見えていた物だけを描く
   } else {
-    bool occluded = true;
+    bool occluded = true;                              // 視錐台の外なら隠れている扱い
     if (in_frustum) {
       occluded = IsOccluded(mesh.bounds_center, mesh.bounds_radius, mesh.aabb_min,
-                            mesh.aabb_max, instance.world);
+                            mesh.aabb_max, instance.world);   // Hi-Z で判定
     }
-    visibility[instance_index] = (in_frustum && !occluded) ? 1 : 0;
-    draw = in_frustum && !occluded && (was_visible == 0);
+    visibility[instance_index] = (in_frustum && !occluded) ? 1 : 0;   // 次のフレームのために、今回の結果を保存
+    draw = in_frustum && !occluded && (was_visible == 0);             // 1 パス目で描いた物は描かない(二重描画の防止)
   }
 
-  if (!draw) return;
+  if (!draw) return;                                   // 描かないなら終わり
 
   uint slot;
-  command_counts.InterlockedAdd(mesh.pso_bucket * 4, 1, slot);
-  if (slot >= MAX_COMMANDS_PER_BUCKET) return;
+  command_counts.InterlockedAdd(mesh.pso_bucket * 4, 1, slot);   // バケットの何番目に書くか
+  if (slot >= MAX_COMMANDS_PER_BUCKET) return;         // 領域を超える分は書かない
 
   IndirectCommand command;
   command.instance_index = instance_index;
@@ -369,6 +374,8 @@ void CullTwoPassMain(uint3 id : SV_DispatchThreadID) {
   commands[mesh.pso_bucket * MAX_COMMANDS_PER_BUCKET + slot] = command;
 }
 ```
+
+このシェーダーで大事なのは `visibility` を更新するのが 2 パス目だけで、読むのが両方のパスだという点です。1 パス目は前フレームの結果をそのまま使い 2 パス目は今フレームの判定で書き換えます。`draw` の条件に `was_visible == 0` を入れるのは、1 パス目で描いた物を 2 パス目でもう一度描かないためです。ここを忘れると見えている物が全部 2 回描かれます。
 
 - 1 パス目（`pass_index == 0`）: 視錐台内 ＆ 前フレーム可視の物を描く。可視フラグは更新しない
 - 2 パス目（`pass_index == 1`）: 視錐台内の全物体をHi-Z で判定。可視フラグを今回の判定で更新
@@ -383,17 +390,19 @@ void CullTwoPassMain(uint3 id : SV_DispatchThreadID) {
 
 ```cpp
 void Renderer::RecordFrame(ID3D12GraphicsCommandList* list) {
-  UploadInstances(list, instance_count_);
+  UploadInstances(list, instance_count_);                  // 動いた物の行列などを GPU へ
 
-  RecordCull(list, cull_constants_pass0_, constants_address_pass0_);
-  RecordDraw(list, frame_address_);
+  RecordCull(list, cull_constants_pass0_, constants_address_pass0_);   // 1 パス目のカリング(pass_index = 0)
+  RecordDraw(list, frame_address_);                        // 前フレームに見えていた物を描く。深度ができる
 
-  RecordBuildHiZ(list);
+  RecordBuildHiZ(list);                                    // その深度から Hi-Z を作る
 
-  RecordCull(list, cull_constants_pass1_, constants_address_pass1_);
-  RecordDraw(list, frame_address_);
+  RecordCull(list, cull_constants_pass1_, constants_address_pass1_);   // 2 パス目のカリング(pass_index = 1)
+  RecordDraw(list, frame_address_);                        // 新しく見えた物を追加で描く(深度はクリアしない)
 }
 ```
+
+`RecordFrame` の 5 行が 2 パス方式の全体です。`RecordCull` はカウンタを毎回 0 にして、コマンドを書き直すので 2 回目の呼び出しは 1 回目の結果に影響されません。深度のクリアは 1 パス目の前（この関数の外）で 1 回だけ行い 2 パス目の描画は同じ深度バッファに追加で描きます。
 
 - カウンタのリセットとコマンド バッファ: `RecordCull` が毎回、カウンタをリセットする。2 パス目は新しいコマンド列
 - 深度クリアは 1 パス目の前だけ: 2 パス目の描画は、同じ深度バッファに追加で描く（クリアしない）
