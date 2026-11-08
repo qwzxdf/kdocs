@@ -62,6 +62,12 @@
           <ButtonText>K-CppAssist: メンバーからコンストラクターを作る</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdOverride" priority="0x0116" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: 基底クラスの仮想関数を override する</ButtonText>
+        </Strings>
+      </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
@@ -138,6 +144,7 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidVSStd97" key1="D" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSwitch" editor="guidVSStd97" key1="Z" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidVSStd97" key1="C" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdOverride" editor="guidVSStd97" key1="O" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -172,6 +179,7 @@
       <IDSymbol name="CmdHelp" value="0x010E" />
       <IDSymbol name="CmdSwitch" value="0x0110" />
       <IDSymbol name="CmdCtor" value="0x0111" />
+      <IDSymbol name="CmdOverride" value="0x0112" />
     </GuidSymbol>
   </Symbols>
 

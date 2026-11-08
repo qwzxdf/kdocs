@@ -109,6 +109,7 @@ namespace KCppAssist
                 // switch の行: 足りない case を足す。class / struct の行: コンストラクターを作る
                 string lineText = line.GetText();
                 if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"\bswitch\s*\(")) list.Add(Action("switch の足りない case を足す", () => Invoke(p => p.RunSwitch())));
+                else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()))); }
                 else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())));
 
                 // 宣言していない変数への代入: 型を付ける。メンバー関数の中なら、メンバー変数にもできる

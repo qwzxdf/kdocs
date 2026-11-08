@@ -36,6 +36,15 @@ static class GenTests
         return text.Insert(p.Position, p.Text);
     }
 
+    static string Ov(string text, string marker, string other)
+    {
+        int caret = text.IndexOf(marker, StringComparison.Ordinal);
+        string why;
+        var p = OverrideGen.Make(text, caret, new List<string> { other }, "\n", out why);
+        if (p == null) return "!" + why;
+        return text.Insert(p.Position, p.Text);
+    }
+
     public static int Run()
     {
         // ---- ParseEnums ----
@@ -243,6 +252,65 @@ static class GenTests
         // 引数名: m_ 接頭辞と末尾の _
         string k8 = "struct U {\n  int m_value;\n  int size_;\n};\n";
         Check("param names", Ctor(k8, "m_value").Contains("U(int value, int size) : m_value(value), size_(size) {}") ? "ok" : Ctor(k8, "m_value"), "ok");
+
+        // ---- override ----
+        string baseH =
+            "class Shape {\n" +
+            " public:\n" +
+            "  virtual ~Shape() = default;\n" +
+            "  virtual void Draw(Renderer& r, int layer = 0) const = 0;\n" +
+            "  virtual float Area() const = 0;\n" +
+            "  virtual void Update(float dt) {}\n" +
+            "  void NotVirtual();\n" +
+            "};\n";
+        string d1 =
+            "class Circle : public Shape {\n" +
+            " public:\n" +
+            "  Circle(float r);\n" +
+            "\n" +
+            " private:\n" +
+            "  float r_;\n" +
+            "};\n";
+        Check("override: pure virtuals only", Ov(d1, "Circle(", baseH),
+            "class Circle : public Shape {\n" +
+            " public:\n" +
+            "  void Draw(Renderer& r, int layer) const override;\n" +
+            "  float Area() const override;\n" +
+            "\n" +
+            "  Circle(float r);\n" +
+            "\n" +
+            " private:\n" +
+            "  float r_;\n" +
+            "};\n");
+
+        string d2 =
+            "class Circle : public Shape {\n" +
+            " public:\n" +
+            "  void Draw(Renderer& r, int layer) const override;\n" +
+            "  float Area() const override;\n" +
+            "};\n";
+        Check("override: remaining non-pure virtuals", Ov(d2, "Draw", baseH),
+            "class Circle : public Shape {\n" +
+            " public:\n" +
+            "  void Update(float dt) override;\n" +
+            "\n" +
+            "  void Draw(Renderer& r, int layer) const override;\n" +
+            "  float Area() const override;\n" +
+            "};\n");
+
+        string d3 = "struct Sq : Shape {\n  float w;\n};\n";
+        string r3 = Ov(d3, "float w", baseH);
+        Check("override: struct, default public", r3.StartsWith("struct Sq : Shape {\n  void Draw(Renderer& r, int layer) const override;\n  float Area() const override;\n\n  float w;") ? "ok" : r3, "ok");
+
+        // 2 段の継承: 孫は、祖父の仮想関数も対象
+        string mid = "class Mid : public Shape {\n public:\n  float Area() const override;\n};\n";
+        string d4 = "class Leaf : public Mid {\n  int x;\n};\n";
+        string r4o = Ov(d4, "int x", baseH + mid);
+        Check("override: through two levels", r4o.Contains("void Draw(Renderer& r, int layer) const override;") ? "ok" : r4o, "ok");
+
+        Check("override: no base", Ov("class A {\n  int x;\n};\n", "int x", baseH), "!基底クラスがありません。class A : public Base の形にしてください");
+        Check("override: base not found", Ov("class A : public Zzz {\n  int x;\n};\n", "int x", baseH), "!基底クラスの定義が見つかりません (Zzz)");
+        Check("override: all done", Ov("class A : public Shape {\n public:\n  void Draw(Renderer& r, int layer) const override;\n  float Area() const override;\n  void Update(float dt) override;\n};\n", "Draw", baseH), "!足りない仮想関数はありません");
 
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
