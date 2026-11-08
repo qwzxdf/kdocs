@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ", "0.16.2")]
+    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ", "0.17.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
@@ -86,6 +86,7 @@ namespace KCppAssist
                 commands.AddCommand(new MenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
                 commands.AddCommand(new MenuCommand((s, e) => RunMove(), new CommandID(CmdSet, CmdMove)));
                 RegisterTidyCommands(commands);
+                RegisterGenCommands(commands);
                 RegisterHelpCommand(commands);
                 commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
             }

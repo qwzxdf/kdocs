@@ -27,6 +27,8 @@ namespace KCppAssist
   Alt+F   #include を足す            カーソルの型名(std::vector、ComPtr、自作クラス)のヘッダーを、cpp / ヘッダーの先頭に足す
   Alt+D   #include を前方宣言にする  ヘッダーの #include ""x.h"" を class X; にして、#include を cpp に移す
           (ポインター・参照・shared_ptr だけで使っている型が対象)
+  Alt+Z   switch の足りない case を足す  enum の値のうち、まだ書いていない case を足す(default の前)
+  Alt+C   コンストラクターを作る  データ メンバーから、初期化リストつきのコンストラクターを作る
   右クリック(プロジェクト / ソリューション) または 拡張機能 メニュー
           #include を整理（プロジェクト全体）／ 使っていない #include を消す（プロジェクト全体）
   拡張機能 メニュー

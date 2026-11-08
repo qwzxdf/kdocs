@@ -50,6 +50,18 @@
           <ButtonText>K-CppAssist: #include を前方宣言にする</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdSwitch" priority="0x0114" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: switch の足りない case を足す</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: メンバーからコンストラクターを作る</ButtonText>
+        </Strings>
+      </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
@@ -124,6 +136,8 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidVSStd97" key1="R" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidVSStd97" key1="M" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidVSStd97" key1="D" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSwitch" editor="guidVSStd97" key1="Z" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidVSStd97" key1="C" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -156,6 +170,8 @@
       <IDSymbol name="CmdForward" value="0x010C" />
       <IDSymbol name="CmdTidyFile" value="0x010D" />
       <IDSymbol name="CmdHelp" value="0x010E" />
+      <IDSymbol name="CmdSwitch" value="0x0110" />
+      <IDSymbol name="CmdCtor" value="0x0111" />
     </GuidSymbol>
   </Symbols>
 

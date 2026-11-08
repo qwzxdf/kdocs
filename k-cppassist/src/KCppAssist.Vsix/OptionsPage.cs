@@ -279,6 +279,16 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string ForwardKey { get; set; } = "Alt+D";
 
+        [Category("キー")]
+        [DisplayName("switch の足りない case を足す")]
+        [Description(KeyHelp)]
+        public string SwitchKey { get; set; } = "Alt+Z";
+
+        [Category("キー")]
+        [DisplayName("メンバーからコンストラクターを作る")]
+        [Description(KeyHelp)]
+        public string CtorKey { get; set; } = "Alt+C";
+
         [Category("include 整理")]
         [DisplayName("使っていない #include を、ヘッダーからも消す")]
         [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
@@ -305,6 +315,8 @@ namespace KCppAssist
                 CreateKey = Current(KCppAssistPackage.CmdCreate);
                 MoveKey = Current(KCppAssistPackage.CmdMove);
                 ForwardKey = Current(KCppAssistPackage.CmdForward);
+                SwitchKey = Current(KCppAssistPackage.CmdSwitch);
+                CtorKey = Current(KCppAssistPackage.CmdCtor);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -327,6 +339,8 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdCreate, CreateKey);
                 Assign(KCppAssistPackage.CmdMove, MoveKey);
                 Assign(KCppAssistPackage.CmdForward, ForwardKey);
+                Assign(KCppAssistPackage.CmdSwitch, SwitchKey);
+                Assign(KCppAssistPackage.CmdCtor, CtorKey);
             }
             catch (Exception ex)
             {
