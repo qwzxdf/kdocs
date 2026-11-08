@@ -54,4 +54,5 @@ nav:
   - 50-logging-errors.md
   - 51-threads-memory.md
   - 52-build-deploy.md
-  - 53-next-steps.md
+  - 53-process-split.md
+  - 59-next-steps.md
