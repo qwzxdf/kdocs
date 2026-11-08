@@ -289,6 +289,11 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string CtorKey { get; set; } = "Alt+C";
 
+        [Category("キー")]
+        [DisplayName("基底クラスの仮想関数を override する")]
+        [Description(KeyHelp)]
+        public string OverrideKey { get; set; } = "Alt+O";
+
         [Category("include 整理")]
         [DisplayName("使っていない #include を、ヘッダーからも消す")]
         [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
@@ -317,6 +322,7 @@ namespace KCppAssist
                 ForwardKey = Current(KCppAssistPackage.CmdForward);
                 SwitchKey = Current(KCppAssistPackage.CmdSwitch);
                 CtorKey = Current(KCppAssistPackage.CmdCtor);
+                OverrideKey = Current(KCppAssistPackage.CmdOverride);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -341,6 +347,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdForward, ForwardKey);
                 Assign(KCppAssistPackage.CmdSwitch, SwitchKey);
                 Assign(KCppAssistPackage.CmdCtor, CtorKey);
+                Assign(KCppAssistPackage.CmdOverride, OverrideKey);
             }
             catch (Exception ex)
             {
