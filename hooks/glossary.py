@@ -162,7 +162,6 @@ def on_page_content(content, page, config, files):
         return content
     parts, items = _load(config)
     soup = BeautifulSoup(content, "html.parser")
-    used = set()
     changed = False
     for node in _text_nodes(soup):
         if not isinstance(node, NavigableString) or _skipped(node):
@@ -182,9 +181,6 @@ def on_page_content(content, page, config, files):
         for m in pattern.finditer(text):
             group = candidates[m.lastindex - 1]
             _, index, description, link = items[group]
-            if index in used:
-                continue
-            used.add(index)
             pieces.append(text[pos:m.start()])
             abbr = soup.new_tag("abbr", title=description)
             abbr["class"] = "glossary"
