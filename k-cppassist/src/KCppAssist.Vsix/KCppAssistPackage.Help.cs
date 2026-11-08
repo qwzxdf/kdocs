@@ -28,6 +28,7 @@ namespace KCppAssist
   Alt+D   #include を前方宣言にする  ヘッダーの #include ""x.h"" を class X; にして、#include を cpp に移す
           (ポインター・参照・shared_ptr だけで使っている型が対象)
   Alt+Z   switch の足りない case を足す  enum の値のうち、まだ書いていない case を足す(default の前)
+  Alt+U   呼び出しから関数を作る  Foo(a, 1) の行で押すと、型を読んで宣言と定義の雛形を作る(obj.Foo はクラスに、Foo は自由関数)
   Alt+O   基底クラスの仮想関数を override する  足りない override の宣言を足す(純粋仮想関数を優先)
   Alt+C   コンストラクターを作る  データ メンバーから、初期化リストつきのコンストラクターを作る
   右クリック(プロジェクト / ソリューション) または 拡張機能 メニュー

@@ -45,6 +45,18 @@ static class GenTests
         return text.Insert(p.Position, p.Text);
     }
 
+    static string Us(string text, string marker)
+    {
+        string why;
+        var u = UsageGen.Find(text, text.IndexOf(marker, StringComparison.Ordinal), out why);
+        if (u == null) return "!" + why;
+        string s = u.Signature();
+        if (u.Unknown.Count > 0) s += " |unknown=" + string.Join(",", u.Unknown);
+        if (u.ReturnGuessed) s += " |guessed";
+        if (u.Receiver != null) s += " |recv=" + u.Receiver + (u.ReceiverType != null ? " type=" + u.ReceiverType : "");
+        return s;
+    }
+
     public static int Run()
     {
         // ---- ParseEnums ----
@@ -311,6 +323,33 @@ static class GenTests
         Check("override: no base", Ov("class A {\n  int x;\n};\n", "int x", baseH), "!基底クラスがありません。class A : public Base の形にしてください");
         Check("override: base not found", Ov("class A : public Zzz {\n  int x;\n};\n", "int x", baseH), "!基底クラスの定義が見つかりません (Zzz)");
         Check("override: all done", Ov("class A : public Shape {\n public:\n  void Draw(Renderer& r, int layer) const override;\n  float Area() const override;\n  void Update(float dt) override;\n};\n", "Draw", baseH), "!足りない仮想関数はありません");
+
+        // ---- 使用箇所から関数を作る ----
+        string u1 =
+            "void Player::Update(float dt) {\n" +
+            "  int hp = 3;\n" +
+            "  std::string name = \"a\";\n" +
+            "  Heal(hp, name, 2.5f, dt);\n" +
+            "}\n";
+        Check("usage: statement call", Us(u1, "Heal"), "void Heal(int hp, const std::string& name, float arg3, float dt)");
+        Check("usage: args unknown", Us("void f() {\n  Foo(bar(), x + 1);\n}\n", "Foo"), "void Foo(int arg1, int arg2) |unknown=bar(),x + 1");
+        Check("usage: bool from if", Us("void f() {\n  if (IsDead(3)) {}\n}\n", "IsDead"), "bool IsDead(int arg1)");
+        Check("usage: bool from !", Us("void f() {\n  bool b = !IsDead(3);\n}\n", "IsDead"), "bool IsDead(int arg1)");
+        Check("usage: type from declaration", Us("void f() {\n  float x = GetSpeed();\n}\n", "GetSpeed"), "float GetSpeed()");
+        Check("usage: type from assignment", Us("void f() {\n  double d;\n  d = Calc(1);\n}\n", "Calc"), "double Calc(int arg1)");
+        Check("usage: auto is unknown", Us("void f() {\n  auto x = Calc(1);\n}\n", "Calc"), "int Calc(int arg1) |guessed");
+        Check("usage: return type", Us("float Speed() {\n  return Calc();\n}\n", "Calc"), "float Calc()");
+        Check("usage: receiver", Us("void f(Enemy& e) {\n  e.Hit(5);\n}\n", "Hit"), "void Hit(int arg1) |recv=e. type=Enemy");
+        Check("usage: pointer receiver", Us("void f() {\n  std::unique_ptr<Enemy> e;\n  e->Hit();\n}\n", "Hit"), "void Hit() |recv=e-> type=Enemy");
+        Check("usage: not a call", Us("void f() {\n  int x = 3;\n}\n", "x = 3"), "!カーソルの行に、関数の呼び出しが見つかりません");
+        Check("usage: declaration with parens is not a call", Us("void f() {\n  std::string s(\"a\");\n}\n", "std::string"), "!カーソルの行に、関数の呼び出しが見つかりません");
+        string fd; int fpos;
+        {
+            string src = "void A() {}\n\nvoid B() {\n  Foo(1);\n}\n";
+            string why2; var u = UsageGen.Find(src, src.IndexOf("Foo"), out why2);
+            UsageGen.PlanFreeDefinition(src, src.IndexOf("void B"), u, "\n", out fpos, out fd);
+            Check("usage: free definition", src.Insert(fpos, fd), "void A() {}\n\nvoid Foo(int arg1) {\n  // TODO: Foo を実装する\n}\n\nvoid B() {\n  Foo(1);\n}\n");
+        }
 
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;

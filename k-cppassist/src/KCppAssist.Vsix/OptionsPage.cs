@@ -294,6 +294,11 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string OverrideKey { get; set; } = "Alt+O";
 
+        [Category("キー")]
+        [DisplayName("呼び出しから関数を作る")]
+        [Description(KeyHelp)]
+        public string UsageKey { get; set; } = "Alt+U";
+
         [Category("include 整理")]
         [DisplayName("使っていない #include を、ヘッダーからも消す")]
         [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
@@ -323,6 +328,7 @@ namespace KCppAssist
                 SwitchKey = Current(KCppAssistPackage.CmdSwitch);
                 CtorKey = Current(KCppAssistPackage.CmdCtor);
                 OverrideKey = Current(KCppAssistPackage.CmdOverride);
+                UsageKey = Current(KCppAssistPackage.CmdUsage);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -348,6 +354,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdSwitch, SwitchKey);
                 Assign(KCppAssistPackage.CmdCtor, CtorKey);
                 Assign(KCppAssistPackage.CmdOverride, OverrideKey);
+                Assign(KCppAssistPackage.CmdUsage, UsageKey);
             }
             catch (Exception ex)
             {
