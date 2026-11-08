@@ -15,7 +15,7 @@ Rules:
   - Links are made only on pages under ``LINK_SCOPE`` and point only into ``LINK_SCOPE``.
   - ``directx/dx11`` and ``directx/dx12`` never link to each other (``SHARED`` and
     ``directx/concepts`` are reachable from both).
-  - In one code block, a name is linked only the first time.
+  - Every occurrence of a name in a code block is linked.
 """
 
 import os
@@ -314,7 +314,6 @@ def _process_block(soup, code, page_src, page_url, files, link, vars_):
         toks.append((s, s.get_text(), cls))
     labels = _classify(toks)
     depth = 0
-    used = set()
     sig = [k for k, t in enumerate(toks) if t[2] != "w"]
     pos = {k: j for j, k in enumerate(sig)}
     for idx, ((span, text, cls), label) in enumerate(zip(toks, labels)):
@@ -338,8 +337,6 @@ def _process_block(soup, code, page_src, page_url, files, link, vars_):
                 elif kind in ("ComPtr", "ptr"):
                     qualifier = inner
             key = (qualifier or "") + "::" + text
-            if key in used:
-                continue
             target = _pick(text, page_src, qualifier)
             if target is None:
                 continue
@@ -354,7 +351,6 @@ def _process_block(soup, code, page_src, page_url, files, link, vars_):
             a = soup.new_tag("a", href=href or "#")
             a["class"] = "code-link"
             span.wrap(a)
-            used.add(key)
 
 
 def on_page_content(html, page, config, files):
