@@ -7,15 +7,13 @@ Terms come from two places:
   2. ``autolinks.yml`` at the repository root, for Japanese terms and aliases.
 
 Rules:
-  - Only the first occurrence of each term on a page is linked.
+  - Every occurrence of a term on a page is linked.
   - A page never links to itself.
   - Text inside headings, existing links, code blocks and navigation is left
     alone. Inline code (``std::vector<int>``) is linked when its name matches.
   - Short lowercase STL names in autolinks.yml (``set``, ``list``) only match
     inline code, because they are also ordinary English words.
   - A target may carry an anchor (``basics/big-o.md#o1``).
-  - Terms listed under ``_repeat`` in autolinks.yml (``O(1)`` ...) are linked on
-    every occurrence, not only the first.
 """
 
 import os
@@ -141,7 +139,6 @@ def on_page_content(html, page, config, files):
     if page.file.src_uri.startswith("_"):
         return html
     soup = BeautifulSoup(html, "html.parser")
-    used = set()
 
     def url_for(spec):
         path, _, anchor = spec.partition("#")
@@ -170,12 +167,11 @@ def on_page_content(html, page, config, files):
             continue
         key = _normalize_code(code.get_text())
         src = _code_terms.get(key)
-        if src is None or src in used:
+        if src is None:
             continue
         href = url_for(src)
         if href is None:
             continue
-        used.add(src)
         code.wrap(make_link(href))
 
     # 2. Plain text terms: one pass over the text, one regex for all terms.
@@ -192,14 +188,9 @@ def on_page_content(html, page, config, files):
             for m in pattern.finditer(text):
                 term = m.group(0)
                 src = _term_to_src[term]
-                repeat = term in _repeat
-                if not repeat and src in used:
-                    continue
                 href = url_for(src)
                 if href is None:
                     continue
-                if not repeat:
-                    used.add(src)
                 pieces.append(text[last:m.start()])
                 pieces.append(make_link(href, m.group(0)))
                 last = m.end()
