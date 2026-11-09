@@ -351,6 +351,18 @@ static class GenTests
             Check("usage: free definition", src.Insert(fpos, fd), "void A() {}\n\nvoid Foo(int arg1) {\n  // TODO: Foo を実装する\n}\n\nvoid B() {\n  Foo(1);\n}\n");
         }
 
+        // ---- #include の自動追加: 空行がないのに、グループが分かれていると見て空行を足さない ----
+        {
+            string src = "#include \"a.h\"\n#ifdef _WIN32\n#include <windows.h>\n#endif\n#include \"b.h\"\n\nvoid f() {}\n";
+            var e = IncludeEditor.Plan(src, "<vector>", "a", "\n");
+            string r = e == null ? "(null)" : src.Insert(e.Position, e.Text);
+            Check("include: no blank lines in an unbroken block", r.Contains("\n\n#include <vector>") || r.Contains("<vector>\n\n#include") ? r : "ok", "ok");
+            string src2 = "#include \"a.h\"\n\n#include <vector>\n\nvoid f() {}\n";
+            var e2 = IncludeEditor.Plan(src2, "<windows.h>", "a", "\n");
+            Check("include: new group between groups", e2 == null ? "(null)" : src2.Insert(e2.Position, e2.Text),
+                "#include \"a.h\"\n\n#include <vector>\n\n#include <windows.h>\n\nvoid f() {}\n");
+        }
+
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

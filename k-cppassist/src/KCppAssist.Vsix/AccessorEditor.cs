@@ -265,6 +265,14 @@ namespace KCppAssist
             if (memberIndent == null) memberIndent = specIndent.Length == 0 ? "    " : specIndent + " ";
             if (blankBefore && prevIsMember) sb.Append(eol);
             foreach (string l in lines) { if (l.Length > 0) sb.Append(memberIndent).Append(l); sb.Append(eol); }
+            if (blankBefore)
+            {
+                // 足したあとの行が、空行でも「}」でもなければ(すぐ次が private: や別のメンバーなら)、その下にも空行を 1 行入れる
+                int nl = text.IndexOf('\n', insertAt);
+                string next = nl < 0 ? text.Substring(insertAt) : text.Substring(insertAt, nl - insertAt);
+                string nt = next.Trim();
+                if (nt.Length > 0 && !nt.StartsWith("}")) sb.Append(eol);
+            }
             return new HeaderEditor.Edit { Position = insertAt, Text = sb.ToString() };
         }
 

@@ -19,7 +19,7 @@ namespace KCppAssist
     {
         [Category("ゲッター・セッター")]
         [DisplayName("ゲッターとセッターの間に空行を入れる")]
-        [Description("True のとき、Alt+E で作るゲッターとセッターの間と、その前の行との間に、空行を 1 行入れます。")]
+        [Description("True のとき、Alt+E で作るゲッターとセッターの間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
         public bool BlankLineBetweenAccessors { get; set; } = true;
 
         [Category("#include")]
