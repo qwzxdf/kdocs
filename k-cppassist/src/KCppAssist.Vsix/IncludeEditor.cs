@@ -91,7 +91,7 @@ namespace KCppAssist
 
             bool grouped = false;
             for (int i = 0; i + 1 < list.Count; i++)
-                if (list[i + 1].Start > list[i].End) { grouped = true; break; }
+                if (HasBlankLine(text, list[i].End, list[i + 1].Start)) { grouped = true; break; }
             // 自分のヘッダーだけがある状態で、別の種類を足すときは、空行で分ける
             if (!grouped && g != 0 && list.All(x => x.Group == 0)) grouped = true;
 
@@ -125,6 +125,21 @@ namespace KCppAssist
         {
             if (last.End >= text.Length && !endsWithNewline) return new Edit { Position = text.Length, Text = eol + line };
             return new Edit { Position = last.End, Text = line + eol };
+        }
+
+        /// <summary>from から to の間(どちらも行の頭)に、空白だけの行があるか。#if・コメント・#define の行がはさまっているだけでは、グループが分かれているとは見ない。</summary>
+        private static bool HasBlankLine(string text, int from, int to)
+        {
+            if (to <= from) return false;
+            int pos = from;
+            while (pos < to)
+            {
+                int e = text.IndexOf('\n', pos);
+                int next = e < 0 || e + 1 > to ? to : e + 1;
+                if (text.Substring(pos, next - pos).Trim().Length == 0) return true;
+                pos = next;
+            }
+            return false;
         }
 
         private static bool NextIsBlank(string text, int pos)
