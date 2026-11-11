@@ -42,6 +42,13 @@ tags:
 4. インポスター（200 m〜）: 数方向から撮った絵をカメラを向く板に貼ります。2 三角形です。
 5. ビルボード（最遠）: 1 枚の絵を常にカメラへ向けます。2 三角形です。
 
+<svg class="fig flow" viewBox="0 0 720 250" role="img" aria-label="距離ごとの LOD と、1 本あたりの三角形の数（対数の目盛り）"><text x="14" y="22" class="fig-title">距離と三角形の数（1 本あたり。対数の目盛り）</text>
+<line x1="60" y1="200" x2="700" y2="200" stroke="currentColor" stroke-width="1.5"/>
+<g fill="rgba(76,139,245,0.25)" stroke="#4c8bf5" stroke-width="2"><rect x="80" y="44" width="90" height="156"/><rect x="200" y="86" width="90" height="114"/><rect x="320" y="124" width="90" height="76"/><rect x="440" y="186" width="90" height="14" fill="rgba(229,170,40,0.3)" stroke="#e5aa28"/><rect x="560" y="186" width="90" height="14" fill="rgba(229,170,40,0.3)" stroke="#e5aa28"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="125" y="38">約 3.5 万</text><text x="245" y="80">約 7 千</text><text x="365" y="118">約 2 千</text><text x="485" y="180">2</text><text x="605" y="180">2</text>
+<text x="125" y="220">LOD 0</text><text x="245" y="220">LOD 1</text><text x="365" y="220">LOD 2</text><text x="485" y="220">インポスター</text><text x="605" y="220">ビルボード</text>
+<text x="125" y="238">〜30 m</text><text x="245" y="238">30〜80 m</text><text x="365" y="238">80〜200 m</text><text x="485" y="238">200 m〜</text><text x="605" y="238">最遠</text></g></svg>
+
 500 m を超えると木は数ピクセルの緑のかたまりです。1 km を超えたら木を 1 本ずつ描くのをやめて、森の色の塊として地形のテクスチャに含める方法もあります。
 
 三角形の数は距離で 4 桁（5 万と 2）違います。この差が森を描ける理由です。
