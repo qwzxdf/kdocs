@@ -6,47 +6,28 @@ tags:
 
 # Blend State
 
-<strong>半透明の描画は GPU の「ブレンド ステート」の設定で決まります</strong>。DirectX 11 ではソース係数・デスティネーション係数・演算を指定します。このページでは代表的な設定（通常・加算・乗算）とコードを説明します。
+ガラスや煙を描くと背景の色と混ざって見えます。この「混ぜ方」を決めるのが GPU のブレンド ステートです。通常のアルファ、加算、乗算で結果も描く順番への敏感さもまったく違います。設定を間違えると半透明が後ろの物を隠したり縁に黒い輪郭が出たりします。
+
+<strong>半透明の描画は「これから描く色（ソース）」と「すでに画面にある色（デスティネーション）」を、式で混ぜることです</strong>。DirectX 11 のブレンド ステートは、その式の部品（ソースの係数、デスティネーションの係数、演算）を指定します。このページではブレンドの式、通常、加算、乗算、乗算済みアルファの特徴、順序への依存（数字つき）、深度の設定、動く C++ を説明します。
 
 !!! tip "ポイント"
-    - 通常：SrcAlpha / InvSrcAlpha。
-    - 加算：One / One（光・炎・魔法）。
-    - 乗算：Zero / SrcColor（影・色付きガラス）。
-    - 深度の書き込みは OFF、読み取りは ON。
+    - 通常は `SrcAlpha / InvSrcAlpha`、加算は `SrcAlpha / One`、乗算は `Zero / SrcColor` です。
+    - 加算と乗算は描く順番に依存しないので、ソートが要りません。通常のアルファは依存します。
+    - 半透明は深度テストをして、深度の書き込みはしません。
+    - フィルタされたテクスチャの縁の黒い輪郭は、乗算済みアルファで避けられます。
+    - レンダー ターゲットごとに別のブレンドを指定できます（`IndependentBlendEnable`）。
 
 !!! info "このページを読む前に"
     - [Alpha Blending and Sorting](index.md)（このセクション全体の地図と、読む順番）
     - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
-## DirectX 11 のブレンド ステート
-```cpp
-D3D11_BLEND_DESC blend_desc = {};
-blend_desc.RenderTarget[0].BlendEnable = TRUE;
-blend_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-blend_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-blend_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-blend_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-device->CreateBlendState(&blend_desc, &alpha_blend_state);
+## ブレンドの式 {#formula}
 
-D3D11_DEPTH_STENCIL_DESC depth_desc = {};
-depth_desc.DepthEnable = TRUE;
-depth_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-depth_desc.DepthFunc = D3D11_COMPARISON_LESS;
-device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
+```text
+結果 = ソース × SrcBlend  [演算 BlendOp]  デスティネーション × DestBlend
 ```
 
-| 項目 | 設定 | 意味 |
-| --- | --- | --- |
-| `SrcBlend` | `SRC_ALPHA` | ソースの色にソースのアルファを掛ける |
-| `DestBlend` | `INV_SRC_ALPHA` | デスティネーションに(1 − ソースのアルファ) を掛ける |
-| `BlendOp` | `ADD` | 足す |
-| `DepthWriteMask` | `ZERO` | 深度を書かない（半透明が後の半透明を隠さない） |
-| `DepthFunc` | `LESS` | 深度テストは行う（不透明の後ろにある物は描かない） |
-
-<strong>深度書き込みを ON のままにする</strong>と手前の半透明が奥の半透明の描画を妨げます（奥が描かれなくなる）。
+`SrcBlend` はソース（これから描く色）に掛ける係数で、`SRC_ALPHA` や `ONE` をよく使います。`DestBlend` はデスティネーション（画面の色）に掛ける係数で、`INV_SRC_ALPHA` や `ONE` を使います。`BlendOp` は 2 つをどう組み合わせるかで、`ADD`（足す）、`MAX`、`MIN` があります。
 
 <!-- fig:blend-modes:begin -->
 
@@ -84,157 +65,161 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 <!-- fig:blend-modes:end -->
 
-### ブレンドの種類
+## 代表的なブレンド {#kinds}
 
-| 種類 | `SrcBlend` / `DestBlend` | 式 | 用途 |
-| --- | --- | --- | --- |
-| 通常（アルファ） | `SRC_ALPHA` / `INV_SRC_ALPHA` | `C_s·α + C_d·(1−α)` | ガラス・水・UI |
-| 加算 | `SRC_ALPHA` / `ONE` | `C_s·α + C_d` | 炎・光・魔法・爆発 |
-| 加算（アルファなし） | `ONE` / `ONE` | `C_s + C_d` | 明るい光の粒 |
-| 乗算 | `ZERO` / `SRC_COLOR` | `C_d · C_s` | 影・色付きガラス・暗くする |
-| 乗算済みアルファ | `ONE` / `INV_SRC_ALPHA` | `C_s + C_d·(1−α)` | 通常の安定した方式 |
+### 通常のアルファ ブレンド
 
-加算と乗算は順序に依存しない（足し算・掛け算は、交換できる）ので ソートが不要です。炎・光の粒・影はこの性質を利用してソートなしで描けることが多いです。
+`結果 = ソース × α + デスティネーション × (1 − α)` でガラス、煙、フェードする物の標準です。`SrcBlend = SRC_ALPHA`、`DestBlend = INV_SRC_ALPHA` です。
 
-## ブレンドの式
+### 加算ブレンド
 
-半透明の描画は <strong>これから描く色（ソース）</strong>とすでに画面にある色（デスティネーション）を式で、混ぜます。DirectX 11 のブレンド ステートは、この式の部品を指定します。
+`結果 = ソース × α + デスティネーション × 1` で火、光、魔法の輝きなど明るさを足していく表現です。`SrcBlend = SRC_ALPHA`（アルファを使わないなら `ONE`）、`DestBlend = ONE` です。重なるほど明るくなって白に近づきます。HDR ならブルームで光る表現につながります（[Bloom](../../postprocess/bloom/index.md)）。
 
-```text
-結果 = ソース × SrcBlend  [演算 BlendOp]  デスティネーション × DestBlend
-```
+### 乗算ブレンド
 
-| 部品 | 意味 | よく使う値 |
-| --- | --- | --- |
-| `SrcBlend` | ソース（これから描く色）に掛ける係数 | `SRC_ALPHA`、`ONE` |
-| `DestBlend` | デスティネーション（画面の色）に掛ける係数 | `INV_SRC_ALPHA`、`ONE` |
-| `BlendOp` | 2 つをどう組み合わせるか | `ADD`（足す）、`MAX`、`MIN` |
+`結果 = ソース × デスティネーション` で色付きガラス、影、汚れのように背景を暗くする表現です。`SrcBlend = ZERO`、`DestBlend = SRC_COLOR` です。
 
-## 代表的なブレンド
+### 乗算済みアルファ
 
-### ① 通常のアルファ ブレンド
+`結果 = ソース（すでに α が掛かっている） + デスティネーション × (1 − α)` です。ソースにあらかじめアルファを掛けておく形で `SrcBlend = ONE`、`DestBlend = INV_SRC_ALPHA` です（[Premultiplied Alpha](premultiplied.md)）。
 
-```text
-結果 = ソース × α  +  デスティネーション × (1 − α)
-```
+### 最大値
 
-ガラス、煙、フェードする物の <strong>標準</strong>です。
+`BlendOp = MAX` で重なっても強い方だけを残します（[Trampled Grass](../../terrain/vegetation/trample.md)）。
 
-```cpp
-D3D11_RENDER_TARGET_BLEND_DESC& rt = blend.RenderTarget[0];
-rt.BlendEnable = TRUE;
-rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-rt.BlendOp = D3D11_BLEND_OP_ADD;
-rt.SrcBlendAlpha = D3D11_BLEND_ONE;                // アルファ チャンネルの合成
-rt.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-```
+## 順序への依存 {#order}
 
-### ② 加算ブレンド
+通常のアルファは描く順番で結果が変わります。赤（`(1, 0, 0)`、α = 0.5）と青（`(0, 0, 1)`、α = 0.5）を黒い背景に重ねて、計算しました。
 
-```text
-結果 = ソース × α  +  デスティネーション × 1
-```
+<svg class="fig flow" viewBox="0 0 720 240" role="img" aria-label="赤と青を逆の順番で重ねたときの色。通常のアルファは変わり、加算と乗算は同じ"><text x="14" y="22" class="fig-title">描く順番を入れ替えたときの結果（黒い背景、α = 0.5）</text>
+<g stroke="#94a3b8" stroke-width="1.5"><rect x="110" y="50" width="110" height="70" rx="8" fill="#400080"/><rect x="250" y="50" width="110" height="70" rx="8" fill="#800040"/><rect x="420" y="50" width="110" height="70" rx="8" fill="#800080"/><rect x="560" y="50" width="110" height="70" rx="8" fill="#800080"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="165" y="140">赤 → 青</text><text x="165" y="158">(0.25, 0, 0.5)</text><text x="305" y="140">青 → 赤</text><text x="305" y="158">(0.5, 0, 0.25)</text><text x="235" y="44" style="font-weight:600">通常のアルファ: 順序で変わる</text>
+<text x="475" y="140">赤 → 青</text><text x="475" y="158">(0.5, 0, 0.5)</text><text x="615" y="140">青 → 赤</text><text x="615" y="158">(0.5, 0, 0.5)</text><text x="545" y="44" style="font-weight:600">加算: 同じ</text></g>
+<text x="360" y="204" text-anchor="middle" style="font-size:12px">乗算も同じ（(1, 0.5, 0.5) × (0.5, 1, 0.5) はどちらの順でも (0.5, 0.5, 0.25)）</text>
+<text x="360" y="224" text-anchor="middle" style="font-size:12px">足し算も掛け算も交換できるので、加算と乗算はソートが要らない</text></svg>
 
-火、光、魔法の輝きなど 明るさを足していく表現です。順序に依存しない（足し算は順序を入れ替えても同じ）のでソートが不要です。
+通常のアルファは赤を先に描くと `(0.25, 0, 0.5)`、青を先に描くと `(0.5, 0, 0.25)` で手前に描いた色が強く出ます。加算はどちらの順でも `(0.5, 0, 0.5)` で同じです。乗算も `(1, 0.5, 0.5)` と `(0.5, 1, 0.5)` を掛けてどちらの順でも `(0.5, 0.5, 0.25)` になります。足し算も掛け算も交換できるからです。そのため、炎、光の粒、影はソートなしで描けることが多いです。通常のアルファの物（ガラス、煙）は奥から手前へソートします（[Sorting](sorting.md)）。
 
-```cpp
-rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-rt.DestBlend = D3D11_BLEND_ONE;                    // 画面の色をそのまま残して、足す
-rt.BlendOp = D3D11_BLEND_OP_ADD;
-```
+## 乗算済みアルファと縁の輪郭 {#premultiplied}
 
-加算ブレンドは 重なるほど明るくなり白に近づきます。HDR で明るさの上限が無い場合はブルームで光る表現につながります（[Bloom](../../postprocess/bloom/index.md)）。
+ストレートなアルファ（色にアルファが掛かっていない画像）のテクスチャをバイリニア フィルタで拡大すると、縁に黒い輪郭が出ることがあります。不透明な赤（`(1, 0, 0, 1)`）と透明な黒（`(0, 0, 0, 0)`）の境目を例にちょうど中間のサンプルを計算しました。バイリニア補間の結果は `(0.5, 0, 0, 0.5)` です。
 
-### ③ 乗算ブレンド
+白い背景に重ねるとストレートの式（`SRC_ALPHA / INV_SRC_ALPHA`）は `(0.5, 0, 0) × 0.5 + (1, 1, 1) × 0.5 = (0.75, 0.5, 0.5)` で、赤が暗く（くすんで）なります。本来の「50 % の赤」は `(1, 0.5, 0.5)` のはずです。乗算済みの式（`ONE / INV_SRC_ALPHA`）なら `(0.5, 0, 0) + (1, 1, 1) × 0.5 = (1, 0.5, 0.5)` で、正しい結果になります。
 
-```text
-結果 = ソース × デスティネーション
-```
+原因はストレートの画像で透明な画素の色（ここでは黒）が補間に混ざることです。乗算済みアルファでは色にアルファが掛かっているので、補間しても透明な画素は色の寄与が 0 のままです。これが縁の黒い輪郭を避けられる理由です。
 
-色付きガラス、影、汚れのように背景の色を暗くする表現です。
+## 深度の設定 {#depth}
+
+半透明は深度テストは行って深度の書き込みはしないのが基本です。
+
+- 深度テストを有効にすると、不透明な物の後ろにある半透明は描かれません。
+- 深度の書き込みを無効にします。半透明が深度を書くとその後ろの半透明が隠れて、穴が開いたように見えます。
+
+描く順番は不透明を描いて深度を書き半透明を描いて（深度テストのみ奥から手前へソート）、ポストプロセスです。
+
+## 動く C++ {#cpp}
+
+4 種類のブレンド ステートと深度のステートをまとめて作る関数です。
 
 ```cpp
-rt.SrcBlend = D3D11_BLEND_ZERO;
-rt.DestBlend = D3D11_BLEND_SRC_COLOR;              // 画面の色 × ソースの色
+#include <d3d11.h>
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
+
+// 1 つのレンダー ターゲットのブレンド設定を作る小さな関数
+static D3D11_RENDER_TARGET_BLEND_DESC MakeBlend(D3D11_BLEND src, D3D11_BLEND dest, D3D11_BLEND_OP op) {
+  D3D11_RENDER_TARGET_BLEND_DESC rt = {};
+  rt.BlendEnable = TRUE;
+  rt.SrcBlend = src;                        // ソース（これから描く色）に掛ける係数
+  rt.DestBlend = dest;                      // デスティネーション（画面の色）に掛ける係数
+  rt.BlendOp = op;
+  rt.SrcBlendAlpha = D3D11_BLEND_ONE;       // アルファ チャンネルの合成: 通常は ONE / INV_SRC_ALPHA
+  rt.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+  rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+  return rt;
+}
+
+struct TransparentStates {
+  ComPtr<ID3D11BlendState> alpha, premultiplied, additive, multiply;
+  ComPtr<ID3D11DepthStencilState> depth_test_only;   // 深度テストはするが、書き込まない
+};
+
+HRESULT CreateTransparentStates(ID3D11Device* device, TransparentStates* out) {
+  const struct { D3D11_BLEND src, dest; ComPtr<ID3D11BlendState>* target; } kinds[] = {
+      {D3D11_BLEND_SRC_ALPHA, D3D11_BLEND_INV_SRC_ALPHA, &out->alpha},       // C_s·α + C_d·(1−α)
+      {D3D11_BLEND_ONE, D3D11_BLEND_INV_SRC_ALPHA, &out->premultiplied},     // C_s + C_d·(1−α)（C_s は α 掛け済み）
+      {D3D11_BLEND_SRC_ALPHA, D3D11_BLEND_ONE, &out->additive},              // C_s·α + C_d
+      {D3D11_BLEND_ZERO, D3D11_BLEND_SRC_COLOR, &out->multiply},             // C_d · C_s
+  };
+  for (const auto& k : kinds) {
+    D3D11_BLEND_DESC desc = {};
+    desc.RenderTarget[0] = MakeBlend(k.src, k.dest, D3D11_BLEND_OP_ADD);
+    const HRESULT hr = device->CreateBlendState(&desc, k.target->GetAddressOf());
+    if (FAILED(hr)) return hr;
+  }
+  D3D11_DEPTH_STENCIL_DESC ds = {};
+  ds.DepthEnable = TRUE;                                  // 不透明な物の後ろは隠す
+  ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;        // 半透明は深度を書かない
+  ds.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+  return device->CreateDepthStencilState(&ds, out->depth_test_only.GetAddressOf());
+}
 ```
 
-乗算も 順序に依存しません（掛け算は、順序を入れ替えても同じ）。
+アルファ チャンネルの合成は `ONE / INV_SRC_ALPHA` にしています。これで画面に残るアルファが重なりに応じて正しく累積します。使うときは描画の前に `context->OMSetBlendState(states.alpha.Get(), nullptr, 0xffffffff)` と `context->OMSetDepthStencilState(states.depth_test_only.Get(), 0)` を呼びます。
 
-### ④ 乗算済みアルファ
+乗算済みアルファにするにはピクセル シェーダーで、出力の色にアルファを掛けます。
 
-```text
-結果 = ソース（すでに α が掛かっている）  +  デスティネーション × (1 − α)
+```hlsl
+Texture2D<float4> g_tex : register(t0);
+SamplerState g_linear_wrap : register(s0);
+
+float4 PremultipliedPS(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float4 c = g_tex.Sample(g_linear_wrap, uv);        // ストレートなアルファのテクスチャ
+  return float4(c.rgb * c.a, c.a);                    // 乗算済みにして返す（ONE / INV_SRC_ALPHA 用）
+}
 ```
 
-アルファ ブレンドの ソースにあらかじめアルファを掛けておく形です（[Premultiplied Alpha](premultiplied.md)）。
+テクスチャを最初から乗算済みで保存しておけば、フィルタの段階で輪郭が出ません。シェーダーで掛ける方法はフィルタ後に掛けるので、輪郭が残ります。
 
-```cpp
-rt.SrcBlend = D3D11_BLEND_ONE;                     // ソースには、掛けない（掛け済み）
-rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-```
+!!! note "確かめた範囲"
+    C++ は MSVC（`/W4`、`/c`）でコンパイルして警告もエラーも出ないことを確かめました（実行はしていません）。HLSL は `fxc`（`ps_5_0`）でコンパイルしました。順序への依存と縁の輪郭の数字は Python での計算です。GPU での描画は確認していません。
 
-## 比較
+## 複数のレンダー ターゲット {#mrt}
 
-| ブレンド | SrcBlend | DestBlend | 向く表現 | 順序依存 |
-| --- | --- | --- | --- | --- |
-| アルファ | SRC_ALPHA | INV_SRC_ALPHA | ガラス、フェード | 依存する |
-| 乗算済みアルファ | ONE | INV_SRC_ALPHA | 煙 + 光を 1 つのレイヤーで | 依存する |
-| 加算 | SRC_ALPHA（または ONE） | ONE | 火、光、魔法 | しない |
-| 乗算 | ZERO | SRC_COLOR | 色ガラス、影 | しない |
-| 最大値（MAX） | ONE | ONE（`BlendOp = MAX`） | 重なっても、強い方だけ残す（[Trampled Grass](../../terrain/vegetation/trample.md)） | しない |
+レンダー ターゲットごとに別のブレンドを指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、2 つのターゲットに別々のブレンドを使います。1 つ目は加算（積算）で 2 つ目は乗算風（透過度）です。
 
-## 深度の設定との組み合わせ
+## 比較 {#compare}
 
-半透明は <strong>深度テストは行い深度の書き込みは、しない</strong>のが基本です。
+- アルファ（`SRC_ALPHA / INV_SRC_ALPHA`）はガラスやフェードに向きます。順序に依存します。
+- 乗算済みアルファ（`ONE / INV_SRC_ALPHA`）は煙と光を 1 つのレイヤーで扱えます。順序に依存します。
+- 加算（`SRC_ALPHA / ONE`）は火、光、魔法に向きます。順序に依存しません。
+- 乗算（`ZERO / SRC_COLOR`）は色ガラスや影に向きます。順序に依存しません。
+- 最大値（`MAX`）は重なっても強い方を残します。順序に依存しません。
 
-```cpp
-D3D11_DEPTH_STENCIL_DESC ds = {};
-ds.DepthEnable = TRUE;                                  // 不透明な物の後ろは、隠す
-ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;        // 半透明は、深度を書かない
-ds.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-device->CreateDepthStencilState(&ds, &transparent_depth_state);
-```
+## よくあるミス {#mistakes}
 
-- テスト：有効: 不透明な物の後ろにある半透明は描かない
-- 書き込み：無効: 半透明が深度を書くとその後ろの半透明が隠れてしまう
+??? failure "半透明の物が後ろの物を隠して、穴が開いたように見える"
+    原因は深度の書き込みが有効なことです。手前の半透明が深度を書くと奥の半透明が描かれなくなります。`DepthWriteMask = ZERO` にします。
 
-## 描画の順番
+??? failure "テクスチャの縁に黒い輪郭が出る"
+    原因はストレートなアルファの画像をフィルタしてから合成していることです。透明な画素の色が補間に混ざります。乗算済みアルファの画像にして、`ONE / INV_SRC_ALPHA` で合成します。
 
-半透明は <strong>不透明の後</strong>に描きます。
+??? failure "加算ブレンドの物が、背景を暗くしてしまう"
+    原因は `DestBlend` を `INV_SRC_ALPHA` にしていることです。加算は `DestBlend = ONE` にして画面の色をそのまま残します。
 
-```text
-① 不透明を描く（深度を書く）
-② 半透明を描く（深度テストのみ、書き込みなし）、ソートして、奥から手前へ
-③ ポストプロセス
-```
-
-半透明の中の順序は ソートで決めます（[Sorting](sorting.md)）。
-
-## 複数のレンダー ターゲットとブレンド
-
-レンダー ターゲットごとに <strong>別のブレンド</strong>を指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、2 つのターゲットに別々のブレンドを使います。
-
-```cpp
-blend.IndependentBlendEnable = TRUE;
-blend.RenderTarget[0] = accum_blend;         // 加算（WBOIT の、積算）
-blend.RenderTarget[1] = reveal_blend;        // 乗算風（WBOIT の、透過度）
-```
-
-## よくあるミス
-
-??? failure "半透明の物が後ろの物を隠して穴が開いたように見える"
-    <strong>深度の書き込みを OFF</strong>にする。
-
-## これだけ覚える
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 通常・加算・乗算の 3 つを覚える
-    - [x] 半透明は深度の書き込み OFF
+    - [x] 通常、加算、乗算の 3 つを覚えます。加算と乗算は順序に依存しません。
+    - [x] 半透明は深度テストをして、深度の書き込みはしません。
+    - [x] 縁の輪郭は乗算済みアルファで避けられます。
+    - [x] 通常のアルファは、奥から手前へソートします。
 
-## 参考
+## 参考 {#references}
+
+このページは次の資料を読まずに書きました。数字は式からの計算です。
 
 - Porter, Duff, "Compositing Digital Images", SIGGRAPH 1984（アルファ合成の原典）
 - Smith, "Image Compositing Fundamentals", Microsoft Technical Memo 4, 1995（乗算済みアルファ）
