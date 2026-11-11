@@ -40,6 +40,106 @@ tags:
 
 1 つ目は<strong>サンプルを数える</strong>方式（Crytek SSAO・半球 SSAO）です。近くのランダムな点が面の奥にあるかを調べその割合を 0/1 で数えます。単純ですが少ないサンプルでは量子化ノイズが出ます。2 つ目は式を足す方式（Alchemy・SAO）で、近くの面の点ごとに連続的な式を足します。0/1 の判定がないので滑らかです。3 つ目は地平線を積分する方式（HBAO・HBAO+・GTAO）で、方向ごとに遮蔽が始まる角度を探し、角度で積分します。少ない方向数で精度が出ます。4 つ目は世界を調べる方式（RTAO・DFAO・VXAO）で、シーン全体のデータから V を求めます。画面外の遮蔽も扱えますがデータ構造の用意が必要です。
 
+## 数字で確かめる {#measure}
+
+比較表の主張のうち数字で確かめられるものを計算しました（Python、乱数のシミュレーション）。
+
+### 平らな面の灰色化
+
+Crytek SSAO が平らな面で灰色になるのは、球のサンプルの約半分が面の下に入るからです。平面の上の 1 点を中心に半径 1 の球の中に 100 万個の点をランダムに置いて、平面より下にある割合を測ると、50.1 % でした。AO が約 0.5 になる計算で、何もない平らな面が半分暗くなります。法線の向きに半球を作る方式（半球 SSAO）では、0 % でした。
+
+<svg class="fig flow" viewBox="0 0 720 250" role="img" aria-label="平らな面で面の下に入るサンプルの割合。球は 50 パーセント、半球は 0 パーセント"><text x="14" y="22" class="fig-title">平らな面で、面の下に入るサンプルの割合</text>
+<line x1="60" y1="190" x2="690" y2="190" stroke="currentColor" stroke-width="1.5"/>
+<g stroke-width="2"><rect x="150" y="50" width="120" height="140" fill="rgba(229,72,77,0.28)" stroke="#e5484d"/><rect x="400" y="189" width="120" height="1" fill="rgba(76,139,245,0.28)" stroke="#4c8bf5"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="210" y="44">50.1 %</text><text x="460" y="183">0 %</text>
+<text x="210" y="212">Crytek SSAO（球）</text><text x="460" y="212">半球 SSAO（法線の半球）</text></g>
+<text x="360" y="238" text-anchor="middle" style="font-size:12px">球は、何もない平らな面でも約半分が暗くなる。法線を使う半球で解消する</text></svg>
+
+### サンプル数と量子化ノイズ
+
+0/1 で数える方式（Crytek SSAO、半球 SSAO）は `N` 個のサンプルで、AO が `N + 1` 段階の値しか取れません。遮蔽の割合が 0.5 なら二項分布の標準偏差は `√(0.25 / N)` です。`N = 4` で 0.25、8 で 0.177、16 で 0.125、32 で 0.088 です。16 サンプルでも AO が ±0.125 ばらつきます。ブラーと時間蓄積でならす必要があるのは、このためです。連続的な式を足す方式（Alchemy、SAO）や地平線を積分する方式（HBAO、GTAO）は 0/1 の判定がなく、量子化ノイズが出にくいです。
+
+### 1 フレームの深度読み込み回数
+
+フル HD（1920 × 1080、約 207 万画素）で 1 画素あたりのサンプル数を掛けた深度の読み込み回数です。半球 SSAO の 16 サンプルは、約 3300 万回です。Alchemy や SAO の 12 サンプルは、約 2500 万回です。HBAO の 8 方向 × 6 ステップ（48 回）と GTAO の 2 スライス × 両側 12 ステップ（48 回）は、約 1 億回です。SAO は深度ミップで読み込みがキャッシュに乗りやすく、実際の時間は読み込み回数の比より小さくなります。HBAO+ のデインターリーブも同じ目的です。
+
+<svg class="fig flow" viewBox="0 0 720 240" role="img" aria-label="フル HD での 1 フレームの深度読み込み回数（百万回）"><text x="14" y="22" class="fig-title">1 フレームの深度読み込み（1920×1080、百万回）</text>
+<line x1="60" y1="190" x2="690" y2="190" stroke="currentColor" stroke-width="1.5"/>
+<g stroke-width="2" fill="rgba(76,139,245,0.28)" stroke="#4c8bf5"><rect x="110" y="123" width="90" height="67"/><rect x="250" y="140" width="90" height="50"/><rect x="390" y="40" width="90" height="150"/><rect x="530" y="40" width="90" height="150"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="155" y="117">約 33</text><text x="295" y="134">約 25</text><text x="435" y="34">約 100</text><text x="575" y="34">約 100</text>
+<text x="155" y="210">半球 SSAO（16）</text><text x="295" y="210">Alchemy / SAO（12）</text><text x="435" y="210">HBAO（8 方向×6）</text><text x="575" y="210">GTAO（2 スライス×24）</text></g>
+<text x="360" y="232" text-anchor="middle" style="font-size:12px">読み込み回数の比。SAO の深度ミップや HBAO+ のデインターリーブは、キャッシュで実時間を縮める</text></svg>
+
+### 深度の線形化の式
+
+どの方式でも深度バッファの値を視点深度（メートル）に直します。標準の深度（近い面が 0）と reverse-Z（近い面が 1）で、式が違います。`near = 0.1`、`far = 1000` で視点深度 0.5、5、50、500 m の点を深度バッファの値に変換して、式で戻すと両方とも元の値に一致しました（標準の深度の値は 0.800、0.980、0.998、0.9999、reverse-Z は 0.200、0.0199、0.0019、0.0001）。
+
+```hlsl
+Texture2D<float> g_depth : register(t0);
+Texture2D<float4> g_normal : register(t1);            // xyz = 法線を 0..1 に詰めたもの
+SamplerState g_point_clamp : register(s0);
+
+cbuffer AoConstants : register(b0) {
+  float4x4 g_proj;           // 射影行列
+  float2 g_inv_focal;        // (1 / proj[0][0], 1 / proj[1][1])。ビュー空間の位置の復元用
+  float g_near;              // 例: 0.1
+  float g_far;               // 例: 1000
+  float g_radius;            // AO の半径（ビュー空間、メートル）。例: 0.5
+  float g_reverse_z;         // 1 = reverse-Z、0 = 標準
+  float2 _pad;
+};
+
+// 深度バッファの値 → 視点深度（メートル）。射影行列に合わせる
+float LinearizeDepth(float d) {
+  return (g_reverse_z > 0.5) ? g_near * g_far / (g_near + d * (g_far - g_near))
+                             : g_near * g_far / (g_far - d * (g_far - g_near));
+}
+
+// 画素の UV と視点深度から、ビュー空間の位置（左手系、+Z が前）を復元する
+float3 ViewPosition(float2 uv, float view_z) {
+  float2 ndc = float2(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0);     // 画面は y が下向き
+  return float3(ndc * g_inv_focal * view_z, view_z);
+}
+
+// 半球 SSAO の最小版（16 サンプル）。比較のための骨組みで、ノイズの回転とブラーは省いている
+float4 HemisphereAoPS(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float d = g_depth.SampleLevel(g_point_clamp, uv, 0);
+  float view_z = LinearizeDepth(d);
+  if (view_z > g_far * 0.999) return float4(1, 1, 1, 1);        // 空は遮蔽なし（足した処理）
+
+  float3 p = ViewPosition(uv, view_z);
+  float3 n = normalize(g_normal.SampleLevel(g_point_clamp, uv, 0).xyz * 2.0 - 1.0);
+
+  float occluded = 0.0;
+  const int kSamples = 16;
+  [unroll] for (int i = 0; i < kSamples; ++i) {
+    // 法線の半球の中の点（黄金角で散らす簡易な分布。足した処理）
+    float t = (i + 0.5) / kSamples;
+    float phi = i * 2.399963;
+    float r = sqrt(t);
+    float3 h = float3(r * cos(phi), r * sin(phi), sqrt(1.0 - t));
+    // 法線を軸にした向きへ回す（Duff らの基底）
+    float s = (n.z >= 0.0) ? 1.0 : -1.0;
+    float a = -1.0 / (s + n.z), c = n.x * n.y * a;
+    float3 tx = float3(1.0 + s * n.x * n.x * a, s * c, -s * n.x);
+    float3 ty = float3(c, s + n.y * n.y * a, -n.y);
+    float3 sample_pos = p + (tx * h.x + ty * h.y + n * h.z) * g_radius * lerp(0.2, 1.0, t);
+
+    // サンプル点を画面へ投影して、そこの深度と比べる
+    float4 clip = mul(float4(sample_pos, 1.0), g_proj);
+    float2 suv = float2(clip.x / clip.w * 0.5 + 0.5, 0.5 - clip.y / clip.w * 0.5);
+    float scene_z = LinearizeDepth(g_depth.SampleLevel(g_point_clamp, suv, 0));
+    // サンプルが面の奥にあれば遮蔽。半径より離れた面は範囲チェックで除外（ハローを抑える）
+    float range = smoothstep(0.0, 1.0, g_radius / max(abs(p.z - scene_z), 1e-4));
+    occluded += (scene_z < sample_pos.z - 0.02) ? range : 0.0;
+  }
+  float ao = 1.0 - occluded / kSamples;
+  return float4(ao, ao, ao, 1.0);
+}
+```
+
+この骨組みは `fxc` でコンパイルして確かめました。GPU での動作は確認していません。方式を入れ替えるときは `HemisphereAoPS` の中身だけを変えて、深度の線形化と位置の復元は共通にします。
+
 ## 見た目の違い
 
 実際の画面で、方式の違いが出る場面をいくつか挙げます。
@@ -112,6 +212,8 @@ AO が不要なまたは別の手段で済む場面もあります。静的な�
     - [x] どれもブラー・時間蓄積・間接光への乗算が共通
 
 ## 参考
+
+このページは、次の資料を読まずに書きました。数字は、Python のシミュレーションと式からの計算です。
 
 - Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
 - Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
