@@ -6,33 +6,25 @@ tags:
 
 # Underwater Fog
 
-<strong>水中では遠くほど青緑に霞みます</strong>。距離に応じた指数フォグで表現でき、水の色と深さで霧の色を変えます。このページでは水中の霧を説明します。
+水に潜ると遠くの物は見えず近くの物は色が青緑に染まります。空気中の霧と同じように見えますが、違いがあります。空気中の霧は色に関係なく同じ割合で遠くを霞ませます。水は赤をすぐに吸い取り青を遠くまで通します。
+
+<strong>水中の霧は空気中の霧と同じ式で書けますが、吸収の強さが色（RGB）ごとに違います</strong>。このページでは色ごとの減衰（数字つき）、全画面の霧のシェーダー、水の色と深さ光源の色、遠景の扱い濁った水の違いを説明します。
 
 !!! tip "ポイント"
-    - 指数フォグ：距離が遠いほど、水の色に近づく。
-    - 水の吸収係数を使う（赤が先に消える）。
-    - 深いほど暗くする。
-    - 水面からの光の量を深さで減らす。
+    - 透過率は `T = exp(−σ · d)` で、`σ` は RGB ごとの吸収係数です。赤が先に消えて遠くは青緑になります。
+    - `σ = (0.45, 0.07, 0.03)` なら透過率が 5 % になる距離は、赤で約 6.7 m、緑で約 43 m、青で約 100 m です。
+    - 距離は深度から求めた視線に沿った距離です。水面の外に出る物では水中を通る分だけを使います。
+    - 水の色は深いほど暗くします。太陽光が深さとともに減るからです。
+    - 空は水の色で塗ります。水面の向こうは見えません。
 
 !!! info "このページを読む前に"
     - [Underwater Rendering](index.md)（このセクション全体の地図と、読む順番）
 
-## 水中の霧
-<strong>水中では遠くの物ほど水の色に近づきます</strong>。地上のフォグと同じ構造ですが、吸収が色ごとに違うのが特徴です。
+## 水中の霧 {#fog}
 
-<div class="formula">T = exp( −σ · d )　（σ：吸収係数（RGB）、d：カメラから物までの距離）</div>
+水中では遠くの物ほど水の色に近づきます。地上のフォグと同じ構造ですが、吸収が色ごとに違います。
 
-```hlsl
-float3 absorption = float3(0.45, 0.07, 0.03);
-float3 transmittance = exp(-absorption * distance_to_pixel);
-float3 scattered = water_color * (1.0 - transmittance);
-float3 final_color = scene_color * transmittance + scattered;
-```
-
-- 赤が先に消える: 遠くは青緑になる
-- `distance_to_pixel`: 深度から求めたカメラからの距離（水面を通る分も含む）
-- 水深で明るさを変える: 深いほど暗い（太陽光が届かない）。`exp(−k · depth)`
-- 空は水の色: 空の部分は遠距離扱いで水の色になる
+<div class="formula">T = exp( −σ · d )　（σ: 吸収係数（RGB）、d: カメラから物までの距離）</div>
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="水中の霧">
 <text x="20" y="24" class="fig-title">水中の霧：距離とともに、赤 → 緑 → 青の順に消える</text>
@@ -48,114 +40,142 @@ float3 final_color = scene_color * transmittance + scattered;
 <text x="420" y="64" style="font-size:12px;fill:#4c8bf5">青（最後まで残る）</text>
 </svg>
 
-## 水中は霧の中
+水の中は光が吸収と散乱ですぐに減ります。遠くの物が見えず色が青緑に染まる様子は、霧と同じ式で表現できます。
 
-水の中は光が <strong>吸収と散乱</strong>ですぐに、減ります。遠くの物が見えず色が青緑に染まる様子は霧（フォグ）と、同じ式で表現できます。ただし、色ごとに吸収の強さが違う点が空気中の霧との大きな違いです。
+## 色ごとの減衰 {#channels}
 
-## 色ごとの減衰
+水中の霧の式は次のとおりです。
 
-空気中の霧は <strong>色に関係なく同じ割合</strong>で、遠くの物の色を霧の色へ近づけます。水中では 赤がすぐに消え青が遠くまで残ります。
-
-```hlsl
-// 水中の霧: 色（RGB）ごとに、透過率が違う。
-float3 transmittance = exp(-absorption * distance_in_water);      // absorption は RGB ごとの値（1/m）
-float3 color = scene_color * transmittance + water_color * (1.0 - transmittance);
+```text
+透過率 T = exp(−absorption × distance)               （RGB ごと）
+結果 = 元の色 × T + 水の色 × (1 − T)
 ```
-
-| 距離 | 赤の残り | 緑の残り | 青の残り | 見た目 |
-| --- | --- | --- | --- | --- |
-| 0 m | 100% | 100% | 100% | 元の色 |
-| 3 m | 26% | 81% | 91% | 赤がほぼ消える |
-| 10 m | 1% | 50% | 74% | 青緑 |
-| 30 m | 0% | 12% | 41% | 青（暗い） |
 
 吸収係数 `(0.45, 0.07, 0.03)`（1/m）で計算しました（[Color by Water Depth](../shading/depth-color.md)）。
 
-空気中の霧の式（[Fog Equations](../../atmosphere/aerial-fog/fog-equation.md)）と、形は同じですが 係数が RGB で、違うのが特徴です。
+- 0 m では赤、緑、青とも 100 % で元の色のままです。
+- 3 m では赤が 26 %、緑が 81 %、青が 91 % です。赤がほぼ消えます。
+- 10 m では赤が 1 %、緑が 50 %、青が 74 % です。青緑に見えます。
+- 30 m では赤が 0 %、緑が 12 %、青が 41 % です。暗い青になります。
 
-## 水中の霧を全画面で適用する
+<svg class="fig flow" viewBox="0 0 720 260" role="img" aria-label="距離に対する透過率。赤は急に、緑はゆっくり、青はさらにゆっくり減る"><text x="14" y="22" class="fig-title">距離と透過率（σ = 0.45, 0.07, 0.03）</text>
+<line x1="70" y1="190" x2="670" y2="190" stroke="currentColor" stroke-width="1.5"/><line x1="70" y1="190" x2="70" y2="40" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="54" text-anchor="end" style="font-size:12px">1</text><text x="62" y="194" text-anchor="end" style="font-size:12px">0</text><text x="670" y="212" text-anchor="end" style="font-size:12px">距離 d（メートル）0 〜 60</text>
+<path d="M70.0,50.0 L80.0,100.7 L90.0,133.1 L100.0,153.7 L110.0,166.9 L120.0,175.2 L130.0,180.6 L140.0,184.0 L150.0,186.2 L160.0,187.6 L170.0,188.4 L180.0,189.0 L190.0,189.4 L200.0,189.6 L210.0,189.7 L220.0,189.8 L230.0,189.9 L240.0,189.9 L250.0,190.0 L260.0,190.0 L270.0,190.0 L280.0,190.0 L290.0,190.0 L300.0,190.0 L310.0,190.0 L320.0,190.0 L330.0,190.0 L340.0,190.0 L350.0,190.0 L360.0,190.0 L370.0,190.0 L380.0,190.0 L390.0,190.0 L400.0,190.0 L410.0,190.0 L420.0,190.0 L430.0,190.0 L440.0,190.0 L450.0,190.0 L460.0,190.0 L470.0,190.0 L480.0,190.0 L490.0,190.0 L500.0,190.0 L510.0,190.0 L520.0,190.0 L530.0,190.0 L540.0,190.0 L550.0,190.0 L560.0,190.0 L570.0,190.0 L580.0,190.0 L590.0,190.0 L600.0,190.0 L610.0,190.0 L620.0,190.0 L630.0,190.0 L640.0,190.0 L650.0,190.0 L660.0,190.0 L670.0,190.0" fill="none" stroke="#e5484d" stroke-width="3.5"/><path d="M70.0,50.0 L80.0,59.5 L90.0,68.3 L100.0,76.5 L110.0,84.2 L120.0,91.3 L130.0,98.0 L140.0,104.2 L150.0,110.0 L160.0,115.4 L170.0,120.5 L180.0,125.2 L190.0,129.6 L200.0,133.6 L210.0,137.5 L220.0,141.0 L230.0,144.3 L240.0,147.4 L250.0,150.3 L260.0,153.0 L270.0,155.5 L280.0,157.8 L290.0,160.0 L300.0,162.0 L310.0,163.9 L320.0,165.7 L330.0,167.3 L340.0,168.8 L350.0,170.3 L360.0,171.6 L370.0,172.9 L380.0,174.0 L390.0,175.1 L400.0,176.1 L410.0,177.0 L420.0,177.9 L430.0,178.7 L440.0,179.5 L450.0,180.2 L460.0,180.9 L470.0,181.5 L480.0,182.1 L490.0,182.6 L500.0,183.1 L510.0,183.6 L520.0,184.0 L530.0,184.4 L540.0,184.8 L550.0,185.1 L560.0,185.5 L570.0,185.8 L580.0,186.1 L590.0,186.3 L600.0,186.6 L610.0,186.8 L620.0,187.0 L630.0,187.2 L640.0,187.4 L650.0,187.6 L660.0,187.7 L670.0,187.9" fill="none" stroke="#3ca05a" stroke-width="3.5"/><path d="M70.0,50.0 L80.0,54.1 L90.0,58.2 L100.0,62.0 L110.0,65.8 L120.0,69.5 L130.0,73.1 L140.0,76.5 L150.0,79.9 L160.0,83.1 L170.0,86.3 L180.0,89.4 L190.0,92.3 L200.0,95.2 L210.0,98.0 L220.0,100.7 L230.0,103.4 L240.0,105.9 L250.0,108.4 L260.0,110.8 L270.0,113.2 L280.0,115.4 L290.0,117.6 L300.0,119.8 L310.0,121.9 L320.0,123.9 L330.0,125.8 L340.0,127.7 L350.0,129.6 L360.0,131.3 L370.0,133.1 L380.0,134.8 L390.0,136.4 L400.0,138.0 L410.0,139.5 L420.0,141.0 L430.0,142.5 L440.0,143.9 L450.0,145.2 L460.0,146.5 L470.0,147.8 L480.0,149.1 L490.0,150.3 L500.0,151.5 L510.0,152.6 L520.0,153.7 L530.0,154.8 L540.0,155.8 L550.0,156.8 L560.0,157.8 L570.0,158.8 L580.0,159.7 L590.0,160.6 L600.0,161.5 L610.0,162.3 L620.0,163.1 L630.0,163.9 L640.0,164.7 L650.0,165.4 L660.0,166.2 L670.0,166.9" fill="none" stroke="#4c8bf5" stroke-width="3.5"/>
+<text x="130" y="100" style="font-size:12px;font-weight:600;fill:#e5484d">赤（5 % で約 6.7 m）</text><text x="260" y="120" style="font-size:12px;font-weight:600;fill:#3ca05a">緑（約 43 m）</text><text x="400" y="80" style="font-size:12px;font-weight:600;fill:#4c8bf5">青（約 100 m）</text>
+<text x="360" y="246" text-anchor="middle" style="font-size:12px">赤はすぐ消え、青は遠くまで残る。空気中の霧は、3 つの曲線が同じ</text></svg>
 
-<strong>カメラが水の中にある</strong>とき、画面全体に霧をかけます。ポストプロセスで画素ごとの距離（深度バッファから）を使います。
+透過率が 5 % になる距離は `ln(20) / σ` です。赤で 6.7 m、緑で 42.8 m、青で 99.9 m です。水中で赤い物が数メートルで黒く見えるのは、このためです。空気中の霧の式（[Fog Equations](../../atmosphere/aerial-fog/fog-equation.md)）と形は同じですが、係数が RGB で違います。
 
-```hlsl
-// ポストプロセス: カメラが水中のとき、全画面に水中の霧をかける。
-float depth = LinearizeDepth(g_depth.Sample(g_point_clamp, uv).r);
-float3 view_ray = ReconstructViewDirection(uv);
-float distance = depth * length(view_ray);                       // 視線方向の距離
+## 全画面で適用する {#postprocess}
 
-float3 scene = g_scene.Sample(g_linear_clamp, uv).rgb;
-float3 T = exp(-g_absorption * distance);
-float3 color = scene * T + g_water_color * (1.0 - T);
-```
-
-- 空（深度が最大の画素）: 空は、水の中からは見えない（水面の向こう）。水の色で塗る
-- 水面を見上げたとき: 水面の描画（[The Underside of the Surface and Crossing It](surface-back.md)）。水面より向こうの空の描画は別に扱う
-- 水中の遠い物: 距離が大きいほど水の色（`water_color`）に近づく
-
-### 水の色（`water_color`）と深さ
-
-水中の 水の色は 深くなるほど、暗くなります。太陽の光が深さとともに減るためです。
+カメラが水の中にあるとき画面全体に霧をかけます。ポストプロセスで画素ごとの距離（深度バッファから）を使います。
 
 ```hlsl
-// カメラの深さに応じて、水の色を暗くする（太陽光が届かなくなる）。
-float camera_depth_below_surface = max(water_surface_y - camera_position.y, 0.0);
-float3 sun_at_camera = exp(-g_absorption * camera_depth_below_surface);
-float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);     // 青の光の、残り具合で、明るさを決める
+Texture2D<float4> g_scene : register(t0);
+Texture2D<float> g_depth : register(t1);              // 視点深度（メートル）。リニアに直したもの
+SamplerState g_linear_clamp : register(s0);
+SamplerState g_point_clamp : register(s1);
+
+cbuffer UnderwaterFogConstants : register(b0) {
+  float4x4 g_inv_view_proj;
+  float3 g_camera_position;
+  float g_water_surface_y;   // 水面の高さ（ワールド y）
+  float3 g_absorption;       // 吸収係数（RGB, 1/m）。例: (0.45, 0.07, 0.03)
+  float g_far_depth;         // この値以上の深度は空とみなす（メートル）
+  float3 g_deep_color;       // 深い水の色。例: (0.02, 0.1, 0.2)
+  float _pad;
+};
+
+float4 UnderwaterFogPS(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float depth = g_depth.SampleLevel(g_point_clamp, uv, 0);
+  // 視線方向（ワールド）。遠い面の点を逆変換して作る
+  float4 far_w = mul(float4(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, 1.0, 1.0), g_inv_view_proj);
+  float3 ray_dir = normalize(far_w.xyz / far_w.w - g_camera_position);
+  // 視点深度 → 視線に沿った距離。視点深度はカメラの前方向の成分なので、1/cosθ を掛ける（簡略化: 画面中央との角度）
+  float3 cam_forward = normalize(mul(float4(0, 0, 1, 1), g_inv_view_proj).xyz / mul(float4(0, 0, 1, 1), g_inv_view_proj).w - g_camera_position);
+  float distance_to_pixel = depth / max(dot(ray_dir, cam_forward), 0.1);
+
+  // 視線が水面から出るなら、水中を通るのは水面までの距離だけ（水面の外の物に、水中の霧をかけない）
+  float t_surface = (ray_dir.y > 1e-4) ? (g_water_surface_y - g_camera_position.y) / ray_dir.y : 1e9;
+  float water_distance = min(distance_to_pixel, max(t_surface, 0.0));
+
+  float3 scene = g_scene.SampleLevel(g_linear_clamp, uv, 0).rgb;
+  float3 T = exp(-g_absorption * water_distance);                    // RGB ごとの透過率
+
+  // 水の色: カメラの深さに応じて暗くする（太陽光が届かなくなる）
+  float camera_depth = max(g_water_surface_y - g_camera_position.y, 0.0);
+  float3 sun_at_camera = exp(-g_absorption * camera_depth);
+  float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);   // 青の残り具合で明るさを決める
+
+  // 空（深度が最大の画素）は、水の色で塗る。水面の向こうは見えない
+  if (depth >= g_far_depth) return float4(water_color, 1.0);
+  return float4(scene * T + water_color * (1.0 - T), 1.0);
+}
 ```
 
-| 深さ | 水の色の明るさ |
-| --- | --- |
-| 水面の近く | 明るい青緑 |
-| 10 m | 暗い青 |
-| 50 m | ほぼ真っ暗 |
-| 200 m | 真っ暗（太陽光は、届かない） |
+`t_surface` は視線が上向きなら水面までの距離です。物が水面より上にあるとき `min` で、水中を通る分だけを使います。水面の外の物には水中の霧が水面より先でかからないようにします。
 
-## 光源の色も変わる
+水面を見上げたときの描画は別に扱います（[The Underside of the Surface and Crossing It](surface-back.md)）。水中の遠い物は距離が大きいほど水の色に近づきます。
 
-水中の物をライティングするとき <strong>光が水の中を通ってくる</strong>間に吸収されます。
+### 水の色と深さ
 
-- 太陽光: 水面から物までの、深さに応じて赤から消える
-- 環境光（空の光）: 同様。全体に暗く青くなる
-- 水中のライト（懐中電灯、ランプ）: 光源から物までの、距離に応じて吸収される。近くでは白く遠くでは青緑
+水中の水の色は深くなるほど暗くなります。太陽の光が深さとともに減るためです。`sun_at_camera` はカメラの深さまで届く太陽光の割合で、青が最後まで残るので青の成分で明るさを決めています。水面の近くでは明るい青緑で 10 m で暗い青、50 m でほぼ真っ暗、200 m では太陽光が届かず真っ暗です。吸収係数の青 0.03 なら青の太陽光は、深さ 100 m で 5 % まで減ります。
+
+!!! note "確かめた範囲"
+    HLSL は `fxc`（`ps_5_0`）で、`UnderwaterFogPS` をコンパイルしてエラーが出ないことを確かめました。透過率の数字と曲線は式からの計算（Python）です。深度から距離への変換は簡略化しています。GPU での描画は確認していません。
+
+## 光源の色も変わる {#lights}
+
+水中の物をライティングするとき光が水の中を通ってくる間に吸収されます。
+
+- 太陽光は水面から物までの深さに応じて、赤から消えます。
+- 環境光（空の光）も同様に全体に暗く青くなります。
+- 水中のライト（懐中電灯、ランプ）は光源から物までの距離に応じて吸収されます。近くでは白く遠くでは青緑になります。
 
 ```hlsl
-// 太陽光を水中の深さ d で減衰させる。
-float3 sun_underwater = sun_color * exp(-g_absorption * depth_below_surface);
+// 太陽光を、水面から物までの深さ d で減衰させる
+float3 SunUnderwater(float3 sun_color, float3 absorption, float depth_below_surface) {
+  return sun_color * exp(-absorption * depth_below_surface);
+}
 ```
 
-## 水中の遠景の扱い
+## 水中の遠景の扱い {#far}
 
-遠くの地形や物を描くとき <strong>空気中の大気（空気遠近法）は、水中では使いません</strong>。水中では 水の霧で置き換えます。
+遠くの地形や物を描くとき空気中の大気（空気遠近法）は、水中では使いません。水の霧で置き換えます。空気中では大気の霧（[Aerial Perspective and Fog](../../atmosphere/aerial-fog/index.md)）、水中ではこのページの霧、水面をまたぐ場合は水面の高さで霧を切り替えます。水中では視界が短くなるので遠景の描画は早めに打ち切って、コストを減らせます。
 
-- 空気中: 大気の霧（[Aerial Perspective and Fog](../../atmosphere/aerial-fog/index.md)）
-- 水中: 水中の霧（このページ）
-- 水面をまたぐ（半分水中、半分空気中）: 水面の高さで霧を切り替える（[The Underside of the Surface and Crossing It](surface-back.md)）
+## 濁り: 吸収と散乱 {#turbid}
 
-水中では 視界が短くなるので、遠景（地形のチャンク、遠くの物）の描画は早めに打ち切って、コストを減らせます。
+澄んだ海では吸収が主です。濁った水（泥、プランクトン）では散乱が強く、光が水中であらゆる方向に散って、視界がさらに短くなります。霧のようなもやが見えます。
 
-## 濁り：吸収と散乱
+- 澄んだ海は吸収が小さく（赤だけ強い）、散乱がごく小さいので青く遠くまで見えます。
+- 湖は吸収も散乱も中くらいで、緑がかった少しもやっとした見た目です。
+- 濁った川は吸収も散乱も大きく、茶色のもやで数メートルしか見えません。
 
-澄んだ海では吸収が主です。<strong>濁った水</strong>（泥、プランクトン）では 散乱が強く光が水中で、あらゆる方向に散って視界がさらに短くなり、霧のようなもやが見えます。
+濁った水では `water_color` を明るく不透明に近くして、吸収係数を大きくします。霧のような見た目になります。
 
-| 水の種類 | 吸収 | 散乱 | 見た目 |
-| --- | --- | --- | --- |
-| 澄んだ海 | 小さい（赤だけ強い） | ごく小さい | 青く、遠くまで見える |
-| 湖 | 中（緑が残る） | 中 | 緑がかった少し、もやっとした |
-| 川（濁り） | 大きい | 大きい | 茶色のもや。数メートルしか見えない |
-
-濁った水では `water_color` を 明るく不透明に近くして、吸収係数を大きくします。霧のような見た目になります。
-
-## よくあるミス
+## よくあるミス {#mistakes}
 
 ??? failure "水中なのに、遠くまでくっきり見える"
-    <strong>距離フォグ</strong>をかける。
+    原因は距離フォグがかかっていないことです。`exp(−σ · d)` を RGB ごとの吸収係数で計算して、水の色と混ぜます。
 
-## これだけ覚える
+??? failure "遠くが、赤くなるまたは色が地上のままになる"
+    原因は吸収係数を RGB で同じ値にしていることです。赤を大きく青を小さくします。
+
+??? failure "水面の外にある物（山、空）まで水中の霧で青くなる"
+    原因はカメラから物までの全距離に水中の霧をかけていることです。視線が水面から出るなら水面までの距離だけを使います。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 距離と深さで、色と明るさが変わる
+    - [x] 透過率は `exp(−σ · d)` で、`σ` を RGB で変えます。赤が先に消えます。
+    - [x] `σ = (0.45, 0.07, 0.03)` なら 5 % になる距離は、赤で約 6.7 m、青で約 100 m です。
+    - [x] 水面の外に出る視線は、水中を通る分だけに霧をかけます。
+    - [x] 水の色は深いほど暗くします。
 
-## 参考
+## 参考 {#references}
+
+このページは次の資料を読まずに書きました。数字は式からの計算です。吸収係数は一例です。
 
 - Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997
 - Jerlov, "Marine Optics", Elsevier, 1976
