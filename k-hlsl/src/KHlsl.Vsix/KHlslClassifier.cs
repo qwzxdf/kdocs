@@ -398,6 +398,14 @@ namespace KHlsl.Vsix
             _types = t;
         }
 
+        /// <summary>トークンの種類に対応する分類の型。ホバーのコードの色付けが使う。</summary>
+        internal IClassificationType TypeOf(Tk kind)
+        {
+            RecheckTypes();
+            IClassificationType t;
+            return _types.TryGetValue(kind, out t) ? t : null;
+        }
+
         private void RaiseAll()
         {
             var snap = _buffer.CurrentSnapshot;

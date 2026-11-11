@@ -185,7 +185,8 @@ namespace KHlsl.Server
                     break;
                 }
                 case "textDocument/completion": Respond(id, Completion(p)); break;
-                case "textDocument/hover": Respond(id, Hover(p)); break;
+                case "textDocument/hover":
+                case "khlsl/hover": Respond(id, Hover(p)); break;
                 case "textDocument/signatureHelp": Respond(id, SignatureHelp(p)); break;
                 case "textDocument/documentSymbol": Respond(id, DocumentSymbols(p)); break;
                 case "textDocument/definition": Respond(id, Definition(p)); break;
@@ -196,7 +197,7 @@ namespace KHlsl.Server
                     break;
                 case "textDocument/onTypeFormatting":
                 {
-                    // トリガー文字(} ;)が、キャレットの直前に本当にあるときだけ整形する。
+                    // トリガー文字(} ; {)が、キャレットの直前に本当にあるときだけ整形する。
                     // IME の確定などで古い位置のまま届いた要求で、別の行や文字を書き換えないため。
                     int line = (int)p["position"]["line"];
                     int col = (int)p["position"]["character"];
@@ -251,16 +252,17 @@ namespace KHlsl.Server
                 {
                     ["textDocumentSync"] = new JObject { ["openClose"] = true, ["change"] = 1, ["save"] = new JObject { ["includeText"] = true } },
                     ["completionProvider"] = new JObject { ["triggerCharacters"] = new JArray(".", ":", "#", "[", "(") },
-                    ["hoverProvider"] = true,
+                    // hover は VS 拡張の khlsl/hover が、色付きで出す(標準のホバーは色が付かない)
+                    ["hoverProvider"] = false,
                     ["signatureHelpProvider"] = new JObject { ["triggerCharacters"] = new JArray("(", ","), ["retriggerCharacters"] = new JArray(",") },
                     ["documentSymbolProvider"] = true,
                     ["definitionProvider"] = true,
                     ["codeLensProvider"] = new JObject { ["resolveProvider"] = false },
                     ["documentFormattingProvider"] = true,
                     ["documentRangeFormattingProvider"] = true,
-                    ["documentOnTypeFormattingProvider"] = new JObject { ["firstTriggerCharacter"] = "}", ["moreTriggerCharacter"] = new JArray(";") }
+                    ["documentOnTypeFormattingProvider"] = new JObject { ["firstTriggerCharacter"] = "}", ["moreTriggerCharacter"] = new JArray(";", "{") }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.9" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.10" }
             };
         }
 
