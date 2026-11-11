@@ -6,30 +6,28 @@ tags:
 
 # Specular (Sun Glint)
 
-<strong>水面に映る太陽のきらめきが、水らしさを決める大きな要素</strong>です。法線の細かい凹凸できらきらと散らばる反射になります。このページではスペキュラの計算と、きらめきの出し方を説明します。
+夕方の海に太陽が映ると 1 つの丸い光ではなく、細かい光の粒が帯になってきらきら散らばります。この「きらめき」が水らしさを決める大きな要素です。滑らかな板に普通のハイライトを置くだけでは、この見え方は出ません。
+
+<strong>水面は無数の細かい波でできています。太陽の光は太陽の向きを目へ反射する向きに傾いた波の面だけで光ります</strong>。このページではグリントの仕組み風速と波の傾きの関係（Cox と Munk）、粗さへの対応、GGX による計算（正規化の確認つき）、強さ法線の細かさ遠くのちらつきの対策を説明します。
 
 !!! tip "ポイント"
-    - GGX などで太陽の反射を計算する。
-    - 法線の細かい凹凸で、反射が散らばる。
-    - 粗さを波の大きさに合わせる。
-    - 遠くはちらつくので、粗さを上げる。
+    - 太陽の反射は波の微小面のうちハーフベクトルの向きに傾いた面だけが光ります。GGX などの法線分布で計算します。
+    - 波の傾きの分散は風速におよそ比例します（Cox と Munk）。風が強いほど光る範囲が広がって、1 点の明るさは下がります。
+    - 粗さを波の大きさに合わせます。ただし、0 にすると点が 1 画素に落ちてちらつきます。
+    - HDR で出して、ブルームで光らせます。
+    - 遠くはちらつくので、距離に応じて粗さを上げます。
 
 !!! info "このページを読む前に"
-    - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
+    - [Water Shading](index.md)（このセクション全体の地図と読む順番）
 
-## スペキュラ（太陽の反射）
-<strong>太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます</strong>（グリント）。法線マップの細かい法線で Blinn–Phong・GGX のスペキュラを計算します。
+## 太陽の反射は細かい波の集まり {#glitter}
 
-```hlsl
-float3 half_vector = normalize(light_dir + view_dir);
-float n_dot_h = saturate(dot(normal, half_vector));
-float specular = pow(n_dot_h, shininess) * sun_intensity;
+水面に太陽が映ると 1 つの丸い光ではなく、波ごとに散らばった細かい光の帯になります（グリッター）。波の表面は細かい無数の小さな傾きを持っています。太陽の方向を目へ反射する向きに傾いた波の面だけが、光ります。
+
+```text
+太陽 ↘      ↙ 目
+      ╱╲╱╲╱╲        ← 波。目に向かって光を反射する向きの面だけが光る
 ```
-
-- 高い `shininess`: 水面は滑らかなので鋭いハイライト（例：256 以上）
-- GGX を使う: PBR の規約と揃える（[PBR](../../../3d/pbr.md)）。粗さ（roughness）を小さく
-- HDR で出す: 太陽の反射は明るい。ブルームで光る（[Post-Processing](../../postprocess/index.md)）
-- ちらつき対策: 細かい法線は距離でぼかす（粗さを距離で上げる）。さもないと遠くがチカチカする
 
 <!-- fig:ggx-lobe:begin -->
 
@@ -61,66 +59,71 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 <!-- fig:ggx-lobe:end -->
 
-## 太陽の反射は細かい波の集まり
+<svg class="fig flow" viewBox="0 0 720 240" role="img" aria-label="GGX の粗さごとのピークの高さ。粗さが小さいほど急に高くなる"><text x="14" y="22" class="fig-title">GGX のピーク 1/(π α²)（数値積分で正規化を確認）</text>
+<line x1="60" y1="190" x2="690" y2="190" stroke="currentColor" stroke-width="1.5"/>
+<g stroke-width="2" fill="rgba(76,139,245,0.28)" stroke="#4c8bf5"><rect x="110" y="40" width="80" height="150"/><rect x="250" y="148" width="80" height="42"/><rect x="390" y="184" width="80" height="6"/><rect x="530" y="189" width="80" height="1"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="150" y="34">約 796（縦軸は縮めてある）</text><text x="290" y="142">約 127</text><text x="430" y="178">約 12.4</text><text x="570" y="183">約 3.5</text>
+<text x="150" y="212">α = 0.02</text><text x="290" y="212">0.05</text><text x="430" y="212">0.16（風速 10 m/s）</text><text x="570" y="212">0.3</text></g>
+<text x="360" y="234" text-anchor="middle" style="font-size:12px">粗さが小さいほど鋭く高い。α を 0 にすると 1 画素に落ちてちらつく</text></svg>
 
-水面に太陽が映ると <strong>1 つの、丸い光ではなく波ごとに散らばった、細かい光の帯</strong>になります（グリッター、sun glitter）。波の表面は細かい無数の小さな傾きを持っています。太陽の方向を反射する向きに傾いた波の面だけが、光ります。
+## 風速と傾きの分布（Cox と Munk） {#coxmunk}
 
-```text
-太陽 ↘      ↙ 目
-      ╱╲╱╲╱╲        ← 波。目に向かって光を反射する向きの面だけが光る
-```
-
-## 風速と傾きの分布（Cox と Munk）
-
-波の面の傾きの分布は <strong>風速</strong>で決まります。Cox と Munk（1954）は、海面の写真から太陽の光の分布を調べ、傾きの 2 乗平均が風速にほぼ比例することを示しました。
+波の面の傾きの分布は風速で決まります。Cox と Munk（1954）は海面の写真から、太陽の光の分布を調べて傾きの分散が風速にほぼ比例することを示しました。
 
 ```text
-波の傾きの 2 乗平均 m² ≈ 0.003 + 0.00512 × U         U: 風速（m/s）
+波の傾きの 2 乗平均（全方向の合計） σ² ≈ 0.003 + 0.00512 × U         U: 風速（m/s）
 ```
 
-| 風速 U（m/s） | m² | 傾きの目安（√m²） | 見た目 |
-| --- | --- | --- | --- |
-| 0 | 0.003 | 0.055（約 3°） | 鏡のような水面。光が 1 つに集まる |
-| 5 | 0.029 | 0.17（約 10°） | 光が広がり始める |
-| 10 | 0.054 | 0.23（約 13°） | 光の帯が太く、散らばる |
-| 15 | 0.080 | 0.28（約 16°） | 広い範囲がぎらつく |
+この式を計算した結果は次のとおりです。
 
-風が強いほど波が荒れて光る範囲は、広くなり 1 点の明るさは下がります。
+- 風速 0 m/s で `σ² = 0.003` で、傾きの平方根は 0.055（約 3°）です。鏡のような水面で光が 1 つに集まります。
+- 5 m/s で `σ² = 0.029`、0.169（約 10°）です。光が広がり始めます。
+- 10 m/s で `σ² = 0.054`、0.233（約 13°）です。光の帯が太くなって散らばります。
+- 15 m/s で `σ² = 0.080`、0.282（約 16°）です。広い範囲がぎらつきます。
 
-## 粗さへの対応
+風が強いほど波が荒れて光る範囲が広くなり 1 点の明るさは下がります。
 
-GGX や Beckmann などの、<strong>微小面分布</strong>（法線の分布）の粗さを波の傾きの分布に合わせます。Beckmann 分布のパラメーター `m` は、傾きの 2 乗平均の平方根そのものです。
+## 粗さへの対応 {#roughness}
+
+GGX や Beckmann などの微小面分布の粗さを波の傾きの分布に合わせます。注意点があります。上の式の `σ²` は風上と横風の 2 方向の分散を足した合計です。Beckmann 分布のパラメーター `m` は、軸 1 つあたりの傾きの平方根なので、等方的に近似すると `m² ≈ σ² / 2` です。
 
 ```text
-m² = 傾きの 2 乗平均 = 0.003 + 0.00512 × U         ← Beckmann の m
-GGX の roughness（α）≈ m                            ← 近似（GGX は、裾が長い。最終は、見た目で調整）
+m² = (0.003 + 0.00512 × U) / 2         ← Beckmann の m（1 軸あたり）
+GGX の roughness α ≈ m                  ← 近似。GGX は裾が長いので、最終は見た目で調整する
 ```
+
+風速 10 m/s なら `m² = 0.027`、`m = 0.165` です。5 m/s で 0.12、15 m/s で 0.20 です。
 
 ```hlsl
-// 風速から、粗さを決める。
+// 風速から粗さを決める（GGX の α の目安）
 float WaterRoughness(float wind_speed) {
-  float m2 = 0.003 + 0.00512 * wind_speed;
-  return sqrt(m2);                                // GGX の α の目安
+  float m2 = (0.003 + 0.00512 * wind_speed) * 0.5;      // 全方向の分散を、1 軸あたりにする
+  return sqrt(m2);
 }
 ```
 
-## 太陽の反射を計算する
+## 太陽の反射を計算する {#compute}
 
-PBR のスペキュラー（GGX）で、計算します。太陽は <strong>平行光</strong>として扱います（[PBR](../../../3d/pbr.md)）。
+PBR のスペキュラー（GGX）で計算します。太陽は平行光として扱います（[PBR](../../../3d/pbr.md)）。
 
 ```hlsl
+// GGX の法線分布。n_dot_h は法線とハーフベクトルの内積、a は粗さ α
 float D_GGX(float n_dot_h, float a) {
   float a2 = a * a;
   float d = n_dot_h * n_dot_h * (a2 - 1.0) + 1.0;
   return a2 / (3.14159265 * d * d);
 }
 
+// 高さ相関 Smith の可視性項（幾何の遮蔽と、分母の 4 n·l n·v を含む）
 float V_SmithGGX(float n_dot_l, float n_dot_v, float a) {
-  // 高さ相関 Smith（可視性項）
   float a2 = a * a;
   float gv = n_dot_l * sqrt(n_dot_v * n_dot_v * (1.0 - a2) + a2);
   float gl = n_dot_v * sqrt(n_dot_l * n_dot_l * (1.0 - a2) + a2);
   return 0.5 / max(gv + gl, 1e-5);
+}
+
+float FresnelSchlick(float cos_theta, float f0) {
+  return f0 + (1.0 - f0) * pow(1.0 - cos_theta, 5.0);
 }
 
 float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float roughness) {
@@ -128,66 +131,86 @@ float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float
   float n_dot_h = saturate(dot(N, H));
   float n_dot_l = saturate(dot(N, L));
   float n_dot_v = saturate(dot(N, V)) + 1e-4;
-  float a = max(roughness, 0.02);                 // 0 にすると、点光源が 1 画素に落ちて、ちらつく
-  float F = FresnelSchlick(saturate(dot(H, V)), 0.02);
+  float a = max(roughness, 0.02);                 // 0 にすると、点光源が 1 画素に落ちてちらつく
+  float F = FresnelSchlick(saturate(dot(H, V)), 0.02);   // 水の F0 = 0.02
   return sun_radiance * F * D_GGX(n_dot_h, a) * V_SmithGGX(n_dot_l, n_dot_v, a) * n_dot_l;
+}
+
+float4 WaterSpecularPS(float3 world_normal : TEXCOORD0, float3 view_dir : TEXCOORD1) : SV_Target {
+  float3 N = normalize(world_normal);
+  float3 V = normalize(view_dir);                       // 水面からカメラへ
+  float3 L = normalize(float3(0.3, 0.5, 0.2));          // 太陽へ向かう向き（一例）
+  float roughness = WaterRoughness(8.0);                // 風速 8 m/s
+  float3 spec = WaterSunSpecular(N, V, L, float3(30, 28, 25), roughness);   // HDR の太陽の明るさ（一例）
+  return float4(spec, 1.0);                             // HDR のまま返して、後でブルームとトーンマップ
 }
 ```
 
-フレネル項は `H` と `V` の内積で、計算します（反射を起こす微小面の向きで、角度を測る）。水の場合、`F₀ = 0.02` です。
+フレネル項は `H` と `V` の内積で計算します（反射を起こす微小面の向きで、角度を測る）。水の場合、`F₀ = 0.02` です。
 
-## 見た目を決める 3 つの要素
+`D_GGX` が正しく正規化されているかを数値積分で確かめました。`∫ D(h) cosθ dω = 1`（半球全体）が `α = 0.02`、`0.05`、`0.16`、`0.3` の全部で 1.0000 でした。ピークの値は `1 / (π α²)` で `α = 0.02` で約 796、`0.05` で約 127、`0.16` で約 12.4、`0.3` で約 3.5 です。粗さが小さいほど鋭く高いピークになって、`α` を 0 に近づけると 1 画素に落ちるほど鋭くなるので、ちらつきます。
 
-### ① 強さ（HDR）
+!!! note "確かめた範囲"
+    HLSL は `fxc`（`ps_5_0`）で、`WaterSpecularPS` をコンパイルしてエラーが出ないことを確かめました。GGX の正規化とピークの値は Python の数値積分です。風速と傾きの数字は式からの計算です。GPU での描画は確認していません。
 
-太陽の反射は <strong>空よりはるかに、明るい</strong>です（太陽は空の数万倍）。HDR で出力してブルームをかけるとまぶしく光る様子が出ます。LDR のままクランプすると白く、ただ飽和するだけです（[Post-Processing](../../postprocess/index.md)）。
+## 見た目を決める 3 つの要素 {#factors}
 
-| 太陽の輝度（放射輝度）の目安 | 値 |
-| --- | --- |
-| 青空 | 数千 cd/m² |
-| 太陽（直視） | 10⁹ cd/m²（約 10 億） |
+### 強さ（HDR）
 
-実際の値をそのまま使うのではなく 露出と、ブルームを見た目で調整します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
+太陽の反射は空よりはるかに明るいです。青空が数千 cd/m² のとき太陽は直視で 10⁹ cd/m² 程度（約 10 億）です。HDR で出力してブルームをかけると、まぶしく光る様子が出ます。LDR のままクランプすると、白く飽和するだけです（[Post-Processing](../../postprocess/index.md)）。実際の値をそのまま使うのではなく、露出とブルームを見た目で調整します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
 
-### ② 法線の細かさ
+### 法線の細かさ
 
-細かい法線（さざ波）を使うほど光が細かく散らばって、きらきら光ります。大きな波の法線だけだと 1 つの、大きな光になります（[Computing Normals](../waves/normals.md)）。
+細かい法線（さざ波）を使うほど光が細かく散らばって、きらきら光ります。大きな波の法線だけだと 1 つの大きな光になります（[Computing Normals](../waves/normals.md)）。
 
-### ③ 遠くのちらつき
+### 遠くのちらつき
 
-遠くの水面では 1 画素に多数の波が入り、法線が画素ごとにばらついて光がちらつきます。対策は 2 つです。
+遠くの水面では 1 画素に多数の波が入って、法線が画素ごとにばらついて光がちらつきます。対策は 2 つです。
 
-- 距離で粗さを上げる: 遠くほど、`roughness` を大きくして光を広げてならす
-- 法線の分散を粗さに足す: 法線マップの、ミップで失われるばらつきを粗さに足す（LEAN マッピング、Olano と Baker、2010）
+- 距離で粗さを上げます。遠くほど `roughness` を大きくして光を広げてならします。
+- 法線の分散を粗さに足します。法線マップのミップで失われるばらつきを粗さに足します（LEAN マッピング、Olano と Baker、2010）。
 
 ```hlsl
-// 距離で、粗さを上げる。
-float roughness = lerp(base_roughness, base_roughness + 0.25, saturate(dist / 300.0));
+// 距離で粗さを上げる（300 m で 0.25 加える。一例）
+float DistanceRoughness(float base_roughness, float dist) {
+  return lerp(base_roughness, base_roughness + 0.25, saturate(dist / 300.0));
+}
 ```
 
-## 太陽以外の光源
+## 太陽以外の光源 {#lights}
 
-- 太陽: 上の式（方向光）
-- 月: 同じ式で強さだけ、下げる
-- 点光源（街灯、船のランプ）: 同じ式で点光源の方向・減衰を使う。水面に縦に伸びた光の帯が出る（波で、光源の反射が縦に散る）
-- 空（環境光）: 反射は、別（[Water Reflection](reflection.md)）
+- 太陽は上の式（方向光）です。
+- 月は同じ式で強さだけを下げます。
+- 点光源（街灯、船のランプ）は同じ式で点光源の方向と減衰を使います。水面に縦に伸びた光の帯が出ます（波で、光源の反射が縦に散ります）。
+- 空（環境光）の反射は別の方法です（[Water Reflection](reflection.md)）。
 
-## よくあるミス
+## よくあるミス {#mistakes}
 
 ??? failure "遠くの水面で、反射がちらつく"
-    <strong>距離に応じて粗さを上げる</strong>。
+    原因は遠くで 1 画素に多くの波が入ることです。距離に応じて粗さを上げます。ミップで失われた法線のばらつきを粗さに足します。
 
-## これだけ覚える
+??? failure "風が弱いのに、光が広がりすぎる（または強いのに鋭すぎる）"
+    原因は Cox–Munk の分散をそのまま `m²` に使って、2 方向の合計と軸 1 つあたりを区別していないことです。軸 1 つあたりは合計の半分です。
+
+??? failure "太陽の反射が、白く飽和してただの白い点になる"
+    原因は LDR にクランプしていることです。HDR のまま出力してブルームとトーンマップを通します。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 法線の凹凸で、太陽が散らばって映る
+    - [x] 太陽の反射はハーフベクトルの向きに傾いた微小面の集まりで、GGX などで計算します。
+    - [x] 傾きの分散は風速におよそ比例します（`0.003 + 0.00512 U`）。1 軸あたりは半分です。
+    - [x] `α` を 0 にせず（0.02 以上）、遠くでは粗さを上げます。
+    - [x] HDR で出して、ブルームで光らせます。
 
-## 参考
+## 参考 {#references}
+
+このページは次の資料を読まずに書きました。Cox–Munk の式は一般に知られた形を書いたもので、論文では確かめていません。GGX の正規化は数値積分で確かめました。
 
 - Cox, Munk, "Measurement of the Roughness of the Sea Surface from Photographs of the Sun's Glitter", Journal of the Optical Society of America, Vol. 44, No. 11, 1954（風速と波の傾きの関係）
 - Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007（GGX 分布の原典）
 - Olano, Baker, "LEAN Mapping", Symposium on Interactive 3D Graphics and Games 2010
-- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（反射と、フレネルの扱い）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（反射とフレネルの扱い）
 - Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes
 
 ## 関連ページ
