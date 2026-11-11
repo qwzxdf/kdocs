@@ -6,223 +6,296 @@ tags:
 
 # Placement Generation
 
-<strong>木・岩・草の配置もルールから自動で生成</strong>できます。高さ・傾き・湿度などの条件から、密度を決めて散布します。このページでは配置の生成を説明します。
+地形ができたら木、岩、草を置きます。数万本を 1 本ずつ手で置くことはできません。かといって乱数で適当に撒くと木が団子になったり空き地が不自然に空いたり毎回違う森ができたりします。
+
+<strong>配置は「どこに置くか（密度）」「どう散らすか（分布）」「毎回同じにするか（決定性）」の 3 つを順に解くと、ルールから自動で作れます</strong>。このページでは密度マップの作り方、ジッタード グリッドとポアソン円盤サンプリング（実測つき）、座標から乱数を作る決定性、GPU での実行時生成、種類ごとの優先度を説明します。
 
 !!! tip "ポイント"
-    - 条件（高さ・傾き・水辺）から、密度マップを作る。
-    - ブルー ノイズで、均等に散布する。
-    - シード値で決定的にする。
-    - 手動の配置と併用する。
+    - 高さ傾き湿度などの条件から、場所ごとの密度（0〜1）を決めます。
+    - 散布は一様乱数ではなく、ブルー ノイズに近い分布（ポアソン円盤、ジッタード グリッド）にします。
+    - 乱数の種はセルの座標から作ります。生成の順番が変わっても同じ位置に置けます。
+    - 大きいもの（岩、大木）から先に置いて小さいもの（草）で残りを埋めます。
+    - 手動の配置と併用して、手動のものは除外マスクで尊重します。
 
 !!! info "このページを読む前に"
     - [Terrain Generation](index.md)（このセクション全体の地図と、読む順番）
 
-## 配置の生成
-<strong>地形の上に何を置くかも手続き的に決められます</strong>。
+## 配置の 3 つの問題 {#problems}
 
-- 植生: 高さ・傾き・湿度・ノイズから密度を決める（[Vegetation](../vegetation/index.md)）
-- 岩: 傾きが急な所／侵食で削れた所
-- 道: 2 点間の最小コスト経路（A\*）。傾きが緩い所を通る
-- 集落: 平らで水に近い所
-- ポアソン円盤サンプリング: 点が近づきすぎない、自然な散らばり
+木、岩、草を地形の上に置くとき次の 3 つを解く必要があります。
 
-## 配置の 3 つの問題
+1. どこに置くか（密度）: 条件（高さ傾き湿度）から、場所ごとの置く確率を決めます。
+2. どう散らすか（分布）: 点がかたまらず自然にばらけるようにします。
+3. 同じ結果にするか（決定性）: 何度生成しても、同じ位置に置きます。セーブ データやネットワークで、位置が食い違わないためです。
 
-木・岩・草を地形の上に置くとき、次の 3 つを解く必要があります。
+<svg class="fig flow" viewBox="0 0 720 200" role="img" aria-label="配置の流れ。密度マップ、散布、決定的な乱数、インスタンス"><defs><marker id="plA" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">配置の流れ</text>
+<g stroke="#4c8bf5" stroke-width="2" fill="rgba(76,139,245,0.22)"><rect x="12" y="50" width="150" height="64" rx="9"/><rect x="190" y="50" width="150" height="64" rx="9"/><rect x="368" y="50" width="150" height="64" rx="9" fill="rgba(229,170,40,0.3)" stroke="#e5aa28"/><rect x="546" y="50" width="160" height="64" rx="9"/></g>
+<g style="font-size:12px;font-weight:600" text-anchor="middle"><text x="87" y="78">① 密度マップ</text><text x="265" y="78">② 点の散布</text><text x="443" y="78">③ 決定的な乱数</text><text x="626" y="78">インスタンス</text></g>
+<g style="font-size:11px" text-anchor="middle"><text x="87" y="98">高さ・傾き・湿度・ノイズ</text><text x="265" y="98">ポアソン円盤・グリッド</text><text x="443" y="98">セルの座標 + 種</text><text x="626" y="98">位置・向き・大きさ</text></g>
+<g stroke="currentColor" stroke-width="2" marker-end="url(#plA)"><line x1="162" y1="82" x2="190" y2="82"/><line x1="340" y1="82" x2="368" y2="82"/><line x1="518" y1="82" x2="546" y2="82"/></g>
+<text x="360" y="160" text-anchor="middle" style="font-size:12px">窓が動いても、同じセルは同じ点を作る → セーブしても、位置が変わらない</text></svg>
 
-- ① どこに置くか（密度）: 条件（高さ傾き、湿度）から場所ごとの置く確率を決める
-- ② どう散らすか（分布）: 点がかたまらず自然にばらけるようにする
-- ③ 同じ結果にする（決定性）: 何度、生成しても同じ位置に置く。セーブ データとネットワークで、位置が食い違わないように
+## 密度マップ {#density}
 
-## ① 密度マップ
-
-条件から <strong>0〜1 の密度</strong>を地形全体に計算します。
+条件から 0〜1 の密度を地形全体について計算します。木の密度を例にします。
 
 ```hlsl
-// 木の密度: 平らで、湿っていて、高すぎない場所に多い。
-float TreeDensity(float3 world_pos, float3 normal, float moisture) {
-  float slope = 1.0 - saturate(normal.y);
-  float flat_ok = 1.0 - smoothstep(0.15, 0.35, slope);                 // 急斜面には生えない
-  float altitude_ok = 1.0 - smoothstep(tree_line - 50.0, tree_line, world_pos.y);  // 森林限界
-  float wet = smoothstep(0.2, 0.6, moisture);                          // 乾いた所は、疎ら
-  float noise = Fbm(world_pos.xz * 0.01, 3, 2.0, 0.5, 42) * 0.5 + 0.5; // 森のかたまりを作る
-  return flat_ok * altitude_ok * wet * noise;
+// 木の密度: 平らで、湿っていて、高すぎない場所に多い
+float TreeDensity(float3 world_pos, float3 normal, float moisture, float tree_line, float noise01) {
+  float slope = 1.0 - saturate(normal.y);                                        // 0 = 水平
+  float flat_ok = 1.0 - smoothstep(0.15, 0.35, slope);                           // 急斜面には生えない
+  float altitude_ok = 1.0 - smoothstep(tree_line - 50.0, tree_line, world_pos.y); // 森林限界
+  float wet = smoothstep(0.2, 0.6, moisture);                                    // 乾いた所は疎ら
+  // noise01: 低周波のノイズ（0..1）で、森のかたまりと空き地を作る
+  return flat_ok * altitude_ok * wet * noise01;
 }
 ```
 
-| 入力 | 内容 |
-| --- | --- |
-| 高さ | 森林限界、海岸近くの植物 |
-| 傾き | 急斜面は木が生えない（岩だけ） |
-| 湿度・水からの距離 | 川の近くは植物が多い |
-| 低周波のノイズ | 森の、かたまりと空き地を作る |
-| 手描きのマスク | アーティストが「ここには置かない」を塗る |
-| 道・建物 | 道や建物の周りは、密度を 0 にする |
+4 つの条件を掛け合わせるので、1 つでも 0 なら全体が 0 になります。急斜面、森林限界の上、乾いた所にはどれも木が生えません。
 
-## ② 点をどう散らすか
+入力にはほかにも次のものがあります。高さは森林限界や海岸近くの植物に使います。傾きは急斜面を岩だけにします。湿度や水からの距離は川の近くに植物を増やします。低周波のノイズは森のかたまりと空き地を作ります。手描きのマスクはアーティストが「ここには置かない」を塗ります。道や建物の周りは密度を 0 にします。
 
-### 悪い例：一様乱数
+## 点をどう散らすか {#distribution}
 
-座標を <strong>一様な乱数</strong>で決めると点がかたまったり空いたりします。木が一直線やダマに並びます。
+座標を一様な乱数で決めると点がかたまったり空いたりして、木が一直線やダマに並びます。測って確かめます。
 
-### 良い例 1：ジッタード グリッド
+### ジッタード グリッド
 
-地形を格子に分けて 各セルに 1 つずつ点を置き、セルの中の位置を乱数でずらします。簡単で速く、点の間隔がある程度、そろいます。
+地形を格子に分けて各セルに 1 つずつ点を置きセルの中の位置を乱数でずらします。簡単で速く点の間隔がある程度そろいます。
 
 ```cpp
-// ジッタード グリッド: 各セルに 1 つ、ランダムな位置に点を置く。
+// ジッタード グリッド: 各セルに 1 つ、ランダムな位置に点を置く（コンパイルしていない。概略）
 for (int cy = 0; cy < cells_y; ++cy) {
   for (int cx = 0; cx < cells_x; ++cx) {
-    const uint32_t seed = HashCell(cx, cy, global_seed);        // セル座標から、乱数の種
+    const uint32_t seed = HashCell(cx, cy, global_seed);        // セル座標から乱数の種
     const float2 jitter = {Random01(seed), Random01(seed + 1)};
     const float2 p = (float2(cx, cy) + jitter) * cell_size;
-    if (Random01(seed + 2) < Density(p)) {                       // 密度で、間引く
+    if (Random01(seed + 2) < Density(p)) {                       // 密度で間引く
       points.push_back(p);
     }
   }
 }
 ```
 
-### 良い例 2：ポアソン円盤サンプリング
+セルの境目では隣り合うセルの点が、近づくことがあります。
 
-どの 2 点も最小距離 r 以上、離れているように点を置きます（ポアソン円盤分布）。ブルー ノイズに近く 自然な散らばりです。Bridson（2007）の方法が O(n) で速く広く使われています。
+### ポアソン円盤サンプリング
+
+どの 2 点も最小距離 `r` 以上離れているように点を置きます。ブルー ノイズに近い自然な散らばりです。Bridson（2007）の方法は点の数に比例する時間で作れて、広く使われています。
+
+準備です。格子の 1 セルの大きさを `r / √2` にすると、セルの対角線が `r` になるので、1 つのセルには点が高々 1 つしか入りません。格子には点の番号を入れて空は `−1` にします。これで「近くに点があるか」を周りの数セルを見るだけで調べられます。
 
 ```cpp
-// Bridson のポアソン円盤サンプリング（2D、簡略版）。
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <random>
+#include <vector>
+
+struct float2 { float x, y; };
+
+// Bridson のポアソン円盤サンプリング（2D）。MSVC /W4 でコンパイルして実行して確かめた
 std::vector<float2> PoissonDisk(float width, float height, float r, int k, uint32_t seed) {
-  const float cell = r / std::sqrt(2.0f);            // 1 セルに点は最大 1 つしか入らない
-  Grid<int> grid(int(width / cell) + 1, int(height / cell) + 1, -1);
-  std::vector<float2> points, active;
-  Rng rng(seed);
+  const float cell = r / std::sqrt(2.0f);                   // 1 セルに点は最大 1 つ
+  const int gw = int(width / cell) + 1, gh = int(height / cell) + 1;
+  std::vector<int> grid(gw * gh, -1);                        // 点の番号。空は -1
+  std::vector<float2> points;
+  std::vector<int> active;                                   // 周りに新しい点を置けるか調べる点の番号
+  std::mt19937 rng(seed);
+  auto uniform = [&](float a, float b) { return std::uniform_real_distribution<float>(a, b)(rng); };
 ```
 
-準備です。格子の 1 セルの大きさを `r / √2` にすると、セルの対角線が `r` になるので、1 つのセルには点が高々 1 つしか、入りません。格子には点の番号を入れ空は `−1` にします。これで「近くに点があるか」を周りの数セルを見るだけで判定できます。
+点を追加する関数と近くに点があるかの判定です。
 
 ```cpp
   auto add = [&](float2 p) {
-    grid.At(int(p.x / cell), int(p.y / cell)) = int(points.size());
+    grid[int(p.y / cell) * gw + int(p.x / cell)] = int(points.size());
+    active.push_back(int(points.size()));
     points.push_back(p);
-    active.push_back(p);
   };
-  add({rng.Uniform(0, width), rng.Uniform(0, height)});
-```
-
-点を追加する関数と最初の 1 点です。追加した点は格子と点の一覧と、「活動中」の一覧に入れます。
-
-```cpp
-  while (!active.empty()) {
-    const int i = rng.Index(active.size());
-    bool found = false;
-```
-
-活動中の点を 1 つランダムに選びます。この点の周りに新しい点を置けるか、試していきます。
-
-```cpp
-    for (int n = 0; n < k; ++n) {                     // k 回（30 回が標準）、候補を試す
-      // 半径 r〜2r の環の中から、候補を選ぶ
-      const float angle = rng.Uniform(0, 6.2831853f);
-      const float dist = rng.Uniform(r, 2 * r);
-      const float2 c = active[i] + float2(std::cos(angle), std::sin(angle)) * dist;
-      if (c.x < 0 || c.y < 0 || c.x >= width || c.y >= height) continue;
-      if (FarEnough(grid, points, c, r, cell)) {      // 周りの 5×5 セルだけを調べれば、十分
-        add(c);
-        found = true;
-        break;
+  // 周りの 5×5 セルだけを調べれば、距離 r 以内の点は見つかる
+  auto far_enough = [&](float2 c) {
+    const int cx = int(c.x / cell), cy = int(c.y / cell);
+    for (int y = std::max(cy - 2, 0); y <= std::min(cy + 2, gh - 1); ++y)
+      for (int x = std::max(cx - 2, 0); x <= std::min(cx + 2, gw - 1); ++x) {
+        const int idx = grid[y * gw + x];
+        if (idx < 0) continue;
+        const float dx = points[idx].x - c.x, dy = points[idx].y - c.y;
+        if (dx * dx + dy * dy < r * r) return false;
       }
-    }
+    return true;
+  };
 ```
 
-半径 `r` から `2r` の環の中に候補を `k` 回（30 回が標準）、作り盤面の中で周りの点と `r` 以上、離れていれば採用します。近くを調べるのは周りの 5×5 セルで、十分です。
+セルの幅が `r / √2` なので距離 `r` 以内の点は、中心から縦横に 2 セルの範囲に入ります。5×5 のセルを見れば足りるのは、このためです。
 
 ```cpp
-    if (!found) active.erase(active.begin() + i);      // 置けなくなった点は、外す
+  add({uniform(0, width), uniform(0, height)});            // 最初の 1 点
+  while (!active.empty()) {
+    const int ai = std::uniform_int_distribution<int>(0, int(active.size()) - 1)(rng);
+    const float2 base = points[active[ai]];
+    bool found = false;
+    for (int n = 0; n < k; ++n) {                          // k 回（30 回が標準）候補を試す
+      // 半径 r〜2r の環の中から、候補を選ぶ
+      const float angle = uniform(0, 6.2831853f);
+      const float dist = uniform(r, 2 * r);
+      const float2 c = {base.x + std::cos(angle) * dist, base.y + std::sin(angle) * dist};
+      if (c.x < 0 || c.y < 0 || c.x >= width || c.y >= height) continue;
+      if (far_enough(c)) { add(c); found = true; break; }
+    }
+    if (!found) { active[ai] = active.back(); active.pop_back(); }   // 置けなくなった点は外す
   }
   return points;
 }
 ```
 
-### 密度に合わせて半径を変える
+活動中の点を 1 つ選んでその周りの半径 `r` から `2r` の環の中に候補を `k` 回作ります。盤面の中で周りの点と `r` 以上離れていれば採用します。`k` 回試して置けなければその点は活動中から外します。活動中の点が 0 になれば終わりです。
 
-密度が高い所は半径 r を小さく、低い所は大きくします。場所ごとに半径が変わるポアソン円盤です。簡単な方法は 最も細かい半径で点を密に作り、密度に応じて間引くことです。
+実測しました。範囲 100 × 100、`r = 4`、`k = 30` で 404 点が得られて最近接距離の最小値は 4.001 でした。`r = 4` が守られています。同じ 404 点を一様乱数で撒くと最近接距離の最小値は 0.110 でした。木同士がほぼ重なる点が出ます。セル 4 × 4 のジッタード グリッド（625 点）では、0.319 でした。セルの境目で隣の点が近づいています。
+
+<svg class="fig flow" viewBox="0 0 720 300" role="img" aria-label="一様乱数、ジッタード グリッド、ポアソン円盤の点の散らばりの比較"><text x="14" y="22" class="fig-title">同じ範囲への散布（100 m × 100 m）</text>
+<rect x="20" y="44" width="200" height="200" fill="rgba(148,163,184,0.08)" stroke="#94a3b8"/><g fill="#e5484d"><circle cx="202.0" cy="222.2" r="2.2"/><circle cx="197.8" cy="170.4" r="2.2"/><circle cx="52.0" cy="83.3" r="2.2"/><circle cx="22.0" cy="209.5" r="2.2"/><circle cx="201.1" cy="73.1" r="2.2"/><circle cx="149.0" cy="90.0" r="2.2"/><circle cx="146.0" cy="234.0" r="2.2"/><circle cx="93.3" cy="104.0" r="2.2"/><circle cx="67.0" cy="174.7" r="2.2"/><circle cx="130.8" cy="178.5" r="2.2"/><circle cx="74.6" cy="151.5" r="2.2"/><circle cx="103.5" cy="126.6" r="2.2"/><circle cx="44.4" cy="191.3" r="2.2"/><circle cx="131.1" cy="57.4" r="2.2"/><circle cx="214.1" cy="128.3" r="2.2"/><circle cx="23.6" cy="88.7" r="2.2"/><circle cx="32.8" cy="143.4" r="2.2"/><circle cx="202.3" cy="77.9" r="2.2"/><circle cx="213.9" cy="79.8" r="2.2"/><circle cx="24.2" cy="242.8" r="2.2"/><circle cx="188.7" cy="54.7" r="2.2"/><circle cx="120.2" cy="214.6" r="2.2"/><circle cx="44.0" cy="83.4" r="2.2"/><circle cx="73.6" cy="148.2" r="2.2"/><circle cx="191.4" cy="97.9" r="2.2"/><circle cx="92.7" cy="187.2" r="2.2"/><circle cx="150.4" cy="84.4" r="2.2"/><circle cx="136.3" cy="161.3" r="2.2"/><circle cx="41.5" cy="112.4" r="2.2"/><circle cx="71.7" cy="101.4" r="2.2"/><circle cx="41.3" cy="164.3" r="2.2"/><circle cx="120.3" cy="207.4" r="2.2"/><circle cx="77.2" cy="207.8" r="2.2"/><circle cx="27.8" cy="200.1" r="2.2"/><circle cx="92.0" cy="168.7" r="2.2"/><circle cx="163.6" cy="72.7" r="2.2"/><circle cx="26.5" cy="150.3" r="2.2"/><circle cx="173.8" cy="89.5" r="2.2"/><circle cx="81.8" cy="214.4" r="2.2"/><circle cx="156.5" cy="190.5" r="2.2"/><circle cx="212.0" cy="180.5" r="2.2"/><circle cx="98.9" cy="45.6" r="2.2"/><circle cx="203.5" cy="237.3" r="2.2"/><circle cx="42.7" cy="63.8" r="2.2"/><circle cx="44.3" cy="75.4" r="2.2"/><circle cx="65.6" cy="236.0" r="2.2"/><circle cx="60.7" cy="168.0" r="2.2"/><circle cx="172.4" cy="89.2" r="2.2"/><circle cx="166.0" cy="192.9" r="2.2"/><circle cx="202.5" cy="238.8" r="2.2"/><circle cx="210.4" cy="181.9" r="2.2"/><circle cx="157.3" cy="83.3" r="2.2"/><circle cx="152.7" cy="132.2" r="2.2"/><circle cx="80.2" cy="48.9" r="2.2"/><circle cx="140.3" cy="240.1" r="2.2"/><circle cx="64.7" cy="159.4" r="2.2"/><circle cx="178.8" cy="154.0" r="2.2"/><circle cx="206.4" cy="210.9" r="2.2"/><circle cx="129.7" cy="49.0" r="2.2"/><circle cx="82.7" cy="222.7" r="2.2"/><circle cx="99.8" cy="68.5" r="2.2"/><circle cx="142.2" cy="121.0" r="2.2"/><circle cx="133.0" cy="45.9" r="2.2"/><circle cx="183.4" cy="124.0" r="2.2"/><circle cx="41.3" cy="168.2" r="2.2"/><circle cx="196.4" cy="78.9" r="2.2"/><circle cx="20.7" cy="156.3" r="2.2"/><circle cx="39.6" cy="108.5" r="2.2"/><circle cx="112.5" cy="143.6" r="2.2"/><circle cx="188.2" cy="175.1" r="2.2"/><circle cx="199.6" cy="199.6" r="2.2"/><circle cx="106.7" cy="213.5" r="2.2"/><circle cx="42.7" cy="140.8" r="2.2"/><circle cx="76.3" cy="167.6" r="2.2"/><circle cx="42.7" cy="191.0" r="2.2"/><circle cx="201.7" cy="61.2" r="2.2"/><circle cx="161.2" cy="76.0" r="2.2"/><circle cx="73.0" cy="202.3" r="2.2"/><circle cx="83.8" cy="164.7" r="2.2"/><circle cx="71.1" cy="140.6" r="2.2"/><circle cx="197.7" cy="236.4" r="2.2"/><circle cx="134.8" cy="84.7" r="2.2"/><circle cx="152.9" cy="69.0" r="2.2"/><circle cx="195.5" cy="58.8" r="2.2"/><circle cx="27.3" cy="46.5" r="2.2"/><circle cx="174.9" cy="235.6" r="2.2"/><circle cx="218.3" cy="204.8" r="2.2"/><circle cx="54.8" cy="214.6" r="2.2"/><circle cx="110.4" cy="125.1" r="2.2"/><circle cx="60.6" cy="73.2" r="2.2"/><circle cx="130.9" cy="189.5" r="2.2"/><circle cx="209.3" cy="190.1" r="2.2"/><circle cx="163.8" cy="144.5" r="2.2"/><circle cx="59.0" cy="57.9" r="2.2"/><circle cx="62.5" cy="224.9" r="2.2"/><circle cx="76.6" cy="102.8" r="2.2"/><circle cx="122.2" cy="159.9" r="2.2"/><circle cx="104.5" cy="71.5" r="2.2"/><circle cx="219.6" cy="161.6" r="2.2"/><circle cx="47.2" cy="121.7" r="2.2"/><circle cx="45.0" cy="91.4" r="2.2"/><circle cx="87.5" cy="148.3" r="2.2"/><circle cx="174.7" cy="87.4" r="2.2"/><circle cx="92.7" cy="241.0" r="2.2"/><circle cx="62.3" cy="95.6" r="2.2"/><circle cx="217.2" cy="124.7" r="2.2"/><circle cx="96.8" cy="135.7" r="2.2"/><circle cx="64.2" cy="207.0" r="2.2"/><circle cx="149.6" cy="51.2" r="2.2"/><circle cx="129.9" cy="177.6" r="2.2"/><circle cx="149.6" cy="240.7" r="2.2"/><circle cx="83.5" cy="46.4" r="2.2"/><circle cx="208.3" cy="170.7" r="2.2"/><circle cx="216.1" cy="66.2" r="2.2"/><circle cx="129.0" cy="118.4" r="2.2"/><circle cx="162.1" cy="51.5" r="2.2"/><circle cx="59.8" cy="66.2" r="2.2"/><circle cx="129.7" cy="145.3" r="2.2"/><circle cx="186.9" cy="121.9" r="2.2"/><circle cx="201.3" cy="172.3" r="2.2"/><circle cx="219.4" cy="50.8" r="2.2"/><circle cx="163.1" cy="78.3" r="2.2"/><circle cx="216.3" cy="44.5" r="2.2"/><circle cx="179.9" cy="232.3" r="2.2"/><circle cx="32.8" cy="52.7" r="2.2"/><circle cx="97.3" cy="127.1" r="2.2"/><circle cx="106.7" cy="63.4" r="2.2"/><circle cx="45.2" cy="217.7" r="2.2"/><circle cx="92.0" cy="144.7" r="2.2"/><circle cx="67.6" cy="239.7" r="2.2"/><circle cx="203.4" cy="143.2" r="2.2"/><circle cx="44.8" cy="70.5" r="2.2"/><circle cx="173.4" cy="192.7" r="2.2"/><circle cx="176.2" cy="109.7" r="2.2"/><circle cx="65.4" cy="113.1" r="2.2"/><circle cx="206.0" cy="123.2" r="2.2"/><circle cx="165.7" cy="206.6" r="2.2"/><circle cx="40.1" cy="115.7" r="2.2"/><circle cx="189.9" cy="85.5" r="2.2"/><circle cx="115.6" cy="195.4" r="2.2"/><circle cx="52.7" cy="179.9" r="2.2"/><circle cx="63.9" cy="112.7" r="2.2"/><circle cx="97.1" cy="215.6" r="2.2"/><circle cx="208.3" cy="211.0" r="2.2"/><circle cx="112.3" cy="126.1" r="2.2"/><circle cx="209.1" cy="117.8" r="2.2"/><circle cx="107.0" cy="234.5" r="2.2"/><circle cx="20.2" cy="150.0" r="2.2"/><circle cx="197.4" cy="143.0" r="2.2"/><circle cx="153.9" cy="193.1" r="2.2"/><circle cx="191.2" cy="146.1" r="2.2"/><circle cx="24.1" cy="113.6" r="2.2"/><circle cx="146.6" cy="75.3" r="2.2"/><circle cx="164.2" cy="226.5" r="2.2"/><circle cx="199.2" cy="65.1" r="2.2"/><circle cx="185.0" cy="168.8" r="2.2"/><circle cx="155.5" cy="132.5" r="2.2"/><circle cx="119.1" cy="74.4" r="2.2"/><circle cx="175.2" cy="168.0" r="2.2"/><circle cx="76.7" cy="199.9" r="2.2"/><circle cx="31.7" cy="159.5" r="2.2"/><circle cx="174.3" cy="69.1" r="2.2"/><circle cx="156.6" cy="82.5" r="2.2"/><circle cx="144.2" cy="211.9" r="2.2"/><circle cx="81.8" cy="170.6" r="2.2"/><circle cx="155.8" cy="210.0" r="2.2"/><circle cx="212.1" cy="66.7" r="2.2"/><circle cx="146.2" cy="52.0" r="2.2"/><circle cx="93.4" cy="186.3" r="2.2"/><circle cx="208.2" cy="179.8" r="2.2"/><circle cx="216.0" cy="49.4" r="2.2"/><circle cx="48.0" cy="49.0" r="2.2"/><circle cx="131.6" cy="227.8" r="2.2"/><circle cx="38.3" cy="63.8" r="2.2"/><circle cx="109.5" cy="223.8" r="2.2"/><circle cx="182.6" cy="149.8" r="2.2"/><circle cx="78.1" cy="76.0" r="2.2"/><circle cx="107.9" cy="170.4" r="2.2"/><circle cx="53.4" cy="229.3" r="2.2"/><circle cx="208.9" cy="189.2" r="2.2"/><circle cx="193.9" cy="210.8" r="2.2"/><circle cx="46.6" cy="106.5" r="2.2"/><circle cx="123.2" cy="127.2" r="2.2"/><circle cx="146.3" cy="94.9" r="2.2"/><circle cx="24.4" cy="173.7" r="2.2"/><circle cx="70.6" cy="68.1" r="2.2"/><circle cx="72.8" cy="141.4" r="2.2"/><circle cx="137.4" cy="153.3" r="2.2"/><circle cx="149.8" cy="137.2" r="2.2"/><circle cx="131.7" cy="63.6" r="2.2"/><circle cx="198.0" cy="55.8" r="2.2"/><circle cx="150.9" cy="110.0" r="2.2"/><circle cx="24.9" cy="178.8" r="2.2"/><circle cx="172.8" cy="168.2" r="2.2"/><circle cx="123.4" cy="156.0" r="2.2"/><circle cx="51.3" cy="84.2" r="2.2"/><circle cx="71.3" cy="55.4" r="2.2"/><circle cx="157.6" cy="76.9" r="2.2"/><circle cx="143.2" cy="67.8" r="2.2"/><circle cx="57.0" cy="177.1" r="2.2"/><circle cx="88.2" cy="50.4" r="2.2"/><circle cx="186.5" cy="223.8" r="2.2"/><circle cx="88.6" cy="242.4" r="2.2"/><circle cx="213.2" cy="45.2" r="2.2"/><circle cx="172.5" cy="68.7" r="2.2"/><circle cx="115.1" cy="88.3" r="2.2"/><circle cx="122.1" cy="123.2" r="2.2"/><circle cx="188.2" cy="77.6" r="2.2"/><circle cx="140.6" cy="66.1" r="2.2"/><circle cx="200.6" cy="114.2" r="2.2"/><circle cx="99.1" cy="106.2" r="2.2"/><circle cx="199.2" cy="181.7" r="2.2"/><circle cx="198.8" cy="195.2" r="2.2"/><circle cx="41.5" cy="189.9" r="2.2"/><circle cx="56.3" cy="119.7" r="2.2"/><circle cx="56.5" cy="159.3" r="2.2"/><circle cx="56.8" cy="98.3" r="2.2"/><circle cx="213.8" cy="143.7" r="2.2"/><circle cx="125.8" cy="225.8" r="2.2"/><circle cx="93.5" cy="140.3" r="2.2"/><circle cx="202.6" cy="197.4" r="2.2"/><circle cx="188.4" cy="149.6" r="2.2"/><circle cx="44.7" cy="103.1" r="2.2"/><circle cx="104.6" cy="52.0" r="2.2"/><circle cx="56.2" cy="158.7" r="2.2"/><circle cx="188.0" cy="128.4" r="2.2"/><circle cx="133.3" cy="176.3" r="2.2"/><circle cx="147.7" cy="200.9" r="2.2"/><circle cx="32.2" cy="207.8" r="2.2"/><circle cx="122.4" cy="139.2" r="2.2"/><circle cx="186.2" cy="103.1" r="2.2"/><circle cx="123.6" cy="146.4" r="2.2"/><circle cx="58.0" cy="139.0" r="2.2"/><circle cx="140.7" cy="164.0" r="2.2"/><circle cx="26.9" cy="86.0" r="2.2"/><circle cx="120.3" cy="163.4" r="2.2"/><circle cx="87.6" cy="95.5" r="2.2"/><circle cx="29.8" cy="128.3" r="2.2"/><circle cx="194.4" cy="44.8" r="2.2"/><circle cx="200.1" cy="51.2" r="2.2"/><circle cx="134.6" cy="134.5" r="2.2"/><circle cx="64.2" cy="79.2" r="2.2"/><circle cx="56.8" cy="169.6" r="2.2"/><circle cx="151.3" cy="205.5" r="2.2"/><circle cx="83.5" cy="81.0" r="2.2"/><circle cx="122.8" cy="230.8" r="2.2"/><circle cx="190.1" cy="222.6" r="2.2"/><circle cx="149.9" cy="226.7" r="2.2"/><circle cx="79.6" cy="241.2" r="2.2"/><circle cx="130.6" cy="216.7" r="2.2"/><circle cx="104.2" cy="54.1" r="2.2"/><circle cx="47.9" cy="195.6" r="2.2"/><circle cx="110.3" cy="131.9" r="2.2"/><circle cx="157.8" cy="124.4" r="2.2"/><circle cx="181.1" cy="185.8" r="2.2"/><circle cx="110.3" cy="135.9" r="2.2"/><circle cx="129.4" cy="151.7" r="2.2"/><circle cx="103.5" cy="54.9" r="2.2"/><circle cx="142.8" cy="237.0" r="2.2"/><circle cx="192.6" cy="129.2" r="2.2"/><circle cx="79.4" cy="165.4" r="2.2"/><circle cx="64.1" cy="84.3" r="2.2"/><circle cx="151.3" cy="137.7" r="2.2"/><circle cx="212.5" cy="64.6" r="2.2"/><circle cx="150.2" cy="209.8" r="2.2"/><circle cx="130.7" cy="134.4" r="2.2"/><circle cx="114.8" cy="79.1" r="2.2"/><circle cx="138.3" cy="218.6" r="2.2"/><circle cx="41.0" cy="157.4" r="2.2"/><circle cx="45.8" cy="146.3" r="2.2"/><circle cx="22.9" cy="147.6" r="2.2"/><circle cx="59.6" cy="173.4" r="2.2"/><circle cx="192.2" cy="228.0" r="2.2"/><circle cx="59.9" cy="86.1" r="2.2"/><circle cx="114.2" cy="161.9" r="2.2"/><circle cx="35.2" cy="132.5" r="2.2"/><circle cx="184.6" cy="235.5" r="2.2"/><circle cx="123.5" cy="82.1" r="2.2"/><circle cx="74.4" cy="235.2" r="2.2"/><circle cx="141.4" cy="74.6" r="2.2"/><circle cx="219.7" cy="182.2" r="2.2"/><circle cx="41.4" cy="120.7" r="2.2"/><circle cx="33.1" cy="117.5" r="2.2"/><circle cx="216.5" cy="164.0" r="2.2"/><circle cx="127.9" cy="217.1" r="2.2"/><circle cx="44.2" cy="138.8" r="2.2"/><circle cx="112.7" cy="99.0" r="2.2"/><circle cx="202.2" cy="133.6" r="2.2"/><circle cx="212.8" cy="119.5" r="2.2"/><circle cx="49.5" cy="201.6" r="2.2"/><circle cx="56.5" cy="201.4" r="2.2"/><circle cx="110.0" cy="113.1" r="2.2"/><circle cx="146.0" cy="225.5" r="2.2"/><circle cx="192.9" cy="197.9" r="2.2"/><circle cx="130.5" cy="239.3" r="2.2"/><circle cx="129.1" cy="122.3" r="2.2"/><circle cx="35.4" cy="85.9" r="2.2"/><circle cx="46.1" cy="135.6" r="2.2"/><circle cx="183.3" cy="51.3" r="2.2"/><circle cx="35.0" cy="115.9" r="2.2"/><circle cx="179.6" cy="89.4" r="2.2"/><circle cx="180.7" cy="229.0" r="2.2"/><circle cx="124.2" cy="148.9" r="2.2"/><circle cx="79.1" cy="99.6" r="2.2"/><circle cx="194.3" cy="223.0" r="2.2"/><circle cx="215.6" cy="57.6" r="2.2"/><circle cx="41.3" cy="214.8" r="2.2"/><circle cx="217.5" cy="177.4" r="2.2"/><circle cx="108.1" cy="242.5" r="2.2"/><circle cx="81.4" cy="178.9" r="2.2"/><circle cx="24.7" cy="100.4" r="2.2"/><circle cx="130.2" cy="217.3" r="2.2"/><circle cx="33.0" cy="155.6" r="2.2"/><circle cx="146.8" cy="115.4" r="2.2"/><circle cx="177.0" cy="146.2" r="2.2"/><circle cx="85.2" cy="231.0" r="2.2"/><circle cx="125.9" cy="88.4" r="2.2"/><circle cx="150.8" cy="95.1" r="2.2"/><circle cx="132.3" cy="52.1" r="2.2"/><circle cx="30.7" cy="102.2" r="2.2"/><circle cx="219.6" cy="56.1" r="2.2"/><circle cx="201.1" cy="110.6" r="2.2"/><circle cx="28.2" cy="155.2" r="2.2"/><circle cx="198.4" cy="102.1" r="2.2"/><circle cx="100.5" cy="80.5" r="2.2"/><circle cx="37.2" cy="85.4" r="2.2"/><circle cx="121.6" cy="214.9" r="2.2"/><circle cx="210.1" cy="137.9" r="2.2"/><circle cx="57.6" cy="56.3" r="2.2"/><circle cx="174.1" cy="227.3" r="2.2"/><circle cx="87.3" cy="48.4" r="2.2"/><circle cx="131.3" cy="228.0" r="2.2"/><circle cx="186.6" cy="199.2" r="2.2"/><circle cx="109.6" cy="180.7" r="2.2"/><circle cx="163.0" cy="102.4" r="2.2"/><circle cx="168.0" cy="242.4" r="2.2"/><circle cx="41.6" cy="235.7" r="2.2"/><circle cx="133.0" cy="57.7" r="2.2"/><circle cx="52.4" cy="78.8" r="2.2"/><circle cx="166.4" cy="124.9" r="2.2"/><circle cx="182.3" cy="150.4" r="2.2"/><circle cx="185.7" cy="61.5" r="2.2"/><circle cx="86.2" cy="127.3" r="2.2"/><circle cx="90.5" cy="102.4" r="2.2"/><circle cx="45.2" cy="147.4" r="2.2"/><circle cx="117.9" cy="170.1" r="2.2"/><circle cx="25.5" cy="54.0" r="2.2"/><circle cx="24.9" cy="78.4" r="2.2"/><circle cx="64.3" cy="207.8" r="2.2"/><circle cx="181.8" cy="118.0" r="2.2"/><circle cx="42.7" cy="212.4" r="2.2"/><circle cx="103.1" cy="228.4" r="2.2"/><circle cx="121.7" cy="98.8" r="2.2"/><circle cx="106.9" cy="51.2" r="2.2"/><circle cx="58.6" cy="172.4" r="2.2"/><circle cx="112.6" cy="78.2" r="2.2"/><circle cx="208.4" cy="84.9" r="2.2"/><circle cx="103.1" cy="205.5" r="2.2"/><circle cx="90.2" cy="136.3" r="2.2"/><circle cx="93.5" cy="224.1" r="2.2"/><circle cx="137.9" cy="142.6" r="2.2"/><circle cx="214.1" cy="73.7" r="2.2"/><circle cx="80.8" cy="139.7" r="2.2"/><circle cx="47.0" cy="230.7" r="2.2"/><circle cx="189.1" cy="67.2" r="2.2"/><circle cx="196.8" cy="55.4" r="2.2"/><circle cx="81.6" cy="174.5" r="2.2"/><circle cx="112.7" cy="234.7" r="2.2"/><circle cx="59.8" cy="57.5" r="2.2"/><circle cx="48.8" cy="184.8" r="2.2"/><circle cx="69.8" cy="172.1" r="2.2"/><circle cx="207.7" cy="100.4" r="2.2"/><circle cx="36.7" cy="96.0" r="2.2"/><circle cx="175.2" cy="142.1" r="2.2"/><circle cx="153.1" cy="207.5" r="2.2"/><circle cx="122.3" cy="129.4" r="2.2"/><circle cx="31.9" cy="46.2" r="2.2"/><circle cx="166.6" cy="165.7" r="2.2"/><circle cx="57.1" cy="188.9" r="2.2"/><circle cx="121.6" cy="96.9" r="2.2"/><circle cx="187.3" cy="74.6" r="2.2"/><circle cx="190.2" cy="159.8" r="2.2"/><circle cx="195.2" cy="190.7" r="2.2"/><circle cx="27.9" cy="105.2" r="2.2"/><circle cx="104.6" cy="120.1" r="2.2"/><circle cx="179.9" cy="120.5" r="2.2"/><circle cx="183.9" cy="182.2" r="2.2"/><circle cx="158.1" cy="61.4" r="2.2"/><circle cx="123.5" cy="221.0" r="2.2"/><circle cx="189.7" cy="51.1" r="2.2"/><circle cx="81.2" cy="166.2" r="2.2"/><circle cx="29.7" cy="62.5" r="2.2"/><circle cx="150.2" cy="157.6" r="2.2"/><circle cx="69.9" cy="118.2" r="2.2"/><circle cx="26.8" cy="91.4" r="2.2"/><circle cx="95.0" cy="236.3" r="2.2"/><circle cx="133.4" cy="164.7" r="2.2"/><circle cx="67.3" cy="159.7" r="2.2"/><circle cx="132.1" cy="237.1" r="2.2"/></g><rect x="260" y="44" width="200" height="200" fill="rgba(148,163,184,0.08)" stroke="#94a3b8"/><g fill="#e5aa28"><circle cx="262.6" cy="48.9" r="2.2"/><circle cx="268.9" cy="48.2" r="2.2"/><circle cx="276.0" cy="44.0" r="2.2"/><circle cx="287.5" cy="46.1" r="2.2"/><circle cx="292.3" cy="48.4" r="2.2"/><circle cx="306.5" cy="48.6" r="2.2"/><circle cx="314.9" cy="47.7" r="2.2"/><circle cx="319.7" cy="49.6" r="2.2"/><circle cx="330.5" cy="51.3" r="2.2"/><circle cx="335.6" cy="50.3" r="2.2"/><circle cx="340.5" cy="47.7" r="2.2"/><circle cx="349.3" cy="50.2" r="2.2"/><circle cx="356.8" cy="47.9" r="2.2"/><circle cx="366.9" cy="46.8" r="2.2"/><circle cx="372.6" cy="44.9" r="2.2"/><circle cx="380.2" cy="45.3" r="2.2"/><circle cx="394.1" cy="49.3" r="2.2"/><circle cx="401.6" cy="47.0" r="2.2"/><circle cx="410.0" cy="46.6" r="2.2"/><circle cx="415.5" cy="48.8" r="2.2"/><circle cx="427.6" cy="50.0" r="2.2"/><circle cx="431.1" cy="48.0" r="2.2"/><circle cx="436.8" cy="45.2" r="2.2"/><circle cx="444.1" cy="46.4" r="2.2"/><circle cx="452.5" cy="48.5" r="2.2"/><circle cx="262.5" cy="52.7" r="2.2"/><circle cx="269.1" cy="58.8" r="2.2"/><circle cx="278.0" cy="59.4" r="2.2"/><circle cx="289.8" cy="57.5" r="2.2"/><circle cx="297.2" cy="58.7" r="2.2"/><circle cx="306.8" cy="53.1" r="2.2"/><circle cx="314.0" cy="54.7" r="2.2"/><circle cx="322.3" cy="54.3" r="2.2"/><circle cx="326.3" cy="54.7" r="2.2"/><circle cx="334.1" cy="53.5" r="2.2"/><circle cx="345.3" cy="59.5" r="2.2"/><circle cx="355.7" cy="53.5" r="2.2"/><circle cx="361.7" cy="59.0" r="2.2"/><circle cx="368.5" cy="52.8" r="2.2"/><circle cx="378.4" cy="57.8" r="2.2"/><circle cx="384.2" cy="58.1" r="2.2"/><circle cx="390.5" cy="53.5" r="2.2"/><circle cx="399.1" cy="52.0" r="2.2"/><circle cx="409.5" cy="57.5" r="2.2"/><circle cx="414.6" cy="59.6" r="2.2"/><circle cx="426.1" cy="52.9" r="2.2"/><circle cx="435.8" cy="53.7" r="2.2"/><circle cx="438.2" cy="55.1" r="2.2"/><circle cx="450.0" cy="58.0" r="2.2"/><circle cx="456.5" cy="59.5" r="2.2"/><circle cx="263.8" cy="66.2" r="2.2"/><circle cx="273.9" cy="61.4" r="2.2"/><circle cx="279.8" cy="65.1" r="2.2"/><circle cx="291.5" cy="63.0" r="2.2"/><circle cx="299.7" cy="60.8" r="2.2"/><circle cx="302.7" cy="64.0" r="2.2"/><circle cx="313.1" cy="61.6" r="2.2"/><circle cx="316.3" cy="67.0" r="2.2"/><circle cx="326.2" cy="60.7" r="2.2"/><circle cx="333.3" cy="61.8" r="2.2"/><circle cx="341.2" cy="62.9" r="2.2"/><circle cx="355.7" cy="63.1" r="2.2"/><circle cx="361.3" cy="67.0" r="2.2"/><circle cx="366.7" cy="67.2" r="2.2"/><circle cx="378.9" cy="67.5" r="2.2"/><circle cx="387.0" cy="60.6" r="2.2"/><circle cx="395.2" cy="66.2" r="2.2"/><circle cx="398.7" cy="66.5" r="2.2"/><circle cx="406.5" cy="63.2" r="2.2"/><circle cx="419.3" cy="63.3" r="2.2"/><circle cx="427.0" cy="66.4" r="2.2"/><circle cx="432.3" cy="66.8" r="2.2"/><circle cx="443.1" cy="66.4" r="2.2"/><circle cx="445.7" cy="66.5" r="2.2"/><circle cx="457.2" cy="64.4" r="2.2"/><circle cx="264.2" cy="73.2" r="2.2"/><circle cx="270.3" cy="73.9" r="2.2"/><circle cx="276.7" cy="75.0" r="2.2"/><circle cx="284.1" cy="69.3" r="2.2"/><circle cx="295.7" cy="75.1" r="2.2"/><circle cx="304.2" cy="75.8" r="2.2"/><circle cx="315.1" cy="72.2" r="2.2"/><circle cx="320.0" cy="72.7" r="2.2"/><circle cx="327.9" cy="70.1" r="2.2"/><circle cx="333.9" cy="74.3" r="2.2"/><circle cx="343.0" cy="74.6" r="2.2"/><circle cx="354.2" cy="73.5" r="2.2"/><circle cx="361.8" cy="71.8" r="2.2"/><circle cx="368.8" cy="74.1" r="2.2"/><circle cx="375.6" cy="73.6" r="2.2"/><circle cx="380.4" cy="75.8" r="2.2"/><circle cx="393.5" cy="71.3" r="2.2"/><circle cx="400.4" cy="69.7" r="2.2"/><circle cx="409.7" cy="74.9" r="2.2"/><circle cx="419.7" cy="74.6" r="2.2"/><circle cx="422.1" cy="71.0" r="2.2"/><circle cx="433.6" cy="70.8" r="2.2"/><circle cx="441.9" cy="75.3" r="2.2"/><circle cx="451.0" cy="74.3" r="2.2"/><circle cx="457.4" cy="72.1" r="2.2"/><circle cx="264.9" cy="83.1" r="2.2"/><circle cx="273.5" cy="84.0" r="2.2"/><circle cx="280.8" cy="79.3" r="2.2"/><circle cx="290.4" cy="79.8" r="2.2"/><circle cx="295.8" cy="78.5" r="2.2"/><circle cx="301.0" cy="78.7" r="2.2"/><circle cx="310.9" cy="76.7" r="2.2"/><circle cx="319.3" cy="82.7" r="2.2"/><circle cx="329.7" cy="83.6" r="2.2"/><circle cx="333.7" cy="76.3" r="2.2"/><circle cx="341.4" cy="78.0" r="2.2"/><circle cx="349.4" cy="77.5" r="2.2"/><circle cx="358.4" cy="79.8" r="2.2"/><circle cx="364.8" cy="83.3" r="2.2"/><circle cx="374.5" cy="76.4" r="2.2"/><circle cx="384.6" cy="78.2" r="2.2"/><circle cx="390.0" cy="80.3" r="2.2"/><circle cx="398.4" cy="79.2" r="2.2"/><circle cx="406.9" cy="83.9" r="2.2"/><circle cx="416.6" cy="81.5" r="2.2"/><circle cx="424.7" cy="81.3" r="2.2"/><circle cx="434.0" cy="76.1" r="2.2"/><circle cx="440.4" cy="79.5" r="2.2"/><circle cx="446.4" cy="77.4" r="2.2"/><circle cx="454.4" cy="79.3" r="2.2"/><circle cx="261.8" cy="86.7" r="2.2"/><circle cx="275.7" cy="88.7" r="2.2"/><circle cx="283.8" cy="88.6" r="2.2"/><circle cx="287.8" cy="85.7" r="2.2"/><circle cx="292.4" cy="91.3" r="2.2"/><circle cx="300.0" cy="90.1" r="2.2"/><circle cx="314.4" cy="86.8" r="2.2"/><circle cx="318.1" cy="86.9" r="2.2"/><circle cx="327.4" cy="85.7" r="2.2"/><circle cx="336.7" cy="89.6" r="2.2"/><circle cx="342.2" cy="89.5" r="2.2"/><circle cx="349.2" cy="86.2" r="2.2"/><circle cx="361.7" cy="89.9" r="2.2"/><circle cx="366.9" cy="87.2" r="2.2"/><circle cx="379.0" cy="89.6" r="2.2"/><circle cx="383.9" cy="90.9" r="2.2"/><circle cx="394.0" cy="85.2" r="2.2"/><circle cx="399.7" cy="91.9" r="2.2"/><circle cx="404.3" cy="91.5" r="2.2"/><circle cx="419.4" cy="85.1" r="2.2"/><circle cx="421.5" cy="86.2" r="2.2"/><circle cx="433.8" cy="85.1" r="2.2"/><circle cx="441.6" cy="85.8" r="2.2"/><circle cx="450.2" cy="85.6" r="2.2"/><circle cx="453.2" cy="90.4" r="2.2"/><circle cx="260.0" cy="95.7" r="2.2"/><circle cx="271.4" cy="95.5" r="2.2"/><circle cx="276.4" cy="93.8" r="2.2"/><circle cx="288.7" cy="94.5" r="2.2"/><circle cx="299.9" cy="96.6" r="2.2"/><circle cx="300.7" cy="95.3" r="2.2"/><circle cx="311.1" cy="93.8" r="2.2"/><circle cx="318.6" cy="95.1" r="2.2"/><circle cx="329.6" cy="92.3" r="2.2"/><circle cx="337.3" cy="94.1" r="2.2"/><circle cx="344.6" cy="97.5" r="2.2"/><circle cx="350.5" cy="99.5" r="2.2"/><circle cx="356.7" cy="93.5" r="2.2"/><circle cx="369.6" cy="92.8" r="2.2"/><circle cx="378.7" cy="96.8" r="2.2"/><circle cx="385.6" cy="97.5" r="2.2"/><circle cx="389.9" cy="96.7" r="2.2"/><circle cx="400.9" cy="98.2" r="2.2"/><circle cx="411.4" cy="96.3" r="2.2"/><circle cx="419.7" cy="95.1" r="2.2"/><circle cx="425.6" cy="93.1" r="2.2"/><circle cx="433.9" cy="94.2" r="2.2"/><circle cx="442.6" cy="93.8" r="2.2"/><circle cx="446.3" cy="93.3" r="2.2"/><circle cx="457.9" cy="97.0" r="2.2"/><circle cx="261.8" cy="100.7" r="2.2"/><circle cx="270.9" cy="101.2" r="2.2"/><circle cx="283.6" cy="104.2" r="2.2"/><circle cx="290.5" cy="100.2" r="2.2"/><circle cx="298.2" cy="104.5" r="2.2"/><circle cx="302.3" cy="101.4" r="2.2"/><circle cx="309.2" cy="105.8" r="2.2"/><circle cx="321.6" cy="107.6" r="2.2"/><circle cx="330.6" cy="100.9" r="2.2"/><circle cx="338.9" cy="105.4" r="2.2"/><circle cx="346.0" cy="104.1" r="2.2"/><circle cx="350.1" cy="105.0" r="2.2"/><circle cx="356.5" cy="103.8" r="2.2"/><circle cx="364.5" cy="102.3" r="2.2"/><circle cx="374.2" cy="104.9" r="2.2"/><circle cx="380.2" cy="103.2" r="2.2"/><circle cx="388.4" cy="103.3" r="2.2"/><circle cx="402.8" cy="106.8" r="2.2"/><circle cx="408.6" cy="103.2" r="2.2"/><circle cx="418.4" cy="100.9" r="2.2"/><circle cx="426.5" cy="101.5" r="2.2"/><circle cx="429.7" cy="107.3" r="2.2"/><circle cx="440.7" cy="101.9" r="2.2"/><circle cx="447.2" cy="104.2" r="2.2"/><circle cx="455.2" cy="105.9" r="2.2"/><circle cx="265.6" cy="110.1" r="2.2"/><circle cx="275.7" cy="114.2" r="2.2"/><circle cx="277.5" cy="114.7" r="2.2"/><circle cx="288.5" cy="112.8" r="2.2"/><circle cx="292.5" cy="111.7" r="2.2"/><circle cx="301.1" cy="109.4" r="2.2"/><circle cx="314.1" cy="114.8" r="2.2"/><circle cx="320.8" cy="116.0" r="2.2"/><circle cx="324.6" cy="113.2" r="2.2"/><circle cx="333.0" cy="111.6" r="2.2"/><circle cx="346.1" cy="109.6" r="2.2"/><circle cx="355.3" cy="108.6" r="2.2"/><circle cx="362.6" cy="113.3" r="2.2"/><circle cx="365.0" cy="113.9" r="2.2"/><circle cx="377.3" cy="114.9" r="2.2"/><circle cx="386.1" cy="109.1" r="2.2"/><circle cx="393.6" cy="110.0" r="2.2"/><circle cx="399.6" cy="113.8" r="2.2"/><circle cx="407.8" cy="113.6" r="2.2"/><circle cx="418.1" cy="110.8" r="2.2"/><circle cx="422.8" cy="108.2" r="2.2"/><circle cx="428.6" cy="109.1" r="2.2"/><circle cx="439.6" cy="116.0" r="2.2"/><circle cx="450.6" cy="114.9" r="2.2"/><circle cx="457.5" cy="115.1" r="2.2"/><circle cx="264.0" cy="118.2" r="2.2"/><circle cx="275.0" cy="117.3" r="2.2"/><circle cx="279.4" cy="121.6" r="2.2"/><circle cx="286.2" cy="119.2" r="2.2"/><circle cx="297.2" cy="123.8" r="2.2"/><circle cx="300.5" cy="120.7" r="2.2"/><circle cx="309.7" cy="118.9" r="2.2"/><circle cx="323.7" cy="121.7" r="2.2"/><circle cx="326.7" cy="120.6" r="2.2"/><circle cx="338.7" cy="119.4" r="2.2"/><circle cx="347.2" cy="120.0" r="2.2"/><circle cx="348.1" cy="119.1" r="2.2"/><circle cx="360.0" cy="119.4" r="2.2"/><circle cx="368.2" cy="123.5" r="2.2"/><circle cx="376.7" cy="116.3" r="2.2"/><circle cx="381.5" cy="116.6" r="2.2"/><circle cx="388.8" cy="117.8" r="2.2"/><circle cx="398.5" cy="120.7" r="2.2"/><circle cx="404.6" cy="118.2" r="2.2"/><circle cx="412.2" cy="116.3" r="2.2"/><circle cx="424.3" cy="123.9" r="2.2"/><circle cx="433.4" cy="120.8" r="2.2"/><circle cx="437.5" cy="120.3" r="2.2"/><circle cx="450.7" cy="118.0" r="2.2"/><circle cx="453.3" cy="116.4" r="2.2"/><circle cx="263.7" cy="126.7" r="2.2"/><circle cx="275.6" cy="130.6" r="2.2"/><circle cx="280.5" cy="127.3" r="2.2"/><circle cx="288.5" cy="131.8" r="2.2"/><circle cx="298.0" cy="124.7" r="2.2"/><circle cx="306.9" cy="125.4" r="2.2"/><circle cx="309.1" cy="124.4" r="2.2"/><circle cx="320.9" cy="130.4" r="2.2"/><circle cx="329.1" cy="130.0" r="2.2"/><circle cx="339.2" cy="127.2" r="2.2"/><circle cx="340.9" cy="130.0" r="2.2"/><circle cx="353.5" cy="127.8" r="2.2"/><circle cx="358.6" cy="128.1" r="2.2"/><circle cx="368.3" cy="131.2" r="2.2"/><circle cx="379.6" cy="129.9" r="2.2"/><circle cx="381.2" cy="128.2" r="2.2"/><circle cx="389.4" cy="125.4" r="2.2"/><circle cx="396.9" cy="125.5" r="2.2"/><circle cx="407.2" cy="130.5" r="2.2"/><circle cx="419.6" cy="128.8" r="2.2"/><circle cx="423.9" cy="127.6" r="2.2"/><circle cx="430.0" cy="125.0" r="2.2"/><circle cx="437.4" cy="124.0" r="2.2"/><circle cx="446.9" cy="129.1" r="2.2"/><circle cx="454.3" cy="127.2" r="2.2"/><circle cx="266.2" cy="136.8" r="2.2"/><circle cx="269.0" cy="133.9" r="2.2"/><circle cx="279.7" cy="132.1" r="2.2"/><circle cx="288.1" cy="132.9" r="2.2"/><circle cx="298.9" cy="133.3" r="2.2"/><circle cx="302.6" cy="135.0" r="2.2"/><circle cx="312.4" cy="135.4" r="2.2"/><circle cx="316.6" cy="138.9" r="2.2"/><circle cx="329.2" cy="134.0" r="2.2"/><circle cx="335.4" cy="137.7" r="2.2"/><circle cx="341.7" cy="139.0" r="2.2"/><circle cx="350.0" cy="133.6" r="2.2"/><circle cx="362.9" cy="134.6" r="2.2"/><circle cx="364.7" cy="138.8" r="2.2"/><circle cx="379.4" cy="136.8" r="2.2"/><circle cx="385.6" cy="132.6" r="2.2"/><circle cx="389.6" cy="133.3" r="2.2"/><circle cx="402.0" cy="136.8" r="2.2"/><circle cx="404.5" cy="134.8" r="2.2"/><circle cx="414.4" cy="134.0" r="2.2"/><circle cx="424.3" cy="133.8" r="2.2"/><circle cx="429.1" cy="136.5" r="2.2"/><circle cx="442.9" cy="133.2" r="2.2"/><circle cx="444.2" cy="132.7" r="2.2"/><circle cx="454.4" cy="136.4" r="2.2"/><circle cx="264.0" cy="145.3" r="2.2"/><circle cx="274.7" cy="147.9" r="2.2"/><circle cx="276.7" cy="145.7" r="2.2"/><circle cx="290.0" cy="147.0" r="2.2"/><circle cx="299.3" cy="141.4" r="2.2"/><circle cx="302.1" cy="141.6" r="2.2"/><circle cx="314.0" cy="141.4" r="2.2"/><circle cx="316.8" cy="147.9" r="2.2"/><circle cx="326.4" cy="143.4" r="2.2"/><circle cx="332.3" cy="144.6" r="2.2"/><circle cx="341.1" cy="144.3" r="2.2"/><circle cx="349.7" cy="143.2" r="2.2"/><circle cx="358.4" cy="144.7" r="2.2"/><circle cx="367.2" cy="147.1" r="2.2"/><circle cx="376.3" cy="144.2" r="2.2"/><circle cx="381.3" cy="146.9" r="2.2"/><circle cx="389.9" cy="148.0" r="2.2"/><circle cx="396.5" cy="143.5" r="2.2"/><circle cx="404.7" cy="142.2" r="2.2"/><circle cx="415.0" cy="140.3" r="2.2"/><circle cx="420.1" cy="143.9" r="2.2"/><circle cx="428.6" cy="143.7" r="2.2"/><circle cx="437.9" cy="140.2" r="2.2"/><circle cx="444.6" cy="145.3" r="2.2"/><circle cx="457.7" cy="141.8" r="2.2"/><circle cx="266.3" cy="148.9" r="2.2"/><circle cx="268.0" cy="154.9" r="2.2"/><circle cx="281.3" cy="149.8" r="2.2"/><circle cx="290.4" cy="150.2" r="2.2"/><circle cx="298.7" cy="154.9" r="2.2"/><circle cx="305.3" cy="152.2" r="2.2"/><circle cx="310.6" cy="153.2" r="2.2"/><circle cx="322.8" cy="155.2" r="2.2"/><circle cx="325.2" cy="153.7" r="2.2"/><circle cx="333.9" cy="149.5" r="2.2"/><circle cx="345.7" cy="149.5" r="2.2"/><circle cx="353.2" cy="148.7" r="2.2"/><circle cx="357.5" cy="153.7" r="2.2"/><circle cx="367.9" cy="151.5" r="2.2"/><circle cx="373.4" cy="154.6" r="2.2"/><circle cx="386.6" cy="153.1" r="2.2"/><circle cx="395.1" cy="149.1" r="2.2"/><circle cx="401.4" cy="148.5" r="2.2"/><circle cx="405.2" cy="149.2" r="2.2"/><circle cx="415.5" cy="155.7" r="2.2"/><circle cx="424.5" cy="151.8" r="2.2"/><circle cx="430.3" cy="155.8" r="2.2"/><circle cx="443.0" cy="153.5" r="2.2"/><circle cx="444.0" cy="149.3" r="2.2"/><circle cx="455.0" cy="149.9" r="2.2"/><circle cx="266.4" cy="159.9" r="2.2"/><circle cx="272.2" cy="156.6" r="2.2"/><circle cx="278.4" cy="159.8" r="2.2"/><circle cx="289.4" cy="156.0" r="2.2"/><circle cx="294.2" cy="161.8" r="2.2"/><circle cx="307.1" cy="158.2" r="2.2"/><circle cx="309.8" cy="160.0" r="2.2"/><circle cx="319.8" cy="157.2" r="2.2"/><circle cx="327.9" cy="159.4" r="2.2"/><circle cx="337.9" cy="158.3" r="2.2"/><circle cx="347.9" cy="161.9" r="2.2"/><circle cx="349.9" cy="161.8" r="2.2"/><circle cx="362.0" cy="161.3" r="2.2"/><circle cx="371.2" cy="158.0" r="2.2"/><circle cx="375.0" cy="157.5" r="2.2"/><circle cx="381.2" cy="161.0" r="2.2"/><circle cx="388.6" cy="162.2" r="2.2"/><circle cx="398.7" cy="161.6" r="2.2"/><circle cx="411.9" cy="160.1" r="2.2"/><circle cx="418.9" cy="162.7" r="2.2"/><circle cx="426.9" cy="160.1" r="2.2"/><circle cx="432.3" cy="162.0" r="2.2"/><circle cx="440.7" cy="157.9" r="2.2"/><circle cx="451.0" cy="160.7" r="2.2"/><circle cx="457.4" cy="161.1" r="2.2"/><circle cx="265.7" cy="167.9" r="2.2"/><circle cx="270.5" cy="164.9" r="2.2"/><circle cx="279.0" cy="168.3" r="2.2"/><circle cx="291.8" cy="164.1" r="2.2"/><circle cx="294.5" cy="171.6" r="2.2"/><circle cx="305.7" cy="171.1" r="2.2"/><circle cx="309.4" cy="167.1" r="2.2"/><circle cx="319.9" cy="171.1" r="2.2"/><circle cx="328.8" cy="168.3" r="2.2"/><circle cx="339.7" cy="167.8" r="2.2"/><circle cx="347.1" cy="168.9" r="2.2"/><circle cx="352.1" cy="169.8" r="2.2"/><circle cx="360.4" cy="166.5" r="2.2"/><circle cx="369.1" cy="168.9" r="2.2"/><circle cx="374.9" cy="166.0" r="2.2"/><circle cx="382.3" cy="166.4" r="2.2"/><circle cx="392.4" cy="167.9" r="2.2"/><circle cx="400.4" cy="169.4" r="2.2"/><circle cx="404.0" cy="170.3" r="2.2"/><circle cx="418.6" cy="166.2" r="2.2"/><circle cx="426.2" cy="169.4" r="2.2"/><circle cx="435.0" cy="172.0" r="2.2"/><circle cx="443.3" cy="166.6" r="2.2"/><circle cx="450.5" cy="164.4" r="2.2"/><circle cx="459.6" cy="167.6" r="2.2"/><circle cx="266.8" cy="173.4" r="2.2"/><circle cx="275.8" cy="178.3" r="2.2"/><circle cx="277.7" cy="173.0" r="2.2"/><circle cx="291.5" cy="177.3" r="2.2"/><circle cx="297.6" cy="177.1" r="2.2"/><circle cx="302.5" cy="172.4" r="2.2"/><circle cx="315.4" cy="179.6" r="2.2"/><circle cx="322.0" cy="175.2" r="2.2"/><circle cx="330.2" cy="172.2" r="2.2"/><circle cx="332.0" cy="173.8" r="2.2"/><circle cx="343.4" cy="179.4" r="2.2"/><circle cx="350.6" cy="173.0" r="2.2"/><circle cx="363.1" cy="174.0" r="2.2"/><circle cx="371.3" cy="176.2" r="2.2"/><circle cx="376.9" cy="176.5" r="2.2"/><circle cx="383.2" cy="174.8" r="2.2"/><circle cx="395.0" cy="175.1" r="2.2"/><circle cx="397.2" cy="173.8" r="2.2"/><circle cx="411.6" cy="174.3" r="2.2"/><circle cx="415.3" cy="173.5" r="2.2"/><circle cx="427.7" cy="174.6" r="2.2"/><circle cx="435.9" cy="178.5" r="2.2"/><circle cx="443.3" cy="177.4" r="2.2"/><circle cx="446.5" cy="176.0" r="2.2"/><circle cx="456.5" cy="174.2" r="2.2"/><circle cx="266.8" cy="185.1" r="2.2"/><circle cx="275.8" cy="180.2" r="2.2"/><circle cx="282.7" cy="187.0" r="2.2"/><circle cx="289.5" cy="182.6" r="2.2"/><circle cx="296.3" cy="186.0" r="2.2"/><circle cx="301.7" cy="184.6" r="2.2"/><circle cx="311.6" cy="180.7" r="2.2"/><circle cx="318.5" cy="187.5" r="2.2"/><circle cx="331.4" cy="187.5" r="2.2"/><circle cx="336.5" cy="185.7" r="2.2"/><circle cx="346.7" cy="180.8" r="2.2"/><circle cx="352.8" cy="184.7" r="2.2"/><circle cx="360.5" cy="182.8" r="2.2"/><circle cx="364.4" cy="184.4" r="2.2"/><circle cx="372.2" cy="186.7" r="2.2"/><circle cx="381.3" cy="187.7" r="2.2"/><circle cx="394.7" cy="181.5" r="2.2"/><circle cx="400.9" cy="187.1" r="2.2"/><circle cx="404.1" cy="182.5" r="2.2"/><circle cx="414.1" cy="187.4" r="2.2"/><circle cx="426.9" cy="184.1" r="2.2"/><circle cx="429.7" cy="185.2" r="2.2"/><circle cx="440.7" cy="186.1" r="2.2"/><circle cx="450.4" cy="183.0" r="2.2"/><circle cx="453.4" cy="184.8" r="2.2"/><circle cx="261.5" cy="188.9" r="2.2"/><circle cx="272.7" cy="188.2" r="2.2"/><circle cx="283.6" cy="196.0" r="2.2"/><circle cx="290.7" cy="189.2" r="2.2"/><circle cx="294.3" cy="190.4" r="2.2"/><circle cx="302.0" cy="192.8" r="2.2"/><circle cx="311.7" cy="189.0" r="2.2"/><circle cx="323.3" cy="194.1" r="2.2"/><circle cx="328.8" cy="191.8" r="2.2"/><circle cx="334.0" cy="192.5" r="2.2"/><circle cx="342.4" cy="190.3" r="2.2"/><circle cx="351.9" cy="188.9" r="2.2"/><circle cx="361.1" cy="195.2" r="2.2"/><circle cx="370.8" cy="190.6" r="2.2"/><circle cx="379.5" cy="190.2" r="2.2"/><circle cx="383.0" cy="189.1" r="2.2"/><circle cx="394.3" cy="191.7" r="2.2"/><circle cx="400.8" cy="194.1" r="2.2"/><circle cx="406.1" cy="189.3" r="2.2"/><circle cx="419.5" cy="189.0" r="2.2"/><circle cx="425.9" cy="196.0" r="2.2"/><circle cx="431.0" cy="195.3" r="2.2"/><circle cx="439.4" cy="192.2" r="2.2"/><circle cx="451.0" cy="191.4" r="2.2"/><circle cx="455.2" cy="194.1" r="2.2"/><circle cx="266.8" cy="197.6" r="2.2"/><circle cx="270.9" cy="203.4" r="2.2"/><circle cx="280.3" cy="201.3" r="2.2"/><circle cx="288.4" cy="199.0" r="2.2"/><circle cx="297.4" cy="199.8" r="2.2"/><circle cx="307.8" cy="199.4" r="2.2"/><circle cx="312.8" cy="200.2" r="2.2"/><circle cx="324.0" cy="201.1" r="2.2"/><circle cx="324.3" cy="197.7" r="2.2"/><circle cx="339.4" cy="199.9" r="2.2"/><circle cx="346.1" cy="198.5" r="2.2"/><circle cx="351.5" cy="203.0" r="2.2"/><circle cx="356.8" cy="197.0" r="2.2"/><circle cx="371.0" cy="197.9" r="2.2"/><circle cx="377.3" cy="199.3" r="2.2"/><circle cx="386.8" cy="201.4" r="2.2"/><circle cx="391.6" cy="201.7" r="2.2"/><circle cx="397.1" cy="199.6" r="2.2"/><circle cx="408.0" cy="197.4" r="2.2"/><circle cx="418.9" cy="203.6" r="2.2"/><circle cx="420.4" cy="197.6" r="2.2"/><circle cx="434.1" cy="201.8" r="2.2"/><circle cx="437.5" cy="197.5" r="2.2"/><circle cx="444.5" cy="202.9" r="2.2"/><circle cx="456.3" cy="197.5" r="2.2"/><circle cx="264.2" cy="210.3" r="2.2"/><circle cx="270.7" cy="204.2" r="2.2"/><circle cx="277.5" cy="209.2" r="2.2"/><circle cx="285.7" cy="204.3" r="2.2"/><circle cx="295.6" cy="208.4" r="2.2"/><circle cx="305.7" cy="206.7" r="2.2"/><circle cx="313.1" cy="211.9" r="2.2"/><circle cx="321.7" cy="208.3" r="2.2"/><circle cx="324.7" cy="204.6" r="2.2"/><circle cx="334.4" cy="209.4" r="2.2"/><circle cx="344.1" cy="208.0" r="2.2"/><circle cx="351.6" cy="209.6" r="2.2"/><circle cx="359.7" cy="210.6" r="2.2"/><circle cx="367.2" cy="210.0" r="2.2"/><circle cx="374.1" cy="208.7" r="2.2"/><circle cx="383.1" cy="209.1" r="2.2"/><circle cx="395.6" cy="207.7" r="2.2"/><circle cx="401.2" cy="207.4" r="2.2"/><circle cx="411.7" cy="205.3" r="2.2"/><circle cx="418.0" cy="209.6" r="2.2"/><circle cx="426.5" cy="208.2" r="2.2"/><circle cx="433.8" cy="205.1" r="2.2"/><circle cx="441.5" cy="206.3" r="2.2"/><circle cx="448.5" cy="205.9" r="2.2"/><circle cx="454.0" cy="208.6" r="2.2"/><circle cx="260.6" cy="213.1" r="2.2"/><circle cx="272.2" cy="215.9" r="2.2"/><circle cx="280.5" cy="215.4" r="2.2"/><circle cx="291.9" cy="216.6" r="2.2"/><circle cx="300.0" cy="214.4" r="2.2"/><circle cx="305.5" cy="219.4" r="2.2"/><circle cx="310.7" cy="218.2" r="2.2"/><circle cx="316.3" cy="219.2" r="2.2"/><circle cx="328.8" cy="212.5" r="2.2"/><circle cx="338.5" cy="214.6" r="2.2"/><circle cx="340.9" cy="219.7" r="2.2"/><circle cx="351.3" cy="217.3" r="2.2"/><circle cx="358.7" cy="216.5" r="2.2"/><circle cx="365.3" cy="213.5" r="2.2"/><circle cx="378.3" cy="216.0" r="2.2"/><circle cx="386.0" cy="218.4" r="2.2"/><circle cx="393.3" cy="216.9" r="2.2"/><circle cx="397.4" cy="214.0" r="2.2"/><circle cx="411.2" cy="216.4" r="2.2"/><circle cx="417.5" cy="217.0" r="2.2"/><circle cx="423.8" cy="214.7" r="2.2"/><circle cx="434.6" cy="213.6" r="2.2"/><circle cx="437.1" cy="218.3" r="2.2"/><circle cx="450.0" cy="218.1" r="2.2"/><circle cx="454.5" cy="218.6" r="2.2"/><circle cx="266.0" cy="224.5" r="2.2"/><circle cx="275.7" cy="227.0" r="2.2"/><circle cx="281.2" cy="222.4" r="2.2"/><circle cx="290.1" cy="221.1" r="2.2"/><circle cx="299.3" cy="220.7" r="2.2"/><circle cx="301.5" cy="223.4" r="2.2"/><circle cx="315.2" cy="226.5" r="2.2"/><circle cx="323.5" cy="223.8" r="2.2"/><circle cx="331.6" cy="225.2" r="2.2"/><circle cx="332.3" cy="227.9" r="2.2"/><circle cx="341.0" cy="225.3" r="2.2"/><circle cx="351.8" cy="220.7" r="2.2"/><circle cx="359.7" cy="221.0" r="2.2"/><circle cx="371.6" cy="226.5" r="2.2"/><circle cx="376.1" cy="227.6" r="2.2"/><circle cx="384.4" cy="222.3" r="2.2"/><circle cx="392.3" cy="227.9" r="2.2"/><circle cx="397.3" cy="226.1" r="2.2"/><circle cx="404.3" cy="225.2" r="2.2"/><circle cx="412.6" cy="223.0" r="2.2"/><circle cx="420.5" cy="220.2" r="2.2"/><circle cx="432.0" cy="226.3" r="2.2"/><circle cx="437.0" cy="226.0" r="2.2"/><circle cx="449.7" cy="227.9" r="2.2"/><circle cx="453.4" cy="224.5" r="2.2"/><circle cx="261.4" cy="231.8" r="2.2"/><circle cx="268.9" cy="229.4" r="2.2"/><circle cx="280.6" cy="229.8" r="2.2"/><circle cx="285.2" cy="229.1" r="2.2"/><circle cx="294.3" cy="234.6" r="2.2"/><circle cx="306.3" cy="233.1" r="2.2"/><circle cx="309.5" cy="235.7" r="2.2"/><circle cx="319.7" cy="230.3" r="2.2"/><circle cx="332.0" cy="228.4" r="2.2"/><circle cx="333.8" cy="232.9" r="2.2"/><circle cx="342.2" cy="232.1" r="2.2"/><circle cx="349.7" cy="230.5" r="2.2"/><circle cx="363.1" cy="233.0" r="2.2"/><circle cx="370.7" cy="235.7" r="2.2"/><circle cx="373.7" cy="232.1" r="2.2"/><circle cx="380.1" cy="230.0" r="2.2"/><circle cx="389.8" cy="235.6" r="2.2"/><circle cx="402.0" cy="232.5" r="2.2"/><circle cx="404.9" cy="230.2" r="2.2"/><circle cx="414.4" cy="231.9" r="2.2"/><circle cx="426.2" cy="228.4" r="2.2"/><circle cx="433.7" cy="229.0" r="2.2"/><circle cx="442.4" cy="230.8" r="2.2"/><circle cx="448.3" cy="231.2" r="2.2"/><circle cx="459.0" cy="235.9" r="2.2"/><circle cx="264.3" cy="239.6" r="2.2"/><circle cx="271.3" cy="238.9" r="2.2"/><circle cx="278.4" cy="236.5" r="2.2"/><circle cx="291.4" cy="236.1" r="2.2"/><circle cx="294.5" cy="242.9" r="2.2"/><circle cx="306.1" cy="239.7" r="2.2"/><circle cx="313.6" cy="244.0" r="2.2"/><circle cx="317.1" cy="242.1" r="2.2"/><circle cx="330.9" cy="238.0" r="2.2"/><circle cx="335.4" cy="237.5" r="2.2"/><circle cx="341.4" cy="243.6" r="2.2"/><circle cx="352.1" cy="236.2" r="2.2"/><circle cx="357.9" cy="239.0" r="2.2"/><circle cx="366.9" cy="238.7" r="2.2"/><circle cx="375.0" cy="241.0" r="2.2"/><circle cx="387.2" cy="243.7" r="2.2"/><circle cx="392.6" cy="243.4" r="2.2"/><circle cx="399.5" cy="239.8" r="2.2"/><circle cx="410.9" cy="238.6" r="2.2"/><circle cx="416.1" cy="239.9" r="2.2"/><circle cx="425.1" cy="239.6" r="2.2"/><circle cx="434.1" cy="240.8" r="2.2"/><circle cx="442.3" cy="242.0" r="2.2"/><circle cx="447.1" cy="236.5" r="2.2"/><circle cx="455.0" cy="243.1" r="2.2"/></g><rect x="500" y="44" width="200" height="200" fill="rgba(148,163,184,0.08)" stroke="#94a3b8"/><g fill="#4c8bf5"><circle cx="564.8" cy="74.2" r="2.2"/><circle cx="575.8" cy="79.6" r="2.2"/><circle cx="577.7" cy="88.0" r="2.2"/><circle cx="562.8" cy="86.2" r="2.2"/><circle cx="577.1" cy="69.9" r="2.2"/><circle cx="589.0" cy="65.9" r="2.2"/><circle cx="554.3" cy="83.1" r="2.2"/><circle cx="568.3" cy="93.3" r="2.2"/><circle cx="564.6" cy="65.0" r="2.2"/><circle cx="586.9" cy="75.6" r="2.2"/><circle cx="588.4" cy="84.6" r="2.2"/><circle cx="596.6" cy="77.6" r="2.2"/><circle cx="560.4" cy="103.4" r="2.2"/><circle cx="581.5" cy="98.4" r="2.2"/><circle cx="559.7" cy="94.2" r="2.2"/><circle cx="594.9" cy="91.2" r="2.2"/><circle cx="570.7" cy="103.0" r="2.2"/><circle cx="581.4" cy="62.6" r="2.2"/><circle cx="607.3" cy="69.6" r="2.2"/><circle cx="599.2" cy="68.4" r="2.2"/><circle cx="578.9" cy="113.1" r="2.2"/><circle cx="550.7" cy="90.7" r="2.2"/><circle cx="605.2" cy="81.5" r="2.2"/><circle cx="595.2" cy="55.9" r="2.2"/><circle cx="549.4" cy="75.4" r="2.2"/><circle cx="608.9" cy="93.0" r="2.2"/><circle cx="554.6" cy="62.3" r="2.2"/><circle cx="547.4" cy="100.5" r="2.2"/><circle cx="595.0" cy="105.5" r="2.2"/><circle cx="544.7" cy="111.2" r="2.2"/><circle cx="558.8" cy="111.7" r="2.2"/><circle cx="605.4" cy="108.1" r="2.2"/><circle cx="616.0" cy="57.4" r="2.2"/><circle cx="550.6" cy="53.5" r="2.2"/><circle cx="554.9" cy="126.0" r="2.2"/><circle cx="585.3" cy="107.4" r="2.2"/><circle cx="565.9" cy="55.7" r="2.2"/><circle cx="620.5" cy="108.5" r="2.2"/><circle cx="612.4" cy="114.6" r="2.2"/><circle cx="537.2" cy="45.8" r="2.2"/><circle cx="604.1" cy="123.3" r="2.2"/><circle cx="544.1" cy="82.9" r="2.2"/><circle cx="589.7" cy="98.7" r="2.2"/><circle cx="622.9" cy="125.8" r="2.2"/><circle cx="616.5" cy="85.6" r="2.2"/><circle cx="536.5" cy="99.5" r="2.2"/><circle cx="615.2" cy="73.6" r="2.2"/><circle cx="610.7" cy="101.3" r="2.2"/><circle cx="535.8" cy="88.5" r="2.2"/><circle cx="623.2" cy="48.5" r="2.2"/><circle cx="568.0" cy="116.4" r="2.2"/><circle cx="573.3" cy="49.2" r="2.2"/><circle cx="591.6" cy="126.9" r="2.2"/><circle cx="542.1" cy="65.6" r="2.2"/><circle cx="599.3" cy="113.6" r="2.2"/><circle cx="561.4" cy="121.2" r="2.2"/><circle cx="561.8" cy="46.9" r="2.2"/><circle cx="556.7" cy="70.6" r="2.2"/><circle cx="578.9" cy="121.9" r="2.2"/><circle cx="600.8" cy="98.0" r="2.2"/><circle cx="632.3" cy="100.4" r="2.2"/><circle cx="586.5" cy="118.7" r="2.2"/><circle cx="573.8" cy="57.5" r="2.2"/><circle cx="620.8" cy="95.6" r="2.2"/><circle cx="610.5" cy="45.9" r="2.2"/><circle cx="526.3" cy="79.3" r="2.2"/><circle cx="585.3" cy="138.1" r="2.2"/><circle cx="614.3" cy="65.3" r="2.2"/><circle cx="604.5" cy="54.0" r="2.2"/><circle cx="534.4" cy="78.4" r="2.2"/><circle cx="629.3" cy="68.7" r="2.2"/><circle cx="570.4" cy="128.8" r="2.2"/><circle cx="601.5" cy="45.0" r="2.2"/><circle cx="526.9" cy="101.7" r="2.2"/><circle cx="632.4" cy="117.5" r="2.2"/><circle cx="521.4" cy="91.3" r="2.2"/><circle cx="542.9" cy="124.6" r="2.2"/><circle cx="593.8" cy="47.3" r="2.2"/><circle cx="532.3" cy="68.4" r="2.2"/><circle cx="513.3" cy="82.9" r="2.2"/><circle cx="633.7" cy="88.5" r="2.2"/><circle cx="548.6" cy="118.7" r="2.2"/><circle cx="583.5" cy="45.4" r="2.2"/><circle cx="581.8" cy="53.7" r="2.2"/><circle cx="580.4" cy="131.8" r="2.2"/><circle cx="595.8" cy="134.4" r="2.2"/><circle cx="569.5" cy="137.5" r="2.2"/><circle cx="635.7" cy="47.0" r="2.2"/><circle cx="628.8" cy="58.7" r="2.2"/><circle cx="632.2" cy="130.0" r="2.2"/><circle cx="534.9" cy="112.9" r="2.2"/><circle cx="614.9" cy="122.6" r="2.2"/><circle cx="624.6" cy="81.4" r="2.2"/><circle cx="641.0" cy="113.0" r="2.2"/><circle cx="520.2" cy="110.5" r="2.2"/><circle cx="527.7" cy="51.7" r="2.2"/><circle cx="535.9" cy="55.4" r="2.2"/><circle cx="638.3" cy="63.3" r="2.2"/><circle cx="511.6" cy="74.8" r="2.2"/><circle cx="631.9" cy="108.6" r="2.2"/><circle cx="534.1" cy="123.4" r="2.2"/><circle cx="632.5" cy="79.8" r="2.2"/><circle cx="639.6" cy="74.8" r="2.2"/><circle cx="643.3" cy="56.4" r="2.2"/><circle cx="608.8" cy="133.7" r="2.2"/><circle cx="516.4" cy="60.4" r="2.2"/><circle cx="647.3" cy="64.2" r="2.2"/><circle cx="644.5" cy="101.6" r="2.2"/><circle cx="574.5" cy="145.1" r="2.2"/><circle cx="558.7" cy="147.5" r="2.2"/><circle cx="561.0" cy="137.8" r="2.2"/><circle cx="553.1" cy="133.9" r="2.2"/><circle cx="647.2" cy="84.9" r="2.2"/><circle cx="500.3" cy="67.7" r="2.2"/><circle cx="524.4" cy="61.5" r="2.2"/><circle cx="646.0" cy="119.4" r="2.2"/><circle cx="514.4" cy="123.3" r="2.2"/><circle cx="656.2" cy="72.7" r="2.2"/><circle cx="517.5" cy="99.9" r="2.2"/><circle cx="521.6" cy="134.7" r="2.2"/><circle cx="508.3" cy="57.0" r="2.2"/><circle cx="647.8" cy="74.4" r="2.2"/><circle cx="585.2" cy="154.0" r="2.2"/><circle cx="541.5" cy="137.9" r="2.2"/><circle cx="658.2" cy="87.5" r="2.2"/><circle cx="566.6" cy="151.1" r="2.2"/><circle cx="530.1" cy="138.4" r="2.2"/><circle cx="505.2" cy="105.0" r="2.2"/><circle cx="506.9" cy="96.8" r="2.2"/><circle cx="526.3" cy="117.1" r="2.2"/><circle cx="640.1" cy="127.0" r="2.2"/><circle cx="504.0" cy="88.8" r="2.2"/><circle cx="550.3" cy="44.5" r="2.2"/><circle cx="552.9" cy="156.5" r="2.2"/><circle cx="520.1" cy="68.5" r="2.2"/><circle cx="510.7" cy="66.2" r="2.2"/><circle cx="638.6" cy="141.7" r="2.2"/><circle cx="500.4" cy="80.2" r="2.2"/><circle cx="634.2" cy="155.4" r="2.2"/><circle cx="511.1" cy="113.5" r="2.2"/><circle cx="512.8" cy="133.2" r="2.2"/><circle cx="644.0" cy="166.6" r="2.2"/><circle cx="596.5" cy="147.9" r="2.2"/><circle cx="550.1" cy="142.5" r="2.2"/><circle cx="530.3" cy="148.4" r="2.2"/><circle cx="573.2" cy="156.7" r="2.2"/><circle cx="654.2" cy="110.8" r="2.2"/><circle cx="514.1" cy="147.6" r="2.2"/><circle cx="568.3" cy="165.2" r="2.2"/><circle cx="657.5" cy="120.3" r="2.2"/><circle cx="561.0" cy="159.0" r="2.2"/><circle cx="629.6" cy="141.6" r="2.2"/><circle cx="630.2" cy="165.4" r="2.2"/><circle cx="641.8" cy="150.3" r="2.2"/><circle cx="502.3" cy="126.5" r="2.2"/><circle cx="656.0" cy="62.9" r="2.2"/><circle cx="645.9" cy="93.0" r="2.2"/><circle cx="653.5" cy="101.1" r="2.2"/><circle cx="605.0" cy="146.4" r="2.2"/><circle cx="613.7" cy="153.6" r="2.2"/><circle cx="500.6" cy="141.8" r="2.2"/><circle cx="516.2" cy="50.9" r="2.2"/><circle cx="619.4" cy="137.3" r="2.2"/><circle cx="561.1" cy="169.4" r="2.2"/><circle cx="522.6" cy="125.4" r="2.2"/><circle cx="624.7" cy="155.4" r="2.2"/><circle cx="614.0" cy="144.0" r="2.2"/><circle cx="647.5" cy="133.8" r="2.2"/><circle cx="651.8" cy="146.5" r="2.2"/><circle cx="556.0" cy="177.1" r="2.2"/><circle cx="618.2" cy="166.9" r="2.2"/><circle cx="603.5" cy="167.9" r="2.2"/><circle cx="541.7" cy="151.4" r="2.2"/><circle cx="522.1" cy="143.8" r="2.2"/><circle cx="611.1" cy="163.1" r="2.2"/><circle cx="647.6" cy="48.5" r="2.2"/><circle cx="651.5" cy="56.0" r="2.2"/><circle cx="604.2" cy="155.2" r="2.2"/><circle cx="503.2" cy="48.2" r="2.2"/><circle cx="660.0" cy="44.9" r="2.2"/><circle cx="502.1" cy="157.9" r="2.2"/><circle cx="623.4" cy="116.9" r="2.2"/><circle cx="667.5" cy="128.3" r="2.2"/><circle cx="665.0" cy="54.3" r="2.2"/><circle cx="511.5" cy="44.0" r="2.2"/><circle cx="670.2" cy="45.3" r="2.2"/><circle cx="509.5" cy="170.2" r="2.2"/><circle cx="666.3" cy="113.3" r="2.2"/><circle cx="656.5" cy="153.0" r="2.2"/><circle cx="591.4" cy="163.3" r="2.2"/><circle cx="636.4" cy="178.1" r="2.2"/><circle cx="674.0" cy="100.7" r="2.2"/><circle cx="579.4" cy="164.3" r="2.2"/><circle cx="564.6" cy="180.5" r="2.2"/><circle cx="681.5" cy="115.3" r="2.2"/><circle cx="657.0" cy="139.3" r="2.2"/><circle cx="664.2" cy="63.1" r="2.2"/><circle cx="514.6" cy="157.7" r="2.2"/><circle cx="662.4" cy="105.2" r="2.2"/><circle cx="673.6" cy="57.5" r="2.2"/><circle cx="675.7" cy="121.9" r="2.2"/><circle cx="657.4" cy="172.8" r="2.2"/><circle cx="669.1" cy="80.9" r="2.2"/><circle cx="519.4" cy="166.3" r="2.2"/><circle cx="588.2" cy="172.2" r="2.2"/><circle cx="624.5" cy="182.2" r="2.2"/><circle cx="501.4" cy="116.5" r="2.2"/><circle cx="528.2" cy="174.1" r="2.2"/><circle cx="603.9" cy="182.0" r="2.2"/><circle cx="533.9" cy="163.6" r="2.2"/><circle cx="538.4" cy="172.4" r="2.2"/><circle cx="522.1" cy="153.1" r="2.2"/><circle cx="508.8" cy="140.3" r="2.2"/><circle cx="671.3" cy="144.9" r="2.2"/><circle cx="667.8" cy="72.0" r="2.2"/><circle cx="666.1" cy="153.4" r="2.2"/><circle cx="658.2" cy="129.0" r="2.2"/><circle cx="552.2" cy="170.0" r="2.2"/><circle cx="679.8" cy="90.3" r="2.2"/><circle cx="675.9" cy="72.2" r="2.2"/><circle cx="504.5" cy="149.3" r="2.2"/><circle cx="610.7" cy="193.2" r="2.2"/><circle cx="579.4" cy="179.5" r="2.2"/><circle cx="658.9" cy="162.2" r="2.2"/><circle cx="612.6" cy="177.8" r="2.2"/><circle cx="624.0" cy="174.0" r="2.2"/><circle cx="677.8" cy="133.4" r="2.2"/><circle cx="590.1" cy="181.5" r="2.2"/><circle cx="678.0" cy="82.4" r="2.2"/><circle cx="541.4" cy="180.1" r="2.2"/><circle cx="506.3" cy="180.2" r="2.2"/><circle cx="543.4" cy="164.5" r="2.2"/><circle cx="686.5" cy="97.8" r="2.2"/><circle cx="688.4" cy="80.3" r="2.2"/><circle cx="678.8" cy="50.1" r="2.2"/><circle cx="681.9" cy="59.2" r="2.2"/><circle cx="676.9" cy="152.9" r="2.2"/><circle cx="685.7" cy="150.4" r="2.2"/><circle cx="684.6" cy="67.8" r="2.2"/><circle cx="663.6" cy="93.9" r="2.2"/><circle cx="546.6" cy="187.3" r="2.2"/><circle cx="597.1" cy="186.7" r="2.2"/><circle cx="516.3" cy="174.8" r="2.2"/><circle cx="692.7" cy="92.1" r="2.2"/><circle cx="617.2" cy="186.7" r="2.2"/><circle cx="681.5" cy="106.6" r="2.2"/><circle cx="598.8" cy="195.5" r="2.2"/><circle cx="597.2" cy="175.3" r="2.2"/><circle cx="688.5" cy="160.5" r="2.2"/><circle cx="670.2" cy="160.9" r="2.2"/><circle cx="661.4" cy="180.4" r="2.2"/><circle cx="671.6" cy="91.6" r="2.2"/><circle cx="525.7" cy="160.9" r="2.2"/><circle cx="693.7" cy="55.9" r="2.2"/><circle cx="655.1" cy="188.2" r="2.2"/><circle cx="689.6" cy="135.6" r="2.2"/><circle cx="695.3" cy="108.9" r="2.2"/><circle cx="644.5" cy="175.3" r="2.2"/><circle cx="690.2" cy="124.1" r="2.2"/><circle cx="627.1" cy="192.4" r="2.2"/><circle cx="547.5" cy="197.0" r="2.2"/><circle cx="679.0" cy="164.3" r="2.2"/><circle cx="622.7" cy="147.3" r="2.2"/><circle cx="583.9" cy="190.9" r="2.2"/><circle cx="569.4" cy="189.7" r="2.2"/><circle cx="573.5" cy="172.7" r="2.2"/><circle cx="648.1" cy="155.4" r="2.2"/><circle cx="605.0" cy="205.1" r="2.2"/><circle cx="654.2" cy="80.6" r="2.2"/><circle cx="666.2" cy="138.3" r="2.2"/><circle cx="695.6" cy="172.5" r="2.2"/><circle cx="557.9" cy="184.9" r="2.2"/><circle cx="694.3" cy="45.5" r="2.2"/><circle cx="642.1" cy="184.1" r="2.2"/><circle cx="562.4" cy="194.2" r="2.2"/><circle cx="683.5" cy="176.5" r="2.2"/><circle cx="538.1" cy="190.9" r="2.2"/><circle cx="518.4" cy="182.6" r="2.2"/><circle cx="614.0" cy="202.7" r="2.2"/><circle cx="694.4" cy="100.8" r="2.2"/><circle cx="667.4" cy="174.8" r="2.2"/><circle cx="697.9" cy="83.6" r="2.2"/><circle cx="500.8" cy="167.5" r="2.2"/><circle cx="699.7" cy="121.2" r="2.2"/><circle cx="695.3" cy="74.2" r="2.2"/><circle cx="531.1" cy="186.5" r="2.2"/><circle cx="538.0" cy="201.2" r="2.2"/><circle cx="550.2" cy="210.9" r="2.2"/><circle cx="636.2" cy="191.6" r="2.2"/><circle cx="651.2" cy="180.8" r="2.2"/><circle cx="692.8" cy="66.0" r="2.2"/><circle cx="700.0" cy="60.9" r="2.2"/><circle cx="623.3" cy="202.4" r="2.2"/><circle cx="682.5" cy="141.5" r="2.2"/><circle cx="580.3" cy="199.0" r="2.2"/><circle cx="697.4" cy="130.1" r="2.2"/><circle cx="693.2" cy="186.1" r="2.2"/><circle cx="608.8" cy="213.3" r="2.2"/><circle cx="542.5" cy="208.2" r="2.2"/><circle cx="694.0" cy="153.3" r="2.2"/><circle cx="591.3" cy="200.4" r="2.2"/><circle cx="539.8" cy="222.7" r="2.2"/><circle cx="597.9" cy="208.9" r="2.2"/><circle cx="596.4" cy="218.7" r="2.2"/><circle cx="643.7" cy="196.0" r="2.2"/><circle cx="692.9" cy="144.0" r="2.2"/><circle cx="523.2" cy="189.6" r="2.2"/><circle cx="634.3" cy="201.3" r="2.2"/><circle cx="555.6" cy="200.0" r="2.2"/><circle cx="583.6" cy="213.1" r="2.2"/><circle cx="698.1" cy="161.1" r="2.2"/><circle cx="699.5" cy="137.8" r="2.2"/><circle cx="622.2" cy="221.9" r="2.2"/><circle cx="531.1" cy="214.7" r="2.2"/><circle cx="529.8" cy="202.7" r="2.2"/><circle cx="633.2" cy="221.9" r="2.2"/><circle cx="557.6" cy="215.5" r="2.2"/><circle cx="561.3" cy="207.2" r="2.2"/><circle cx="507.9" cy="188.8" r="2.2"/><circle cx="638.5" cy="235.0" r="2.2"/><circle cx="626.5" cy="234.8" r="2.2"/><circle cx="654.1" cy="196.2" r="2.2"/><circle cx="516.2" cy="199.6" r="2.2"/><circle cx="626.7" cy="210.5" r="2.2"/><circle cx="652.3" cy="205.9" r="2.2"/><circle cx="520.4" cy="206.5" r="2.2"/><circle cx="507.8" cy="196.9" r="2.2"/><circle cx="647.5" cy="217.7" r="2.2"/><circle cx="639.8" cy="210.7" r="2.2"/><circle cx="687.2" cy="168.5" r="2.2"/><circle cx="569.0" cy="200.8" r="2.2"/><circle cx="574.8" cy="216.1" r="2.2"/><circle cx="647.9" cy="243.9" r="2.2"/><circle cx="507.4" cy="206.0" r="2.2"/><circle cx="533.1" cy="230.2" r="2.2"/><circle cx="506.5" cy="215.4" r="2.2"/><circle cx="516.8" cy="217.1" r="2.2"/><circle cx="556.8" cy="229.1" r="2.2"/><circle cx="515.8" cy="229.0" r="2.2"/><circle cx="547.1" cy="236.9" r="2.2"/><circle cx="669.5" cy="188.0" r="2.2"/><circle cx="603.5" cy="222.8" r="2.2"/><circle cx="590.1" cy="228.1" r="2.2"/><circle cx="557.1" cy="241.7" r="2.2"/><circle cx="662.6" cy="196.1" r="2.2"/><circle cx="548.9" cy="228.4" r="2.2"/><circle cx="531.2" cy="240.1" r="2.2"/><circle cx="678.3" cy="186.2" r="2.2"/><circle cx="684.5" cy="192.2" r="2.2"/><circle cx="505.2" cy="224.7" r="2.2"/><circle cx="583.8" cy="222.9" r="2.2"/><circle cx="675.8" cy="196.2" r="2.2"/><circle cx="681.7" cy="207.3" r="2.2"/><circle cx="586.2" cy="238.1" r="2.2"/><circle cx="565.8" cy="222.8" r="2.2"/><circle cx="660.3" cy="242.2" r="2.2"/><circle cx="610.3" cy="233.1" r="2.2"/><circle cx="670.9" cy="204.2" r="2.2"/><circle cx="658.9" cy="219.5" r="2.2"/><circle cx="618.7" cy="209.3" r="2.2"/><circle cx="570.7" cy="208.9" r="2.2"/><circle cx="597.1" cy="232.2" r="2.2"/><circle cx="662.8" cy="206.0" r="2.2"/><circle cx="618.2" cy="229.0" r="2.2"/><circle cx="651.3" cy="230.8" r="2.2"/><circle cx="601.6" cy="241.4" r="2.2"/><circle cx="507.7" cy="235.5" r="2.2"/><circle cx="568.2" cy="238.1" r="2.2"/><circle cx="616.0" cy="239.8" r="2.2"/><circle cx="578.5" cy="230.0" r="2.2"/><circle cx="614.5" cy="219.0" r="2.2"/><circle cx="669.0" cy="233.3" r="2.2"/><circle cx="525.4" cy="234.0" r="2.2"/><circle cx="689.2" cy="220.7" r="2.2"/><circle cx="538.5" cy="236.4" r="2.2"/><circle cx="674.1" cy="221.3" r="2.2"/><circle cx="522.4" cy="242.0" r="2.2"/><circle cx="672.3" cy="212.7" r="2.2"/><circle cx="686.7" cy="234.2" r="2.2"/><circle cx="641.9" cy="225.7" r="2.2"/><circle cx="690.2" cy="203.1" r="2.2"/><circle cx="631.4" cy="241.3" r="2.2"/><circle cx="678.7" cy="235.4" r="2.2"/><circle cx="676.1" cy="172.2" r="2.2"/><circle cx="577.1" cy="241.8" r="2.2"/><circle cx="523.9" cy="221.5" r="2.2"/><circle cx="699.2" cy="197.6" r="2.2"/><circle cx="671.6" cy="243.2" r="2.2"/><circle cx="512.8" cy="242.7" r="2.2"/><circle cx="500.1" cy="194.2" r="2.2"/><circle cx="695.3" cy="211.2" r="2.2"/><circle cx="680.8" cy="216.2" r="2.2"/><circle cx="659.3" cy="230.4" r="2.2"/><circle cx="698.6" cy="238.6" r="2.2"/><circle cx="667.0" cy="225.4" r="2.2"/><circle cx="686.3" cy="242.8" r="2.2"/><circle cx="680.8" cy="225.7" r="2.2"/><circle cx="500.5" cy="240.6" r="2.2"/><circle cx="694.8" cy="227.1" r="2.2"/></g>
+<g style="font-size:12px" text-anchor="middle"><text x="120" y="264" style="font-weight:600">一様乱数（399 点）</text><text x="360" y="264" style="font-weight:600">ジッタード グリッド（625 点）</text><text x="600" y="264" style="font-weight:600">ポアソン円盤（399 点）</text>
+<text x="120" y="282">団子と空きが出る</text><text x="360" y="282">まずまず。境目で近づく</text><text x="600" y="282">最小距離 r が保たれる</text></g></svg>
+
+図は、同じ方法を別の乱数の種で動かした例です。点数は、下の実測の 404 点と少し違います。
+
+### 方法の比較
+
+一様乱数は団子になるので使いません。ジッタード グリッドは速くて、並列化が簡単です。セルの境目で点が近づくことがあります。ポアソン円盤は自然な散らばりが得られます。点を 1 つずつ追加する順序があるので、GPU での並列化は難しくなります。ブルー ノイズのテクスチャを使う方法は、テクスチャを引くだけで速く密度のしきい値で間引いても、ブルー ノイズの性質が保たれます。Lagae と Dutré（2008）は、ポアソン円盤を作るさまざまな方法を比較しています。
+
+### 密度に合わせて間引く
+
+密度が高い所は半径を小さく低い所は大きくしたいときは、最も細かい半径で点を密に作って、密度に応じて間引くのが簡単です。
 
 ```cpp
-// 密度で、間引く。点ごとに、決定的な乱数を使う。
+// 密度で間引く（コンパイルしていない）。点ごとに決定的な乱数を使う
 for (const float2& p : dense_points) {
   const float d = Density(p);
   if (HashToFloat(p, global_seed) < d) kept.push_back(p);
 }
 ```
 
-### 方法の比較
+ポアソン円盤を間引くと間隔は広がるだけなので、最小距離 `r` は保たれます。
 
-| 方法 | 見た目 | 速さ | 特徴 |
-| --- | --- | --- | --- |
-| 一様乱数 | ダマになる | 最速 | 使わない |
-| ジッタード グリッド | まずまず | 速い（並列化が簡単） | セルの境目の点が近づくことがある |
-| ポアソン円盤 | 自然 | やや遅い（順序が必要） | GPU での並列化が難しい |
-| ブルー ノイズ テクスチャ | 自然 | 速い（テクスチャを引くだけ） | 密度の閾値で、間引くとブルー ノイズが保たれる |
+## 決定性: 同じ結果にする {#determinism}
 
-Lagae と Dutré（2008）は、ポアソン円盤を作るさまざまな方法を比較しています。
+配置が生成のたびに変わるとセーブ後に木の位置が変わって、消した木が元に戻ります。位置を座標から決定的に決めます。
 
-## ③ 決定性（同じ結果にする）
-
-配置が <strong>生成のたびに変わる</strong>と、セーブ後に木の位置が変わり消した木が元に戻ります。位置を座標から決定的に決めるようにします。
-
-- 座標から乱数の種を作る: `seed = Hash(cell_x, cell_y, world_seed)`。同じセルは必ず同じ点
-- 乱数を共有しない: 「全体で、1 つの乱数列を順に消費する」と、生成順が変わると結果も変わる。セルごとに独立した乱数を使う
-- 変更は差分で保存: 「このセルの、3 番目の木を伐採した」だけを保存する。木の位置自体は保存しない
+- 座標から乱数の種を作ります。`seed = Hash(cell_x, cell_y, world_seed)` で同じセルは必ず同じ点になります。
+- 乱数を共有しません。全体で 1 つの乱数列を順に消費すると、生成の順番が変わったときに結果も変わります。セルごとに独立した乱数を使います。
+- 変更は差分で保存します。「このセルの 3 番目の木を伐採した」だけを保存します。木の位置自体は保存しません。
 
 ```hlsl
-// セルの座標と、全体の種から、決定的な乱数を作る（PCG ハッシュ）。
+// PCG ハッシュ。整数 1 つを、よく混ざった整数にする
+uint Pcg(uint v) {
+  uint state = v * 747796405u + 2891336453u;
+  uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+  return (word >> 22u) ^ word;
+}
+
+// セルの座標と全体の種から、決定的な 0..1 の乱数を作る。channel で、同じセルから複数の乱数を取る
 float Random01(int2 cell, uint world_seed, uint channel) {
-  uint h = Pcg(cell.x + Pcg(cell.y + Pcg(world_seed + channel)));
-  return (h & 0xffffffu) / 16777216.0;
+  uint h = Pcg(uint(cell.x) + Pcg(uint(cell.y) + Pcg(world_seed + channel)));
+  return (h & 0xffffffu) / 16777216.0;                    // 24 ビットを 0..1 に
 }
 ```
 
-## 実行時の配置（GPU で生成する）
+## 実行時の配置: GPU で生成する {#gpu}
 
-近年の大規模なゲームでは <strong>配置を実行時に GPU の計算シェーダーで、生成</strong>します。van Muijden（2017）は、Horizon Zero Dawn で、プレイヤーの周りに 木・岩・草をリアルタイムに配置する仕組みを発表しています。
+近年の大規模なゲームでは配置を実行時に GPU の計算シェーダーで生成します。van Muijden（2017）は、Horizon Zero Dawn で、プレイヤーの周りの木、岩、草をリアルタイムに配置する仕組みを発表しています。このページではその発表を読んでいないので、内容の解説はしません。ここでは、同じ考え方（決定的な乱数から点を作って、密度で間引きインスタンス バッファに出す）を自分の式で書きます。
 
-- 入力: 高さ傾き植生マスク、道のマスクなど地形の属性マップ
-- 処理: 計算シェーダーが各セルで決定的に点の位置と種類、サイズ、回転を計算する
-- 出力: インスタンス バッファ（位置、回転、スケール）。そのまま描画に使う
-- 利点: ディスクに配置データを持たなくてよい。地形を編集すると配置が自動で更新される
-- 注意: 毎フレームでなく、カメラが動いた分の新しい範囲だけ、生成する（タイルのキャッシュ）
+```hlsl
+struct Instance {
+  float3 position;
+  float scale;
+  float yaw;               // 向き（ラジアン）
+  uint kind;               // 種類（0 = 木、1 = 岩 …）
+  float2 _pad;
+};
+AppendStructuredBuffer<Instance> g_instances : register(u0);
+Texture2D<float> g_density_map : register(t0);       // 密度マップ（上の式で作ったもの）
+Texture2D<float> g_height_map : register(t1);
+SamplerState g_linear_clamp : register(s0);
 
-生成した点を描画へつなぐ方法は、[Instancing](../vegetation/instancing.md) と [Vegetation Culling](../vegetation/culling.md) を見てください。
+cbuffer PlacementConstants : register(b0) {
+  float2 g_window_origin;    // 生成する範囲の左下（ワールド XZ）
+  float g_cell_size;         // ジッタード グリッドのセルの大きさ（メートル）。例: 6
+  uint g_cells_per_side;
+  float g_world_size;        // 地形の 1 辺（メートル）
+  float g_height_scale;      // 高さ 1.0 のメートル数
+  uint g_world_seed;
+  uint _pad;
+};
 
-## 配置の優先度と除外
+[numthreads(8, 8, 1)]
+void PlaceTreesCS(uint3 id : SV_DispatchThreadID) {
+  if (any(id.xy >= g_cells_per_side)) return;
+  // 窓の左下を、セルの境界にそろえて、セルの絶対座標を作る（窓が動いても同じセルは同じ点になる）
+  int2 cell = int2(floor(g_window_origin / g_cell_size)) + int2(id.xy);
 
-複数の種類（木、低木、草、岩）を重ならないように置くとき、<strong>大きいものから先に置きます</strong>。
+  float2 jitter = float2(Random01(cell, g_world_seed, 0), Random01(cell, g_world_seed, 1));
+  float2 xz = (float2(cell) + jitter) * g_cell_size;       // 決定的な点の位置
 
-| 順 | 種類 | 理由 |
-| --- | --- | --- |
-| 1 | 岩・大木 | 大きく、数が少ない。先に置いて場所を確保 |
-| 2 | 低木・小さい木 | 大きな物の周りを避けて置く |
-| 3 | 草・花 | 残った場所に密に置く |
+  float2 uv = xz / g_world_size;
+  float density = g_density_map.SampleLevel(g_linear_clamp, uv, 0);
+  if (Random01(cell, g_world_seed, 2) >= density) return;   // 密度で間引く
 
-- 道・建物の敷地: 密度マップで、0 にする
-- 先に置いた物の周り: 半径 r の中には、置かない（ポアソン円盤の最小距離を種類ごとに変える）
-- 水の中: 水位より低い場所
+  Instance inst;
+  inst.position = float3(xz.x, g_height_map.SampleLevel(g_linear_clamp, uv, 0) * g_height_scale, xz.y);
+  inst.scale = lerp(0.8, 1.3, Random01(cell, g_world_seed, 3));
+  inst.yaw = Random01(cell, g_world_seed, 4) * 6.2831853;
+  inst.kind = 0;
+  inst._pad = 0.0;
+  g_instances.Append(inst);                                 // そのまま描画に使うインスタンス バッファ
+}
+```
 
-## よくあるミス
+窓の左下をセルの境界にそろえて、セルの絶対座標から乱数を作っているので、カメラが動いて窓が動いても同じセルは同じ点になります。決定性の要点です。
+
+利点はディスクに配置データを持たなくてよいことと地形を編集すると配置が自動で更新されることです。注意点は毎フレーム全部を作り直さずカメラが動いた分の新しい範囲だけ生成する（タイルのキャッシュ）ことです。生成した点を描画へつなぐ方法は[Instancing](../vegetation/instancing.md) と [Vegetation Culling](../vegetation/culling.md) を見てください。
+
+!!! note "確かめた範囲"
+    ポアソン円盤の C++ は MSVC（`/W4`、C++ 最新）でコンパイルして実行しました。最近接距離の数字はその実行結果です。HLSL は `fxc` で `PlaceTreesCS`（`cs_5_0`）と密度・乱数の関数をコンパイルして、エラーが出ないことを確かめました。ジッタード グリッドとインスタンスの描画は確認していません。
+
+## 配置の優先度と除外 {#priority}
+
+複数の種類（木、低木、草、岩）を重ならないように置くときは大きいものから先に置きます。
+
+1. 岩と大木は大きくて数が少ないので、先に置いて場所を確保します。
+2. 低木と小さい木は大きな物の周りを避けて置きます。
+3. 草と花は残った場所に密に置きます。
+
+道と建物の敷地は密度マップで 0 にします。先に置いた物の周り（半径 `r` の中）には置きません。ポアソン円盤の最小距離を種類ごとに変えます。水の中（水位より低い場所）にも置きません。
+
+## よくあるミス {#mistakes}
 
 ??? failure "木が一直線や固まりで並ぶ"
-    <strong>ブルー ノイズ</strong>で散布する。
+    原因は一様乱数で散布していることです。ポアソン円盤（ブルー ノイズ）かジッタード グリッドで散布します。実測では同じ点数で一様乱数の最近接距離が 0.11、ポアソン円盤が 4.0 でした。
 
-## これだけ覚える
+??? failure "セーブして読み込むと木の位置が変わる"
+    原因は 1 つの乱数列を順に消費していることです。生成の順番や範囲が変わると結果が変わります。セルの座標と世界の種からセルごとに乱数を作ります。
+
+??? failure "道の上や建物の中に木が生える"
+    原因は密度マップに除外が入っていないことです。道と建物の敷地は密度を 0 にします。手描きの除外マスクも掛けます。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 条件で密度を決めて散布
+    - [x] 条件を掛け合わせて密度を決めて、乱数で間引きます。
+    - [x] 散布はポアソン円盤（最小距離が保たれる）かジッタード グリッドです。
+    - [x] 乱数はセルの座標と種から作ります。窓が動いても同じ結果になります。
+    - [x] 大きなものから先に置きます。
 
-## 参考
+## 参考 {#references}
+
+読んだ資料はありません。ポアソン円盤の C++ は Bridson の手法の説明を元に自分で書いて動かしました。
 
 - Bridson, "Fast Poisson Disk Sampling in Arbitrary Dimensions", SIGGRAPH 2007 Sketches
 - Lagae, Dutré, "A Comparison of Methods for Generating Poisson Disk Distributions", Computer Graphics Forum, Vol. 27, No. 1, 2008
 - van Muijden, "GPU-Based Run-Time Procedural Placement in Horizon Zero Dawn", Game Developers Conference 2017
-- Jarzynski, Olano, "Hash Functions for GPU Rendering", Journal of Computer Graphics Techniques, Vol. 9, No. 3, 2020
-- Cook, "Stochastic Sampling in Computer Graphics", ACM Transactions on Graphics, Vol. 5, No. 1, 1986（ジッタード サンプリングと、ブルー ノイズ的な分布）
+- Jarzynski, Olano, "Hash Functions for GPU Rendering", Journal of Computer Graphics Techniques, Vol. 9, No. 3, 2020（PCG ハッシュ）
+- Cook, "Stochastic Sampling in Computer Graphics", ACM Transactions on Graphics, Vol. 5, No. 1, 1986
 
 ## 関連ページ
 
