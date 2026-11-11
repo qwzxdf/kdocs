@@ -6,20 +6,23 @@ tags:
 
 # Foreground and Background
 
-<strong>DOF の難しさは、「ピントの手前（前景）」と「奥（背景）」で、ぼけ方の理屈が違う</strong>ことです。背景のボケはピントが合った物の「後ろ」にあるので手前の物を隠さないですが、前景のボケはピントが合った物の「手前」にあるのでその物の上に広がってかぶさります。これを分けて処理しないと、ボケた前景の輪郭がきつくなったり、ピント内の物に背景がにじんだりします。このページでは、前景と背景の違い・別々に処理する方法・近傍の最大 CoC（タイル）・合成・よくある破綻を説明します。
+被写界深度（DOF）を後処理で作るとき最初に思いつくのは、CoC（錯乱円。ボケの大きさ）に応じて画面全体を 1 枚でぼかすことです。ところが、これをやるとピントの合った人物の輪郭に背景のボケがにじんだり手前の物のボケた輪郭が妙にくっきりしたりします。
+
+<strong>DOF の難しさはピントの手前（前景）と奥（背景）で、ボケ方の理屈が違うことです</strong>。背景のボケはピントが合った物の後ろにあるので、手前の物を隠しません。前景のボケはピントが合った物の手前にあるので、その物の上に広がってかぶさります。このページでは前景と背景の違い CoC の符号と数字、別々に処理する方法、近傍の最大 CoC（タイル）、合成、よくある破綻を説明します。
 
 !!! tip "ポイント"
-    - <strong>背景のボケ</strong>は<strong>ピント内の物にかぶらない</strong>。前景のボケは奥の物の上に広がる。
-    - CoC を符号付きで持ち（前景は負）、前景・背景を別々に処理する。
-    - 前景は「周りの最大 CoC」を使う（前景の輪郭の外側にまでボケが広がるため）。タイルで高速化。
-    - 前景のボケは、アルファ（透け具合）つきで最後に合成する。
-    - 背景はピント内の物を貫通しないように、重みを制御。
-    - 半解像度でも前景と背景は分けて保存する。
+    - 背景のボケはピント内の物にかぶりません。前景のボケは奥の物の上に広がります。
+    - CoC を符号付きで持ち（前景は負）、前景と背景を別々に処理します。
+    - 前景は周りの最大 CoC を使います。前景の輪郭の外側にまでボケが広がるからです。タイルで高速化します。
+    - 前景のボケはアルファ（透け具合）つきで最後に合成します。
+    - 背景はピント内の物の色を混ぜないようにサンプルの重みを制御します。
+    - 半解像度でも前景と背景は分けて保存します。
 
 !!! info "このページを読む前に"
     - [Depth of Field (DOF)](index.md)（このセクション全体の地図と、読む順番）
+    - [Circle of Confusion (CoC)](coc.md)（ボケの大きさを求める式）
 
-## 前景と背景の違い
+## 前景と背景の違い {#difference}
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="前景と背景のボケ">
 <text x="20" y="26" class="fig-title">ぼけた前景は奥へ広がる、ぼけた背景は手前の物を隠さない</text>
@@ -40,51 +43,106 @@ tags:
 </g>
 </svg>
 
-| 項目 | 背景 | 前景 |
-| --- | --- | --- |
-| ボケの広がる向き | 奥の物の周り | 手前の物の輪郭の外へ奥にかぶさる |
-| ピント内の物との関係 | ピント内の物は、手前にあるので隠れない | ピント内の物の上に広がる |
-| ボケた縁 | ピント内の物の縁できっぱり切れる | 縁がやわらかく、透ける |
+前景と背景では次の 3 点が違います。
 
-## 別々に処理する
+- ボケの広がる向きが違います。背景のボケは奥の物の周りに広がります。前景のボケは手前の物の輪郭の外へ奥にかぶさるように広がります。
+- ピント内の物との関係が違います。背景のボケはピント内の物が手前にあるので、隠れません。前景のボケはピント内の物の上に広がります。
+- ボケた縁が違います。背景はピント内の物の縁できっぱり切れます。前景は縁がやわらかく透けます。
 
-<strong>CoC の符号</strong>で前景と背景に分け、別々にぼかし、最後に合成します。
+## CoC の符号と数字 {#coc}
 
-| 手順 | 内容 |
-| --- | --- |
-| ① 前景と背景に分ける | CoC < 0 を前景、CoC > 0 を背景（ピント内（|CoC| が小さい）は、そのまま） |
-| ② 背景をぼかす | ピント内の物の色が混ざらないよう、重みを制御 |
-| ③ 前景をぼかす | 近傍の最大 CoC を使い、前景の外にも広げる。アルファ付き |
-| ④ 合成 | 背景 → ピント内 → 前景（アルファで上に）の順 |
+前景と背景を分ける基準は符号つきの CoC です。薄いレンズの式からボケの直径を求めて、手前（ピントより近い）を負、奥を正にします。
 
 ```hlsl
-float3 CompositeDof(float3 sharp, float4 far_blur, float4 near_blur, float coc) {
-  float far_alpha = saturate(coc);
-  float3 color = lerp(sharp, far_blur.rgb, far_alpha);
-  color = lerp(color, near_blur.rgb, near_blur.a);
-  return color;
+Texture2D<float> g_depth : register(t0);            // 視点深度（メートル）。リニアに直したもの
+Texture2D<float4> g_color : register(t1);
+RWTexture2D<float4> g_color_coc : register(u0);     // RGB = 色、A = 符号つき CoC（ピクセル）
+
+cbuffer DofConstants : register(b0) {
+  float g_focus_distance;    // ピントが合う距離（メートル）。例: 2
+  float g_focal_length;      // 焦点距離（メートル）。例: 0.05
+  float g_aperture;          // 絞りの直径（メートル）。焦点距離 ÷ F 値。例: 0.0278（50 mm、F1.8）
+  float g_pixels_per_meter_on_sensor;   // センサー上の 1 m が何ピクセルか。例: 1920 / 0.036
+  float g_max_coc;           // CoC の上限（ピクセル）。例: 64
+  uint2 g_size;
+  float _pad;
+};
+
+// 符号つきの CoC（ピクセル）。手前は負、奥は正
+float SignedCoc(float d) {
+  float s = g_focus_distance;
+  float coc_meters = g_aperture * g_focal_length / (s - g_focal_length) * abs(d - s) / d;
+  float coc_px = coc_meters * g_pixels_per_meter_on_sensor;
+  coc_px = min(coc_px, g_max_coc);                  // 上限（暴走する近距離の防止。足した処理）
+  return (d < s) ? -coc_px : coc_px;
+}
+
+[numthreads(8, 8, 1)]
+void CocCS(uint3 id : SV_DispatchThreadID) {
+  if (any(id.xy >= g_size)) return;
+  float d = g_depth.Load(int3(id.xy, 0));
+  g_color_coc[id.xy] = float4(g_color.Load(int3(id.xy, 0)).rgb, SignedCoc(d));
 }
 ```
 
-合成のコードの要点です。`far_alpha = saturate(coc)` で、背景のボケは CoC が大きいほど強く混ぜます。`near_blur.a` は前景のぼけた濃さで、ぼけた輪郭の外側は薄く透けます。最後に前景を重ねるのは、前景が最も手前にあるからです。
+数字で確かめます。50 mm、F 1.8（絞りの直径 27.8 mm）で、距離 2 m にピントを合わせセンサー幅 36 mm を 1920 ピクセルで受けるとします。CoC（ピクセル）は 1 m の物で約 38、1.5 m で約 13、3 m で約 13、5 m で約 23、10 m で約 30 です。無限遠でも約 38 で頭打ちになります。一方、手前の 0.5 m では約 114 になります。
 
-## 背景のぼかし：ピント内の物を貫通させない
+背景のボケは無限遠でも上限が決まっていますが、前景のボケは近づくほど際限なく大きくなります。前景が背景より大きなボケを作りやすくしかもピント内の物の上に広がるので、処理の工夫が前景で特に必要になります。
 
-<strong>背景をぼかすとき</strong>、ピント内の物（手前にある）の色を背景のボケに混ぜてはいけません（ピント内の物がぼけて見えてしまう）。
+## 別々に処理する {#separate}
+
+CoC の符号で前景と背景に分けて、別々にぼかして最後に合成します。
+
+1. 前景と背景に分けます。CoC が負なら前景、正なら背景です。ピント内（絶対値が小さい）はそのままです。
+2. 背景をぼかします。ピント内の物の色が混ざらないように重みを制御します。
+3. 前景をぼかします。近傍の最大 CoC を使って、前景の外にも広げます。アルファつきです。
+4. 合成します。背景、ピント内、前景（アルファで上に）の順です。
+
+## 背景のぼかし: ピント内の物を混ぜない {#background}
+
+背景をぼかすときピント内の物（手前にある）の色を背景のボケに混ぜてはいけません。ピント内の物がぼけて見えてしまうからです。サンプルの CoC が自分の画素まで届くかで、重みを決めます。
 
 ```hlsl
+Texture2D<float4> g_color_coc_srv : register(t2);   // RGB = 色、A = 符号つき CoC
+SamplerState g_point_clamp : register(s0);
+
+static const int kRings = 3;                         // 同心円の数
+static const int kSamplesPerRing = 8;
+
 float BackgroundWeight(float sample_coc, float distance_in_pixels) {
+  // そのサンプルが背景（coc > 0）で、ボケが自分まで届くとき、重みが 1
   float reach = saturate(sample_coc - distance_in_pixels + 1.0);
-  float is_far = saturate(sample_coc);
+  float is_far = saturate(sample_coc);               // 前景やピント内は 0
   return reach * is_far;
 }
+
+float4 BackgroundBlurPS(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float4 center = g_color_coc_srv.SampleLevel(g_point_clamp, uv, 0);
+  float radius = max(center.a, 0.0);                 // 自分の CoC（背景のみ）
+  float3 sum = center.rgb;
+  float weight = 1.0;
+  float2 texel = 1.0 / float2(1920.0, 1080.0);       // 例: 画面のサイズ（実際は定数で渡す）
+
+  [unroll] for (int ring = 1; ring <= kRings; ++ring) {
+    float r = radius * ring / kRings;
+    [unroll] for (int k = 0; k < kSamplesPerRing; ++k) {
+      float angle = 6.2831853 * (k + 0.5 * ring) / kSamplesPerRing;
+      float2 offset = float2(cos(angle), sin(angle)) * r;
+      float4 s = g_color_coc_srv.SampleLevel(g_point_clamp, uv + offset * texel, 0);
+      float w = BackgroundWeight(s.a, r);
+      sum += s.rgb * w;
+      weight += w;
+    }
+  }
+  return float4(sum / weight, 1.0);
+}
 ```
 
-背景のぼかしのコードの要点です。`is_far` は、サンプルが背景（CoC > 0）なら有効で、前景やピント内なら 0 にします。`reach` は、そのサンプルのボケが自分まで届くかを表します。
+`is_far` が前景やピント内のサンプルを除外します。これでピント内の物の色が背景のボケに混ざりません。`reach` はそのサンプルのボケが自分まで届くかの目安です。
 
-## 前景のぼかし：近傍の最大 CoC
+## 前景のぼかし: 近傍の最大 CoC {#foreground}
 
-<strong>前景のボケは前景の輪郭の「外側」にまで広がります</strong>。その位置の画素自体の CoC は 0（ピント内か背景）でも近くに前景の画素があれば、その CoC の分だけボケが届くので、周りの画素の最大 CoCを使います。
+前景のボケは前景の輪郭の外側にまで広がります。その位置の画素自体の CoC が 0（ピント内か背景）でも近くに前景の画素があれば、その CoC のぶんだけボケが届きます。そこで、周りの画素の最大 CoC を使います。
 
 <!-- fig:dof-near-field:begin -->
 
@@ -313,76 +371,128 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 
 <!-- fig:dof-near-field:end -->
 
-### 近傍の最大 CoC（タイル）
-
-画面をたとえば 16×16 のタイルに分け、各タイルの前景の最大 CoC（最も負に大きい値）を求め、それを周りのタイルへ広げます（ダイレーション）。
+画面をたとえば 16 × 16 のタイルに分けて、各タイルの前景の最大 CoC（最も負に大きい値）を求めて、それを周りのタイルへ広げます（ダイレーション）。1920 × 1080 なら `120 × 68` のタイルです。上の数字で前景の CoC が最大 114 ピクセルなら広げる範囲は `114 / 16 ≒ 7.1` で、7 タイル先までです。
 
 ```hlsl
+Texture2D<float4> g_coc_in : register(t3);
+RWTexture2D<float> g_tile_min_coc : register(u1);          // 1 タイルに 1 値（最小 = 最も大きな前景）
+groupshared float s_min_coc[256];
+
 [numthreads(16, 16, 1)]
-void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uint group_index : SV_GroupIndex) {
-  float coc = color_coc.Load(int3(id.xy, 0)).a;
+void TileMaxCocCS(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uint group_index : SV_GroupIndex) {
+  float coc = g_coc_in.Load(int3(id.xy, 0)).a;
   s_min_coc[group_index] = coc;
   GroupMemoryBarrierWithGroupSync();
+  // 共有メモリで、最小値を縮約する。前景は負なので、最小値が最も大きな前景の CoC
   for (uint stride = 128; stride > 0; stride >>= 1) {
     if (group_index < stride) s_min_coc[group_index] = min(s_min_coc[group_index], s_min_coc[group_index + stride]);
     GroupMemoryBarrierWithGroupSync();
   }
-  if (group_index == 0) tile_max_near[group_id.xy] = s_min_coc[0];
+  if (group_index == 0) g_tile_min_coc[group_id.xy] = s_min_coc[0];
+}
+
+Texture2D<float> g_tile_in : register(t4);
+RWTexture2D<float> g_tile_dilated : register(u2);
+
+// 隣接 3×3 のタイルの最小値を、そのタイルの「近傍の最大 CoC」にする（ダイレーション）
+[numthreads(8, 8, 1)]
+void TileDilateCS(uint3 id : SV_DispatchThreadID) {
+  float m = 0.0;
+  [unroll] for (int y = -1; y <= 1; ++y)
+    [unroll] for (int x = -1; x <= 1; ++x)
+      m = min(m, g_tile_in.Load(int3(int2(id.xy) + int2(x, y), 0)));
+  g_tile_dilated[id.xy] = m;
 }
 ```
 
-近傍最大 CoC のコードの要点です。前景は負の値なので、最小値が最も大きな前景の CoC になります。グループ内の最小値を共有メモリで縮約して求め、さらに、隣接 3×3 のタイルの最小値をそのタイルの「近傍の最大 CoC」にします。
+タイルの最大 CoC が 0 のタイル（前景がまったくない）は、前景のぼかしを丸ごとスキップできて、高速化になります。広げる範囲が 7 タイルなら 3×3 を何回か繰り返すか最初から広い範囲で最小値を取ります。
 
-タイルの最大 CoC が 0 のタイル（前景がまったくない）は、前景のぼかしを丸ごとスキップでき、高速化になります。
+前景のぼかしでは近傍の最大 CoC を半径にして、周りを読み前景のサンプルの寄与から、アルファを作ります。
 
-## 合成の順序
+```hlsl
+Texture2D<float> g_tile_near : register(t5);
 
-合成の順序は、背景のぼけをピント内の画像に混ぜ、ピント内はそのままにして、ぼけた前景をアルファで上に重ねる、という順です。
+float4 ForegroundBlurPS(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  uint2 tile = uint2(pos.xy) / 16;
+  float near_radius = -g_tile_near.Load(int3(tile, 0));      // 近傍の最大 CoC（正の値にする）
+  if (near_radius < 0.5) return float4(0, 0, 0, 0);          // 前景が近くにない → 何もしない
 
-<strong>半解像度</strong>で前景・背景を処理する場合、前景と背景を別の画像として保存し、最後にフル解像度の画像へ合成します。
+  float3 sum = 0.0;
+  float alpha_sum = 0.0;
+  float count = 0.0;
+  float2 texel = 1.0 / float2(1920.0, 1080.0);
+  [unroll] for (int ring = 0; ring <= kRings; ++ring) {
+    float r = near_radius * ring / kRings;
+    int n = (ring == 0) ? 1 : kSamplesPerRing;
+    for (int k = 0; k < n; ++k) {
+      float angle = 6.2831853 * (k + 0.5 * ring) / kSamplesPerRing;
+      float2 offset = float2(cos(angle), sin(angle)) * r;
+      float4 s = g_color_coc_srv.SampleLevel(g_point_clamp, uv + offset * texel, 0);
+      // サンプルが前景（coc < 0）で、その CoC が、このサンプルの距離 r まで届くなら、寄与する
+      float w = (s.a < 0.0 && (-s.a) >= r - 1.0) ? 1.0 : 0.0;
+      sum += s.rgb * w;
+      alpha_sum += w;
+      count += 1.0;
+    }
+  }
+  float alpha = saturate(alpha_sum / count * 2.0);           // 前景が占める割合から、透け具合を作る。2 倍は調整値
+  return float4(sum / max(alpha_sum, 1.0), alpha);
+}
+```
 
-## よくある破綻と対処
+前景のサンプルが多いほどアルファが 1 に近づきます。輪郭の外側では前景のサンプルが少ないので、アルファが小さくなってやわらかく透けます。
 
-| 破綻 | 原因 | 対処 |
-| --- | --- | --- |
-| ピント内の物の縁に背景のボケがにじむ | 背景のぼかしで前景・ピント内を混ぜた | サンプルの CoC 符号で除外 |
-| ぼけた前景の輪郭がきつい | 前景を自分の CoC だけで処理 | 近傍の最大 CoC・アルファ合成 |
-| <strong>前景と背景の境にハロ（白い縁）</strong> | 混ざり方の誤り | 符号付きの重み・別画像で合成 |
-| ピント内の物の背後にぼけた物が突き抜けて見える | 深度の考慮漏れ | 背景の重みに深度の順序を反映 |
+## 合成 {#composite}
 
-## より良いやり方
+合成の順序は背景のボケをピント内の画像に混ぜて、ピント内はそのままにしてぼけた前景をアルファで上に重ねるという順です。
 
-- 前景・背景を別バッファに: 混ざりを防ぐ
-- タイルの最大 CoC: 前景のぼかしを必要な所だけ
-- 前景はアルファ付きで合成: 透けるボケ
-- ピント内はできるだけ元の絵のまま: くっきりを保つ
-- 背景の「裏側」の補完: 前景の下に隠れた背景が見えるよう、周囲の色で補う（高度）
+```hlsl
+float3 CompositeDof(float3 sharp, float coc, float4 far_blur, float4 near_blur) {
+  float far_alpha = saturate(coc);                           // 背景のボケは、CoC が大きいほど強く混ぜる
+  float3 color = lerp(sharp, far_blur.rgb, far_alpha);
+  color = lerp(color, near_blur.rgb, near_blur.a);           // 前景は最後に上へ。a が透け具合
+  return color;
+}
+```
 
-## よくあるミス
+`far_alpha = saturate(coc)` で CoC が 1 ピクセル以上なら完全に背景のボケにします。`near_blur.a` は前景のぼけた濃さで輪郭の外側は薄く透けます。最後に前景を重ねるのは前景が最も手前にあるからです。半解像度で前景と背景を処理する場合は、前景と背景を別の画像として保存して、最後にフル解像度の画像へ合成します。
 
-??? failure "前景のボケが奥にしかかからず、手前の物の輪郭が切れている"
-    <strong>近傍の最大 CoC</strong>で前景の外へも広げる。
+!!! note "確かめた範囲"
+    HLSL は `fxc` で `CocCS`、`TileMaxCocCS`、`TileDilateCS`（`cs_5_0`）と `BackgroundBlurPS`、`ForegroundBlurPS`（`ps_5_0`）をコンパイルしてエラーが出ないことを確かめました。CoC の数字は式からの手計算です。GPU での描画は確認していません。
 
-??? failure "ピント内の物の周りに、背景のボケが白く縁取る"
-    背景のぼかしで前景・ピント内のサンプルを除外。
+## よくある破綻と対処 {#failures}
 
-??? failure "前景も背景も、1 枚でぼかして、境が破綻する"
-    符号で分け、別々にぼかして、合成する。
+??? failure "ピント内の物の縁に背景のボケがにじむ"
+    原因は背景のぼかしで、前景やピント内のサンプルを混ぜていることです。サンプルの CoC の符号で除外します（`BackgroundWeight` の `is_far`）。
 
-## これだけ覚える
+??? failure "ぼけた前景の輪郭がきつい"
+    原因は前景を自分の CoC だけで処理して、外側へ広げていないことです。近傍の最大 CoC で広げて、アルファで合成します。
+
+??? failure "前景と背景の境に白いハロが出る"
+    原因は混ざり方の誤りです。前景と背景を同じ画像でぼかして、符号を考えずに混ぜています。符号つきの重みで別の画像として合成します。
+
+??? failure "ピント内の物の背後にぼけた物が突き抜けて見える"
+    原因は深度の順序を考慮していないことです。背景のぼかしで深度の順序を重みに入れます。
+
+??? failure "前景も背景も 1 枚でぼかして、境が破綻する"
+    原因は符号で分けていないことです。符号で分けて別々にぼかして合成します。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] <strong>背景のボケは、ピント内の物を隠さない</strong>。前景のボケは奥にかぶさる
-    - [x] CoC を符号付きで持ち、前景・背景を別々に処理
-    - [x] 前景は、近傍の最大 CoC（タイル）で外側へ広げる
-    - [x] 背景のぼかしで、ピント内・前景のサンプルを除外
-    - [x] 合成は、背景 → ピント内 → 前景（アルファ）
+    - [x] 背景のボケはピント内の物を隠しません。前景のボケは奥にかぶさります。
+    - [x] CoC を符号付きで持ち前景と背景を別々に処理します。
+    - [x] 前景は近傍の最大 CoC（タイル）で外側へ広げます。1920×1080 を 16×16 で区切ると 120×68 タイルです。
+    - [x] 背景のぼかしで、ピント内と前景のサンプルを除外します。
+    - [x] 合成は背景、ピント内、前景（アルファ）の順です。
 
-## 参考
+## 参考 {#references}
 
-- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
-- Abadie, "A Life of a Bokeh"（SIGGRAPH 2018）
-- Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
+このページは次の資料を読まずに書きました。CoC の式は薄いレンズの一般的な式で、数字は手計算です。ぼかしのシェーダーは仕組みを説明するために自分で書いたもので、発表の実装とは異なります。
+
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014
+- Abadie, "A Life of a Bokeh", SIGGRAPH 2018
+- Sousa, "Graphics Gems from CryENGINE 3", SIGGRAPH 2013
 
 ## 関連ページ
 
