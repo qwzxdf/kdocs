@@ -6,13 +6,16 @@ tags:
 
 # Soft Particles
 
-<strong>パーティクルが地面や壁と交差する所で、硬い線が見えて不自然</strong>になります。シーンの深度を読んで近いほどアルファを弱める「ソフト パーティクル」で、なめらかに消せます。このページではソフト パーティクルの仕組みを説明します。
+煙や霧のパーティクルはカメラを向く板（ビルボード）で描きます。この板が地面や壁に刺さると板と地面の交差線がくっきり見えます。煙がふわっと立ちのぼっているはずなのに、地面に紙が刺さっているように見えて、不自然です。
+
+<strong>ソフト パーティクルはシーンの深度を読んで、パーティクルが後ろの物に近いほど透明にします</strong>。交差線が消えて板が地面になめらかに溶け込みます。このページでは問題の見え方、フェードの式、線形の深度で比べる理由、完成形のシェーダー、近すぎる場合、低解像度で描く場合の深度の縮小、落とし穴を説明します。
 
 !!! tip "ポイント"
-    - パーティクルの深度とシーンの深度の差を求める。
-    - 差が小さい（交差に近い）ほどアルファを弱める。
-    - 深度バッファをテクスチャとして読む必要がある。
-    - 煙・炎・霧のパーティクルで、効果が大きい。
+    - パーティクルの視点深度とその画素の後ろにある物の視点深度の差を求めます。
+    - 差が小さい（交差に近い）ほどアルファを弱めます。
+    - 深度は非線形の値のままでなく、線形の視点深度に直してから引きます。
+    - 深度バッファを読むので、書き込みを無効にした読み取り専用の DSV と SRV を組み合わせます。
+    - 加算ブレンドのパーティクルでは、アルファでなく色にフェードを掛けます。
 
 !!! info "このページを読む前に"
     - [Alpha Blending and Sorting](index.md)（このセクション全体の地図と、読む順番）
@@ -139,24 +142,9 @@ tags:
 
 <!-- fig:soft-particles-depth:end -->
 
-## 深度の読み取り（ソフト パーティクル）
-<strong>パーティクルの板</strong>が 地面や壁と交差する所で、硬い線が出ます。シーンの深度を読んで近いほど透明にすると、なじみます（ソフト パーティクル）。
+## 問題: 板が地面に刺さる {#problem}
 
-```hlsl
-float scene_depth = LinearDepth(depth_texture.Load(int3(input.position.xy, 0)).r);
-float particle_depth = LinearDepth(input.position.z);
-float fade = saturate((scene_depth - particle_depth) / fade_distance);
-color.a *= fade;
-```
-
-- `scene_depth`: 不透明な物の深度（深度バッファを SRV として読む）
-- `particle_depth`: パーティクル自身の深度
-- `fade_distance`: この距離で完全に不透明に
-- 要件: 深度バッファを読み取りと深度テストで同時に使えないので、深度のコピー（または読み取り専用 DSV）が要る
-
-## 問題：パーティクルが地面と交差して線が見える
-
-煙や霧のパーティクルは <strong>板（ビルボード）</strong>で、描かれます。板が 地面や壁に突き刺さると、板と地面の交差線がぱっきりと見えます。煙が地面に板が刺さっているように見えて、不自然です。
+煙のパーティクルは数百枚の板の重なりです。板が地面や壁と交差するとその線の上下で、色が不連続に変わります。
 
 ```text
  煙の板
@@ -167,100 +155,209 @@ color.a *= fade;
          ← 交差した所に、くっきり線が出る
 ```
 
-## ソフト パーティクル
+深度テストは板を線の手前だけ描いて、線の向こうを描きません。そのため、半透明の板がそこで突然切れます。
 
-<strong>ソフト パーティクル</strong>（Lorach、2007）は パーティクルの深度と後ろにある物の深度の差が小さい所（交差に近い所）でパーティクルを透明にフェードさせる手法です。交差線が消え板が地面になめらかに溶け込みます。
+## フェードの式 {#fade}
+
+Lorach（2007）のソフト パーティクルは、パーティクルの深度とその後ろにある物の深度の差が小さい所で、パーティクルをフェードさせます。式は次のとおりです。
 
 ```text
 アルファ = 元のアルファ × saturate( (シーン深度 − パーティクル深度) / フェード距離 )
 ```
 
-| 深度の差 | アルファ |
-| --- | --- |
-| 0（交差している） | 0（透明） |
-| フェード距離の半分 | 半分 |
-| フェード距離以上 | 元のまま |
+差が 0（交差している）ならアルファは 0 です。フェード距離の半分なら元のアルファの半分です。フェード距離以上離れていれば、元のままです。フェード距離はパーティクルの大きさの半分くらいが目安で、0.5〜2 m の範囲がよく使われます。大きいほど交差線の手前からゆっくり透明になります。
 
-## 実装
+<svg class="fig flow" viewBox="0 0 720 250" role="img" aria-label="深度の差に対するフェードの曲線。線形と smoothstep"><text x="14" y="22" class="fig-title">深度の差 → フェード量</text>
+<line x1="70" y1="200" x2="660" y2="200" stroke="currentColor" stroke-width="1.5"/><line x1="70" y1="200" x2="70" y2="50" stroke="currentColor" stroke-width="1.5"/>
+<text x="660" y="222" text-anchor="end" style="font-size:12px">シーン深度 − パーティクル深度（メートル）</text><text x="62" y="56" text-anchor="end" style="font-size:12px">1</text><text x="62" y="204" text-anchor="end" style="font-size:12px">0</text>
+<text x="70" y="220" text-anchor="middle" style="font-size:12px">0</text><text x="400" y="220" text-anchor="middle" style="font-size:12px">フェード距離</text>
+<line x1="400" y1="200" x2="400" y2="50" stroke="#94a3b8" stroke-dasharray="4 4"/><line x1="70" y1="50" x2="660" y2="50" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<path d="M70,200 L400,50 L660,50" fill="none" stroke="#4c8bf5" stroke-width="3.5"/><text x="300" y="108" text-anchor="end" style="font-size:12px;fill:#4c8bf5;font-weight:600">線形 saturate(x)</text>
+<path d="M70,200 C150,198 230,170 285,128 C330,92 360,56 400,50 L660,50" fill="none" stroke="#e5aa28" stroke-width="3.5"/><text x="440" y="90" style="font-size:12px;fill:#b7791f;font-weight:600">smoothstep（端がなだらか）</text>
+<text x="360" y="244" text-anchor="middle" style="font-size:12px">交差線の近くは、smoothstep の方が線が目立たない。線形は、境目に折れ曲がりが見える</text></svg>
 
-深度バッファを <strong>シェーダー リソース</strong>として、読みます。パーティクルの描画では深度の書き込みは、無効なので 同じ深度バッファを読み取り専用の DSV と SRV の両方で使えます（[Color by Water Depth](../../water/shading/depth-color.md)、深度の読み方）。
+線形のフェードは `x = 1` の所で傾きが急に変わって、境目に折れ曲がりが見えることがあります。`smoothstep` で端をなだらかにすると交差線がさらに目立たなくなります。
+
+## 線形の深度で比べる {#linear}
+
+深度バッファの値は非線形です。近くで精度が高く遠くで粗くなります。差を取るときは必ず線形の視点深度に直してから引きます。非線形のまま引くと遠くでフェードが効かなくなったり近くで効きすぎたりします。
+
+透視射影で近い面が `near`、遠い面が `far`、標準の深度（近い面が 0、遠い面が 1）の場合、深度バッファの値 `d` から視点深度への変換は、次のとおりです。
+
+```text
+視点深度 = near × far / (far − d × (far − near))
+```
+
+数字で確かめます。`near = 0.1`、`far = 1000` の場合、`d = 0.5` は視点深度 `0.1 × 1000 / (1000 − 0.5 × 999.9) = 100 / 500.05 ≒ 0.2` メートルです。深度バッファの値の半分（0.5）が、わずか 0.2 m に対応します。残りの 0.5 が 0.2〜1000 m に割り当てられます。非線形のまま差を取ると遠くでは 0.0001 の差が数十メートルに対応します。
+
+リバース Z（近い面が 1、遠い面が 0）を使うなら式が変わります。`d` を `1 − d` に置き換えて同じ式を使います（プロジェクトの射影行列に合わせます）。
+
+## 完成形のシェーダー {#shader}
+
+深度バッファをシェーダー リソースとして読みます。パーティクルの描画では深度の書き込みを無効にするので、同じ深度バッファを読み取り専用の DSV（深度テスト用）と SRV（シェーダーで読む用）の両方で使えます（[Color by Water Depth](../../water/shading/depth-color.md)）。
+
+まず、定数と変換の関数です。
 
 ```hlsl
-Texture2D<float> g_scene_depth : register(t0);
+Texture2D<float4> g_particle_tex : register(t0);
+Texture2D<float> g_scene_depth : register(t1);      // 不透明パスの深度（SRV）
+SamplerState g_linear_clamp : register(s0);
 
-float4 main(PSInput input) : SV_Target {
+cbuffer ParticleConstants : register(b0) {
+  float4x4 g_view_proj;
+  float3 g_camera_right;
+  float g_near;              // 例: 0.1
+  float3 g_camera_up;
+  float g_far;               // 例: 1000
+  float g_soft_distance;     // ソフト化の距離（メートル）。例: 1.0
+  float g_near_fade_start;   // カメラに近すぎるときのフェード開始（メートル）。例: 0.3
+  float g_near_fade_range;   // 例: 0.5
+  float g_additive;          // 1 = 加算ブレンド、0 = 通常のアルファ ブレンド
+};
+
+// 標準の深度（近い面が 0）を、視点深度（メートル）に直す
+float LinearizeDepth(float d) {
+  return g_near * g_far / (g_far - d * (g_far - g_near));
+}
+```
+
+次に、頂点シェーダーです。位置と大きさ色が入力で板をカメラへ向けます。
+
+```hlsl
+struct Particle {
+  float3 center;
+  float radius;              // 板の半径（メートル）
+  float4 color;
+};
+StructuredBuffer<Particle> g_particles : register(t2);
+
+struct PsInput {
+  float4 position : SV_Position;
+  float2 uv : TEXCOORD0;
+  float4 color : COLOR0;
+};
+
+PsInput ParticleVS(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
+  Particle p = g_particles[instance_id];
+  float2 corner = float2(vertex_id & 1, vertex_id >> 1) * 2.0 - 1.0;   // -1..1
+  float3 world = p.center + (g_camera_right * corner.x + g_camera_up * corner.y) * p.radius;
+
+  PsInput o;
+  o.position = mul(float4(world, 1.0), g_view_proj);
+  o.uv = corner * 0.5 + 0.5;
+  o.color = p.color;
+  return o;
+}
+```
+
+最後に、ピクセル シェーダーです。
+
+```hlsl
+float4 ParticlePS(PsInput input) : SV_Target {
   float4 color = g_particle_tex.Sample(g_linear_clamp, input.uv) * input.color;
 
-  // ① 後ろにある、物の深度（視点深度）を読む
-  float scene_ndc = g_scene_depth.Load(int3(input.position.xy, 0));
-  float scene_depth = LinearizeDepth(scene_ndc);
+  // ① 後ろにある物の視点深度。同じ画素の位置を整数で読む（Load は補間しない）
+  float scene_depth = LinearizeDepth(g_scene_depth.Load(int3(input.position.xy, 0)));
 
-  // ② このパーティクルの、深度（視点深度）
+  // ② このパーティクルの視点深度
   float particle_depth = LinearizeDepth(input.position.z);
 
-  // ③ 差に応じて、アルファをフェードさせる
-  float fade = saturate((scene_depth - particle_depth) / g_soft_distance);
-  color.a *= fade;
+  // ③ 差に応じてフェード。smoothstep で端をなだらかに
+  float x = saturate((scene_depth - particle_depth) / g_soft_distance);
+  float fade = x * x * (3.0 - 2.0 * x);
+
+  // ④ カメラに近すぎるパーティクルもフェードする（画面を覆うのを防ぐ。足した処理）
+  float near_fade = saturate((particle_depth - g_near_fade_start) / g_near_fade_range);
+  fade *= near_fade;
+
+  // ⑤ 通常のブレンドはアルファに、加算ブレンドは色に掛ける
+  if (g_additive > 0.5) {
+    color.rgb *= fade;
+  } else {
+    color.a *= fade;
+  }
   return color;
 }
 ```
 
-| パラメーター | 目安 | 効果 |
-| --- | --- | --- |
-| `g_soft_distance` | 0.5〜2 m | フェードする、深度の範囲。大きいほど交差線の近くからゆっくり透明になる |
+①の `Load` はサンプラーを使わずに画素の整数座標で読みます。パーティクルの画素と同じ位置の不透明な物の深度が、そのまま取れます。
 
-ほとんどの煙や霧では パーティクルの大きさの半分くらいのフェード距離が使われます。
+加算ブレンドではアルファが色の強さを決めないので、アルファに掛けても効きません。色（明るさ）に直接掛けます。
 
-### 線形の深度で比べる
+C++ 側は読み取り専用の DSV を作って、SRV と同時にバインドします。
 
-深度バッファの値は 非線形（近くで、精度が高く遠くで粗い）です。差を取るときは必ず線形の視点深度に直してから引きます。
+```cpp
+// （コンパイルしていない）
+D3D11_DEPTH_STENCIL_VIEW_DESC dsv_desc = {};
+dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
+dsv_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+dsv_desc.Flags = D3D11_DSV_READ_ONLY_DEPTH;            // 深度を書かない DSV
+device->CreateDepthStencilView(depth_texture.Get(), &dsv_desc, &dsv_readonly);
+
+// 深度テストは使うが書き込まない。深度バッファは SRV としても読む
+context->OMSetRenderTargets(1, scene_rtv.GetAddressOf(), dsv_readonly.Get());
+context->PSSetShaderResources(1, 1, depth_srv.GetAddressOf());
+```
+
+深度のテクスチャは `DXGI_FORMAT_R32_TYPELESS` で作って、DSV を `D32_FLOAT`、SRV を `R32_FLOAT` にします。
+
+## 低解像度で描く場合 {#lowres}
+
+煙のような画面を広く覆うパーティクルは、描画コストが大きいので低解像度（半分か 4 分の 1）で描くことがあります。そのときは、深度も縮小して同じ解像度で読みます。縮小するときは平均ではなく最も近い値を残します。平均すると物の縁で手前と奥の深度が混ざって、ありもしない深度ができるからです。
 
 ```hlsl
-// 線形の視点深度に直す（通常の射影行列）。
-float LinearizeDepth(float d) {
-  return near_plane * far_plane / (far_plane - d * (far_plane - near_plane));
+Texture2D<float> g_full_depth : register(t0);
+RWTexture2D<float> g_half_depth : register(u0);
+
+[numthreads(8, 8, 1)]
+void DownsampleMinDepthCS(uint3 id : SV_DispatchThreadID) {
+  uint2 p = id.xy * 2;                                  // 2×2 の左上
+  float d0 = g_full_depth[p];
+  float d1 = g_full_depth[p + uint2(1, 0)];
+  float d2 = g_full_depth[p + uint2(0, 1)];
+  float d3 = g_full_depth[p + uint2(1, 1)];
+  // 標準の深度（小さいほど近い）なら、最小値が最も近い面。物の縁でも、手前の面が残る
+  g_half_depth[id.xy] = min(min(d0, d1), min(d2, d3));
 }
 ```
 
-非線形のまま差を取ると 遠くで、フェードが効かなくなったり近くで効きすぎたりします。
+最も近い面を残すと手前の物の縁の周りで、パーティクルが少し早く消える（ソフトにしすぎる）傾向があります。逆に最も遠い面を残すと手前の物の縁の周りで、フェードが足りなくなってパーティクルの板が手前の物へ漏れます。通常は、最も近い値の方が目立ちにくいです。
 
-## 逆方向：パーティクルがカメラに近すぎる
+## コストと注意点 {#cost}
 
-パーティクルが <strong>カメラに近づきすぎる</strong>と画面全体を覆うほど大きくなりブレンドのコストが跳ね上がり、見た目もうるさいです。カメラに近いほどフェードアウトさせます。
+ソフト パーティクルは 1 画素あたり深度の読み出しが 1 回増えるだけです。ただし、パーティクルは重なる回数（オーバードロー）が大きいことが多いので、画素数が増えます。たとえば、1920 × 1080 の半分を平均 10 枚の板が覆えば、`1920 × 1080 × 0.5 × 10 ≒ 1000 万回` の深度読み出しです。読む値は 1 つなのでほとんどがキャッシュに乗ります。
 
-```hlsl
-float near_fade = saturate((particle_depth - near_fade_start) / near_fade_range);
-color.a *= near_fade;
-```
+- MSAA を使っているなら深度は MSAA の深度です。`Texture2DMS` として `Load` でサンプルを指定して読むかリゾルブした深度を使います。
+- 同じ原理は水面と岸の境目にも使えます（[Shore Foam: Depth Difference](../../water/shore-foam/shore-depth.md)）。
 
-## 光るパーティクルへの応用
+!!! note "確かめた範囲"
+    HLSL は `fxc` で、`ParticleVS`（`vs_5_0`）、`ParticlePS`（`ps_5_0`）、`DownsampleMinDepthCS`（`cs_5_0`）をコンパイルしてエラーが出ないことを確かめました。C++ はコンパイルしていません。数字は式からの手計算です。GPU での描画は確認していません。
 
-<strong>加算ブレンド</strong>のパーティクル（火花、光）でもソフト パーティクルは有効です。フェードをアルファではなく色（明るさ）に掛けます（加算では、アルファが色を決めるため）。
-
-```hlsl
-// 加算ブレンド: 色そのものに、フェードを掛ける。
-color.rgb *= fade;
-```
-
-## 注意点
-
-- 深度を読む: MSAA を使っているとき深度は MSAA の深度。`Load` でサンプルを指定して読む（または、リゾルブした深度を使う）
-- 同じバッファの読み書き: 深度を読み取り専用にする（書き込みを無効にする）。同時に SRV で読む
-- 水と同じ原理: 水面と地形が交差する線を消す（[Shore Foam: Depth Difference](../../water/shore-foam/shore-depth.md)）。水の岸のアルファも同じ式
-- 解像度: パーティクルを低解像度で描くときは深度も縮小して、読む（縮小する深度は最も近い値で、縮める）
-
-## よくあるミス
+## よくあるミス {#mistakes}
 
 ??? failure "煙が地面と交差して、硬い線が出る"
-    <strong>ソフト パーティクル</strong>にする。
+    原因はシーンの深度を考慮せずに板をそのまま描いていることです。ソフト パーティクルにして深度の差でフェードします。
 
-## これだけ覚える
+??? failure "遠くで、ソフト化が効かない（硬い線が残る）"
+    原因は非線形の深度のまま差を取っていることです。遠くの深度は精度が粗く差がほぼ 0 になります。視点深度に直してから引きます。
+
+??? failure "加算ブレンドの火花が、フェードしても光ったままになる"
+    原因はアルファにだけ `fade` を掛けていることです。加算ブレンドでは色そのものが足されるので、アルファを変えても効きません。`color.rgb` に掛けます。
+
+??? failure "ドローコールがエラーになる深度が読めない"
+    原因は同じ深度バッファを書き込み可能な DSV と SRV に同時にバインドしていることです。読み取り専用の DSV（`D3D11_DSV_READ_ONLY_DEPTH`）を作ります。
+
+## これだけ覚える {#summary}
 
 !!! abstract "まとめ"
-    - [x] 深度の差でアルファを弱める
-    - [x] 交差の硬い線が消える
+    - [x] 後ろの物との視点深度の差が小さいほどパーティクルを透明にします。
+    - [x] 深度は線形の視点深度に直してから引きます。
+    - [x] 加算ブレンドは色にフェードを掛けます。
+    - [x] 低解像度で描くときは、深度の縮小に最小値（最も近い面）を使います。
 
-## 参考
+## 参考 {#references}
+
+このページは次の資料を読まずに書きました。フェードの式の形は一般的なもので、`smoothstep` や近すぎるときのフェードは自分で足した処理です。
 
 - Lorach, "Soft Particles", NVIDIA White Paper, 2007
 - Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（透明、屈折、フレネルの章）
