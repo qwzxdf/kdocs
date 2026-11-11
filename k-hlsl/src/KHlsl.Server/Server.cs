@@ -203,7 +203,7 @@ namespace KHlsl.Server
                     string ch = (string)p["ch"];
                     string[] ls = HlslFormatter.SplitLines(TextOf((string)p["textDocument"]["uri"]));
                     bool ok = ch != null && ch.Length == 1 && line < ls.Length && col >= 1 && col <= ls[line].Length && ls[line][col - 1] == ch[0];
-                    Respond(id, ok ? FormatRequest(p, line, line) : new JArray());
+                    Respond(id, ok ? FormatRequest(p, line, line, true) : new JArray());
                     break;
                 }
                 case "khlsl/cbuffers": Respond(id, CBuffersRequest(p)); break;
@@ -260,13 +260,13 @@ namespace KHlsl.Server
                     ["documentRangeFormattingProvider"] = true,
                     ["documentOnTypeFormattingProvider"] = new JObject { ["firstTriggerCharacter"] = "}", ["moreTriggerCharacter"] = new JArray(";") }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.7" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.9" }
             };
         }
 
         // ---- 整形 ----
         /// <summary>startLine〜endLine(-1 なら全体)の、整形で変わる行だけを、最小の TextEdit にして返す。</summary>
-        private JToken FormatRequest(JToken p, int startLine, int endLine)
+        private JToken FormatRequest(JToken p, int startLine, int endLine, bool anchored = false)
         {
             string uri = (string)p["textDocument"]["uri"];
             var opt = p["options"];
@@ -274,6 +274,8 @@ namespace KHlsl.Server
             bool spaces = opt == null || opt["insertSpaces"] == null || (bool)opt["insertSpaces"];
             var lines = HlslFormatter.SplitLines(TextOf(uri));
             var res = HlslFormatter.Format(lines, tab, spaces);
+            // 入力中の 1 行は、実際の字下げに合わせて(前後の行と揃えて)整形する
+            if (anchored && startLine >= 0 && startLine < lines.Length) res[startLine] = HlslFormatter.FormatLineAnchored(lines, startLine, tab, spaces);
             var edits = new JArray();
             for (int i = 0; i < lines.Length; i++)
             {
