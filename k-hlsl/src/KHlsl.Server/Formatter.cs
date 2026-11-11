@@ -79,8 +79,64 @@ namespace KHlsl.Server
             string body = (lineText ?? "").Trim();
             var lines = SplitLines(textBefore + (body.Length == 0 ? "x" : body));
             var res = Format(lines, tabSize, true);
-            string last = res[res.Length - 1];
-            return VisualWidth(last.Substring(0, last.Length - last.TrimStart().Length), tabSize);
+            int n = res.Length - 1;
+            string last = res[n];
+            int w = VisualWidth(last.Substring(0, last.Length - last.TrimStart().Length), tabSize);
+            return Math.Max(0, w + AnchorDelta(lines, res, n, tabSize));
+        }
+
+        /// <summary>
+        /// n 行目だけを整形した結果(全体を整形した res[n])の、字下げだけを「実際の字下げに合わせて」直した行を返す。
+        /// 言語サーバーの onTypeFormatting(} と ;)が使う。
+        /// </summary>
+        public static string FormatLineAnchored(string[] lines, int n, int tabSize, bool insertSpaces)
+        {
+            var res = Format(lines, tabSize, insertSpaces);
+            string r = res[n];
+            string body = r.TrimStart();
+            if (body.Length == 0) return r;
+            int w = VisualWidth(r.Substring(0, r.Length - body.Length), tabSize) + AnchorDelta(lines, res, n, tabSize);
+            w = Math.Max(0, w);
+            string ind = insertSpaces ? new string(' ', w) : new string('\t', w / tabSize) + new string(' ', w % tabSize);
+            return ind + body;
+        }
+
+        /// <summary>
+        /// 整形の規則が決めた字下げと、書いてある実際の字下げの差。
+        /// 整形の規則は、ファイルの先頭から全部を数えて字下げを決める。そのため、いまのファイルの字下げが規則とずれていると(namespace の中を 8 桁で書いている、
+        /// 前のほうの { } が閉じていない、など)、新しい行だけが規則どおりの字下げになって、前後の行と揃わない。
+        /// 新しい行は、基準にする行(} で始まる行なら、対応する { のある行。それ以外は、直前の空でない行)の、規則と実際のずれを足して揃える。
+        /// </summary>
+        private static int AnchorDelta(string[] lines, string[] res, int n, int tabSize)
+        {
+            int a = -1;
+            if (lines[n].TrimStart().StartsWith("}", StringComparison.Ordinal))
+            {
+                var open = new List<int>();
+                foreach (var t in Lex(lines))
+                {
+                    if (t.Line >= n) break;
+                    if (t.Kind != K.Punct) continue;
+                    if (t.Text == "{") open.Add(t.Line);
+                    else if (t.Text == "}" && open.Count > 0) open.RemoveAt(open.Count - 1);
+                }
+                if (open.Count > 0) a = open[open.Count - 1];
+            }
+            if (a < 0)
+            {
+                for (int i = n - 1; i >= 0; i--)
+                {
+                    string tr = lines[i].Trim();
+                    if (tr.Length > 0 && !tr.StartsWith("#", StringComparison.Ordinal)) { a = i; break; }
+                }
+            }
+            if (a < 0) return 0;
+            return LeadWidth(lines[a], tabSize) - LeadWidth(res[a], tabSize);
+        }
+
+        private static int LeadWidth(string s, int tab)
+        {
+            return VisualWidth(s.Substring(0, s.Length - s.TrimStart().Length), tab);
         }
 
         private static int VisualWidth(string s, int tab)
