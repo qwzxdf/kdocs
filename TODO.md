@@ -118,7 +118,8 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
         - 読んでいない資料: DLSS の 5 章以降、FSR 2 の README の後半（約 2.6 万字）、MSSAO の CGI 2011 版と VRST 版。読んで、足りない点（なぜ・数字・失敗の症状・境界）を足す
         - コードを豊富にする（完成形を 100 行以上）。FSR は、初期化 → 毎フレームのジッター・ディスパッチ → 終了まで通して書く。XeSS と DLSS も、コンテキスト作成から評価までを通して書く（API の引数は、資料で確かめられる範囲だけ。確かめられない所はダミーの名前にして注記する）。MSSAO の HLSL は、フィルター・16 点のポアソン ディスク・層を回す全体の流れ（Table 1）まで書き、`dxc` / `fxc` で通るかを確かめる
         - コンパイル確認: MSSAO の HLSL、DLSS・FSR・XeSS の呼び出し（HLSL は `dxc` / `fxc`、C++ は SDK のヘッダーがあるときだけ）
-    - 手直し済み（2026-11-08）: `atmosphere/god-rays/underwater.md`（15 文 → 約 90 文、図 1 枚、吸収・屈折の数字を Python で計算、HLSL を `fxc` で確認）、`shadows/local-lights/spot-light.md`（図 1 枚、テクセルの大きさと深度精度の数字、HLSL を `fxc` で確認）、`shadows/special-cases/alpha-test-shadows.md`（図 1 枚、ミップの痩せとハッシュド アルファの数字、HLSL を `fxc` で確認）。3 ページとも参考資料は未読で、ページにそう書いた。図は 1 枚（目安 2 枚以上）。次の候補: `shadows/vsm/msm.md`、`terrain/heightmap-mesh/normals.md`、`terrain/vegetation/grass-shape.md`、`terrain/vegetation/trees.md`、`translucency/refraction/implementation.md`
+    - 手直し済み（2026-11-08）: `atmosphere/god-rays/underwater.md`（15 文 → 約 90 文、図 1 枚、吸収・屈折の数字を Python で計算、HLSL を `fxc` で確認）、`shadows/local-lights/spot-light.md`（図 1 枚、テクセルの大きさと深度精度の数字、HLSL を `fxc` で確認）、`shadows/special-cases/alpha-test-shadows.md`（図 1 枚、ミップの痩せとハッシュド アルファの数字、HLSL を `fxc` で確認）。3 ページとも参考資料は未読で、ページにそう書いた。図は 1 枚（目安 2 枚以上）。次の候補: `terrain/heightmap-mesh/normals.md`、`terrain/vegetation/grass-shape.md`、`terrain/vegetation/trees.md`、`translucency/refraction/implementation.md`
+    - 手直し済み（2026-11-11）: `shadows/vsm/msm.md`（約 40 文 → 190 文、図 2 枚、Hamburger・Hausdorff 4MSM と量子化の HLSL を通して書いた（約 150 行）。判定を Python に写して 2 層・3 層の数字を確かめ、HLSL を `fxc` でコンパイル）。読んだ資料は補足資料（Supplementary Document）の全文と著者ページの概要だけで、論文本文は未読（`WebFetch` が 10 MB の上限で読めなかった）。未読の本文（評価の図、速度の数字）を読んで足す。コードは 150 行だが、GPU で実行していない
     - 手直し済み（2026-11-04）: `translucency/alpha-test/comparison.md`（7 文 → 132 文、図 2 枚、HLSL を `fxc` で確認）、`gi/rt-gi/choosing.md`（24 文 → 130 文、図 2 枚、C++ を MSVC `/W4` で確認）、`reflections/comparison.md`（20 文 → 約 120 文、図 2 枚、HLSL を `fxc` で確認）、`gi/restir.md`（33 文 → 176 文、図 3 枚、コース ノート（A Gentle Introduction to ReSTIR）を読んで書いた。C++ を MSVC で実行、HLSL を `fxc` で確認。ReSTIR GI・PT の論文は未読）、`gi/comparison.md`（35 文 → 約 120 文、図 2 枚、HLSL を `fxc` で確認。`reflections/comparison.md` の pow の警告も直した）、`translucency/oit/hybrid.md`（14 文 → 102 文、図 2 枚、C++ を MSVC `/W4` でコンパイルして実行）。次の候補（点数の低い順）: `reflections/ssr-basics/artifacts.md`、`gi/restir.md`、`ao/xegtao.md`、`ao/assao-cacao.md`、`gi/lumen.md`
 - [x] 2-9-4. 描画の統合: `rendering/` を `graphics/` に移した（2026-11-03）。`graphics/pipeline/` と各分野の `cost.md`、`redirects.yml`、`hooks/redirects.py`。重複している内容の整理は 2-9-3 で進める
 - [ ] 2-9-5. 見本の既知の不足: `ContactShadow` と `ContactShadowDda` の HLSL をコンパイルして確かめる。Bend Studio の公開コード（`code_final_candidate.zip`）を読んで、実装の詳細を足す（ダウンロードは、ユーザーの指示があったときだけ）
@@ -159,6 +160,10 @@ STL（`docs/stl/`）は対象外。STL 以外の表（約 3600 個）のうち�
 - [ ] 3-5-3. ★★ よくある質問（`faq.md`）に、「どちらを使う？」を 20 件まで増やす
 
 ## 4. 完了したこと（履歴）
+
+### 2026-11-11 の作業
+
+- 2-9-3: `graphics/shadows/vsm/msm.md` を書き直した（図 2 枚、HLSL 約 150 行、補足資料を読んで数字を照合）
 
 ### 2026-10-31 の作業
 
