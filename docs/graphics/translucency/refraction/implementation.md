@@ -93,6 +93,15 @@ DrawRefractive();
 
 屈折する物のシェーダーはいくつかの要素の合成です。屈折、色（吸収）、反射、フレネル、スペキュラーを順に求めて最後に混ぜます。まず、定数とテクスチャです。
 
+<svg class="fig flow" viewBox="0 0 720 250" role="img" aria-label="視線がガラスで曲がり、厚みの分だけ進んだ点を画面の UV に直して背景を読む"><defs><marker id="rfB" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">屈折の読み出し: 曲げて、進めて、画面に戻す</text>
+<rect x="250" y="70" width="160" height="110" fill="rgba(76,139,245,0.15)" stroke="#4c8bf5" stroke-width="2"/><text x="330" y="200" text-anchor="middle" style="font-size:12px">ガラス（厚み）</text>
+<line x1="60" y1="40" x2="250" y2="100" stroke="currentColor" stroke-width="2.5" marker-end="url(#rfB)"/><text x="60" y="34" style="font-size:12px">視線</text>
+<line x1="250" y1="100" x2="410" y2="136" stroke="#e5aa28" stroke-width="3" marker-end="url(#rfB)"/><text x="330" y="106" text-anchor="middle" style="font-size:12px;fill:#b7791f">refract</text>
+<line x1="250" y1="100" x2="410" y2="150" stroke="#94a3b8" stroke-dasharray="4 4"/><text x="425" y="160" style="font-size:12px;fill:#64748b">曲げなかった場合</text>
+<circle cx="410" cy="136" r="6" fill="#e5484d"/><text x="425" y="130" style="font-size:12px;font-weight:600">world + 屈折方向 × 厚み</text>
+<line x1="410" y1="136" x2="410" y2="222" stroke="#e5484d" stroke-dasharray="4 3"/><line x1="40" y1="222" x2="700" y2="222" stroke="currentColor" stroke-width="1.5"/><text x="410" y="240" text-anchor="middle" style="font-size:12px">この点の画面 UV で、コピーを読む</text></svg>
+
+
 ```hlsl
 Texture2D<float4> g_scene_copy : register(t0);        // 不透明パスのコピー（ミップつき）
 Texture2D<float> g_depth : register(t1);              // 不透明の深度
