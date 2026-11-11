@@ -80,6 +80,15 @@ namespace KHlsl.Server
             var lines = SplitLines(textBefore + (body.Length == 0 ? "x" : body));
             var res = Format(lines, tabSize, true);
             int n = res.Length - 1;
+            // 閉じていないブロック コメントの中: 前の行の字下げに揃える(開いた行なら、/* の 1 桁右。 * を並べる書き方に合う)
+            foreach (var t in Lex(lines))
+            {
+                if (t.Kind != K.BlockCom || t.Line >= n || t.EndLine < n || t.Text.EndsWith("*/", StringComparison.Ordinal)) continue;
+                if (t.Line == n - 1) return VisualWidth(lines[t.Line].Substring(0, t.Col), tabSize) + 1;
+                for (int i = n - 1; i > t.Line; i--)
+                    if (lines[i].Trim().Length > 0) return LeadWidth(lines[i], tabSize);
+                return VisualWidth(lines[t.Line].Substring(0, t.Col), tabSize) + 1;
+            }
             string last = res[n];
             int w = VisualWidth(last.Substring(0, last.Length - last.TrimStart().Length), tabSize);
             return Math.Max(0, w + AnchorDelta(lines, res, n, tabSize));
