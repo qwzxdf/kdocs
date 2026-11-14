@@ -664,21 +664,121 @@ namespace KCppAssist
             return r;
         }
 
+        /// <summary>p から見える name の宣言の型。引数・ローカル変数、次に、その関数が属するクラスのメンバー変数の順に探す。</summary>
+        private static bool DeclaredType(string text, string m, FunctionScan.Sig sig, Scopes.Scope cls, List<Scopes.Scope> scopes, string name, int p, Context ctx,
+            out string type, out string init)
+        {
+            if (LocalDeclared(text, m, sig, name, p, out type, out init)) return true;
+            init = null;
+            string owner = sig != null ? sig.Class : cls != null ? cls.Name : null;
+            if (owner == null) return false;
+            type = scopes.Any(x => x.IsClass && x.Name == owner) ? FieldType(text, owner, name) : null;
+            if (type == null)
+                foreach (string t in ctx.TextsOf(owner))
+                {
+                    type = FieldType(t, owner, name);
+                    if (type != null) break;
+                }
+            return type != null;
+        }
+
+        private static readonly Regex ContainerRe = new Regex(
+            @"^(?:\w+\s*::\s*)*(?:vector|array|list|deque|forward_list|set|multiset|unordered_set|unordered_multiset|span|initializer_list)\s*<\s*(.+?)\s*(?:,[^<>]*)?>$",
+            RegexOptions.Compiled | RegexOptions.Singleline);
+
+        /// <summary>「std::vector&lt;Enemy&gt;」のようなコンテナーの型から、要素の型を取り出す。コンテナーでなければ null。</summary>
+        public static string ElementType(string type)
+        {
+            if (type == null) return null;
+            string t = Regex.Replace(type, @"\b(const|constexpr|constinit|static|inline|mutable|volatile|thread_local|extern|typename)\b", " ");
+            t = Regex.Replace(t, @"\s+", " ").Trim().TrimEnd('&', '*', ' ').Trim();
+            var x = ContainerRe.Match(t);
+            return x.Success ? x.Groups[1].Value.Trim() : null;
+        }
+
+        // 範囲 for「: 入れ物)」と、添字や front / back / at で取り出す「= 入れ物[」「= 入れ物.front(」
+        private static readonly Regex RangeInit = new Regex(@"^\s*:\s*\*?\s*(?:this\s*->\s*)?([A-Za-z_]\w*)\s*\)", RegexOptions.Compiled);
+        private static readonly Regex IndexInit = new Regex(@"^\s*[=({]\s*\*?\s*(?:this\s*->\s*)?([A-Za-z_]\w*)\s*(?:\[|\.\s*(?:front|back|at)\s*\()", RegexOptions.Compiled);
+
+        /// <summary>入れ物 container の要素が、family のクラスの物か。</summary>
+        private static Verdict ElementVerdict(string text, string m, FunctionScan.Sig sig, Scopes.Scope cls, List<Scopes.Scope> scopes, string container, int p, bool arrow, Context ctx)
+        {
+            string ctype, cinit;
+            if (!DeclaredType(text, m, sig, cls, scopes, container, p, ctx, out ctype, out cinit)) return Verdict.Unknown;
+            string elem = ElementType(ctype);
+            if (elem == null) return Verdict.Unknown;
+            return TypeVerdict(elem, null, ctx.Family, arrow, ctx.Bases == null ? (Func<string, bool>)null : ctx.IsClass);
+        }
+
         private static Verdict ReceiverVerdict(string text, string m, FunctionScan.Sig sig, Scopes.Scope cls, List<Scopes.Scope> scopes, string recv, int p, bool arrow, Context ctx)
         {
             string type, init;
-            Func<string, bool> isClass = ctx.Bases == null ? (Func<string, bool>)null : ctx.IsClass;
-            if (LocalDeclared(text, m, sig, recv, p, out type, out init)) return TypeVerdict(type, init, ctx.Family, arrow, isClass);
-            string owner = sig != null ? sig.Class : cls != null ? cls.Name : null;
-            if (owner == null) return Verdict.Unknown;
-            string ft = scopes.Any(x => x.IsClass && x.Name == owner) ? FieldType(text, owner, recv) : null;
-            if (ft == null)
-                foreach (string t in ctx.TextsOf(owner))
+            if (!DeclaredType(text, m, sig, cls, scopes, recv, p, ctx, out type, out init)) return Verdict.Unknown;
+            // auto で受けた要素(for (auto& e : enemies_)、auto& e = enemies_[i])は、入れ物の宣言から要素の型を引く
+            if (init != null && Regex.IsMatch(type, @"\bauto\b"))
+            {
+                var x = RangeInit.Match(init);
+                if (!x.Success) x = IndexInit.Match(init);
+                if (x.Success && x.Groups[1].Value != recv)
                 {
-                    ft = FieldType(t, owner, recv);
-                    if (ft != null) break;
+                    Verdict v = ElementVerdict(text, m, sig, cls, scopes, x.Groups[1].Value, p, arrow, ctx);
+                    if (v != Verdict.Unknown) return v;
                 }
-            return ft == null ? Verdict.Unknown : TypeVerdict(ft, null, ctx.Family, arrow, isClass);
+            }
+            return TypeVerdict(type, init, ctx.Family, arrow, ctx.Bases == null ? (Func<string, bool>)null : ctx.IsClass);
+        }
+
+        /// <summary>「入れ物[i].name」の入れ物の名前(ただの識別子のとき)。op は「.」か「->」の位置。そうでなければ null。</summary>
+        private static string IndexedContainer(string m, int op)
+        {
+            int b = Prev(m, op);
+            if (b < 0 || m[b] != ']') return null;
+            int depth = 0, i = b;
+            for (; i >= 0; i--)
+            {
+                if (m[i] == ']') depth++;
+                else if (m[i] == '[') { depth--; if (depth == 0) break; }
+                else if (m[i] == ';' || m[i] == '{' || m[i] == '}') return null;
+            }
+            if (i <= 0) return null;
+            int e = Prev(m, i) + 1, s;
+            string name = WordBefore(m, e, out s);
+            if (name == null || char.IsDigit(name[0]) || Reserved.Contains(name)) return null;
+            int pb = Prev(m, s);
+            if (pb >= 0 && (m[pb] == '.' || m[pb] == ':' || m[pb] == ']' || m[pb] == ')' || (m[pb] == '>' && At(m, pb - 1) == '-'))) return null;
+            return name;
+        }
+
+        // ---- 名前の衝突 ----
+
+        /// <summary>
+        /// text の [from, to) に、name がすでに(別の物として)使われているか。own は、いま名前を変えている場所の頭の位置(これは数えない)。
+        /// 「.name」「->name」「::name」は、別の物のメンバーなので数えない。
+        /// </summary>
+        public static bool NameUsedIn(string text, int from, int to, string name, ICollection<int> own)
+        {
+            if (text.IndexOf(name, StringComparison.Ordinal) < 0) return false;
+            string m = CppText.Mask(text);
+            foreach (var id in CppText.Identifiers(m, from, to))
+            {
+                if (id.Value != name || own.Contains(id.Key)) continue;
+                int op;
+                if (AfterMemberAccess(m, id.Key, out op) || AfterScope(m, id.Key)) continue;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>クラス cls に、name という名前のメンバーがすでにあるか。メンバー関数どうし(オーバーロードになる)は、数えない。</summary>
+        public static bool MemberExists(Context ctx, string cls, string name, bool renamingField)
+        {
+            foreach (string t in ctx.TextsOf(cls))
+            {
+                if (FieldType(t, cls, name) != null) return true;
+                bool priv;
+                if (renamingField && DeclaresMethod(t, cls, name, out priv)) return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -755,6 +855,11 @@ namespace KCppAssist
                     if (before == "this") { if (inFamily) list.Add(new Ref { Start = p, Certain = true }); continue; }
                     string recv = Receiver(m, op);
                     Verdict v = recv == null ? Verdict.Unknown : ReceiverVerdict(text, m, sig, cls, scopes, recv, p, arrow, ctx);
+                    if (recv == null)
+                    {
+                        string box = IndexedContainer(m, op);       // enemies_[i].hp
+                        if (box != null) v = ElementVerdict(text, m, sig, cls, scopes, box, p, arrow, ctx);
+                    }
                     if (v == Verdict.No) continue;
                     // private なメンバーを、同じクラスの関数の中から obj.name で触っているなら、同じクラスの物
                     bool certain = v == Verdict.Yes || (inFamily && d.Private);
@@ -774,7 +879,15 @@ namespace KCppAssist
                             list.Add(new Ref { Start = p, Certain = true });
                         continue;
                     }
-                    if (!call) continue;
+                    if (!call)
+                    {
+                        // 「(」なしで使う(コールバックとして渡す、&Func、関数ポインターへの代入)。値を置く場所にある名前だけを拾う
+                        if (sig != null && sig.Open < p && p < sig.Close) continue;      // 引数のリストの中(型や引数の名前)
+                        char pc = At(m, Prev(m, p)), nc = At(m, a);
+                        bool before = pc == '&' || pc == ',' || pc == '(' || pc == '=' || pc == '{' || pc == '?' || pc == ':';
+                        bool after = nc == ',' || nc == ')' || nc == ';' || nc == '}';
+                        if (!before || !after) continue;
+                    }
                     if (owner != null && OwnerDeclares(text, owner, d.Name, ctx)) continue;     // そのクラスの同じ名前のメンバー関数の呼び出し
                     if (sig != null)
                     {

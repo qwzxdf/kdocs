@@ -207,7 +207,7 @@ static class SymbolTests
                 "struct Vec {\n  float |x;\n};",
                 "struct Other { float x; };\nvoid Move(Vec& v, Other& o, std::vector<Vec>& list, VecRef r, std::string s) {\n  v.x = o.x;\n  Vec w;\n  w.x = 1;\n  auto p = std::make_unique<Vec>();\n  p->x = 2;\n  list[0].x = 3;\n  list.x();\n  r.x = 4;\n  s.x();\n}"),
             "struct Vec {\n  float px;\n};" + "\n====\n" +
-            "struct Other { float x; };\nvoid Move(Vec& v, Other& o, std::vector<Vec>& list, VecRef r, std::string s) {\n  v.px = o.x;\n  Vec w;\n  w.px = 1;\n  auto p = std::make_unique<Vec>();\n  p->px = 2;\n  list[0].?x = 3;\n  list.x();\n  r.?x = 4;\n  s.x();\n}");
+            "struct Other { float x; };\nvoid Move(Vec& v, Other& o, std::vector<Vec>& list, VecRef r, std::string s) {\n  v.px = o.x;\n  Vec w;\n  w.px = 1;\n  auto p = std::make_unique<Vec>();\n  p->px = 2;\n  list[0].px = 3;\n  list.x();\n  r.?x = 4;\n  s.x();\n}");
         Check("field through member of another class",
             Member("life",
                 "struct Enemy {\n  int |hp;\n};",
@@ -317,6 +317,40 @@ static class SymbolTests
             Check("file local: static", SymbolScan.DeclAt(src, src.IndexOf("Helper")).FileLocal.ToString(), "True");
             Check("file local: unnamed namespace", SymbolScan.DeclAt(src, src.IndexOf("Hidden")).FileLocal.ToString(), "True");
             Check("file local: plain", SymbolScan.DeclAt(src, src.IndexOf("Shown")).FileLocal.ToString(), "False");
+        }
+
+        Check("function passed as a callback",
+            Member("HandleKey",
+                "void |OnKey(int key);",
+                "void Setup(Window* w) {\n  SetCallback(w, OnKey);\n  auto f = &OnKey;\n  Handler h = OnKey;\n  int OnKeyCount = 0;\n  OnKey(3);\n}\nvoid Other(int OnKey) {\n  Use(OnKey);\n}"),
+            "void HandleKey(int key);" + "\n====\n" +
+            "void Setup(Window* w) {\n  SetCallback(w, HandleKey);\n  auto f = &HandleKey;\n  Handler h = HandleKey;\n  int OnKeyCount = 0;\n  HandleKey(3);\n}\nvoid Other(int OnKey) {\n  Use(OnKey);\n}");
+        Check("range for over a member container",
+            Member("Tick",
+                "class Enemy {\n public:\n  void |Update(float dt);\n};",
+                "class Wall {\n public:\n  void Update(float dt);\n};\nclass Game {\n  std::vector<Enemy> enemies_;\n  std::vector<std::unique_ptr<Enemy>> owned_;\n  std::vector<Wall> walls_;\n  std::array<Enemy, 4> fixed_;\n};",
+                "void Game::Tick(float dt) {\n  for (auto& e : enemies_) e.Update(dt);\n  for (auto& o : owned_) {\n    o->Update(dt);\n  }\n  for (auto& w : walls_) w.Update(dt);\n  enemies_[0].Update(dt);\n  walls_[0].Update(dt);\n  auto& first = enemies_.front();\n  first.Update(dt);\n  for (const auto& f : fixed_) f.Update(dt);\n}"),
+            "class Enemy {\n public:\n  void Tick(float dt);\n};" + "\n====\n" +
+            "class Wall {\n public:\n  void Update(float dt);\n};\nclass Game {\n  std::vector<Enemy> enemies_;\n  std::vector<std::unique_ptr<Enemy>> owned_;\n  std::vector<Wall> walls_;\n  std::array<Enemy, 4> fixed_;\n};" + "\n====\n" +
+            "void Game::Tick(float dt) {\n  for (auto& e : enemies_) e.Tick(dt);\n  for (auto& o : owned_) {\n    o->Tick(dt);\n  }\n  for (auto& w : walls_) w.Update(dt);\n  enemies_[0].Tick(dt);\n  walls_[0].Update(dt);\n  auto& first = enemies_.front();\n  first.Tick(dt);\n  for (const auto& f : fixed_) f.Tick(dt);\n}");
+        Check("element type vector", SymbolScan.ElementType("const std::vector<Enemy>&"), "Enemy");
+        Check("element type nested", SymbolScan.ElementType("std::vector<std::unique_ptr<Enemy>>"), "std::unique_ptr<Enemy>");
+        Check("element type array", SymbolScan.ElementType("std::array<Enemy, 4>"), "Enemy");
+        Check("element type not a container", SymbolScan.ElementType("std::map<int, Enemy>") ?? "null", "null");
+        {
+            string body = "void f() {\n  int a = 1;\n  int b = 2;\n  use(a, obj.b);\n}";
+            int from = body.IndexOf('{'), to = body.Length;
+            var own = new HashSet<int> { body.IndexOf("a = 1"), body.IndexOf("a, obj") };
+            Check("conflict: name already used", SymbolScan.NameUsedIn(body, from, to, "b", own).ToString(), "True");
+            Check("conflict: free name", SymbolScan.NameUsedIn(body, from, to, "c", own).ToString(), "False");
+            Check("conflict: own places do not count", SymbolScan.NameUsedIn(body, from, to, "a", own).ToString(), "False");
+            Check("conflict: member of another object does not count",
+                SymbolScan.NameUsedIn("void f() {\n  int a = 1;\n  use(obj.b);\n}", 0, 40, "b", new HashSet<int>()).ToString(), "False");
+            var cx = new SymbolScan.Context { ClassTexts = c => new[] { "class P {\n  int hp_;\n  void Heal();\n};" } };
+            Check("conflict: field exists", SymbolScan.MemberExists(cx, "P", "hp_", true).ToString(), "True");
+            Check("conflict: method exists (renaming a field)", SymbolScan.MemberExists(cx, "P", "Heal", true).ToString(), "True");
+            Check("conflict: method vs method is an overload", SymbolScan.MemberExists(cx, "P", "Heal", false).ToString(), "False");
+            Check("conflict: no such member", SymbolScan.MemberExists(cx, "P", "mp_", true).ToString(), "False");
         }
 
         // ---- 型の判定 ----
