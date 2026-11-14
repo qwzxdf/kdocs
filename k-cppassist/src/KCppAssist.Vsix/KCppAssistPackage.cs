@@ -493,7 +493,7 @@ namespace KCppAssist
             if (buf == null) { await ReportAsync(Path.GetFileName(target.File) + " を開けませんでした", true); return; }
             if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(Path.GetFileName(target.File) + " が読み込み中に変わりました。もう一度押してください", true); return; }
             SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-CppAssist: 引数を合わせる");
-            SyncPreview.Show(view, Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
+            SyncPreview.Show(view, SyncPreview.NameStart(view.TextSnapshot, sig.Open), Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
 
             if (target.Buffer == null)
             {

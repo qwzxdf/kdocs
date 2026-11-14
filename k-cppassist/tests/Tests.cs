@@ -169,7 +169,7 @@ static class Tests
         Eq("stacked case labels", a == null ? null : a.Name + "=" + a.Rhs, "keep=true");
 
         Console.WriteLine("pass=" + pass + " fail=" + fail);
-        int f2 = SyncTests.Run() + DefTests.Run() + MoveTests.Run() + TidyTests.Run() + FwdTests.Run() + GenTests.Run();
+        int f2 = SyncTests.Run() + DefTests.Run() + MoveTests.Run() + TidyTests.Run() + FwdTests.Run() + GenTests.Run() + SymbolTests.Run();
         Environment.Exit(fail == 0 && f2 == 0 ? 0 : 1);
     }
 }
