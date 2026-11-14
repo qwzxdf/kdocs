@@ -12,6 +12,8 @@ namespace KCppAssist
 
     public enum RenameMode { Off, ManualOnly, Auto }
 
+    public enum SymbolRenameMode { Off, OnLeave, Auto }
+
     public enum CallCheckSeverity { Error, Warning }
 
     /// <summary>ツール → オプション → K-CppAssist → 全般</summary>
@@ -54,8 +56,23 @@ namespace KCppAssist
 
         [Category("引数の同期")]
         [DisplayName("書き換えた場所を小さなウィンドウで見せる")]
-        [Description("True のとき、引数を相手のファイルへ写すと、書き換えた場所をエディターの右上に約 3 秒だけ見せます。")]
+        [Description("True のとき、引数を相手のファイルへ写したときや、名前を変えたときに、変えた内容を約 3 秒だけ見せます。ウィンドウは、変えた名前の 1 文字目に左端をそろえて、その行のすぐ上に出ます(名前には重なりません)。")]
         public bool ShowSyncPreview { get; set; } = true;
+
+        [Category("名前の変更")]
+        [DisplayName("宣言の名前を変えたら、使っている場所も変える")]
+        [Description("Off: 何もしない。OnLeave: カーソルが名前から離れたときに、まとめて変える。Auto: 打つそばから変える。対象は、ローカル変数・引数・メンバー変数・メンバー関数・関数の、宣言(と定義)の名前。使っている側の名前を書き換えても、ほかは変えません。")]
+        public SymbolRenameMode SymbolMode { get; set; } = SymbolRenameMode.Auto;
+
+        [Category("名前の変更")]
+        [DisplayName("型が分からない obj.name も変える")]
+        [Description("False(既定): obj.name や p->name のうち、obj の型を宣言から読めて、同じクラスだと分かるものだけ変える。分からないものは変えずに、出力ウィンドウの K-CppAssist に一覧を出す。True: 分からないものも、同じ名前なら変える(別のクラスの同じ名前のメンバーも変わることがあります)。")]
+        public bool SymbolAmbiguous { get; set; } = false;
+
+        [Category("名前の変更")]
+        [DisplayName("引数の並べ替え・削除を、呼び出しにも写す")]
+        [Description("True のとき、関数の引数を並べ替えるか消して、カーソルが括弧の外へ出ると、その関数の呼び出しの引数も同じ並びに直します。足した引数に渡す値は決められないので、その呼び出しは直さずに、出力ウィンドウの K-CppAssist に一覧を出します。")]
+        public bool CallArgSync { get; set; } = true;
 
         [Category("ファイル名の同期")]
         [DisplayName("ヘッダー・cpp の名前を変えたときのしかた")]

@@ -106,6 +106,9 @@ namespace KCppAssist
             if (path == null || !IsAuto) return;
             // 相手の編集としてこちらに写された変更は、また相手へ戻さない
             if (e.EditTag is string && (string)e.EditTag == SyncService.EditTag) { baseline = Build(e.After); return; }
+            // 名前の変更が、作業中でないファイルを書き換えた。引数は変わっていないので、ここでは追わない
+            // (フォーカスのない窓でタイマーを回すと、フォーカスが戻るまで空回りする)
+            if (e.EditTag is string && (string)e.EditTag == SymbolService.EditTag && !view.HasAggregateFocus) { baseline = null; return; }
             if (baseline == null) baseline = Build(e.Before);
             lastChange = DateTime.UtcNow;
             Arm(Delay);
@@ -255,7 +258,8 @@ namespace KCppAssist
             string newInner = SignatureSync.Rebuild(oldList, newList, cpList, !wantDef, t0.Inner);
             SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
             if (opened) ReturnToWork();
-            SyncPreview.Show(view, Path.GetFileName(t0.File), buf.CurrentSnapshot, t0.Sig.Open, newInner.Length, t0.Inner);
+            int anchor = SyncPreview.NameStart(view.TextSnapshot, b.Inner.GetStartPoint(view.TextSnapshot).Position - 1);
+            SyncPreview.Show(view, anchor, Path.GetFileName(t0.File), buf.CurrentSnapshot, t0.Sig.Open, newInner.Length, t0.Inner);
             string warn = "";
             var written = SignatureSync.SplitParams(newInner);
             if (!wantDef && written != null && SignatureSync.DefaultsOutOfOrder(written)) warn = "(注意: 既定値のある引数のあとに、既定値のない引数があります)";
