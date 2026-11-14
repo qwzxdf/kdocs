@@ -26,6 +26,8 @@ namespace KCppAssist
         private static Border currentBorder;
         private static DispatcherTimer closeTimer;
         private static int generation;
+        private static IWpfTextView noteView;       // 名前の変更の知らせを出しているエディター
+        private static DateTime noteAt;
 
         private static readonly Color Red = Color.FromArgb(0x70, 0xB0, 0x3A, 0x3A);
         private static readonly Color Green = Color.FromArgb(0x70, 0x2E, 0xA0, 0x43);
@@ -43,6 +45,8 @@ namespace KCppAssist
             ThreadHelper.ThrowIfNotOnUIThread();
             var o = SyncService.Options;
             if (o == null || !o.ShowSyncPreview || anchor == null) return;
+            // 引数の名前を変えている間は、名前の変更の知らせを残す(打つたびに、こちらで上書きしない)
+            if (noteView == anchor && (DateTime.UtcNow - noteAt).TotalMilliseconds < 1500) return;
             try
             {
                 int first = after.GetLineNumberFromPosition(open);
@@ -66,11 +70,13 @@ namespace KCppAssist
         /// <summary>題と、その下の何行かの説明を見せる(名前を変えた、呼び出しの引数を並べ替えた、など)。</summary>
         /// <param name="before">赤で見せる 1 行(変える前)。なければ null。</param>
         /// <param name="after">緑で見せる 1 行(変えたあと)。なければ null。</param>
-        public static void ShowNote(IWpfTextView anchor, int anchorPos, string title, string before, string after, IEnumerable<string> lines)
+        /// <param name="hold">true のとき、少しの間、引数の同期の知らせ(Show)で上書きさせない。</param>
+        public static void ShowNote(IWpfTextView anchor, int anchorPos, string title, string before, string after, IEnumerable<string> lines, bool hold = false)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var o = SyncService.Options;
             if (o == null || !o.ShowSyncPreview || anchor == null || anchor.IsClosed) return;
+            if (hold) { noteView = anchor; noteAt = DateTime.UtcNow; }
             try
             {
                 var panel = Panel(title);
