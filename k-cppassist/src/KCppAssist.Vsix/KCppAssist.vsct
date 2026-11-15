@@ -74,6 +74,12 @@
           <ButtonText>K-CppAssist: 呼び出しから関数を作る</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0118" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: ファイルの文字コードをそろえる...</ButtonText>
+        </Strings>
+      </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
@@ -136,6 +142,8 @@
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0001"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
   </CommandPlacements>
 
   <KeyBindings>
@@ -190,6 +198,7 @@
       <IDSymbol name="CmdCtor" value="0x0111" />
       <IDSymbol name="CmdOverride" value="0x0112" />
       <IDSymbol name="CmdUsage" value="0x0113" />
+      <IDSymbol name="CmdEncoding" value="0x0114" />
     </GuidSymbol>
   </Symbols>
 

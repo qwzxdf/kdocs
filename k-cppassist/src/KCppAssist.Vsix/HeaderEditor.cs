@@ -67,8 +67,11 @@ namespace KCppAssist
             }
 
             var sb = new StringBuilder();
-            // private: が最後なら、その下に足す。そうでなければ、末尾に private: を作る
-            bool needSpec = lastSpec != "private";
+            // private: が最後なら、その下に足す。そうでなければ、末尾に private: を作る。
+            // ただし、指定子のない struct(全部 public の集成体)には作らない。private を混ぜると Vertex v{1, 2}; が書けなくなる
+            int headFrom = Math.Max(0, text.LastIndexOfAny(new[] { ';', '{', '}' }, Math.Max(0, open - 1)) + 1);
+            bool isStruct = Regex.IsMatch(text.Substring(headFrom, open - headFrom), @"\bstruct\b");
+            bool needSpec = lastSpec != "private" && !(isStruct && lastSpec == null);
             if (needSpec)
             {
                 // Google style: private: は 1 字下げ、メンバーは 2 字下げ

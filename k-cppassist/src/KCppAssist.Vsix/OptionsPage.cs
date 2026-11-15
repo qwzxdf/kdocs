@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
@@ -401,8 +403,22 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             key = (key ?? "").Trim();
-            if (key == Current(id) && !IsGlobal(id)) return;
-            Find(id).Bindings = key.Length == 0 ? new object[0] : new object[] { EditorScope() + "::" + key };
+            string old = Current(id);
+            if (key == old && !IsGlobal(id)) return;
+            // 先頭(この設定画面で見せているキー)だけを入れ替えて、ほかに自分で足した割り当ては残す
+            var list = Bindings(id);
+            if (list.Count > 0) list.RemoveAt(0);
+            if (key.Length > 0) list.Insert(0, EditorScope() + "::" + key);
+            Find(id).Bindings = list.Cast<object>().ToArray();
+        }
+
+        private static List<string> Bindings(int id)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var arr = Find(id).Bindings as object[];
+            var list = new List<string>();
+            if (arr != null) foreach (object o in arr) if (o is string) list.Add((string)o);
+            return list;
         }
 
         /// <summary>
@@ -468,9 +484,20 @@ namespace KCppAssist
             {
                 try
                 {
-                    if (!IsGlobal(id)) continue;
-                    string key = Current(id);
-                    if (key.Length > 0) Find(id).Bindings = new object[] { EditorScope() + "::" + key };
+                    // グローバルの割り当てだけを、テキスト エディターに移す(ほかの範囲の割り当ては、そのまま)
+                    string global = GlobalScope() + "::";
+                    var list = Bindings(id);
+                    bool changed = false;
+                    for (int k = 0; k < list.Count; k++)
+                    {
+                        string s = list[k];
+                        string rest = s.StartsWith(global, StringComparison.Ordinal) ? s.Substring(global.Length)
+                            : s.StartsWith("Global::", StringComparison.Ordinal) ? s.Substring("Global::".Length) : null;
+                        if (rest == null) continue;
+                        list[k] = EditorScope() + "::" + rest;
+                        changed = true;
+                    }
+                    if (changed) Find(id).Bindings = list.Distinct().Cast<object>().ToArray();
                 }
                 catch (Exception ex) { KCppAssistPackage.Log("migrate key failed: " + ex.Message); }
             }

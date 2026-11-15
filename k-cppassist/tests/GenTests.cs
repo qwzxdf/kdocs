@@ -434,6 +434,70 @@ static class GenTests
             Check("unused: pch kept", string.Join(",", IncludeTidy.Unused("#include \"pch.h\"\nint x;\n", null, prov).Select(i => i.Path)), "");
         }
 
+        // ---- 3 回目のレビュー ----
+        Check("mask: wide char literal keeps braces", CppText.Mask("if (c == L'a') { Jump(); }"), "if (c == L   ) { Jump(); }");
+        Check("mask: u8 char literal", CppText.Mask("char c = u8'x'; int y;"), "char c = u8   ; int y;");
+        Check("mask: digit separator", CppText.Mask("int n = 1'000'000;"), "int n = 1'000'000;");
+        Check("mask: hex separator", CppText.Mask("int n = 0xFF'FF;"), "int n = 0xFF'FF;");
+        {
+            string header = "#pragma once\n#include \"Enemy.h\"\nclass Ai {\n  Enemy* target_;\n  void Chase() { target_->Move(); }\n};\n";
+            var inc = IncludeTidy.Parse(header).First();
+            string why;
+            var r = ForwardDecl.Make(header, inc, ForwardDecl.Types("class Enemy {};\n"), new HashSet<string> { "Enemy" }, "\n", out why);
+            Check("fwd: pointer used in inline body refused", r == null ? "null" : "made", "null");
+            string ok = "#pragma once\n#include \"Enemy.h\"\nclass Ai {\n  Enemy* target_;\n  void Set(Enemy* e) { target_ = e; }\n};\n";
+            var r2 = ForwardDecl.Make(ok, IncludeTidy.Parse(ok).First(), ForwardDecl.Types("class Enemy {};\n"), new HashSet<string> { "Enemy" }, "\n", out why);
+            Check("fwd: pointer only stored is fine", r2 == null ? "null: " + why : "made", "made");
+        }
+        {
+            string s = "struct Vertex {\n  float x;\n};\n";
+            var e = HeaderEditor.PlanAt(s, s.IndexOf('{'), "float z;", "\n");
+            Check("alt+w: struct without specifiers stays public", s.Insert(e.Position, e.Text), "struct Vertex {\n  float x;\n  float z;\n};\n");
+            string c = "class Player {\n public:\n  void F();\n};\n";
+            var e2 = HeaderEditor.PlanAt(c, c.IndexOf('{'), "int hp_;", "\n");
+            Check("alt+w: class gets private", c.Insert(e2.Position, e2.Text), "class Player {\n public:\n  void F();\n\n private:\n  int hp_;\n};\n");
+        }
+        {
+            var bx = ExprType.SplitBinary("offset + count");
+            Check("type: long + unsigned int is unsigned long on MSVC", ExprType.BinaryResult(bx, new List<string> { "LONG", "UINT" }), "unsigned long");
+            Check("type: long + int stays long", ExprType.BinaryResult(bx, new List<string> { "long", "int" }), "long");
+        }
+
+        // ---- 文字コードをそろえる ----
+        {
+            var sjis = System.Text.Encoding.GetEncoding(932);
+            byte[] sj = sjis.GetBytes("// 体力\r\nint hp;\r\n");
+            var info = EncodingTool.Detect(sj);
+            Check("enc: detect shift-jis", info.Kind + " " + info.EolName, "ShiftJis CRLF");
+            Check("enc: detect ascii", EncodingTool.Detect(System.Text.Encoding.ASCII.GetBytes("int x;\nint y;\n")).Kind + "", "Ascii");
+            Check("enc: detect utf-8 bom", EncodingTool.Detect(new byte[] { 0xEF, 0xBB, 0xBF, (byte)'a' }).Kind + "", "Utf8Bom");
+            Check("enc: detect mixed eol", EncodingTool.EolOf("a\r\nb\nc"), "混在");
+
+            var p = EncodingTool.PlanFile(sj, EncodingTool.Target.Utf8Bom, EncodingTool.Eol.Keep);
+            Check("enc: sjis to utf-8 bom", p.NewBytes != null && p.NewBytes[0] == 0xEF && new System.Text.UTF8Encoding(false).GetString(p.NewBytes, 3, p.NewBytes.Length - 3) == "// 体力\r\nint hp;\r\n" ? "ok" : "ng", "ok");
+            Check("enc: ascii already utf-8", EncodingTool.PlanFile(System.Text.Encoding.ASCII.GetBytes("int x;\n"), EncodingTool.Target.Utf8, EncodingTool.Eol.Keep).Action, "そのまま");
+            Check("enc: ascii needs bom", EncodingTool.PlanFile(System.Text.Encoding.ASCII.GetBytes("int x;\n"), EncodingTool.Target.Utf8Bom, EncodingTool.Eol.Keep).NewBytes != null ? "convert" : "keep", "convert");
+            var lf = EncodingTool.PlanFile(System.Text.Encoding.ASCII.GetBytes("a\r\nb\r\n"), EncodingTool.Target.Utf8, EncodingTool.Eol.Lf);
+            Check("enc: eol only", lf.NewBytes == null ? "null" : System.Text.Encoding.ASCII.GetString(lf.NewBytes) + "|" + lf.Action, "a\nb\n|改行 CRLF → LF");
+            var emoji = EncodingTool.PlanFile(new System.Text.UTF8Encoding(false).GetBytes("// 😀 ok\n"), EncodingTool.Target.ShiftJis, EncodingTool.Eol.Keep);
+            Check("enc: emoji blocks shift-jis", emoji.Blocked + " " + emoji.Action.Contains("😀"), "True True");
+            Check("enc: binary", EncodingTool.Detect(new byte[] { 1, 0, 2, 3 }).Kind + "", "Binary");
+
+            Check("editorconfig: header", EncodingTool.SectionHeader(new[] { ".h", ".cpp", "hpp" }), "[*.{h,cpp,hpp}]");
+            Check("editorconfig: new file",
+                EncodingTool.UpdateEditorConfig("", "[*.{h,cpp}]", "utf-8-bom", "crlf", "\n"),
+                "# K-CppAssist が書きました。Visual Studio は、保存するときに、この文字コードと改行を使います\n[*.{h,cpp}]\ncharset = utf-8-bom\nend_of_line = crlf\n");
+            Check("editorconfig: update existing section",
+                EncodingTool.UpdateEditorConfig("root = true\n\n[*.{h,cpp}]\nindent_style = space\ncharset = latin1\n\n[*.md]\ncharset = utf-8\n", "[*.{h,cpp}]", "utf-8-bom", null, "\n"),
+                "root = true\n\n[*.{h,cpp}]\nindent_style = space\ncharset = utf-8-bom\n\n[*.md]\ncharset = utf-8\n");
+            Check("editorconfig: add key to section",
+                EncodingTool.UpdateEditorConfig("[*.{h,cpp}]\nindent_size = 4\n\n[*.md]\n", "[*.{h,cpp}]", "utf-8", "lf", "\n"),
+                "[*.{h,cpp}]\nindent_size = 4\ncharset = utf-8\nend_of_line = lf\n\n[*.md]\n");
+            Check("editorconfig: append section",
+                EncodingTool.UpdateEditorConfig("root = true\n", "[*.h]", "utf-8", null, "\n"),
+                "root = true\n\n[*.h]\ncharset = utf-8\n");
+        }
+
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

@@ -273,6 +273,8 @@ namespace KCppAssist
             }
 
             int rank = arith.Max(a => a.Rank);
+            // MSVC の long は 32 ビットで unsigned int と同じ大きさ。long と unsigned int が混ざると、結果は unsigned long
+            if (rank == 3 && arith.Any(a => a.Rank == 2)) rank = 4;
             // 綴りがすべて同じで、int 以上なら、その綴りを残す(UINT + UINT は UINT)
             string spelling = Norm(types[0]);
             if (types.All(t => Norm(t) == spelling) && Table[spelling].Rank >= 2 || types.All(t => Norm(t) == spelling) && spelling == "int")

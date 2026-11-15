@@ -31,13 +31,14 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 
 ## 拡張機能（K-HLSL・K-CppAssist）の版を上げるとき
 
-ソース（`k-hlsl/` `k-cppassist/`）の版を上げたら、同じ作業の中で、次の 5 か所を**まとめて**直す。ダウンロードのリンクだけ古い版のまま残ることが、実際に起きた。
+ソース（`k-hlsl/` `k-cppassist/`）の版を上げたら、同じ作業の中で、次の 6 か所を**まとめて**直す。ダウンロードのリンクだけ古い版のまま残ることが、実際に起きた。
 
 1. `src/*/source.extension.vsixmanifest` の `Identity` の `Version`
 2. ビルドした `.vsix` を `docs/khlsl/`（`docs/kcppassist/`）に `K-HLSL-<版>.vsix` の名前で置き、**古い版の `.vsix` は `git rm` する**。ビルドは `k-hlsl/build.ps1`（`k-cppassist/build.ps1`）で、できた物は `bin/` に出る
 3. 紹介ページ（`docs/khlsl/index.md` `docs/kcppassist/index.md`）の「ダウンロード」にある `href` と、ボタンの文字（版と、`.vsix` のサイズ）
 4. 同じページの変更履歴の表に、新しい版の行を足す
-5. `ホーム` や他のページに版を書いている所がないか、`grep -rn "K-HLSL-[0-9]" docs` と `grep -rn "K-CppAssist-[0-9]" docs` で探す
+5. パッケージのクラスの `InstalledProductRegistration` 属性の版（K-CppAssist は `src/KCppAssist.Vsix/KCppAssistPackage.cs`。VS の「バージョン情報」に出る）
+6. `ホーム` や他のページに版を書いている所がないか、`grep -rn "K-HLSL-[0-9]" docs` と `grep -rn "K-CppAssist-[0-9]" docs` で探す
 
 push の前に、次の 3 つが同じ版になっていることを確かめる。1 つでも違えば直してから push する。
 

@@ -345,7 +345,22 @@ namespace KCppAssist
         }
 
         /// <summary>(位置, 長さ, 文字)の編集を、snap の位置で、まとめて 1 回の Undo で適用する。適用できなければ false。</summary>
-        public static bool ApplyEdits(ITextSnapshot snap, List<Tuple<int, int, string>> edits, ITextUndoHistoryRegistry undo, string description)
+        /// <summary>
+        /// 直前の Undo の単位(打った文字)に、この書き換えをまとめる。Ctrl+Z 1 回で、打った文字と、写した名前が一緒に戻る。
+        /// 作業中のバッファーにだけ使う(ほかのファイルでは、直前の単位がその人の別の編集かもしれない)。
+        /// </summary>
+        private sealed class MergeWithPrevious : IMergeTextUndoTransactionPolicy
+        {
+            public static readonly MergeWithPrevious Instance = new MergeWithPrevious();
+            public bool TestCompatiblePolicy(IMergeTextUndoTransactionPolicy other) { return true; }
+            public bool CanMerge(ITextUndoTransaction newerTransaction, ITextUndoTransaction olderTransaction) { return newerTransaction.MergePolicy == Instance; }
+            public void PerformTransactionMerge(ITextUndoTransaction existingTransaction, ITextUndoTransaction newTransaction)
+            {
+                foreach (ITextUndoPrimitive p in newTransaction.UndoPrimitives.ToList()) existingTransaction.UndoPrimitives.Add(p);
+            }
+        }
+
+        public static bool ApplyEdits(ITextSnapshot snap, List<Tuple<int, int, string>> edits, ITextUndoHistoryRegistry undo, string description, bool mergeWithPrevious = false)
         {
             if (edits.Count == 0) return true;
             ITextBuffer buffer = snap.TextBuffer;
@@ -355,6 +370,7 @@ namespace KCppAssist
                 if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
                 using (var tx = history == null ? null : history.CreateTransaction(description))
                 {
+                    if (tx != null && mergeWithPrevious) tx.MergePolicy = MergeWithPrevious.Instance;
                     using (var edit = buffer.CreateEdit(EditOptions.None, null, EditTag))
                     {
                         // snap が古ければ、いまの位置へ写してから置き換える
@@ -510,6 +526,7 @@ namespace KCppAssist
             public ITrackingPoint NamePoint;                        // 終えたあと、宣言の名前の位置(元に戻す操作への追従に使う)
             public string[] ClassFiles;                             // メンバー: クラスを定義しているファイル(衝突を調べる)
             public bool Conflict;                                   // いまの名前は、すでにある名前と同じ(ほかの場所へは写さない)
+            public HashSet<string> MemberFields, MemberMethods;      // クラスのメンバーの名前(最初に衝突を調べたときに 1 回だけ集める)
             public List<string> Locked = new List<string>();        // 開いているのに、書き換えられなかった文書
             public string DiskName;                                 // 閉じているファイルに、いま書いてある名前
             public Task DiskTask;                                   // 閉じているファイルの書き換え(順に 1 つずつ行う)
@@ -816,25 +833,32 @@ namespace KCppAssist
                 return SymbolScan.NameUsedIn(sc.GetText(), 0, sc.Length, name, own);
             }
             if (d.Kind == SymbolScan.Kind.Function || r.ClassFiles == null) return false;
-            foreach (string f in r.ClassFiles)
+            if (r.MemberFields == null)
             {
-                string t;
-                if (string.Equals(f, path, StringComparison.OrdinalIgnoreCase))
+                // 打つたびに全文を解析し直さないよう、名前を変え始める前の文字から、1 回だけ集める(変える前の名前は除く)
+                r.MemberFields = new HashSet<string>(StringComparer.Ordinal);
+                r.MemberMethods = new HashSet<string>(StringComparer.Ordinal);
+                foreach (string f in r.ClassFiles)
                 {
-                    // いまのバッファーは、宣言がもう新しい名前になっている。宣言だけ前の名前に戻した文字で調べる
-                    SnapshotSpan sp = r.DeclSpan.GetSpan(snap);
-                    string all = snap.GetText();
-                    t = all.Substring(0, sp.Start.Position) + r.OldName + all.Substring(sp.End.Position);
+                    string t;
+                    if (string.Equals(f, path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        SnapshotSpan sp = r.DeclSpan.GetSpan(snap);
+                        string all = snap.GetText();
+                        t = all.Substring(0, sp.Start.Position) + r.OldName + all.Substring(sp.End.Position);
+                    }
+                    else
+                    {
+                        ITextBuffer b;
+                        t = SymbolService.FindOpen(f, owner.Adapters, out b) && b != null ? b.CurrentSnapshot.GetText() : SymbolService.ReadText(f);
+                    }
+                    SymbolScan.MemberNames(t, d.Class, r.MemberFields, r.MemberMethods);
                 }
-                else
-                {
-                    ITextBuffer b;
-                    t = SymbolService.FindOpen(f, owner.Adapters, out b) && b != null ? b.CurrentSnapshot.GetText() : SymbolService.ReadText(f);
-                }
-                var one = new SymbolScan.Context { ClassTexts = c => new[] { t } };
-                if (SymbolScan.MemberExists(one, d.Class, name, d.Kind == SymbolScan.Kind.Field)) return true;
+                r.MemberFields.Remove(r.OldName);
+                r.MemberMethods.Remove(r.OldName);
             }
-            return false;
+            if (r.MemberFields.Contains(name)) return true;
+            return d.Kind == SymbolScan.Kind.Field && r.MemberMethods.Contains(name);     // メンバー関数どうしはオーバーロードになるので、数えない
         }
 
         /// <summary>追いかけている場所を、全部 name にする。変えた数を返す。</summary>
@@ -851,7 +875,7 @@ namespace KCppAssist
                     SnapshotSpan sp = ts.GetSpan(snap);
                     if (sp.GetText() != name) edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える")) n += edits.Count;
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える", link.Buffer == buffer)) n += edits.Count;
             }
             return n;
         }
@@ -1226,7 +1250,7 @@ namespace KCppAssist
         {
             var spans = edits.Select(x => Tuple.Create(cur.CreateTrackingSpan(x.Start, x.Length, SpanTrackingMode.EdgeInclusive), text.Substring(x.Start, x.Length), x.Text)).ToList();
             var list = edits.Select(x => Tuple.Create(x.Start, x.Length, x.Text)).ToList();
-            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, "K-CppAssist: 呼び出しの引数を合わせる")) return -1;
+            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, "K-CppAssist: 呼び出しの引数を合わせる", cur.TextBuffer == buffer)) return -1;
             cu.Open.AddRange(spans);
             return list.Count;
         }

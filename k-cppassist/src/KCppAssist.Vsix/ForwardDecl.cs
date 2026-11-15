@@ -27,6 +27,9 @@ namespace KCppAssist
         }
 
         private static readonly Regex Ptr = new Regex(@"\G\s*(?:const\s+)?[*&]", RegexOptions.Compiled);
+        // 「Foo* name」「Foo& name」「shared_ptr<Foo> name」の name(ポインター・参照で持っている名前)
+        private static readonly Regex PtrName = new Regex(@"\G\s*(?:const\s+)?[*&]+\s*(?:const\s+)?([A-Za-z_]\w*)", RegexOptions.Compiled);
+        private static readonly Regex SmartName = new Regex(@"\G\s*>\s*&?\s*([A-Za-z_]\w*)", RegexOptions.Compiled);
         private static readonly Regex SmartBefore = new Regex(@"(?:shared_ptr|weak_ptr)\s*<\s*(?:const\s+)?$", RegexOptions.Compiled);
 
         /// <summary>#include foo.h を前方宣言にできるか。できなければ null で、理由を why に入れる。</summary>
@@ -48,6 +51,7 @@ namespace KCppAssist
             var already = new HashSet<string>(StringComparer.Ordinal);
             foreach (Match x in Regex.Matches(noInc, @"\b(?:class|struct)\s+([A-Za-z_]\w*)\s*;")) already.Add(x.Groups[1].Value);
 
+            var holders = new Dictionary<string, string>(StringComparer.Ordinal);    // ポインター・参照で持っている名前 → 型
             foreach (var t in usedTypes)
             {
                 foreach (Match o in Regex.Matches(noInc, @"(?<!\w)" + Regex.Escape(t.Name) + @"(?!\w)"))
@@ -58,18 +62,40 @@ namespace KCppAssist
                     if (Regex.IsMatch(beforeAll, @"\b(?:class|struct)\s+$") && Regex.IsMatch(noInc.Substring(o.Index + o.Length, Math.Min(20, noInc.Length - o.Index - o.Length)), @"^\s*;")) continue;
                     if (bodies.Any(b => o.Index > b[0] && o.Index < b[1])) { why = t.Name + " を、関数の本体の中で使っています (" + line + " 行目)"; return null; }
                     int after = o.Index + o.Length;
-                    if (Ptr.IsMatch(noInc, after)) continue;
+                    if (Ptr.IsMatch(noInc, after))
+                    {
+                        Match pn = PtrName.Match(noInc, after);
+                        if (pn.Success) holders[pn.Groups[1].Value] = t.Name;
+                        continue;
+                    }
                     string before = beforeAll.Substring(Math.Max(0, beforeAll.Length - 60));
                     before = Regex.Replace(before, @"(?:[A-Za-z_]\w*\s*::\s*)+$", "");     // game::Scene の「game::」は飛ばす
                     if (SmartBefore.IsMatch(before))
                     {
                         var close = Regex.Match(noInc.Substring(after, Math.Min(10, noInc.Length - after)), @"^\s*>");
-                        if (close.Success) continue;
+                        if (close.Success)
+                        {
+                            Match sn = SmartName.Match(noInc, after);
+                            if (sn.Success) holders[sn.Groups[1].Value] = t.Name;
+                            continue;
+                        }
                     }
                     why = t.Name + " を、ポインター・参照以外で使っています (" + line + " 行目)";
                     return null;
                 }
             }
+
+            // インライン関数の本体が、ポインター・参照の先を使っている(target_->Move() など)と、型名が書かれていなくても完全な型が要る
+            foreach (var h in holders)
+                foreach (var b in bodies)
+                {
+                    string body = noInc.Substring(b[0], Math.Max(0, b[1] - b[0]));
+                    Match use = Regex.Match(body, @"(?<![\w.>])" + Regex.Escape(h.Key) + @"\s*(?:->|\.(?!\.))|\*\s*" + Regex.Escape(h.Key) + @"\b");
+                    if (!use.Success) continue;
+                    int line = text.Take(b[0] + use.Index).Count(c => c == '\n') + 1;
+                    why = h.Key + " (" + h.Value + ") の中身を、関数の本体で使っています (" + line + " 行目)。前方宣言では型の中身が見えません";
+                    return null;
+                }
 
             // 前方宣言のブロックを作る(名前空間ごとにまとめる)
             var need = usedTypes.Where(t => !already.Contains(t.Name)).ToList();

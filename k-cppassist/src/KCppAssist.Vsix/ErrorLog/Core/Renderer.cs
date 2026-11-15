@@ -619,7 +619,7 @@ namespace KCppAssist.ErrorLog
             try
             {
                 var fi = new FileInfo(path);
-                lines = fi.Exists && fi.Length < 2 * 1024 * 1024 ? File.ReadAllLines(path) : null;
+                lines = fi.Exists && fi.Length < 2 * 1024 * 1024 ? SourceText.ReadLines(path) : null;
             }
             catch (Exception) { lines = null; }
             LineCache[path] = lines;

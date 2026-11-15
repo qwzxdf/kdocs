@@ -75,8 +75,8 @@ namespace KCppAssist
                 }
                 if (c == '\'')
                 {
-                    // 1'000'000 の区切りは文字リテラルではない
-                    if (i > 0 && char.IsLetterOrDigit(s[i - 1]) && i + 1 < n && char.IsLetterOrDigit(s[i + 1])) { i++; continue; }
+                    // 1'000'000 や 0xFF'FF の区切りは、文字リテラルではない。L'a'・u8'a'・U'a' は文字リテラル(直前の語が数字で始まるかで見分ける)
+                    if (IsDigitSeparator(s, i)) { i++; continue; }
                     int j = SkipQuoted(s, i, '\'');
                     Blank(s, r, i, j);
                     i = j;
@@ -85,6 +85,16 @@ namespace KCppAssist
                 i++;
             }
             return new string(r);
+        }
+
+        /// <summary>s[i] の「'」が、数の中の区切り(1'000)か。直前の語(英数字と区切りの並び)が数字で始まり、直後が英数字のとき。</summary>
+        public static bool IsDigitSeparator(string s, int i)
+        {
+            if (i <= 0 || i + 1 >= s.Length || !char.IsLetterOrDigit(s[i - 1]) || !char.IsLetterOrDigit(s[i + 1])) return false;
+            int k = i - 1;
+            while (k > 0 && (char.IsLetterOrDigit(s[k - 1]) || s[k - 1] == '\'' || s[k - 1] == '.')) k--;
+            if (!char.IsDigit(s[k])) return false;                     // L'a'・u8'a' の L・u8 は数字で始まらない
+            return k == 0 || !(char.IsLetterOrDigit(s[k - 1]) || s[k - 1] == '_');
         }
 
         private static int SkipQuoted(string s, int open, char q)

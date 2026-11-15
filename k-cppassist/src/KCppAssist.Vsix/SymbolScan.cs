@@ -769,6 +769,21 @@ namespace KCppAssist
             return false;
         }
 
+        /// <summary>text の中のクラス cls の、メンバー変数とメンバー関数の名前を集める。</summary>
+        public static void MemberNames(string text, string cls, HashSet<string> fields, HashSet<string> methods)
+        {
+            if (string.IsNullOrEmpty(text) || cls == null) return;
+            string m = CppText.Mask(text);
+            foreach (var sc in Scopes.Parse(text).Where(x => x.IsClass && x.Name == cls))
+                foreach (var id in CppText.Identifiers(m, sc.Open + 1, sc.Close))
+                {
+                    string type;
+                    if (FieldDeclAt(m, id.Key, id.Key + id.Value.Length, sc, out type)) fields.Add(id.Value);
+                }
+            foreach (var s in FunctionScan.Scan(text))
+                if (s.InClass && s.Class == cls) methods.Add(s.Name);
+        }
+
         /// <summary>クラス cls に、name という名前のメンバーがすでにあるか。メンバー関数どうし(オーバーロードになる)は、数えない。</summary>
         public static bool MemberExists(Context ctx, string cls, string name, bool renamingField)
         {

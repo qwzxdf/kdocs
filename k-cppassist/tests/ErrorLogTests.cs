@@ -180,6 +180,17 @@ static class P
             fx.AddFix(new Run { File = "a.cpp", Line = 5 });
             Check("fix all: deduped by file and line", fx.Fixes.Count == 2);
         }
+        {
+            // Shift-JIS(BOM なし)のソースを、文字化けさせずに読む
+            string tmp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "kcpp-sjis-test.cpp");
+            System.IO.File.WriteAllBytes(tmp, System.Text.Encoding.GetEncoding(932).GetBytes("int a = 1;\r\nint hp = speed * 0.5; // 体力\r\n"));
+            var ls = SourceText.ReadLines(tmp);
+            Check("source text: shift-jis line", ls.Length == 2 && ls[1] == "int hp = speed * 0.5; // 体力");
+            System.IO.File.WriteAllBytes(tmp, new System.Text.UTF8Encoding(true).GetBytes("// 体力\nint x;\n"));
+            ls = SourceText.ReadLines(tmp);
+            Check("source text: utf-8 bom", ls.Length == 2 && ls[0] == "// 体力");
+            System.IO.File.Delete(tmp);
+        }
         Check("narrow: for header refused", nf("  for (int i = 0; i < n; ++i) {", "int") == null);
         Check("narrow: target en", NarrowFix.TargetType("conversion from 'double' to 'int', possible loss of data") == "int");
         Check("narrow: target ja", NarrowFix.TargetType("'初期化中': 'double' から 'int' への変換です。データが失われる可能性があります") == "int");
