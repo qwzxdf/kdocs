@@ -65,7 +65,16 @@ namespace KCppAssist.ErrorLog
     public sealed class Doc
     {
         public List<DocLine> Lines = new List<DocLine>();
+        /// <summary>この表示の中の、自動で直せる行(static_cast を付ける)。同じファイルの同じ行は 1 つだけ。「全部を修正」で使う。</summary>
+        public List<Run> Fixes = new List<Run>();
+        private readonly HashSet<string> _fixKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int _groups;
+
+        public void AddFix(Run fix)
+        {
+            if (fix == null || string.IsNullOrEmpty(fix.Fix)) return;
+            if (_fixKeys.Add(fix.File + "|" + fix.Line)) Fixes.Add(fix);
+        }
         private int _detail;
         private int _detailLines;
 

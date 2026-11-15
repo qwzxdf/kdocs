@@ -90,6 +90,8 @@ namespace KCppAssist
                 RegisterHelpCommand(commands);
                 commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
             }
+            try { ((OptionsPage)GetDialogPage(typeof(OptionsPage))).MigrateKeyScopes(); }
+            catch (Exception ex) { Log("migrate keys failed: " + ex.Message); }
             await InitializeErrorLogAsync();
             await InitializeRenameAsync();
             Log("package initialized");
@@ -165,7 +167,9 @@ namespace KCppAssist
             if (!member)
             {
                 // 文の頭の識別子の前に型を足す。1 回の編集なので、Undo も 1 回
-                view.TextBuffer.Insert(assign.NameStart, type + " ");
+                // Quick Info を待つ間に、文字が変わっていることがある。snap の位置を、今の位置へ写してから入れる
+                int at = snap.CreateTrackingPoint(assign.NameStart, PointTrackingMode.Positive).GetPosition(view.TextBuffer.CurrentSnapshot);
+                view.TextBuffer.Insert(at, type + " ");
                 await ReportAsync(type + " " + name + " にしました (" + how + ")", false);
                 return;
             }

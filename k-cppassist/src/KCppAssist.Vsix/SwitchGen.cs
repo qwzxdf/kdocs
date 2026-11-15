@@ -18,6 +18,7 @@ namespace KCppAssist
             public bool Scoped;                                   // enum class / enum struct
             public List<string> Chain = new List<string>();       // 囲んでいる namespace / class(外側から順。enum 自身は含まない)
             public List<string> Values = new List<string>();
+            public Dictionary<string, string> Aliases = new Dictionary<string, string>();   // 「First = Up」の First → Up(case を作らない)
         }
 
         public sealed class Plan
@@ -47,8 +48,15 @@ namespace KCppAssist
                 if (inner != null) def.Chain = inner.Chain();
                 foreach (string part in SplitTop(m.Substring(open + 1, close - open - 1)))
                 {
-                    Match v = Regex.Match(part, @"^\s*([A-Za-z_]\w*)");
-                    if (v.Success) def.Values.Add(v.Groups[1].Value);
+                    Match v = Regex.Match(part, @"^\s*([A-Za-z_]\w*)\s*(?:=\s*([^\s].*?))?\s*$", RegexOptions.Singleline);
+                    if (!v.Success) continue;
+                    // 「First = Up」のように、ほかの列挙子と同じ値の別名は、case を作ると値が重なる(C2196)
+                    if (v.Groups[2].Success)
+                    {
+                        Match a = Regex.Match(v.Groups[2].Value, @"^(?:[A-Za-z_]\w*\s*::\s*)*([A-Za-z_]\w*)$");
+                        if (a.Success && def.Values.Contains(a.Groups[1].Value)) { def.Aliases[v.Groups[1].Value] = a.Groups[1].Value; continue; }
+                    }
+                    def.Values.Add(v.Groups[1].Value);
                 }
                 list.Add(def);
             }
@@ -147,7 +155,7 @@ namespace KCppAssist
                 foreach (string l in labels)
                 {
                     Match nm = Regex.Match(l, @"([A-Za-z_]\w*)\s*$");
-                    if (!nm.Success || !e.Values.Contains(nm.Groups[1].Value)) continue;
+                    if (!nm.Success || !(e.Values.Contains(nm.Groups[1].Value) || e.Aliases.ContainsKey(nm.Groups[1].Value))) continue;
                     Match q = Regex.Match(l.Substring(0, nm.Index), @"([A-Za-z_]\w*)\s*::\s*$");
                     if (q.Success && e.Scoped && q.Groups[1].Value != e.Name) continue;
                     score++;
@@ -170,6 +178,11 @@ namespace KCppAssist
             if (best == null) { why = "enum の型を決められません。case を 1 つ書くか、変数の宣言が見える場所で試してください"; return null; }
 
             // ---- 足りない enumerator ----
+            foreach (string l in labelNames.ToList())
+            {
+                string target;
+                if (best.Aliases.TryGetValue(l, out target)) labelNames.Add(target);       // case First: は case Up: と同じ
+            }
             var values = best.Values.ToList();
             if (values.Count > 1 && Sentinel.IsMatch(values[values.Count - 1])) values.RemoveAt(values.Count - 1);
             var missing = values.Where(v => !labelNames.Contains(v)).ToList();
@@ -201,7 +214,8 @@ namespace KCppAssist
             // ---- 挿入する位置: default の前、なければ、閉じる } の前 ----
             int pos;
             string textOut = sb.ToString();
-            int anchor = defaultPos >= 0 ? defaultPos : sw.Close;
+            // default: の直前の case が、break などで終わらずに default へ落ちているときは、その間に入れると動きが変わる。末尾に入れる
+            int anchor = defaultPos >= 0 && EndsFlow(m, sw.Open + 1, defaultPos) ? defaultPos : sw.Close;
             int ls = LineStart(text, anchor);
             if (text.Substring(ls, anchor - ls).Trim().Length == 0) pos = ls;
             else { pos = anchor; textOut = eol + textOut + LeadingSpace(text, sw.Start); }
@@ -209,6 +223,23 @@ namespace KCppAssist
             var plan = new Plan { Position = pos, Text = textOut, EnumName = best.Name };
             plan.Added.AddRange(missing);
             return plan;
+        }
+
+        /// <summary>
+        /// m の [from, to) の最後の文が、次のラベルへ落ちない(break・return・continue・throw・goto で終わる)か。
+        /// 何もない(ラベルが先頭)ときも true。case のラベルが直前にある(case A: default: とまとめている)ときや、判断できないときは false。
+        /// </summary>
+        public static bool EndsFlow(string m, int from, int to)
+        {
+            string s = m.Substring(from, Math.Max(0, to - from)).TrimEnd();
+            if (s.Length == 0) return true;
+            char last = s[s.Length - 1];
+            if (last != ';') return false;
+            int b = s.Length - 2;
+            while (b >= 0 && s[b] != ';' && s[b] != '{' && s[b] != '}' && !(s[b] == ':' && (b == 0 || s[b - 1] != ':') && (b + 1 >= s.Length || s[b + 1] != ':'))) b--;
+            string stmt = s.Substring(b + 1, s.Length - 1 - (b + 1)).Trim();
+            if (stmt.StartsWith("[[")) return false;                               // [[fallthrough]]
+            return Regex.IsMatch(stmt, @"^(?:break|return|continue|throw|goto|co_return)\b");
         }
 
         private static int MatchParen(string m, int open)

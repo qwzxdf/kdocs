@@ -69,8 +69,23 @@ namespace KCppAssist
             foreach (string path in openPaths)
             {
                 if (!((includes && RenameSync.IsCode(path)) || (buildFiles && RenameSync.IsBuildFile(path)))) continue;
-                ITextBuffer buf = SyncService.OpenBuffer(path, adapters);
-                if (buf == null) continue;
+                ITextBuffer buf;
+                SymbolService.FindOpen(path, adapters, out buf);
+                if (buf == null)
+                {
+                    // 開いているのに文字を取れない(閉じられた、まだ読み込んでいない)。ディスクの文字で、直す所があるかだけ調べて知らせる
+                    try
+                    {
+                        Encoding enc;
+                        string disk = RenameSync.ReadKeepingEncoding(path, out enc);
+                        var need = RenameSync.IsBuildFile(path)
+                            ? RenameSync.RewriteBuildFile(disk, Path.GetDirectoryName(path), moves)
+                            : RenameSync.RewriteIncludes(disk, Path.GetDirectoryName(path), moves, roots, File.Exists);
+                        if (need.Count > 0) notes.Add(Path.GetFileName(path) + " は開いているのに書き換えられませんでした (手で直してください)");
+                    }
+                    catch (Exception) { }
+                    continue;
+                }
                 string text = buf.CurrentSnapshot.GetText();
                 var edits = RenameSync.IsBuildFile(path)
                     ? RenameSync.RewriteBuildFile(text, Path.GetDirectoryName(path), moves)

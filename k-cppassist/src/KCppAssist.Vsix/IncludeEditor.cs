@@ -76,6 +76,22 @@ namespace KCppAssist
         /// </summary>
         public static Edit Plan(string text, string token, string ownStem, string eol)
         {
+            Edit e = PlanCore(text, token, ownStem, eol);
+            if (e == null) return null;
+            // プリコンパイル済みヘッダー(pch.h)より前に入れると、/Yu のビルドでは読み飛ばされる(C4627)。pch の行のすぐ後ろに入れる
+            var pch = Collect(text, ownStem).FirstOrDefault(x => IncludeTidy.IsPch(x.Path));
+            if (pch != null && e.Position <= pch.Start)
+            {
+                string line = "#include " + token;
+                bool endsWithNewline = text.Length == 0 || text[text.Length - 1] == '\n';
+                if (pch.End >= text.Length && !endsWithNewline) return new Edit { Position = text.Length, Text = eol + line };
+                return new Edit { Position = pch.End, Text = line + eol };
+            }
+            return e;
+        }
+
+        private static Edit PlanCore(string text, string token, string ownStem, string eol)
+        {
             bool angle = token[0] == '<';
             string path = token.Substring(1, token.Length - 2);
             if (Has(text, path)) return null;

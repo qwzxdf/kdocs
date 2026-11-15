@@ -23,6 +23,7 @@ namespace KCppAssist.ErrorLog
         private readonly Dictionary<string, Paragraph> _anchors = new Dictionary<string, Paragraph>();
         private readonly Button _reload = new Button { Content = "再読み込み" };
         private readonly Button _copy = new Button { Content = "コピー", ToolTip = "いま表示している内容を、文字としてコピーします" };
+        private readonly Button _fixAll = new Button { Content = "全部を修正", Visibility = Visibility.Collapsed };
         private readonly WrapPanel _bar = new WrapPanel { Margin = new Thickness(6, 4, 6, 4) };
 
         private RenderInput _input;
@@ -33,6 +34,8 @@ namespace KCppAssist.ErrorLog
         public Action RefreshRequested;
         /// <summary>リンク(ファイルの場所、または検索語)が押された。</summary>
         public Action<Run> LinkClicked;
+        /// <summary>「全部を修正」が押された。いま表示している、自動で直せる行の一覧を渡す。</summary>
+        public Action<List<Run>> FixAllRequested;
 
         public LogView()
         {
@@ -45,11 +48,15 @@ namespace KCppAssist.ErrorLog
             _warn.IsChecked = false;
             foreach (MenuItem m in new[] { _trace, _attach, _expandAll }) m.Click += (s, e) => Rebuild();
 
-            foreach (Button b in new[] { _reload, _copy, _more })
+            foreach (Button b in new[] { _reload, _copy, _more, _fixAll })
             {
                 b.Padding = new Thickness(8, 2, 8, 2);
                 b.Margin = new Thickness(0, 0, 8, 0);
             }
+            _fixAll.Click += (s, e) =>
+            {
+                if (FixAllRequested != null && _doc.Fixes.Count > 0) FixAllRequested(new List<Run>(_doc.Fixes));
+            };
             _reload.Click += (s, e) => { if (RefreshRequested != null) RefreshRequested(); };
             _copy.Click += (s, e) => CopyText(_doc.ToPlainText());
             _copyRaw_Click();
@@ -68,6 +75,7 @@ namespace KCppAssist.ErrorLog
             };
 
             _bar.Children.Add(_reload);
+            _bar.Children.Add(_fixAll);
             _bar.Children.Add(_warn);
             _bar.Children.Add(_raw);
             _bar.Children.Add(_copy);
@@ -113,7 +121,7 @@ namespace KCppAssist.ErrorLog
             _rtb.Foreground = new SolidColorBrush(fore);
             _bar.Background = new SolidColorBrush(back);
             foreach (CheckBox c in new[] { _raw, _warn }) c.Foreground = new SolidColorBrush(fore);
-            foreach (Button b in new[] { _reload, _copy, _more })
+            foreach (Button b in new[] { _reload, _copy, _more, _fixAll })
             {
                 b.Foreground = new SolidColorBrush(fore);
                 b.Background = new SolidColorBrush(Theme.ButtonBackground);
@@ -186,6 +194,11 @@ namespace KCppAssist.ErrorLog
                     _doc = Renderer.Render(_input, Options());
                 }
                 Fill(_doc);
+                // 自動で直せる行があるときだけ、「全部を修正」を出す(警告を隠しているときは、表示している分だけ)
+                int n = _doc.Fixes.Count;
+                _fixAll.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
+                _fixAll.Content = "全部を修正 (" + n + ")";
+                _fixAll.ToolTip = "表示している " + n + " か所の縮小変換を、まとめて static_cast<型>(…) で包みます (ファイルごとに Ctrl+Z で戻せます)";
             }
             catch (Exception ex)
             {

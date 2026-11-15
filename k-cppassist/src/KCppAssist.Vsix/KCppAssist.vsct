@@ -139,19 +139,19 @@
   </CommandPlacements>
 
   <KeyBindings>
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidVSStd97" key1="Q" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidVSStd97" key1="W" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidVSStd97" key1="E" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidVSStd97" key1="F" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRename" editor="guidVSStd97" key1="N" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidVSStd97" key1="G" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidVSStd97" key1="R" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidVSStd97" key1="M" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidVSStd97" key1="D" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSwitch" editor="guidVSStd97" key1="Z" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidVSStd97" key1="C" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdOverride" editor="guidVSStd97" key1="O" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdUsage" editor="guidVSStd97" key1="U" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidTextEditor" key1="Q" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidTextEditor" key1="W" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidTextEditor" key1="E" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidTextEditor" key1="F" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRename" editor="guidTextEditor" key1="N" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidTextEditor" key1="G" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidTextEditor" key1="R" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidTextEditor" key1="M" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidTextEditor" key1="D" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSwitch" editor="guidTextEditor" key1="Z" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidTextEditor" key1="C" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdOverride" editor="guidTextEditor" key1="O" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdUsage" editor="guidTextEditor" key1="U" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -162,6 +162,8 @@
     </GuidSymbol>
 
     <GuidSymbol name="guidVSStd97" value="{5EFC7975-14BC-11CF-9B2B-00AA00573819}" />
+    <!-- キーの範囲「テキスト エディター」。グローバルにすると、Alt+F(ファイル)などのメニューを、エディターの外でも奪う -->
+    <GuidSymbol name="guidTextEditor" value="{8B382828-6202-11d1-8870-0000F87579D2}" />
 
     <GuidSymbol name="guidKCppAssistPackage" value="{b2f6c1a8-3d47-4e09-9a5c-81e7d0f4b362}" />
 

@@ -172,7 +172,9 @@ namespace KCppAssist
                 SnapshotSpan span = c.Key.Inner.GetSpan(snap);
                 await SyncOneAsync(c.Key, span.GetText());
             }
-            baseline = Build(view.TextSnapshot);
+            // 写したのは snap の時点の引数。調べている間に打った分は、次の回に差分として写すので、baseline は snap で作る
+            // (いまの文字で作ると、その分が「変わっていない」ことになり、相手へ写らない)
+            baseline = Build(snap);
         }
 
         /// <summary>相手を開いたあとで、作業中のファイルをアクティブに戻す。</summary>

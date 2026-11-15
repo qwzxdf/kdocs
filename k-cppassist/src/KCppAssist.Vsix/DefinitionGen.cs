@@ -51,6 +51,8 @@ namespace KCppAssist
             string before = CppText.Mask(headerText).Substring(decl.PrefixStart, Math.Max(0, decl.NameStart - decl.PrefixStart));
             while (AccessRx.IsMatch(before)) before = AccessRx.Replace(before, "", 1);
             if (Refuse.IsMatch(before)) { why = "friend・constexpr・template の関数は、雛形を作りません"; return null; }
+            // クラスに属さない static の関数は、そのファイルの中だけの関数。cpp に定義を置くと、ヘッダーを include したほかの cpp から見えない
+            if (decl.Class == null && Regex.IsMatch(before, @"\bstatic\b")) { why = "static の関数 (クラスに属さないもの) は、cpp に定義を作りません。static を外すか、inline にしてヘッダーに置いてください"; return null; }
             before = AttrRx.Replace(before, " ");
             before = ExportRx.Replace(before, " ");
             before = DeclOnlyWords.Replace(before, " ");
@@ -96,6 +98,15 @@ namespace KCppAssist
             var quals = decl.Chain.Skip(skip).ToList();
             string name = (quals.Count > 0 ? string.Join("::", quals) + "::" : "") + decl.Name;
 
+            // 戻り値の型が、クラスの中で定義した型(enum class State など)なら、クラス名で修飾する。
+            // 定義の戻り値はクラスの外で読まれるので、「State Player::GetState()」は通らない(引数と後置の戻り値は、クラスの中で読まれる)
+            if (decl.Class != null && quals.Count > 0)
+            {
+                string prefix = string.Join("::", quals) + "::";
+                foreach (string nested in NestedTypes(headerText, decl))
+                    ret = Regex.Replace(ret, @"(?<![\w:])" + Regex.Escape(nested) + @"\b(?!\s*::)", prefix + nested);
+            }
+
             var sb = new StringBuilder();
             if (ret.Length > 0) sb.Append(ret).Append(' ');
             sb.Append(name).Append('(').Append(string.Join(", ", cleaned)).Append(')');
@@ -109,6 +120,27 @@ namespace KCppAssist
                 return new Edit { Position = anchor.End + 1, Text = eol + eol + stub };
             bool endsWithNewline = cppText.EndsWith("\n");
             return new Edit { Position = cppText.Length, Text = (cppText.Length == 0 ? "" : (endsWithNewline ? eol : eol + eol)) + stub + eol };
+        }
+
+        private static readonly Regex NestedHead = new Regex(@"(?<!\bfriend\s{1,8})\b(?:enum(?:\s+(?:class|struct))?|class|struct|union)\s+(?:[A-Z][A-Z0-9_]*_API\s+)?([A-Za-z_]\w*)", RegexOptions.Compiled);
+        private static readonly Regex NestedUsing = new Regex(@"\busing\s+([A-Za-z_]\w*)\s*=", RegexOptions.Compiled);
+        private static readonly Regex NestedTypedef = new Regex(@"\btypedef\b[^;]*?\b([A-Za-z_]\w*)\s*;", RegexOptions.Compiled);
+
+        /// <summary>decl が属するクラスの本体の直下で定義している型の名前(入れ子の class / struct / enum、using、typedef)。</summary>
+        public static List<string> NestedTypes(string text, FunctionScan.Sig decl)
+        {
+            var list = new List<string>();
+            if (decl.Class == null) return list;
+            string m = CppText.Mask(text);
+            var cls = Scopes.Parse(text).Where(s => s.IsClass && s.Name == decl.Class && s.Open < decl.Open && decl.Open < s.Close)
+                .OrderByDescending(s => s.Open).FirstOrDefault();
+            if (cls == null) return list;
+            string d0 = ClassPlace.Depth0(m, cls.Open, cls.Close);
+            foreach (Match x in NestedHead.Matches(d0)) if (!list.Contains(x.Groups[1].Value)) list.Add(x.Groups[1].Value);
+            foreach (Match x in NestedUsing.Matches(d0)) if (!list.Contains(x.Groups[1].Value)) list.Add(x.Groups[1].Value);
+            foreach (Match x in NestedTypedef.Matches(d0)) if (!list.Contains(x.Groups[1].Value)) list.Add(x.Groups[1].Value);
+            list.Remove(decl.Class);
+            return list;
         }
 
         /// <summary>戻り値の型に合わせた、仮の return 文(void・参照・auto は何も書かない)。</summary>

@@ -170,6 +170,16 @@ static class P
         Check("narrow: compound assign refused", nf("  total += d;", "int") == null);
         Check("narrow: two declarators refused", nf("  int a = x, b = y;", "int") == null);
         Check("narrow: multi-line refused", nf("  int a = Foo(x,", "int") == null);
+        Check("narrow: two statements on a line refused", nf("  int a = 1; int b = x * 0.5;", "int") == null);
+        {
+            // 「全部を修正」で使う一覧: 同じファイルの同じ行は 1 つだけ
+            var fx = new Doc();
+            fx.AddFix(new Run { File = "a.cpp", Line = 3, Fix = "int", FixLine = "x = d;" });
+            fx.AddFix(new Run { File = "A.CPP", Line = 3, Fix = "int", FixLine = "x = d;" });
+            fx.AddFix(new Run { File = "a.cpp", Line = 4, Fix = "int", FixLine = "y = d;" });
+            fx.AddFix(new Run { File = "a.cpp", Line = 5 });
+            Check("fix all: deduped by file and line", fx.Fixes.Count == 2);
+        }
         Check("narrow: for header refused", nf("  for (int i = 0; i < n; ++i) {", "int") == null);
         Check("narrow: target en", NarrowFix.TargetType("conversion from 'double' to 'int', possible loss of data") == "int");
         Check("narrow: target ja", NarrowFix.TargetType("'初期化中': 'double' から 'int' への変換です。データが失われる可能性があります") == "int");

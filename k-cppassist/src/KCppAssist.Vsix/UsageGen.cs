@@ -81,6 +81,8 @@ namespace KCppAssist
             }
             var call = best ?? first;
             if (call == null) { why = "カーソルの行に、関数の呼び出しが見つかりません"; return null; }
+            // ここから先の宣言探し(DeclType)は、いまの関数と、クラス・namespace の直下だけを見る。ほかの関数の同じ名前の変数は、別の物
+            m = Scoped(m, text, call.NameStart);
 
             var u = new Usage { Name = text.Substring(call.NameStart, call.NameEnd - call.NameStart), NameStart = call.NameStart };
             if (call.Receiver != null)
@@ -120,6 +122,21 @@ namespace KCppAssist
             if (rt == null) { u.ReturnType = "int"; u.ReturnGuessed = true; }
             else u.ReturnType = rt;
             return u;
+        }
+
+        /// <summary>m のうち、at を含む関数(と、それを含むもの)以外の関数の、引数と本体を空白にした文字。長さと改行は変えない。</summary>
+        private static string Scoped(string m, string text, int at)
+        {
+            var sigs = FunctionScan.Scan(text).Where(s => s.HasBody).ToList();
+            var encl = sigs.Where(s => s.PrefixStart <= at && at <= s.End).OrderByDescending(s => s.PrefixStart).FirstOrDefault();
+            var sb = new StringBuilder(m);
+            foreach (var s in sigs)
+            {
+                if (encl != null && s.PrefixStart <= encl.PrefixStart && encl.End <= s.End) continue;
+                for (int k = Math.Max(0, s.NameStart); k <= s.End && k < sb.Length; k++)
+                    if (sb[k] != '\n' && sb[k] != '\r') sb[k] = ' ';
+            }
+            return sb.ToString();
         }
 
         private static int FindReceiverStart(string line, int nameStartInLine)

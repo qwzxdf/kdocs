@@ -101,6 +101,7 @@ namespace KCppAssist.ErrorLog
             string rhsMasked = m.Substring(rs, re - rs);
             string rhs = line.Substring(rs, re - rs);
             if (rhsMasked.StartsWith("{", StringComparison.Ordinal)) return null;
+            if (rhsMasked.IndexOf(';') >= 0) return null;                       // 1 行に文が 2 つ以上ある(どちらの右辺か決められない)
             if (HasTopLevelComma(rhsMasked)) return null;
             if (Regex.IsMatch(rhsMasked, @"^(?:static_cast|reinterpret_cast|const_cast|dynamic_cast)\s*<")) return null;
             if (Regex.IsMatch(rhsMasked, @"^\(\s*(?:unsigned\s+|signed\s+)?(?:int|float|double|char|short|long|size_t|u?int\d+_t)\s*\)")) return null;

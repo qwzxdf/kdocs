@@ -25,7 +25,7 @@ namespace KCppAssist
         {
             public string Name, Return, Params, Quals;
             public int ParamCount;
-            public bool IsConst, Virtual, Override, Pure;
+            public bool IsConst, Virtual, Override, Pure, Final;
             public string Key { get { return Name + "/" + ParamCount + (IsConst ? "c" : ""); } }
         }
 
@@ -102,6 +102,7 @@ namespace KCppAssist
                 f.Virtual = Regex.IsMatch(ret, @"\bvirtual\b");
                 f.Override = Regex.IsMatch(tail, @"\boverride\b");
                 f.Pure = Regex.IsMatch(tail, @"=\s*0\s*$");
+                f.Final = Regex.IsMatch(tail, @"\bfinal\b");
                 f.IsConst = Regex.IsMatch(tail, @"^(?:\w+\s+)*?const\b");
                 f.Return = Regex.Replace(ret, @"\b(?:virtual|inline|constexpr|static|explicit)\b", "").Trim();
                 f.Return = Regex.Replace(f.Return, @"\s+", " ");
@@ -217,7 +218,8 @@ namespace KCppAssist
 
             // すでにこのクラスにある関数(名前と引数の個数が同じ)は足さない
             var own = new HashSet<string>(Funcs(text, m, cls).Select(f => f.Key));
-            var todo = found.Values.Where(f => !own.Contains(f.Key)).ToList();
+            // final の関数は、それより下では override できない(近い基底が先に見つかるので、final の版が残っている)
+            var todo = found.Values.Where(f => !own.Contains(f.Key) && !f.Final).ToList();
             if (todo.Count == 0) { why = "足りない仮想関数はありません"; return null; }
 
             // 純粋仮想関数が残っていれば、それだけを足す(派生クラスを作るのに必須)。なければ、残りの仮想関数を全部足す

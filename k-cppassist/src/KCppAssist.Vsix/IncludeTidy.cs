@@ -47,9 +47,24 @@ namespace KCppAssist
             return k < 0 ? f : f.Substring(0, k);
         }
 
-        /// <summary>並べる順のグループ: 0 自分のヘッダー、1 C の標準、2 C++ の標準、3 そのほかの &lt;&gt;、4 "..."。</summary>
+        private static readonly HashSet<string> PchNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "pch.h", "pch.hpp", "stdafx.h", "precomp.h", "precompiled.h",
+        };
+
+        /// <summary>
+        /// プリコンパイル済みヘッダー(pch.h / stdafx.h)か。/Yu でビルドすると、これより前の行は読み飛ばされるので、
+        /// いつもファイルの最初の #include のままにして、消さない。
+        /// </summary>
+        public static bool IsPch(string includePath)
+        {
+            return includePath != null && PchNames.Contains(FileName(includePath));
+        }
+
+        /// <summary>並べる順のグループ: -1 プリコンパイル済みヘッダー、0 自分のヘッダー、1 C の標準、2 C++ の標準、3 そのほかの &lt;&gt;、4 "..."。</summary>
         private static int Group(Item it, string ownStem)
         {
+            if (IsPch(it.Path)) return -1;
             if (!it.Angle)
             {
                 if (ownStem != null && string.Equals(Stem(it.Path), ownStem, StringComparison.OrdinalIgnoreCase)) return 0;
@@ -148,14 +163,16 @@ namespace KCppAssist
                     if (seen.Add(kv.Value.Token)) kept.Add(kv);
                 var ordered = kept
                     .Select((kv, n) => new { kv, g = Group(kv.Value, firstCluster ? ownStem : null), n })
-                    .OrderBy(x => x.g).ThenBy(x => x.kv.Value.Path.ToLowerInvariant(), StringComparer.Ordinal).ThenBy(x => x.n)
+                    .OrderBy(x => x.g)
+                    // そのほかの <>(Windows SDK・外部ライブラリ)は、並べ替えない。windows.h のあとに読む mmsystem.h のように、順番に意味があるため
+                    .ThenBy(x => x.g == 3 ? "" : x.kv.Value.Path.ToLowerInvariant(), StringComparer.Ordinal).ThenBy(x => x.n)
                     .ToList();
 
                 var sb = new StringBuilder();
-                int prevGroup = -1;
+                int prevGroup = int.MinValue;                   // pch のグループが -1 なので、「まだない」は別の値にする
                 foreach (var x in ordered)
                 {
-                    if (prevGroup >= 0 && x.g != prevGroup) sb.Append(eol);
+                    if (prevGroup != int.MinValue && x.g != prevGroup) sb.Append(eol);
                     foreach (string c in x.kv.Key) sb.Append(c).Append(eol);
                     sb.Append(x.kv.Value.Line).Append(eol);
                     prevGroup = x.g;
@@ -244,7 +261,7 @@ namespace KCppAssist
             var list = new List<Item>();
             foreach (var it in Parse(text))
             {
-                if (it.Depth != 0 || it.Keep) continue;
+                if (it.Depth != 0 || it.Keep || IsPch(it.Path)) continue;
                 if (!it.Angle && ownStem != null && string.Equals(Stem(it.Path), ownStem, StringComparison.OrdinalIgnoreCase)) continue;
                 var names = provided(it);
                 if (names == null || names.Count == 0) continue;

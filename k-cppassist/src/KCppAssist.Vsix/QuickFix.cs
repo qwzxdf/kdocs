@@ -63,8 +63,25 @@ namespace KCppAssist
 
         public void Dispose() { }
 
-        /// <summary>range の位置で使える機能の一覧。重い処理はしない。</summary>
+        private readonly object cacheGate = new object();
+        private ITextSnapshot cachedSnapshot;
+        private int cachedPos = -1;
+        private List<ISuggestedAction> cachedList;
+
+        /// <summary>
+        /// range の位置で使える機能の一覧。VS は、キャレットが動くたびに HasSuggestedActions と GetSuggestedActions の両方を呼ぶので、
+        /// 同じ文字・同じ位置なら、前の結果を使う。
+        /// </summary>
         private List<ISuggestedAction> Collect(SnapshotSpan range)
+        {
+            lock (cacheGate)
+                if (cachedSnapshot == range.Snapshot && cachedPos == range.Start.Position && cachedList != null) return cachedList;
+            var result = CollectCore(range);
+            lock (cacheGate) { cachedSnapshot = range.Snapshot; cachedPos = range.Start.Position; cachedList = result; }
+            return result;
+        }
+
+        private List<ISuggestedAction> CollectCore(SnapshotSpan range)
         {
             var list = new List<ISuggestedAction>();
             try
@@ -142,8 +159,9 @@ namespace KCppAssist
             var foundText = new Dictionary<FunctionScan.Sig, string>();
             foreach (string f in files)
             {
-                string t;
-                try { t = File.ReadAllText(f); } catch (Exception) { continue; }
+                // 開いている文書は、エディターの文字(保存前の編集を含む)。閉じているものは、更新時刻つきで覚えたディスクの文字
+                string t = CallCheckHub.OpenText(f) ?? SymbolService.ReadText(f);
+                if (string.IsNullOrEmpty(t)) continue;
                 foreach (var s in FunctionScan.Scan(t))
                     if (SyncPlan.Counterpart(s, sig, wantDefinition) > 0) { found.Add(s); foundText[s] = t; }
             }

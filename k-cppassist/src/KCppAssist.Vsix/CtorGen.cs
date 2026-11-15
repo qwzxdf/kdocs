@@ -124,11 +124,12 @@ namespace KCppAssist
                 if (orig.Length == 0) continue;
                 if (firstStmt < 0) firstStmt = stmtStart + (stmt.Length - stmt.TrimStart().Length);
 
-                if (orig.Contains("(")) { RecordFunction(orig, ctorCounts, cls.Name); if (!HasTopEquals(orig)) continue; }
+                // 「(」が <> の外にあるものだけが関数(std::function<void(int)> cb_; はメンバー)
+                if (ParenOutsideAngles(orig)) { RecordFunction(orig, ctorCounts, cls.Name); if (!HasTopEquals(orig)) continue; }
                 if (Skip.IsMatch(orig) || orig.Contains("~")) continue;
 
                 string decl = CutInitializer(orig);
-                if (decl.Contains("(")) continue;                       // 関数ポインターなど
+                if (ParenOutsideAngles(decl)) continue;                 // 関数ポインターなど
                 if (Regex.IsMatch(decl, @"(?<!:):(?!:)")) continue;     // ビットフィールド
                 if (TopComma(decl)) { refused = true; refuseReason = "1 行に複数のメンバーを宣言している行があります: " + orig; break; }
                 if (Regex.IsMatch(decl, @"\]\s*$")) continue;           // 配列
@@ -227,6 +228,20 @@ namespace KCppAssist
             if (Regex.IsMatch(inner, @"\b" + Regex.Escape(className) + @"\s*&")) return;   // コピー・ムーブは、数えない
             int cnt = inner.Length == 0 || inner == "void" ? 0 : SplitComma(inner).Count();
             ctorCounts.Add(cnt);
+        }
+
+        /// <summary>s に、テンプレートの引数(&lt;&gt; の中)でない「(」があるか。</summary>
+        public static bool ParenOutsideAngles(string s)
+        {
+            int angle = 0;
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                if (c == '<' && i > 0 && (CppText.IsId(s[i - 1]) || s[i - 1] == ' ' && i > 1 && CppText.IsId(s[i - 2]))) angle++;
+                else if (c == '>' && angle > 0 && !(i > 0 && s[i - 1] == '-')) angle--;
+                else if (c == '(' && angle == 0) return true;
+            }
+            return false;
         }
 
         private static bool HasTopEquals(string s)

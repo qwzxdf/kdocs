@@ -42,7 +42,9 @@ namespace KCppAssist
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
             if (path == null) { await ReportAsync("ファイルを開いていません", true); return; }
 
-            string text = view.TextSnapshot.GetText();
+            // 候補を探す間と、選ぶ欄を出す間に、文字が変わることがある。位置は snap0 のもので計算して、適用するときに今の位置へ写す
+            ITextSnapshot snap0 = view.TextSnapshot;
+            string text = snap0.GetText();
             int caret = view.Caret.Position.BufferPosition.Position;
             var line = view.Caret.Position.BufferPosition.GetContainingLine();
             var sig = FunctionScan.Scan(text).FirstOrDefault(s => (caret >= s.NameStart && caret <= s.End + 1) || (s.Open >= line.Start.Position && s.Open <= line.End.Position));
@@ -81,7 +83,7 @@ namespace KCppAssist
                 var plan = MoveGen.ToCpp(text, sig, cppText, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
                 SyncService.ApplyEdits(cppBuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数を cpp に移す");
-                SyncService.ApplyEdits(view.TextBuffer, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数を cpp に移す");
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数を cpp に移す");
                 await ReportAsync(label + " の本体を " + Path.GetFileName(cppFile) + " に移しました (必要な #include は足していません)", false);
                 return;
             }
@@ -117,7 +119,7 @@ namespace KCppAssist
                 var plan = MoveGen.ToHeader(text, sig, hText, decl, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
                 SyncService.ApplyEdits(hbuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数をヘッダーに移す");
-                SyncService.ApplyEdits(view.TextBuffer, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数をヘッダーに移す");
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数をヘッダーに移す");
                 await ReportAsync(label + " の本体を " + Path.GetFileName(t0.File) + " に移しました (cpp の #include のうち、本体が使うものは、ヘッダーに足してください)", false);
             }
         }

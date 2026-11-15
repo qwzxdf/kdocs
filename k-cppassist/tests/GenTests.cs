@@ -363,6 +363,77 @@ static class GenTests
                 "#include \"a.h\"\n\n#include <vector>\n\n#include <windows.h>\n\nvoid f() {}\n");
         }
 
+        // ---- レビューで直した所 ----
+        // switch: 別名の列挙子は case を作らない
+        Check("switch: alias not added",
+            Sw("enum class Dir { Up, Down, First = Up };\nvoid f(Dir d) {\n  switch (d) {\n    case Dir::Up:\n      break;\n  }\n}\n", "switch"),
+            "enum class Dir { Up, Down, First = Up };\nvoid f(Dir d) {\n  switch (d) {\n    case Dir::Up:\n      break;\n    case Dir::Down:\n      break;\n  }\n}\n");
+        Check("switch: alias label covers its target",
+            Sw("enum class Dir { Up, Down, First = Up };\nvoid f(Dir d) {\n  switch (d) {\n    case Dir::First:\n      break;\n  }\n}\n", "switch"),
+            "enum class Dir { Up, Down, First = Up };\nvoid f(Dir d) {\n  switch (d) {\n    case Dir::First:\n      break;\n    case Dir::Down:\n      break;\n  }\n}\n");
+        // switch: default へ落ちる case の間には入れない
+        Check("switch: fallthrough into default keeps order",
+            Sw("enum class S { A, B, C };\nvoid f(S s) {\n  switch (s) {\n    case S::A:\n      Prep();\n    default:\n      Run();\n      break;\n  }\n}\n", "switch"),
+            "enum class S { A, B, C };\nvoid f(S s) {\n  switch (s) {\n    case S::A:\n      Prep();\n    default:\n      Run();\n      break;\n    case S::B:\n      break;\n    case S::C:\n      break;\n  }\n}\n");
+        Check("switch: after break goes before default",
+            Sw("enum class S { A, B };\nvoid f(S s) {\n  switch (s) {\n    case S::A:\n      Prep();\n      break;\n    default:\n      break;\n  }\n}\n", "switch"),
+            "enum class S { A, B };\nvoid f(S s) {\n  switch (s) {\n    case S::A:\n      Prep();\n      break;\n    case S::B:\n      break;\n    default:\n      break;\n  }\n}\n");
+        Check("switch: grouped label before default is fallthrough",
+            SwitchGen.EndsFlow("{ case X: ", 1, 10).ToString(), "False");
+        Check("switch: return ends flow", SwitchGen.EndsFlow("{ case X: return 1; ", 1, 20).ToString(), "True");
+
+        // コンストラクター: std::function のメンバーを落とさない
+        Check("ctor: std::function member",
+            Ctor("class Button {\n  std::string label_;\n  std::function<void()> on_click_;\n};\n", "label_"),
+            "class Button {\n public:\n  Button(const std::string& label, const std::function<void()>& on_click)\n      : label_(label), on_click_(on_click) {}\n\n private:\n  std::string label_;\n  std::function<void()> on_click_;\n};\n");
+        Check("ctor: paren outside angles", CtorGen.ParenOutsideAngles("void Run(int a)").ToString(), "True");
+        Check("ctor: paren inside angles", CtorGen.ParenOutsideAngles("std::function<void(int)> cb_").ToString(), "False");
+
+        // override: final の関数は足さない
+        Check("override: final skipped",
+            Ov("class Boss : public Enemy {\n public:\n  void Draw() const override;\n};\n", "Draw",
+               "class Enemy {\n public:\n  void Update(float dt) override final;\n  virtual void Draw() const;\n  virtual void Hit(int n);\n};\n"),
+            "class Boss : public Enemy {\n public:\n  void Hit(int n) override;\n\n  void Draw() const override;\n};\n");
+
+        // 関数作成: 別の関数の同じ名前の変数を見ない
+        Check("usage: other function's variable ignored",
+            Us("void A() {\n  float speed = 1;\n}\nvoid B(int speed) {\n  Move(speed);\n}\n", "Move"),
+            "void Move(int speed)");
+
+        // 定義の雛形: 入れ子の型を修飾する、static の関数は作らない
+        {
+            string h = "class Player {\n public:\n  enum class State { Idle, Run };\n  struct Info { int hp; };\n  State GetState() const;\n  std::vector<Info> Infos();\n  int Count();\n};\n";
+            Func<string, string> def = name =>
+            {
+                var sig = FunctionScan.Scan(h).First(s => s.Name == name);
+                string why;
+                var e = DefinitionGen.PlanDefinition(h, sig, "", "\n", out why);
+                return e == null ? "!" + why : e.Text.Split('\n')[0];
+            };
+            Check("def: nested enum return", def("GetState"), "Player::State Player::GetState() const");
+            Check("def: nested in template arg", def("Infos"), "std::vector<Player::Info> Player::Infos()");
+            Check("def: plain return untouched", def("Count"), "int Player::Count()");
+            string hs = "static float Lerp(float a, float b, float t);\n";
+            var ss = FunctionScan.Scan(hs).First();
+            string w;
+            Check("def: static free function refused", DefinitionGen.PlanDefinition(hs, ss, "", "\n", out w) == null ? "null" : "made", "null");
+        }
+
+        // #include: pch.h より前に入れない、整理で pch.h を先頭に残す、SDK の <> は並べ替えない
+        {
+            var e = IncludeEditor.Plan("#include \"pch.h\"\n#include \"Player.h\"\n\nvoid f() {}\n", "<vector>", "Player", "\n");
+            Check("include: after pch", e == null ? "(null)" : "#include \"pch.h\"\n#include \"Player.h\"\n\nvoid f() {}\n".Insert(e.Position, e.Text),
+                "#include \"pch.h\"\n#include <vector>\n#include \"Player.h\"\n\nvoid f() {}\n");
+            Check("tidy: pch stays first",
+                IncludeTidy.Organize("#include \"pch.h\"\n#include \"Player.h\"\n#include <vector>\n", "Player", "\n"),
+                "#include \"pch.h\"\n\n#include \"Player.h\"\n\n#include <vector>\n");
+            Check("tidy: sdk order kept",
+                IncludeTidy.Organize("#include <windows.h>\n#include <mmsystem.h>\n#include <vector>\n", null, "\n"),
+                "#include <vector>\n\n#include <windows.h>\n#include <mmsystem.h>\n");
+            Func<IncludeTidy.Item, ISet<string>> prov = it => new HashSet<string> { "Nothing" };
+            Check("unused: pch kept", string.Join(",", IncludeTidy.Unused("#include \"pch.h\"\nint x;\n", null, prov).Select(i => i.Path)), "");
+        }
+
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

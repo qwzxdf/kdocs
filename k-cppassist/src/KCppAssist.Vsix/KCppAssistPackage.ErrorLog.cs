@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using EnvDTE;
 using EnvDTE80;
@@ -229,6 +230,54 @@ namespace KCppAssist
             if (plan == null) { _ = ReportAsync("この行は、自動では直せません。", true); return; }
             SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-CppAssist: static_cast を付ける");
             _ = ReportAsync("static_cast<" + run.Fix + ">(…) を付けました(" + run.Line + " 行目)。ビルドし直すと、ログが更新されます。", false);
+        }
+
+        /// <summary>
+        /// エラーログの「全部を修正」を押したとき。表示している縮小変換の行を、ファイルごとに 1 回の Undo で static_cast で包む。
+        /// ビルドのあとで行が変わっているもの・自動で直せないものは飛ばして、その数を知らせる。
+        /// </summary>
+        internal void ApplyAllNarrowFixes(System.Collections.Generic.List<ErrorLink> fixes)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                if (fixes == null || fixes.Count == 0) return;
+                var byFile = fixes.GroupBy(f => f.File, StringComparer.OrdinalIgnoreCase).ToList();
+                string list = string.Join("\n", byFile.Take(15).Select(g => Path.GetFileName(g.Key) + ": " + g.Count() + " か所"))
+                    + (byFile.Count > 15 ? "\n… ほか " + (byFile.Count - 15) + " ファイル" : "");
+                var ok = System.Windows.MessageBox.Show(fixes.Count + " か所の縮小変換を、static_cast<型>(…) で包みます。\n値が切り捨てられてよいか、確かめてから実行してください。\n\n" + list
+                    + "\n\nファイルを開いて書き換えます (保存はしません。ファイルごとに Ctrl+Z で戻せます)。続けますか?",
+                    "K-CppAssist: 全部を修正", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+                if (ok != System.Windows.MessageBoxResult.Yes) return;
+
+                var model = (Microsoft.VisualStudio.ComponentModelHost.IComponentModel)GetService(typeof(Microsoft.VisualStudio.ComponentModelHost.SComponentModel));
+                var adapters = model.GetService<Microsoft.VisualStudio.Editor.IVsEditorAdaptersFactoryService>();
+                var undo = model.GetService<Microsoft.VisualStudio.Text.Operations.ITextUndoHistoryRegistry>();
+                int done = 0, skipped = 0;
+                foreach (var g in byFile)
+                {
+                    var buf = SyncService.OpenForEdit(g.Key, adapters);
+                    if (buf == null) { skipped += g.Count(); continue; }
+                    var snap = buf.CurrentSnapshot;
+                    var edits = new System.Collections.Generic.List<Tuple<int, int, string>>();
+                    foreach (var run in g)
+                    {
+                        if (run.Line < 1 || run.Line > snap.LineCount) { skipped++; continue; }
+                        var line = snap.GetLineFromLineNumber(run.Line - 1);
+                        string text = line.GetText();
+                        var plan = text.Trim() == run.FixLine ? NarrowFix.Make(text, run.Fix) : null;
+                        if (plan == null) { skipped++; continue; }
+                        edits.Add(Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text));
+                    }
+                    if (edits.Count == 0) continue;
+                    SyncService.ApplyEdits(buf, edits, undo, "K-CppAssist: static_cast をまとめて付ける");
+                    done += edits.Count;
+                }
+                _ = ReportAsync("static_cast を " + done + " か所に付けました"
+                    + (skipped > 0 ? "(" + skipped + " か所は、ビルドのあとで行が変わっているか、自動で直せないので飛ばしました)" : "")
+                    + "。ビルドし直すと、ログが更新されます。", done == 0);
+            }
+            catch (Exception ex) { Log("fix all failed: " + ex); }
         }
 
         // ---- リンクを押したとき ----

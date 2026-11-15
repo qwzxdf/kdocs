@@ -480,6 +480,16 @@ namespace KCppAssist.ErrorLog
             bool cascaded = _cascade.TryGetValue(d, out cascadeNote);
             int g = doc.NewGroup();
             DocLine head = Header(doc, d, title, sol, g, cascaded ? "連鎖の可能性" : null);
+            // 自動で直せる縮小変換は、見出しの横に「クリックで修正」を出す(▸ を開かなくても押せる)
+            Run fix = NarrowFixRun(d, sol);
+            if (fix != null)
+            {
+                head.Runs.Add(new Run { Text = "   " });
+                head.Runs.Add(fix);
+                doc.AddFix(fix);
+            }
+            if (same != null)
+                foreach (Diag o in same) doc.AddFix(NarrowFixRun(o, sol));       // 同じ内容の別の場所も、「全部を修正」の対象にする
             if (cascaded) doc.BeginDetail(g);
 
             // ---- いつも見せる: メッセージ、ソースの 1 行、ヒント 1 行、すぐ使える情報 ----
@@ -505,7 +515,10 @@ namespace KCppAssist.ErrorLog
                     .Add(sug.Display, Role.Type, true).Add("   (" + sug.Name + " を使うには)", Role.Dim).Done();
             AddFound(doc, d, sol);
             AddConversion(doc, d);
-            AddNarrowFix(doc, d, sol);
+            if (fix != null)
+                Line(doc, 1, null).Add("修正: ", Role.Good, true)
+                    .Add("見出しの「クリックで修正」で、右辺を static_cast<" + fix.Fix + ">(…) にします", Role.Normal)
+                    .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
 
             Frame userFrame = FindUserFrame(d, sol);
             bool insideLibrary = d.HasLocation && Paths.IsLibraryFile(d.File);
@@ -534,20 +547,20 @@ namespace KCppAssist.ErrorLog
             EndGroup(doc, head, g);
         }
 
-        /// <summary>縮小変換(double から int など)の行に、「static_cast を付ける」修正のリンクを出す。</summary>
-        private static void AddNarrowFix(Doc doc, Diag d, string sol)
+        /// <summary>
+        /// 縮小変換(double から int など)を、その行の右辺を static_cast で包んで直せるなら、その修正のリンク(Run)。直せなければ null。
+        /// 自分のコード(ライブラリでない)で、1 行で終わる「型 名前 = 式;」などだけ(NarrowFix)。
+        /// </summary>
+        private static Run NarrowFixRun(Diag d, string sol)
         {
-            if (!NarrowFix.IsCandidate(d.Code) || !d.HasLocation || !Paths.IsUserFile(d.File, sol)) return;
+            if (d == null || !NarrowFix.IsCandidate(d.Code) || !d.HasLocation || !Paths.IsUserFile(d.File, sol)) return null;
             string type = NarrowFix.TargetType(d.Message);
-            if (type == null) return;
+            if (type == null) return null;
             string[] lines = ReadLines(d.File);
-            if (lines == null || d.Line < 1 || d.Line > lines.Length) return;
+            if (lines == null || d.Line < 1 || d.Line > lines.Length) return null;
             string line = lines[d.Line - 1];
-            NarrowFix.Plan plan = NarrowFix.Make(line, type);
-            if (plan == null) return;
-            Line(doc, 1, null).Add("修正: ", Role.Good, true)
-                .FixLink("右辺を static_cast<" + type + ">(…) にする", d.File, d.Line, d.Col, type, line.Trim())
-                .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
+            if (NarrowFix.Make(line, type) == null) return null;
+            return new Run { Text = "[クリックで修正]", Role = Role.Good, Bold = true, File = d.File, Line = d.Line, Col = d.Col, Fix = type, FixLine = line.Trim() };
         }
 
         private static readonly HashSet<string> NoteCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -36,6 +36,7 @@ namespace KCppAssist.ErrorLog
             }
             View.RefreshRequested = () => package.Refresh(true);
             View.LinkClicked = package.OnLink;
+            View.FixAllRequested = package.ApplyAllNarrowFixes;
             package.PushPending(this);
         }
     }

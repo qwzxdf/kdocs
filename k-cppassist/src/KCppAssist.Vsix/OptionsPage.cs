@@ -401,8 +401,84 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             key = (key ?? "").Trim();
-            if (key == Current(id)) return;
-            Find(id).Bindings = key.Length == 0 ? new object[0] : new object[] { "Global::" + key };
+            if (key == Current(id) && !IsGlobal(id)) return;
+            Find(id).Bindings = key.Length == 0 ? new object[0] : new object[] { EditorScope() + "::" + key };
         }
+
+        /// <summary>
+        /// キーの範囲「テキスト エディター」の名前。日本語の VS では「テキスト エディター」と、表示の言語で名前が変わるので、
+        /// エディターだけで使う既存のコマンド(Edit.CharLeft)の割り当てから読む。
+        /// </summary>
+        private static string EditorScope()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return ScopeOf("Edit.CharLeft") ?? "Text Editor";
+        }
+
+        private static string GlobalScope()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return ScopeOf("File.SaveAll") ?? "Global";
+        }
+
+        private static string ScopeOf(string command)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var dte = (DTE)Package.GetGlobalService(typeof(DTE));
+                var bindings = dte.Commands.Item(command).Bindings as object[];
+                if (bindings == null) return null;
+                foreach (object o in bindings)
+                {
+                    string s = o as string;
+                    int k = s == null ? -1 : s.IndexOf("::", StringComparison.Ordinal);
+                    if (k > 0) return s.Substring(0, k);
+                }
+            }
+            catch (Exception) { }
+            return null;
+        }
+
+        private static bool IsGlobal(int id)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var bindings = Find(id).Bindings as object[];
+            if (bindings == null || bindings.Length == 0) return false;
+            string s = (string)bindings[0];
+            return s.StartsWith(GlobalScope() + "::", StringComparison.Ordinal) || s.StartsWith("Global::", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// 0.20.1 までは、キーをグローバルに割り当てていた(Alt+F でファイル メニューが開かなくなる)。
+        /// 起動したときに 1 回だけ、グローバルの割り当てを「テキスト エディター」に移す。
+        /// </summary>
+        internal void MigrateKeyScopes()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (KeyScopeMigrated) return;
+            int[] ids =
+            {
+                KCppAssistPackage.CmdLocal, KCppAssistPackage.CmdMember, KCppAssistPackage.CmdAccessor, KCppAssistPackage.CmdInclude,
+                KCppAssistPackage.CmdSync, KCppAssistPackage.CmdRename, KCppAssistPackage.CmdCreate, KCppAssistPackage.CmdMove,
+                KCppAssistPackage.CmdForward, KCppAssistPackage.CmdSwitch, KCppAssistPackage.CmdCtor, KCppAssistPackage.CmdOverride,
+                KCppAssistPackage.CmdUsage,
+            };
+            foreach (int id in ids)
+            {
+                try
+                {
+                    if (!IsGlobal(id)) continue;
+                    string key = Current(id);
+                    if (key.Length > 0) Find(id).Bindings = new object[] { EditorScope() + "::" + key };
+                }
+                catch (Exception ex) { KCppAssistPackage.Log("migrate key failed: " + ex.Message); }
+            }
+            KeyScopeMigrated = true;
+            SaveSettingsToStorage();
+        }
+
+        [Browsable(false)]
+        public bool KeyScopeMigrated { get; set; } = false;
     }
 }

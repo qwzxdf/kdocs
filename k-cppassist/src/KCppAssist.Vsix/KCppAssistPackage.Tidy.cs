@@ -46,32 +46,26 @@ namespace KCppAssist
             public string Path;
             public string Text;
             public Encoding Encoding;
-            public bool Bom;
             public ITextBuffer Buffer;      // エディターで開いているときは、こちらを書き換える
         }
 
+        /// <summary>
+        /// ファイルを読む。開いている文書は、エディターの文字(保存前の編集を含む)。開いているのに文字を取れない文書は null(触らない)。
+        /// 閉じているファイルは、文字コードを保って読む(RenameSync.ReadKeepingEncoding)。
+        /// </summary>
         private static SourceFile ReadSource(string path, Microsoft.VisualStudio.Editor.IVsEditorAdaptersFactoryService adapters)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var buf = SyncService.OpenBuffer(path, adapters);
-            if (buf != null) return new SourceFile { Path = path, Text = buf.CurrentSnapshot.GetText(), Buffer = buf };
-            byte[] bytes;
-            try { bytes = File.ReadAllBytes(path); } catch (Exception) { return null; }
-            var f = new SourceFile { Path = path };
-            int skip = 0;
-            if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) { f.Encoding = new UTF8Encoding(true); f.Bom = true; skip = 3; }
-            else if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE) { f.Encoding = new UnicodeEncoding(false, true); f.Bom = true; skip = 2; }
-            else if (bytes.Length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF) { f.Encoding = new UnicodeEncoding(true, true); f.Bom = true; skip = 2; }
-            else
+            ITextBuffer buf;
+            if (SymbolService.FindOpen(path, adapters, out buf))
+                return buf == null ? null : new SourceFile { Path = path, Text = buf.CurrentSnapshot.GetText(), Buffer = buf };
+            try
             {
-                try { new UTF8Encoding(false, true).GetString(bytes); f.Encoding = new UTF8Encoding(false); }
-                catch (Exception)
-                {
-                    try { f.Encoding = Encoding.GetEncoding(932); } catch (Exception) { return null; }
-                }
+                Encoding enc;
+                string text = RenameSync.ReadKeepingEncoding(path, out enc);
+                return new SourceFile { Path = path, Text = text, Encoding = enc };
             }
-            try { f.Text = f.Encoding.GetString(bytes, skip, bytes.Length - skip); } catch (Exception) { return null; }
-            return f;
+            catch (Exception) { return null; }
         }
 
         private static bool WriteSource(SourceFile f, string newText, ITextUndoHistoryRegistry undo, string description)
@@ -84,9 +78,7 @@ namespace KCppAssist
             }
             try
             {
-                byte[] body = f.Encoding.GetBytes(newText);
-                byte[] pre = f.Bom ? f.Encoding.GetPreamble() : new byte[0];
-                File.WriteAllBytes(f.Path, pre.Concat(body).ToArray());
+                RenameSync.WriteKeepingEncoding(f.Path, newText, f.Encoding);
                 return true;
             }
             catch (Exception ex) { Log("write failed: " + f.Path + " " + ex.Message); return false; }
@@ -212,6 +204,15 @@ namespace KCppAssist
                 return;
             }
 
+            if (!unused && !currentFileOnly)
+            {
+                // プロジェクト全体の整理は、閉じているファイルも保存するので、Ctrl+Z で戻せない。先に聞く
+                string names = string.Join("\n", changes.Take(20).Select(c => c.Item3)) + (changes.Count > 20 ? "\n… ほか " + (changes.Count - 20) + " 個" : "");
+                var ok = System.Windows.MessageBox.Show("次の " + changes.Count + " 個のファイルの #include を並べ替えます。\n開いていないファイルは、そのまま保存します(Ctrl+Z では戻せません)。\n\n" + names + "\n\n並べ替えますか?",
+                    "K-CppAssist: #include を整理", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (ok != MessageBoxResult.Yes) { await ReportAsync("やめました", false); return; }
+            }
+
             if (unused)
             {
                 string preview = string.Join("\n", details.Take(25)) + (details.Count > 25 ? "\n… ほか " + (details.Count - 25) + " 件" : "");
@@ -257,31 +258,40 @@ namespace KCppAssist
                     return it.Angle ? StdHeaders.NamesFor(it.Token.ToLowerInvariant()) : null;     // 読めない相手は、残す
                 }
                 var set = new HashSet<string>(StringComparer.Ordinal);
-                Collect(file, root, set, new HashSet<string>(StringComparer.OrdinalIgnoreCase), 0);
-                return set;
+                bool complete = true;
+                Collect(file, root, set, new HashSet<string>(StringComparer.OrdinalIgnoreCase), 0, ref complete);
+                // 中身を読めないヘッダー(windows.h、d3d12.h など)を間に通して名前を渡していると、その名前は数えられない。
+                // そういうヘッダー(pch.h や、まとめて include する Common.h)は、使っていないと決められないので、残す
+                return complete ? set : null;
             }
 
-            private void Collect(string file, string root, HashSet<string> into, HashSet<string> visited, int depth)
+            private sealed class Parsed { public HashSet<string> Own; public List<IncludeTidy.Item> Includes; }
+
+            private readonly Dictionary<string, Parsed> parsed = new Dictionary<string, Parsed>(StringComparer.OrdinalIgnoreCase);
+
+            private void Collect(string file, string root, HashSet<string> into, HashSet<string> visited, int depth, ref bool complete)
             {
-                if (depth > 6 || !visited.Add(file)) return;
-                HashSet<string> own;
-                if (!direct.TryGetValue(file, out own))
+                if (depth > 6) { complete = false; return; }
+                if (!visited.Add(file)) return;
+                Parsed p;
+                if (!parsed.TryGetValue(file, out p))
                 {
                     string text = null;
-                    try { text = File.ReadAllText(file); } catch (Exception) { }
-                    own = text == null ? new HashSet<string>() : IncludeTidy.Provided(text);
-                    direct[file] = own;
+                    try { Encoding enc; text = RenameSync.ReadKeepingEncoding(file, out enc); } catch (Exception) { }
+                    p = text == null
+                        ? new Parsed { Own = new HashSet<string>(), Includes = new List<IncludeTidy.Item>() }
+                        : new Parsed { Own = IncludeTidy.Provided(text), Includes = IncludeTidy.Parse(text) };
+                    if (text == null) complete = false;
+                    parsed[file] = p;
                 }
-                into.UnionWith(own);
-                string content = null;
-                try { content = File.ReadAllText(file); } catch (Exception) { }
-                if (content == null) return;
-                foreach (var inc in IncludeTidy.Parse(content))
+                into.UnionWith(p.Own);
+                foreach (var inc in p.Includes)
                 {
                     string next = Resolve(inc, file, root);
-                    if (next != null) { Collect(next, root, into, visited, depth + 1); continue; }
+                    if (next != null) { Collect(next, root, into, visited, depth + 1, ref complete); continue; }
                     var std = inc.Angle ? StdHeaders.NamesFor(inc.Token.ToLowerInvariant()) : null;
                     if (std != null) into.UnionWith(std);
+                    else complete = false;
                 }
             }
         }
