@@ -36,7 +36,7 @@ namespace KCppAssist
   拡張機能 メニュー
           このファイルの #include を整理
           ファイルの文字コードをそろえる...  プロジェクトの全ファイルを UTF-8 (BOM 付き / なし) か Shift-JIS に、改行もそろえる。
-          .editorconfig への書き込み、変換前のファイルのバックアップ、/source-charset:utf-8 の追加も選べる
+          .editorconfig への書き込みと、/source-charset:utf-8 の追加も選べる
 
 ■ 宣言と定義
   Alt+G   宣言と定義の引数を合わせる  変えた側に、相手(開いていなくても)を合わせる。引数を変えると自動でも合う

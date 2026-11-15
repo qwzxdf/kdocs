@@ -58,7 +58,6 @@ namespace KCppAssist
             private readonly ComboBox eol = new ComboBox { Width = 330 };
             private readonly TextBox exts = new TextBox { Text = DefaultEncodingExts, Width = 420 };
             private readonly CheckBox editorConfig = new CheckBox { Content = ".editorconfig に書く (これから新しく保存するファイルも、この文字コードと改行になります)", IsChecked = true };
-            private readonly CheckBox backup = new CheckBox { Content = "変換前のファイルを、ソリューションの .kcppassist-backup フォルダーに残す", IsChecked = true };
             private readonly CheckBox saveFirst = new CheckBox { Content = "開いている未保存のファイルを、先に全部保存する", IsChecked = true };
             private readonly CheckBox sourceCharset = new CheckBox { Content = "BOM なし UTF-8 のとき、プロジェクトに /source-charset:utf-8 を付ける (MSVC が Shift-JIS として読まないように)", IsChecked = true };
             private readonly CheckBox onlyChanges = new CheckBox { Content = "変換が要るファイルだけ一覧に出す", IsChecked = true };
@@ -115,7 +114,7 @@ namespace KCppAssist
                 panel.Children.Add(Row("拡張子", exts));
                 panel.Children.Add(Row("文字コード", target));
                 panel.Children.Add(Row("改行", eol));
-                foreach (var c in new[] { editorConfig, backup, saveFirst, sourceCharset, onlyChanges }) { c.Margin = new Thickness(0, 2, 0, 2); panel.Children.Add(c); }
+                foreach (var c in new[] { editorConfig, saveFirst, sourceCharset, onlyChanges }) { c.Margin = new Thickness(0, 2, 0, 2); panel.Children.Add(c); }
                 var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 6) };
                 buttons.Children.Add(scanButton);
                 buttons.Children.Add(convertButton);
@@ -263,14 +262,12 @@ namespace KCppAssist
                 var t = Target();
                 var e = Eol();
                 string msg = todo.Count + " 個のファイルを " + EncodingTool.TargetName(t) + (e == EncodingTool.Eol.Keep ? "" : "・" + (e == EncodingTool.Eol.Lf ? "LF" : "CRLF")) + " にそろえます。"
-                    + (backup.IsChecked == true ? "\n変換前のファイルは .kcppassist-backup に残します。" : "\n変換前のファイルは残しません (元に戻すには Git などを使います)。")
+                    + "\n開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません。戻すときは Git などを使います)。"
                     + "\n\n続けますか?";
                 if (MessageBox.Show(this, msg, "K-CppAssist", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
                 scanButton.IsEnabled = convertButton.IsEnabled = false;
                 summary.Text = "変換しています…";
-                string backupDir = backup.IsChecked == true && root != null ? Path.Combine(root, ".kcppassist-backup", DateTime.Now.ToString("yyyyMMdd-HHmmss")) : null;
-                string baseDir = root;
                 var result = await Task.Run(() =>
                 {
                     int ok = 0;
@@ -283,12 +280,6 @@ namespace KCppAssist
                             // 調べたあとで書き換わっていたら、計画を作り直す
                             var plan = EncodingTool.PlanFile(now, t, e);
                             if (plan.NewBytes == null) continue;
-                            if (backupDir != null)
-                            {
-                                string dst = Path.Combine(backupDir, BackupRel(baseDir, r.File));
-                                Directory.CreateDirectory(Path.GetDirectoryName(dst));
-                                File.WriteAllBytes(dst, now);
-                            }
                             File.WriteAllBytes(r.File, plan.NewBytes);
                             r.Action = "変換しました";
                             r.Plan = null;
@@ -305,7 +296,6 @@ namespace KCppAssist
                 if (t == EncodingTool.Target.Utf8 && sourceCharset.IsChecked == true) notes.Add(AddSourceCharset(scannedProjects));
                 ShowRows();
                 summary.Text = result.Item1 + " 個のファイルを変換しました" + (result.Item2.Count > 0 ? " (失敗 " + result.Item2.Count + ")" : "") + "。"
-                    + (backupDir != null && result.Item1 > 0 ? "\n変換前のファイル: " + backupDir : "")
                     + string.Concat(notes.Where(n => !string.IsNullOrEmpty(n)).Select(n => "\n" + n));
                 KCppAssistPackage.Log("encoding: converted " + result.Item1 + " failed " + result.Item2.Count);
                 list.Items.Refresh();
@@ -473,13 +463,6 @@ namespace KCppAssist
                 if (!string.IsNullOrEmpty(baseDir) && file.StartsWith(baseDir.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase))
                     return file.Substring(baseDir.TrimEnd('\\').Length + 1);
                 return file;
-            }
-
-            /// <summary>バックアップの中での置き場所。ソリューションの外のファイルは、ドライブ名を含めたパスの形で置く。</summary>
-            private static string BackupRel(string baseDir, string file)
-            {
-                string rel = Rel(baseDir, file);
-                return Path.IsPathRooted(rel) ? Path.Combine("_outside", rel.Replace(":", "")) : rel;
             }
         }
     }
