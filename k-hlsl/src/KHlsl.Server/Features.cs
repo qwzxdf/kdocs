@@ -547,7 +547,7 @@ namespace KHlsl.Server
             }
 
             Db.Func intr; Db.TypeInfo typ; Db.Keyword kw; Db.Const cst; Db.Macro mac; Db.Special sp;
-            if (_db.IntrinsicByName.TryGetValue(word, out intr)) return DocText(string.Join("\n", intr.s), intr.d, intr.m);
+            if (_db.IntrinsicByName.TryGetValue(word, out intr)) return DocText(string.Join("\n", Concretize(intr.s, e, s, c, syms)), intr.d, intr.m);
             if (_db.TypeByName.TryGetValue(word, out typ)) return DocText(word, typ.d, typ.m);
             if (_db.SpecialByName.TryGetValue(word, out sp)) return DocText(word, sp.d, sp.m);
             if (_db.ConstByName.TryGetValue(word, out cst)) return DocText(word, cst.d, null);
@@ -559,6 +559,129 @@ namespace KHlsl.Server
                 return vec.Groups[3].Success
                     ? DocText(word, vec.Groups[2].Value + " 行 " + vec.Groups[3].Value + " 列の " + vec.Groups[1].Value + " 行列。", null)
                     : DocText(word, vec.Groups[2].Value + " 成分の " + vec.Groups[1].Value + " ベクター。", null);
+            }
+            return null;
+        }
+
+
+        // ---- 総称型(T F I U)を、呼び出しの引数の型で具体型にする ----
+        private static readonly Regex GenericLetter = new Regex(@"\b[TFIU]\b", RegexOptions.Compiled);
+        private static readonly Regex TypeShape = new Regex(@"^(bool|int|uint|half|float|double)([1-4])?(x[1-4])?$", RegexOptions.Compiled);
+
+        /// <summary>T F I U を含むシグネチャを、呼び出しの引数の型で書き換える。引数の型が分からなければ、そのまま返す。</summary>
+        private IList<string> Concretize(IList<string> sigs, int wordEnd, int wordStart, Ctx c, List<Sym> syms)
+        {
+            if (!sigs.Any(x => GenericLetter.IsMatch(x))) return sigs;
+            var args = CallArgs(c.Masked, wordEnd);
+            if (args == null || args.Count == 0) return sigs;
+            var types = args.Select(a => ArgType(a, wordStart, syms)).ToList();
+            if (types.All(x => x == null)) return sigs;
+            // 最初は、型の種類(float / int)まで合う候補だけ。なければ、暗黙の変換を許す
+            foreach (bool strict in new[] { true, false })
+            {
+                var res = new List<string>();
+                foreach (var sig in sigs)
+                {
+                    string r = Substitute(sig, types, strict);
+                    if (r != null) res.Add(r);
+                }
+                if (res.Count > 0) return res;
+            }
+            return sigs;
+        }
+
+        private static string ScalarOf(string t) { var m = TypeShape.Match(t); return m.Success ? m.Groups[1].Value : null; }
+
+        /// <summary>type の次元(float3 の 3 など)はそのままで、要素の型だけを scalar にする。</summary>
+        private static string WithScalar(string type, string scalar)
+        {
+            var m = TypeShape.Match(type);
+            return m.Success ? scalar + m.Groups[2].Value + m.Groups[3].Value : null;
+        }
+
+        private static string Substitute(string sig, List<string> argTypes, bool strict)
+        {
+            int open = sig.IndexOf('(');
+            int close = sig.LastIndexOf(')');
+            if (open < 0 || close < open) return sig;
+            string plist = sig.Substring(open + 1, close - open - 1);
+            var ps = plist.Split(',').Select(x => x.Trim()).ToList();
+            var repl = new Dictionary<char, string>();
+            string baseType = null;
+            for (int i = 0; i < ps.Count; i++)
+            {
+                var m = Regex.Match(ps[i], @"^(?:(?:out|inout|in)\s+)?([TFIU])\s+\w+$");
+                if (!m.Success) continue;
+                char L = m.Groups[1].Value[0];
+                string a = i < argTypes.Count ? argTypes[i] : null;
+                if (a == null || ScalarOf(a) == null || repl.ContainsKey(L)) continue;
+                string sc = ScalarOf(a);
+                bool isFloat = sc == "float" || sc == "half" || sc == "double";
+                bool isInt = sc == "int" || sc == "uint";
+                if (strict && ((L == 'F' && !isFloat) || ((L == 'I' || L == 'U') && !isInt))) return null;
+                repl[L] = L == 'T' ? a
+                        : L == 'F' ? WithScalar(a, isFloat ? sc : "float")
+                        : L == 'I' ? WithScalar(a, isInt ? sc : "int")
+                        : WithScalar(a, isInt ? sc : "uint");
+                if (baseType == null) baseType = a;
+            }
+            if (baseType == null) return sig;
+            // 引数にない文字(戻り値だけの F I U)は、最初の引数の次元で補う
+            foreach (char L in "FIU")
+                if (!repl.ContainsKey(L) && Regex.IsMatch(sig, @"\b" + L + @"\b"))
+                    repl[L] = WithScalar(baseType, L == 'F' ? "float" : L == 'I' ? "int" : "uint");
+            return Regex.Replace(sig, @"\b[TFIU]\b", mm => repl.ContainsKey(mm.Value[0]) ? repl[mm.Value[0]] : mm.Value);
+        }
+
+        /// <summary>word の直後の ( ) の中身を、最上位の , で分ける。呼び出しでなければ null。</summary>
+        private static List<string> CallArgs(string m, int i)
+        {
+            while (i < m.Length && (m[i] == ' ' || m[i] == '\t')) i++;
+            if (i >= m.Length || m[i] != '(') return null;
+            var res = new List<string>();
+            var sb = new StringBuilder();
+            int depth = 0;
+            for (i++; i < m.Length; i++)
+            {
+                char ch = m[i];
+                if (ch == '(' || ch == '[' || ch == '{') depth++;
+                else if (ch == ')' || ch == ']' || ch == '}')
+                {
+                    if (depth == 0) { if (sb.ToString().Trim().Length > 0) res.Add(sb.ToString().Trim()); return res; }
+                    depth--;
+                }
+                else if (ch == ',' && depth == 0) { res.Add(sb.ToString().Trim()); sb.Clear(); continue; }
+                else if (ch == ';') return null;
+                sb.Append(ch);
+            }
+            return null;
+        }
+
+        /// <summary>引数の式の型。リテラル・変数・スウィズル・float3(...) だけ分かる。それ以外は null。</summary>
+        private string ArgType(string a, int offset, List<Sym> syms)
+        {
+            a = a.Trim();
+            while (a.StartsWith("-") || a.StartsWith("+") || a.StartsWith("!")) a = a.Substring(1).TrimStart();
+            if (a.Length == 0) return null;
+            if (a == "true" || a == "false") return "bool";
+            if (Regex.IsMatch(a, @"^(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?[fFhH]$|^(\d+\.\d*|\.\d+)([eE][+-]?\d+)?$")) return "float";
+            if (Regex.IsMatch(a, @"^(\d+|0[xX][0-9a-fA-F]+)[uU]$")) return "uint";
+            if (Regex.IsMatch(a, @"^(\d+|0[xX][0-9a-fA-F]+)$")) return "int";
+            var ctor = Regex.Match(a, @"^([A-Za-z_]\w*)\s*\(");
+            if (ctor.Success && TypeShape.IsMatch(ctor.Groups[1].Value) && a.EndsWith(")")) return ctor.Groups[1].Value;
+            if (Regex.IsMatch(a, @"^[A-Za-z_]\w*$"))
+            {
+                string t = VarTypeAnyFile(a, offset, syms);
+                return t != null && TypeShape.IsMatch(t) ? t : null;
+            }
+            var sw = Regex.Match(a, @"^([A-Za-z_]\w*)\.([xyzwrgba]{1,4})$");
+            if (sw.Success)
+            {
+                string t = VarTypeAnyFile(sw.Groups[1].Value, offset, syms);
+                string sc = t == null ? null : ScalarOf(t);
+                if (sc == null) return null;
+                int n = sw.Groups[2].Length;
+                return n == 1 ? sc : sc + n;
             }
             return null;
         }
