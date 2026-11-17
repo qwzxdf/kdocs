@@ -123,16 +123,6 @@ namespace KCppAssist
                     else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("関数の本体をヘッダーに移す", () => Invoke(p => p.RunMove())));
                 }
 
-                // 直前のビルドで、この行に縮小変換の警告(C4267 など)が出ていれば、static_cast を付ける
-                var pkg0 = KCppAssistPackage.Instance;
-                string narrow = pkg0 == null ? null : pkg0.NarrowTypeAt(path, line.LineNumber + 1);
-                if (narrow != null && KCppAssist.ErrorLog.NarrowFix.Make(line.GetText(), narrow) != null)
-                {
-                    int lineNo = line.LineNumber + 1;
-                    string nlText = line.GetText();
-                    list.Add(Action("右辺を static_cast<" + narrow + ">(…) にする", () => Invoke(p => p.ApplyNarrowFixAt(path, lineNo, narrow, nlText))));
-                }
-
                 // switch の行: 足りない case を足す。class / struct の行: コンストラクターを作る
                 string lineText = line.GetText();
                 if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"\bswitch\s*\(")) list.Add(Action("switch の足りない case を足す", () => Invoke(p => p.RunSwitch())));

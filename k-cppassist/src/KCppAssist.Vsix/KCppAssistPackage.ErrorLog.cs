@@ -81,51 +81,9 @@ namespace KCppAssist
                         bool more = Refresh(false);
                         if (more && opt.ErrorLogAutoShow) ShowWindow(false, false);
                     }
-                    AppendNarrowHints();
                 });
             }
             catch (Exception ex) { Log("build done failed: " + ex.Message); }
-        }
-
-        /// <summary>
-        /// ビルドの出力欄(ログ)の末尾に、縮小変換の警告ごとに「直せます」の行を足す。
-        /// 出力欄にボタンは置けないので、行のダブルクリックでその行へ飛び、Ctrl+. の電球で直す。
-        /// 「warning」「error」の語は入れない(エラー一覧に二重に出ないように)。
-        /// </summary>
-        private void AppendNarrowHints()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
-            {
-                var input = _current;
-                if (input == null || input.Report == null || _dte == null) return;
-                var lines = new System.Collections.Generic.List<string>();
-                var seen = new System.Collections.Generic.HashSet<string>();
-                foreach (var d in input.Report.Diags)
-                {
-                    if (lines.Count >= 30) break;
-                    if (!d.HasLocation || !NarrowFix.IsCandidate(d.Code)) continue;
-                    string type = NarrowFix.TargetType(d.Message);
-                    if (type == null || !seen.Add(d.File + "|" + d.Line)) continue;
-                    string src = null;
-                    try
-                    {
-                        var all = System.IO.File.ReadAllLines(d.File);
-                        if (d.Line >= 1 && d.Line <= all.Length) src = all[d.Line - 1];
-                    }
-                    catch (Exception) { }
-                    if (src == null || NarrowFix.Make(src, type) == null) continue;
-                    lines.Add(d.File + "(" + d.Line + "): K-CppAssist: static_cast<" + type + "> で直せます。ダブルクリックで飛んで Ctrl+. → 「右辺を static_cast にする」");
-                }
-                if (lines.Count == 0) return;
-                foreach (OutputWindowPane pane in _dte.ToolWindows.OutputWindow.OutputWindowPanes)
-                {
-                    if (!string.Equals(pane.Guid, BuildPaneGuid, StringComparison.OrdinalIgnoreCase)) continue;
-                    pane.OutputString("\r\n" + string.Join("\r\n", lines) + "\r\n");
-                    break;
-                }
-            }
-            catch (Exception ex) { Log("narrow hints failed: " + ex.Message); }
         }
 
         /// <summary>ビルド欄を読んで解析し、窓に出す。エラーがあれば true。</summary>
@@ -255,31 +213,6 @@ namespace KCppAssist
         }
 
         /// <summary>エラーログの「static_cast にする」を押したとき。その行の右辺を包む(1 回の Undo)。</summary>
-        /// <summary>
-        /// 直前のビルドの警告(C4267 など)のうち、path の lineNo 行目(1 から)にある縮小変換の、変換先の型。なければ null。
-        /// 電球(Quick Fix)に「static_cast を付ける」を出すために、エディターから引く。
-        /// </summary>
-        internal string NarrowTypeAt(string path, int lineNo)
-        {
-            var input = _current;
-            if (input == null || input.Report == null || path == null) return null;
-            foreach (var d in input.Report.Diags)
-            {
-                if (d.Line != lineNo || !d.HasLocation || !NarrowFix.IsCandidate(d.Code)) continue;
-                if (!string.Equals(d.File, path, StringComparison.OrdinalIgnoreCase)) continue;
-                string type = NarrowFix.TargetType(d.Message);
-                if (type != null) return type;
-            }
-            return null;
-        }
-
-        /// <summary>電球から: path の lineNo 行目の右辺を static_cast&lt;type&gt;(…) で包む(エラーログの「クリックで修正」と同じ処理)。</summary>
-        internal void ApplyNarrowFixAt(string path, int lineNo, string type, string lineText)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            ApplyNarrowFix(new ErrorLink { File = path, Line = lineNo, Fix = type, FixLine = lineText.Trim() });
-        }
-
         private void ApplyNarrowFix(ErrorLink run)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
