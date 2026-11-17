@@ -166,6 +166,10 @@ static class P
         Check("narrow: brace init", nf("  int narrow{3.5};", "int") == "  int narrow{static_cast<int>(3.5)};");
         Check("narrow: call with commas inside", nf("int n = std::min(a, b);", "int") == "int n = static_cast<int>(std::min(a, b));");
         Check("narrow: string with = and ; inside", nf("  int k = Foo(\"a=b;\");", "int") == "  int k = static_cast<int>(Foo(\"a=b;\"));");
+        Check("narrow: range-for const int -> const auto", nf("  for (const int child : fast_node.children) {", "const int") == "  for (const auto child : fast_node.children) {");
+        Check("narrow: range-for int", nf("for (int c : v) {", "int") == "for (auto c : v) {");
+        Check("narrow: range-for auto left", nf("for (auto c : v) {", "int") == null);
+        Check("narrow: for(;;) still refused", nf("for (int i = 0; i < n; ++i) {", "int") == null);
         Check("narrow: already cast is left", nf("int i = static_cast<int>(d);", "int") == null);
         Check("narrow: compound assign refused", nf("  total += d;", "int") == null);
         Check("narrow: two declarators refused", nf("  int a = x, b = y;", "int") == null);

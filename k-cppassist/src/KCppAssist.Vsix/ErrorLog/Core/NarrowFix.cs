@@ -74,11 +74,29 @@ namespace KCppAssist.ErrorLog
         private static readonly Regex Keyword = new Regex(@"^\s*(?:for|while|if|switch|else|do|case|using|typedef)\b", RegexOptions.Compiled);
         private static readonly Regex Return = new Regex(@"^(?<head>\s*return\s+)(?<rhs>.+?)\s*;\s*$", RegexOptions.Compiled);
 
-        /// <summary>行 line の右辺を static_cast&lt;type&gt;(...) で包む編集。できなければ null。</summary>
+        // 範囲 for の宣言: for (const int child : range)。decl は型の部分(const を含む)
+        private static readonly Regex RangeFor = new Regex(
+            @"^\s*for\s*\(\s*(?<decl>(?:const\s+)?(?:unsigned\s+|signed\s+)?[A-Za-z_][\w:]*(?:\s+(?:int|long|short|char))*)\s+[A-Za-z_]\w*\s*:(?!:)",
+            RegexOptions.Compiled);
+
+        /// <summary>範囲 for の行(右辺がないので、static_cast ではなく、型を auto にして直す)。</summary>
+        public static bool IsRangeFor(string line)
+        {
+            return !string.IsNullOrEmpty(line) && RangeFor.IsMatch(Mask(line));
+        }
+
+        /// <summary>行 line の右辺を static_cast&lt;type&gt;(...) で包む編集。範囲 for は、宣言の型を (const) auto に替える。できなければ null。</summary>
         public static Plan Make(string line, string type)
         {
             if (string.IsNullOrEmpty(line) || string.IsNullOrEmpty(type)) return null;
             string m = Mask(line);
+            Match rf = RangeFor.Match(m);
+            if (rf.Success)
+            {
+                Group g = rf.Groups["decl"];
+                if (g.Value.Trim() == "auto" || g.Value.EndsWith("auto", StringComparison.Ordinal)) return null;
+                return new Plan { Start = g.Index, Length = g.Length, Text = g.Value.StartsWith("const", StringComparison.Ordinal) ? "const auto" : "auto" };
+            }
             if (Keyword.IsMatch(m)) return null;
 
             int rs, re;

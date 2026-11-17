@@ -517,7 +517,9 @@ namespace KCppAssist.ErrorLog
             AddConversion(doc, d);
             if (fix != null)
                 Line(doc, 1, null).Add("修正: ", Role.Good, true)
-                    .Add("見出しの「クリックで修正」で、右辺を static_cast<" + fix.Fix + ">(…) にします", Role.Normal)
+                    .Add(NarrowFix.IsRangeFor(fix.FixLine)
+                        ? "見出しの「クリックで修正」で、ループ変数の型を auto にします (要素の型にそろう。変数を使う側で新しい警告が出ることがあります)"
+                        : "見出しの「クリックで修正」で、右辺を static_cast<" + fix.Fix + ">(…) にします", Role.Normal)
                     .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
 
             Frame userFrame = FindUserFrame(d, sol);
