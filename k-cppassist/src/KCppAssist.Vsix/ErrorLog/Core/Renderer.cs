@@ -518,7 +518,7 @@ namespace KCppAssist.ErrorLog
             if (fix != null)
                 Line(doc, 1, null).Add("修正: ", Role.Good, true)
                     .Add(NarrowFix.IsRangeFor(fix.FixLine)
-                        ? "見出しの「クリックで修正」で、ループ変数の型を auto にします (要素の型にそろう。変数を使う側で新しい警告が出ることがあります)"
+                        ? "見出しの「クリックで修正」で、ループ変数の型を " + fix.Fix + " にします (変数を使う側で、新しい警告が出ることがあります)"
                         : "見出しの「クリックで修正」で、右辺を static_cast<" + fix.Fix + ">(…) にします", Role.Normal)
                     .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
 
@@ -561,6 +561,7 @@ namespace KCppAssist.ErrorLog
             string[] lines = ReadLines(d.File);
             if (lines == null || d.Line < 1 || d.Line > lines.Length) return null;
             string line = lines[d.Line - 1];
+            if (NarrowFix.IsRangeFor(line)) { type = NarrowFix.SourceType(d.Message); if (type == null) return null; }   // 範囲 for は、変換元の型にそろえる
             if (NarrowFix.Make(line, type) == null) return null;
             return new Run { Text = "[クリックで修正]", Role = Role.Good, Bold = true, File = d.File, Line = d.Line, Col = d.Col, Fix = type, FixLine = line.Trim() };
         }

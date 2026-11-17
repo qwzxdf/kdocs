@@ -41,6 +41,17 @@ namespace KCppAssist.ErrorLog
             return ScalarType.IsMatch(b) ? b : null;
         }
 
+        /// <summary>メッセージの「'A' から 'B'」の A(変換元の型)。範囲 for の変数の型を、これにそろえて直す。取り出せなければ null。</summary>
+        public static string SourceType(string message)
+        {
+            Match m = FromToEn.Match(message ?? "");
+            if (!m.Success) m = FromToJa.Match(message ?? "");
+            if (!m.Success) return null;
+            string a = Regex.Replace(m.Groups["a"].Value.Trim(), @"^const\s+", "");
+            if (a.IndexOfAny(new[] { '*', '&', '<', '>', '(', '[' }) >= 0) return null;
+            return ScalarType.IsMatch(a) ? a : null;
+        }
+
         /// <summary>文字列・文字・コメントの中身を空白にした、同じ長さの文字列。</summary>
         private static string Mask(string s)
         {
@@ -79,13 +90,13 @@ namespace KCppAssist.ErrorLog
             @"^\s*for\s*\(\s*(?<decl>(?:const\s+)?(?:unsigned\s+|signed\s+)?[A-Za-z_][\w:]*(?:\s+(?:int|long|short|char))*)\s+[A-Za-z_]\w*\s*:(?!:)",
             RegexOptions.Compiled);
 
-        /// <summary>範囲 for の行(右辺がないので、static_cast ではなく、型を auto にして直す)。</summary>
+        /// <summary>範囲 for の行(右辺がないので、static_cast ではなく、変数の型を変換元の型にして直す)。</summary>
         public static bool IsRangeFor(string line)
         {
             return !string.IsNullOrEmpty(line) && RangeFor.IsMatch(Mask(line));
         }
 
-        /// <summary>行 line の右辺を static_cast&lt;type&gt;(...) で包む編集。範囲 for は、宣言の型を (const) auto に替える。できなければ null。</summary>
+        /// <summary>行 line の右辺を static_cast&lt;type&gt;(...) で包む編集。範囲 for は、宣言の型を type(変換元の型)に替える。できなければ null。</summary>
         public static Plan Make(string line, string type)
         {
             if (string.IsNullOrEmpty(line) || string.IsNullOrEmpty(type)) return null;
@@ -94,8 +105,10 @@ namespace KCppAssist.ErrorLog
             if (rf.Success)
             {
                 Group g = rf.Groups["decl"];
-                if (g.Value.Trim() == "auto" || g.Value.EndsWith("auto", StringComparison.Ordinal)) return null;
-                return new Plan { Start = g.Index, Length = g.Length, Text = g.Value.StartsWith("const", StringComparison.Ordinal) ? "const auto" : "auto" };
+                string t = Regex.Replace(type.Trim(), @"^const\s+", "");
+                string cur = Regex.Replace(g.Value.Trim(), @"^const\s+", "");
+                if (cur == "auto" || cur == t) return null;
+                return new Plan { Start = g.Index, Length = g.Length, Text = (g.Value.StartsWith("const", StringComparison.Ordinal) ? "const " : "") + t };
             }
             if (Keyword.IsMatch(m)) return null;
 
