@@ -148,7 +148,9 @@ Editor/
 |  | [第 56 章 ビューポートを別プロセスから受ける](56-remote-viewport.md) | 共有メモリ、ダブル バッファー、`WriteableBitmap` |
 |  | [第 57 章 落ちたら立て直す](57-recovery.md) | `EngineSupervisor`、シーンの送り直し |
 |  | [第 58 章 AI から操作する：MCP](58-mcp.md) | 手書きの MCP サーバー、道具、Undo と承認 |
-|  | [第 59 章 まとめとこれから](59-next-steps.md) | 設計の振り返りとこれから |
+|  | [第 59 章 TCP を深く知る：バイトの流れとして使うために](59-tcp-deep.md) | ストリーム、ウィンドウ、Nagle、切断、TIME_WAIT、ポート |
+|  | [第 60 章 TCP でエンジンに繋ぐ（localhost）](60-tcp-engine.md) | `IEngineTransport`、Winsock のサーバー、合言葉、ハートビート |
+|  | [第 61 章 まとめとこれから](61-next-steps.md) | 設計の振り返りとこれから |
 
 ## この教材の進め方
 

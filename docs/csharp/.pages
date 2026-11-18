@@ -60,4 +60,6 @@ nav:
   - 56-remote-viewport.md
   - 57-recovery.md
   - 58-mcp.md
-  - 59-next-steps.md
+  - 59-tcp-deep.md
+  - 60-tcp-engine.md
+  - 61-next-steps.md
