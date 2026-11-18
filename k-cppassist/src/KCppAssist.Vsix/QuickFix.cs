@@ -136,6 +136,14 @@ namespace KCppAssist
                     if (!assign.HasThis) list.Add(Action("ローカル変数として型を付ける (" + assign.Name + ")", () => Invoke(p => p.Run(false))));
                     if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action("メンバー変数としてヘッダーに宣言する (" + assign.Name + ")", () => Invoke(p => p.Run(true))));
                 }
+
+                // 書き換え・生成(NULL → nullptr、if の反転、formatter、入力レイアウト…)
+                string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+                foreach (var o in KCppAssistPackage.OffersAt(path, text, caret, eol))
+                {
+                    string id = o.Id;
+                    list.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
+                }
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
             return list;

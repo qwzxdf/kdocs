@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.22.3.vsix" download>K-CppAssist 0.22.3 をダウンロード（.vsix、約 268 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.23.0.vsix" download>K-CppAssist 0.23.0 をダウンロード（.vsix、約 300 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -38,6 +38,7 @@ Visual Studio 2026（Community・Professional・Enterprise）で動きます。2
 | Alt+G | 宣言と定義の引数を合わせる | ヘッダーの宣言と cpp の定義の引数を、変えた側に合わせる。引数を変えるとエディターで開いている相手にも自動で写す |
 | Alt+R | 宣言・定義の相手を作る | ヘッダーの宣言から cpp の定義の雛形を、cpp の定義からヘッダーの宣言を作る（下の「宣言と定義の相手を作る」） |
 | Alt+F | `#include` を足す | カーソルの識別子（`std::vector`、`ComPtr`、`Camera`）のヘッダーを探して `#include` を足す。設定を `Auto` にすると入力中にも自動で足す |
+| Alt+X | 書き換え・生成の一覧 | `Ctrl+.` の電球と同じ項目を、一覧の窓で選ぶ（下の「書き換えと生成」） |
 
 どのコマンドも <strong>カーソルが行のどこにあっても</strong>押せます。対象は行頭の `名前 = 右辺;` の左辺です。
 
@@ -384,6 +385,151 @@ void Player::Update(float dt) {
 
 どれも電球（`Ctrl+.`）に出ます（`switch` の行、`class` / `struct` の行。呼び出しから関数を作るのは、キーだけです）。1 回の編集なので、Undo も 1 回です。
 
+## 書き換えと生成（Ctrl+.・Alt+X）
+
+C# では `Ctrl+.` を押すと「if を反転する」「== を作る」のような小さな書き換えが並び、選ぶだけでコードが変わります。C++ の Visual Studio にも電球はありますが、出てくる項目は C# よりずっと少なめです。K-CppAssist はゲームの C++ でよく手で書く形を、電球の項目として足します。
+
+カーソルを置いて `Ctrl+.` を押すとその位置で使えるものだけが出ます。Alt+X を押すと同じ項目を一覧の窓で選べます。どれもいまの文字で計算し直してから書き換えるので電球を出したあとに打った文字も反映されます。1 つのファイルの書き換えは 1 回の Undo で戻ります。
+
+| 置く場所 | 出る項目 |
+|---|---|
+| [行の書き換え](#kca-line) | NULL → nullptr、typedef → using、C のキャスト、範囲 for、if の反転、早期 return、auto |
+| [デバッグ出力](#kca-dbg) | 変数を出力する行を足す、まとめて消す |
+| [クラスの中](#kca-class) | コピー禁止、== と <=>、formatter、hash、JSON、cereal、Natvis |
+| [enum の上](#kca-enum) | ToString と FromString |
+| [頂点・定数バッファ](#kca-d3d) | 入力レイアウト、HLSL の 16 バイト境界 |
+| [ファイルをまたぐもの](#kca-files) | 定義をまとめて作る、クラスを別ファイルへ、初期化子の並べ替え |
+
+### 行の書き換え {#kca-line}
+
+古い書き方を今の C++ に直すものと、制御の形を変えるものです。どれもカーソルの行だけを見ます。
+
+<strong>NULL を nullptr にする。</strong>行の中の `NULL` を `nullptr` にします。電球には「ファイル全体」の項目も並びます。`NULL` は `0` と同じ整数なので、`f(int)` と `f(int*)` のオーバーロードがあると `f(NULL)` は `int` の方を呼びます。`nullptr` はポインターにしかならないので、この取り違えが起きません。コメントと文字列の中の `NULL` は変えません。
+
+<strong>typedef を using にする。</strong>`typedef std::map<int, Enemy> Table;` を `using Table = std::map<int, Enemy>;` にします。関数ポインターの `typedef void (*Callback)(int);` は `using Callback = void (*)(int);` になります。名前が左に来るので長い型でも何の別名かを先に読めます。`typedef struct { … } X;` のように複数行にまたがるものは対象外です。
+
+<strong>C のキャストを static_cast にする。</strong>`(float)a / b` を `static_cast<float>(a) / b` にします。キャストは割り算より強く結び付くので、元の式でも変換されるのは `a` だけです。書き換えたあとも意味は同じで、どこまでが変換の対象かが括弧で見えるようになります。対象は数の型（`int` `float` `UINT` `size_t` など）だけです。ポインターのキャストは `static_cast` と `reinterpret_cast` のどちらが正しいかを文字だけでは決められないので変えません。`sizeof(int)` や `f(int)` の宣言はキャストではないので飛ばします。
+
+<strong>添字の for を範囲 for にする。</strong>次の形の `for` で押します。
+
+```cpp
+for (size_t i = 0; i < enemies_.size(); ++i) {
+  enemies_[i].Update(dt);
+}
+// ↓
+for (auto& enemy : enemies_) {
+  enemy.Update(dt);
+}
+```
+
+要素の名前は入れ物の名前の単数形です（`enemies_` → `enemy`、`boxes` → `box`）。本体で `i` を `enemies_[i]` 以外に使っていれば断ります（番号が要る処理なので）。本体で `push_back` や `erase` をしているときも断ります。範囲 for の中で要素を足し引きすると反復子が無効になって落ちるからです。
+
+<strong>if を反転する。</strong>`if (hp > 0) { A } else { B }` を `if (hp <= 0) { B } else { A }` にします。比較が 1 つなら演算子を裏返し（`<` → `>=`）、`!IsAlive()` は `IsAlive()` にします。`a && b` のような組み合わせは `!(a && b)` で包みます。ド・モルガンで展開すると読みにくくなることが多いためです。
+
+<strong>早期 return にする。</strong>関数の最後の文が `if (alive_) { … }` のとき、`if (!alive_) return;` にして本体を 1 段浅くします。ループの最後の文なら `continue;` にします。戻り値のある関数では何を返すかを決められないので断ります。`else` のある `if` と、後ろに文が続く `if` も対象外です（意味が変わるため）。
+
+<strong>型を auto にする。</strong>右辺に同じ型がそのまま書いてあるときだけ `auto` にします。`std::unique_ptr<Enemy> e = std::make_unique<Enemy>();`、`Enemy* e = new Enemy;`、`static_cast<float>(n)`、`v.begin()` を受ける反復子が対象です。`float x = 1;` は `auto` にすると `int` に変わってしまうので出しません。
+
+### デバッグ出力 {#kca-dbg}
+
+`hp_ -= damage;` のような行で選ぶと、次の行に値を出力ウィンドウへ書く文を足します。
+
+```cpp
+hp_ -= damage;
+OutputDebugStringA(std::format("{}({}): hp_ = {}\n", __FILE__, __LINE__, hp_).c_str());  // KDBG
+```
+
+`ファイル(行): ` の形で書くので出力ウィンドウでその行をダブルクリックするとソースの行へ飛べます。`std::println` ではなく `OutputDebugStringA` を使うのは、ウィンドウのゲームにはコンソールがないからです。`<format>` がなければ足し、`<Windows.h>`（か `pch.h`）がなければそれも足します。値が `std::format` で書けない型（自作のクラスなど）だとビルドエラーになります。その型に下の「std::format で書けるようにする」を使うと通ります。
+
+足した行には `// KDBG` の印が付きます。電球の「デバッグ出力の行をすべて消す」でファイルの中の印つきの行をまとめて消せるので、調べ終わったあとに消し忘れません。
+
+### クラスの中 {#kca-class}
+
+クラスか構造体の中（か `struct X {` の行）にカーソルを置くと出ます。クラスの本体を読んでデータ メンバーを集め、決まった形のコードを作ります。
+
+<strong>コピー禁止・ムーブ可にする。</strong>テクスチャーやバッファのように資源を持つクラスをコピーすると 2 つのオブジェクトが同じ資源を解放してしまいます。この項目はコピー コンストラクターとコピー代入を `= delete` にし、ムーブの 2 つを `noexcept = default` にします。`noexcept` を付けるのは、`std::vector` が要素を移すときに `noexcept` でないムーブを使わずコピーしようとするからです。コピー コンストラクターを宣言すると暗黙の既定コンストラクターが消えるので、コンストラクターを書いていないクラスには `X() = default;` も足します。仮想関数のあるクラスには `virtual ~X() = default;` も足します。
+
+<strong>全部 = default で書く。</strong>上と同じ場所に、コピー・ムーブ・デストラクターを `= default` で並べます。何もしないのと動きは同じですが、「わざとコピーできるようにしている」ことが読む人に伝わります。すでに宣言してあるものは足しません。
+
+<strong>== と &lt;=&gt; を作る。</strong>`bool operator==(const X&) const = default;` と `auto operator<=>(const X&) const = default;` を足します（C++20）。`==` から `!=` が、`<=>` から `<` `<=` `>` `>=` が作られます。メンバーの中に比較のない型があると、`= default` は「削除された」扱いになり使ったときにエラーになります。
+
+<strong>std::format で書けるようにする。</strong>`std::formatter<X>` の特殊化を、クラスを囲む `namespace` の後ろに足します。`XMFLOAT3` や `Vector3` のメンバーは成分（`x` `y` `z`）に分け、ポインターはアドレスにし、配列は `std::span` にして範囲の書式で出します。`std::println("{}", hit);` が `{pos=(1, 2, 3), damage=5, ids=[1, 2, 3]}` になります。private のメンバーは外の `formatter` から読めないので public のものだけを入れます。
+
+<strong>std::hash を作る。</strong>`std::unordered_map` のキーにするための `std::hash<X>` を足します。メンバーごとの `std::hash` を `boost::hash_combine` と同じ式で混ぜます。キーには `==` も要るので、なければ上の「== と <=> を作る」も使ってください。
+
+<strong>JSON に読み書きできるようにする。</strong>`NLOHMANN_DEFINE_TYPE_INTRUSIVE(Save, level, name)` をクラスの中に足し、`<nlohmann/json.hpp>` を足します。クラスの中に書くので private のメンバーも入ります。ポインターと参照のメンバーは保存できないので入れません。キーが足りない JSON を読むと例外になります。
+
+<strong>cereal で保存できるようにする。</strong>`template <class Archive> void serialize(Archive& ar)` を足し、メンバーを `CEREAL_NVP` で並べます。cereal は 1 つの関数で保存と読み込みの両方を済ませます。`std::vector` などを持つときは `cereal/types/vector.hpp` の `#include` も要ります。
+
+<strong>デバッガーの表示 (Natvis) を作る。</strong>プロジェクトのフォルダーに `プロジェクト名.natvis` を作り（あれば書き足し）、プロジェクトに足します。ウォッチやホバーでクラスが `{x=1, v={ size=3 }}` のように 1 行で見えます。メンバーは先頭から 4 つまでです。同じ型の項目がすでにあれば置き換えます。Natvis はデバッグを始め直すと効きます。
+
+### enum の上 {#kca-enum}
+
+`enum` か `enum class` の行で押すと、値を名前の文字にする `ToString` と、文字から値に戻す `XxxFromString` を足します。
+
+```cpp
+enum class Weapon { kSword, kBow };
+
+constexpr std::string_view ToString(Weapon value) {
+  switch (value) {
+    case Weapon::kSword: return "kSword";
+    case Weapon::kBow: return "kBow";
+  }
+  return "?";
+}
+constexpr std::optional<Weapon> WeaponFromString(std::string_view text) { … }
+```
+
+`switch` に `default` を書かないのは、値を足したのに `ToString` を作り直し忘れたときにコンパイラーが警告（C4062）で教えてくれるからです。`kFirst = kSword` のような別名は `case` が重なるので入れません。クラスの中の `enum` には `static constexpr` で足します。
+
+### 頂点・定数バッファ {#kca-d3d}
+
+<strong>入力レイアウトを作る。</strong>頂点の構造体の中で押すと、`D3D11_INPUT_ELEMENT_DESC`（ファイルに `d3d12.h` があれば `D3D12_INPUT_ELEMENT_DESC`）の配列を構造体のすぐ後ろに足します。
+
+```cpp
+struct Vertex {
+  XMFLOAT3 position;
+  XMFLOAT3 normal;
+  XMFLOAT2 uv;
+};
+inline constexpr D3D11_INPUT_ELEMENT_DESC kVertexInputLayout[] = {
+    {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(Vertex, position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+    {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(Vertex, normal), D3D11_INPUT_PER_VERTEX_DATA, 0},
+    {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(Vertex, uv), D3D11_INPUT_PER_VERTEX_DATA, 0},
+};
+```
+
+形式はメンバーの型から（`XMFLOAT3` → `R32G32B32_FLOAT`）、意味名はメンバーの名前から（`pos` `position` → `POSITION`、`normal` → `NORMAL`、`color` → `COLOR`、それ以外 → `TEXCOORD` に番号）決めます。名前から決めた意味名が違っていたら直してください。位置は `D3D11_APPEND_ALIGNED_ELEMENT` ではなく `offsetof` で書くので構造体に詰め物が入っても C++ の並びと食い違いません。上のコメントに、頂点シェーダーの入力の構造体（`float3 position : POSITION;` …）の形も書きます。シェーダーと C++ の意味名・順番が合わないと、`CreateInputLayout` が失敗するか、頂点がでたらめな位置に描かれます。
+
+<strong>定数バッファの並びを HLSL に合わせる。</strong>HLSL の定数バッファは 1 つのメンバーが 16 バイトの境界をまたがないように詰めます。C++ の構造体はそうしないので同じ順に書いても位置がずれることがあります。
+
+```cpp
+struct Cb {
+  XMFLOAT4X4 world;   // 0〜63
+  XMFLOAT3 light;     // 64〜75
+  float pad0;         // ← 足す。HLSL の color は 80 から始まる
+  XMFLOAT3 color;     // 80〜91（足さないと C++ では 76 から）
+  float power;        // 92〜95
+};
+static_assert(sizeof(Cb) % 16 == 0, "定数バッファの大きさは 16 の倍数にする");
+```
+
+`light` の後ろの空きは 4 バイトで、`color` の 12 バイトは入りません。HLSL は `color` を次の 16 バイトの頭（80）に置きますが、C++ は 76 に置きます。このずれがあるとシェーダーで読む色が 4 バイトずれた値になり、画面の色や明るさがおかしくなります。この項目は HLSL の規則で各メンバーの位置を数え、足りない所に `float padN;` を足し、全体を 16 の倍数にそろえて、`static_assert` を足します。行列と配列は 16 バイトの境界から始まるとして数えます。
+
+`bool` は C++ で 1 バイト、HLSL で 4 バイトなので断ります（`uint32_t` か `BOOL` に）。`float w[4];` のような配列も断ります。HLSL の配列は要素ごとに 16 バイトに広がるので、詰め物では並びを合わせられないからです（`XMFLOAT4` の配列に）。
+
+### ファイルをまたぐもの {#kca-files}
+
+<strong>定義のない関数を cpp にまとめて作る。</strong>ヘッダーのクラスの中で押すと宣言だけで cpp に定義のない関数を全部探して、cpp に雛形を作ります。Alt+R を 1 つずつ押すのと同じ形です。`= 0` `= default` `= delete`、`friend`、`constexpr`、テンプレートは対象外です。
+
+<strong>クラスを 名前.h / .cpp に移す。</strong>C# の「型を一致するファイルへ移動」にあたります。ヘッダーに複数のクラスがあるとき、カーソルのクラスを `クラス名.h` へ移し、元のヘッダーには `#include "クラス名.h"` を足します。同じ名前の cpp に `クラス名::関数` の定義があれば、`クラス名.cpp` へ移します。新しいファイルにはどちらも元のファイルの `#include` を写し、`namespace` も同じもので囲みます。使っていない `#include` はあとで「このファイルの #include を整理」で消してください。新しいファイルはプロジェクトに足します（フィルターの中ではなく、プロジェクトの直下に入ります）。テンプレートのクラスと入れ子のクラスは移しません。新しいファイルはディスクに書きますが、元のファイルの編集は保存しないので、Undo で戻すときは新しいファイルを手で消してください。
+
+<strong>初期化子リストを並べ替える。</strong>メンバーは初期化子リストに書いた順ではなくクラスで宣言した順に初期化されます。`A() : b_(1), a_(b_)` と書くと、`a_` が先に初期化されてまだ値の入っていない `b_` を読みます（警告 C5038）。この項目は初期化子をメンバーの宣言の順に並べ替えます。基底クラスの初期化子は先頭のままにします。cpp のコンストラクターでもヘッダーのクラスの宣言を読んで並べ替えます。
+
+### 確かめたこと
+
+生成するコードのうち `ToString`、`std::formatter`、`std::hash`、`==` と `<=>`、コピー禁止、入力レイアウト、定数バッファの詰め物は、MSVC（Visual Studio 2026、`/std:c++latest /W4`）でコンパイルして、警告なしで通ることと実行の結果を確かめました。JSON と cereal はライブラリを入れていないのでコンパイルしていません。
+
 ## 呼び出しの引数をビルド前にチェックする（自動）
 
 `std::make_unique<SwapChain>(a, b, c)` のように、**引数の個数がどのコンストラクターにも合わない**呼び出しに、ビルドの前に、エディターで赤い波線を引きます。波線にカーソルを置くと、「`SwapChain` のコンストラクターに 3 個の引数を受け取るものがありません」と、候補のコンストラクターが出ます。
@@ -520,9 +666,10 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 | 0.15.0 | K-ErrorLog を見やすくした。1 件を 2〜3 行にして、経路・候補・補足・例は「▸」で開く形にした。連鎖のエラーは 1 行に畳む。先頭に「ファイル別」の目次を付けた。薄い文字を読みやすい色にした。「綴りの確認」を先に書く。上のチェックボックスを 2 つに絞り、残りは「…」のメニューに移した。自動で開くとき、低いパネルを高くする |
 | 0.16.0 | K-ErrorLog: 縮小変換（`C4244` `C4267` `C4305` `C2397` など）の行に、「右辺を static_cast<型>(…) にする」ボタンを足した（Ctrl+Z で戻せる）。「エラー」とだけ出ていた C3668（override できない）・C3248・C3490・C3892・C2082・C2374・C3531・C3617・C4706・C2131 に、原因を言う見出しとヒントを付けた |
 | 0.16.1 | K-ErrorLog: エラーの中身（型・個数・名前）を使った 1 行のヒントを足した。`C2440` / `C2664`（変換できない理由を、型の組み合わせごとに: const・参照・文字列・数値・ポインター）、`C2660` / `C2661`（受け取らない引数の個数）、`C2672`、`C2512`、`C2280`、`C2676` / `C2678` / `C2679`。`std::` の名前が見つからない `C2039` は、綴りの確認を先に書く |
-| 0.22.1 | 文字コードをそろえる画面から、変換前のファイルを残す選択肢（バックアップ）を外した |
-| 0.22.2 | エラーログ: 範囲 for（`for (const int child : v)`）の縮小変換にも「クリックで修正」を出し、ループ変数の型を `auto` にする。「全部を修正」の対象にも入る |
+| 0.23.0 | 電球（`Ctrl+.`）と Alt+X の一覧に、書き換えと生成を 24 項目足した。NULL → nullptr、typedef → using、C のキャスト → static_cast、範囲 for、if の反転、早期 return、auto、デバッグ出力の行、コピー禁止・ムーブ可、== と <=>、std::formatter、std::hash、JSON（nlohmann）、cereal、Natvis、enum の ToString / FromString、D3D の入力レイアウト、定数バッファの詰め物、初期化子リストの並べ替え、定義のない関数をまとめて作る、クラスを 名前.h / .cpp に移す |
 | 0.22.3 | エラーログ: 範囲 for の縮小変換の直し方を、`auto` ではなく、警告の変換元の型（`size_t` など）に変えた（`for (const size_t child : v)`） |
+| 0.22.2 | エラーログ: 範囲 for（`for (const int child : v)`）の縮小変換にも「クリックで修正」を出し、ループ変数の型を `auto` にする。「全部を修正」の対象にも入る |
+| 0.22.1 | 文字コードをそろえる画面から、変換前のファイルを残す選択肢（バックアップ）を外した |
 | 0.22.0 | 拡張機能 メニューに「ファイルの文字コードをそろえる...」を足した（UTF-8 BOM 付き / なし / Shift-JIS と改行をまとめてそろえる。.editorconfig、バックアップ、/source-charset:utf-8 も選べる）。`L'a'` のような文字リテラルで、その行の残りを読み飛ばしていた不具合を直した。Shift-JIS のファイルでもエラーログの「クリックで修正」が効くようにした。ポインターの先をインライン関数で使っているヘッダーは、前方宣言にしない。Alt+W で指定子のない struct に private: を足さない。名前の変更は、打った文字と同じ Undo の単位にまとめた（Ctrl+Z 1 回で戻る）。ほか、レビューで見つけた 9 件を直した |
 | 0.21.0 | エラーログ: 縮小変換の見出しの横に「[クリックで修正]」、上に「全部を修正」を足した。キーの範囲をテキスト エディターにした（エディターの外で Alt+F などのメニューが開く）。#include の整理・追加・削除で pch.h を先頭に残し、消さないようにした。Windows SDK などの `<>` は並べ替えない。クラスの中の型を返す関数の定義に、クラス名の修飾を付ける。final の関数を override しない。switch で別名の列挙子の case を作らず、default へ落ちる case の間に入れない。コンストラクターで std::function のメンバーを落とさない。ほか、レビューで見つけた 20 件を直した |
 | 0.20.1 | レビューで見つけた 10 件を直した。引数の並べ替えを Ctrl+Z で戻すと、直した呼び出しも戻す。`SetCallback(w, OnKey)` のように `(` なしで渡している関数名も変える。新しい名前がすでにある名前と同じときは、ほかの場所へ写さない。範囲 for の `auto& e` と `list[i].name` は、入れ物の宣言から要素の型を引く。名前の直後に続けて打ったあとでも Ctrl+Z に追従する。タブにあるだけの文書をディスクの上で書き換えない。書き換えられなかったファイルを知らせる |

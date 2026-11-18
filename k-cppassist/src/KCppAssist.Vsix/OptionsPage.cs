@@ -318,6 +318,11 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string UsageKey { get; set; } = "Alt+U";
 
+        [Category("キー")]
+        [DisplayName("この位置の書き換え・生成の一覧")]
+        [Description(KeyHelp)]
+        public string RefactorKey { get; set; } = "Alt+X";
+
         [Category("include 整理")]
         [DisplayName("使っていない #include を、ヘッダーからも消す")]
         [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
@@ -348,6 +353,7 @@ namespace KCppAssist
                 CtorKey = Current(KCppAssistPackage.CmdCtor);
                 OverrideKey = Current(KCppAssistPackage.CmdOverride);
                 UsageKey = Current(KCppAssistPackage.CmdUsage);
+                RefactorKey = Current(KCppAssistPackage.CmdRefactor);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -374,6 +380,7 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdCtor, CtorKey);
                 Assign(KCppAssistPackage.CmdOverride, OverrideKey);
                 Assign(KCppAssistPackage.CmdUsage, UsageKey);
+                Assign(KCppAssistPackage.CmdRefactor, RefactorKey);
             }
             catch (Exception ex)
             {

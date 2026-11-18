@@ -80,6 +80,12 @@
           <ButtonText>K-CppAssist: ファイルの文字コードをそろえる...</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧...</ButtonText>
+        </Strings>
+      </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
@@ -160,6 +166,7 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidTextEditor" key1="C" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdOverride" editor="guidTextEditor" key1="O" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdUsage" editor="guidTextEditor" key1="U" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRefactor" editor="guidTextEditor" key1="X" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -199,6 +206,7 @@
       <IDSymbol name="CmdOverride" value="0x0112" />
       <IDSymbol name="CmdUsage" value="0x0113" />
       <IDSymbol name="CmdEncoding" value="0x0114" />
+      <IDSymbol name="CmdRefactor" value="0x0115" />
     </GuidSymbol>
   </Symbols>
 

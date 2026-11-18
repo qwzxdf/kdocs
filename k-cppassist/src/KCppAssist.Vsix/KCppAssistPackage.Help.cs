@@ -52,6 +52,17 @@ namespace KCppAssist
 ■ ファイル名
   Alt+N   ファイル名をまとめて変える  ヘッダー・cpp の片方の名前を変えると、相手・#include・CMake も直す(自動でも動く)
 
+■ 書き換え・生成(Ctrl+. の電球、または Alt+X の一覧)
+  行の書き換え    NULL → nullptr、typedef → using、C のキャスト → static_cast、添字の for → 範囲 for、
+                  if の反転、早期 return / continue、型 → auto(右辺が同じ型のときだけ)
+  デバッグ出力    変数の値を OutputDebugStringA で出す行を足す(// KDBG)。まとめて消すこともできる
+  クラスの中      コピー禁止・ムーブ可 / 全部 = default、== と <=>、std::formatter、std::hash、
+                  JSON(nlohmann)、cereal、Natvis、定義のない関数を cpp にまとめて作る、クラスを 名前.h / .cpp に移す
+  enum の上       ToString と FromString を作る
+  頂点の構造体    D3D11 / D3D12 の入力レイアウトと、シェーダーの入力の形(コメント)を作る
+  定数バッファ    HLSL の 16 バイト境界に合わせて詰め物を足し、static_assert を足す
+  コンストラクター 初期化子リストを、メンバーの宣言の順に並べ替える(警告 C5038)
+
 ■ その他
   Ctrl+.  電球(Quick Fix)に、上の機能が出る(カーソルの位置で使えるものだけ)
   自動    呼び出しの引数の個数チェック(make_unique / make_shared / new)、ビルド後のエラーログ(K-ErrorLog)
