@@ -585,6 +585,20 @@ namespace KCppAssist
             if (focusTimer != null) focusTimer.Stop();
         }
 
+        /// <summary>
+        /// 一緒に変わる場所を枠で囲む(C# の名前の変更と同じ見え方)。宣言は実線、使っている場所は点線。
+        /// 開いているファイルの場所だけ(閉じているファイルは、終わったときにディスクの上で書き換える)。
+        /// </summary>
+        private void Mark(Run r)
+        {
+            var opt = Opt;
+            if (opt != null && !opt.SymbolMarks) { RenameMarks.Clear(r); return; }
+            var refs = new List<KeyValuePair<ITextBuffer, ITrackingSpan>>();
+            foreach (Link l in r.Links)
+                foreach (ITrackingSpan ts in l.Spans) refs.Add(new KeyValuePair<ITextBuffer, ITrackingSpan>(l.Buffer, ts));
+            RenameMarks.Set(r, buffer, r.DeclSpan, refs);
+        }
+
         private static void Guard(string what, Action action)
         {
             try { action(); }
@@ -685,6 +699,7 @@ namespace KCppAssist
             }
             run = r;
             pendingApply = true;
+            Mark(r);
         }
 
         /// <summary>バッファーの書き換えは、Changed の中ではできないので、ここで行う。</summary>
@@ -814,6 +829,7 @@ namespace KCppAssist
             r.FinalName = name;
             if (Mode == SymbolRenameMode.Auto) ApplyName(r, name);
             ShowNote(r, name, false, 0);
+            Mark(r);
         }
 
         /// <summary>name が、同じ範囲(ローカル変数・引数)か、同じクラス(メンバー)に、すでに別の物の名前としてあるか。</summary>
@@ -974,7 +990,7 @@ namespace KCppAssist
                     ApplyName(r, r.FinalName);
                     Finish(r);
                 }
-                else if (run == r) ApplyLive(r);
+                else if (run == r) { Mark(r); ApplyLive(r); }
             });
         }
 
@@ -996,6 +1012,7 @@ namespace KCppAssist
         {
             Run r = run;
             if (r == null) return null;
+            RenameMarks.Clear(r);
             run = null;
             lastRun = r;
             pendingApply = false;
@@ -1048,7 +1065,7 @@ namespace KCppAssist
         /// </summary>
         private void FollowUndo()
         {
-            if (run != null) { Run r = run; run = null; pendingApply = false; r.Ended = true; lastRun = r; }
+            if (run != null) { Run r = run; RenameMarks.Clear(r); run = null; pendingApply = false; r.Ended = true; lastRun = r; }
             if (lastRun != null) pendingFollow = lastRun;
             if (lastCalls != null) pendingArgFollow = true;
         }
