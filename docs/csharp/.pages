@@ -61,5 +61,6 @@ nav:
   - 57-recovery.md
   - 58-mcp.md
   - 59-tcp-deep.md
-  - 60-tcp-engine.md
-  - 61-next-steps.md
+  - 60-tcp-base.md
+  - 61-tcp-engine.md
+  - 62-next-steps.md
