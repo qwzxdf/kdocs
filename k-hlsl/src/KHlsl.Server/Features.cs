@@ -49,21 +49,23 @@ namespace KHlsl.Server
             var res = CompletionCore(p);
             try
             {
-                var c = MakeCtx(p);
-                string text = c.Text;
-                int off = Math.Min(c.Offset, text.Length);
-                int ls = off;
-                while (ls > 0 && text[ls - 1] != '\n') ls--;
-                string before = text.Substring(ls, off - ls);
+                // 範囲は、要求のキャレット位置(行・文字)をそのまま使う。
+                // サーバーの本文が一瞬古いと、本文から求めた位置は別の行や手前にずれて、
+                // VS は「範囲がキャレットを含まない」として、候補を出した直後に閉じてしまう。
+                string text = TextOf((string)p["textDocument"]["uri"]);
+                int line = (int)p["position"]["line"];
+                int col = (int)p["position"]["character"];
+                string[] ls = HlslFormatter.SplitLines(text);
+                string cur = line >= 0 && line < ls.Length ? ls[line] : "";
+                string before = cur.Substring(0, Math.Min(col, cur.Length));
                 // #include のファイル名は、\ や . を含むので対象外
-                if (Regex.IsMatch(before, @"^\s*#\s*include")) return res;
+                if (Regex.IsMatch(before, @"^\s*#\s*include")) return res;
                 int ws = before.Length;
                 while (ws > 0 && (char.IsLetterOrDigit(before[ws - 1]) || before[ws - 1] == '_')) ws--;
-                int line = 0;
-                for (int i = 0; i < ls; i++) if (text[i] == '\n') line++;
+                // 本文が古くて行が短いときも、語の開始位置はそのまま(足りない分は、直前に打った語の続き)
                 var items = res == null ? null : res["items"] as JArray;
                 if (items == null) return res;
-                var range = Range(line, ws, line, before.Length);
+                var range = Range(line, ws, line, col);
                 foreach (JObject it in items)
                 {
                     if (it["textEdit"] != null) continue;
