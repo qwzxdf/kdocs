@@ -516,6 +516,7 @@ namespace KCppAssist
             public ITrackingSpan DeclSpan;
             public int DeclVersion;                                 // DeclSpan を作ったときの、バッファーの版
             public string OldName, FinalName;
+            public string Applied;                                  // 追いかけている場所に、最後に書いた名前(はじめは OldName)
             public SymbolScan.Decl Decl;
             public List<Link> Links = new List<Link>();
             public List<string> Closed = new List<string>();        // 開いていないファイル。終わったときに、ディスクの上で書き換える
@@ -889,10 +890,20 @@ namespace KCppAssist
                 foreach (ITrackingSpan ts in link.Spans)
                 {
                     SnapshotSpan sp = ts.GetSpan(snap);
-                    if (sp.GetText() != name) edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
+                    string cur = sp.GetText();
+                    if (cur == name) continue;
+                    // 追いかけている場所の文字は、変える前の名前か、最後に書いた名前のはず。それ以外(空に縮んだ、別の文字になった)は、
+                    // 置き換えると「mme」のように文字が増えるので、触らない
+                    if (cur != r.OldName && cur != (r.Applied ?? r.OldName))
+                    {
+                        KCppAssistPackage.Log("symbol: skipped a tracked place whose text is '" + cur + "' (old '" + r.OldName + "', applied '" + r.Applied + "', new '" + name + "')");
+                        continue;
+                    }
+                    edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
                 }
                 if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える", link.Buffer == buffer)) n += edits.Count;
             }
+            r.Applied = name;
             return n;
         }
 
