@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.23.1.vsix" download>K-CppAssist 0.23.1 をダウンロード（.vsix、約 300 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.23.2.vsix" download>K-CppAssist 0.23.2 をダウンロード（.vsix、約 301 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -670,6 +670,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 | 0.16.0 | K-ErrorLog: 縮小変換（`C4244` `C4267` `C4305` `C2397` など）の行に、「右辺を static_cast<型>(…) にする」ボタンを足した（Ctrl+Z で戻せる）。「エラー」とだけ出ていた C3668（override できない）・C3248・C3490・C3892・C2082・C2374・C3531・C3617・C4706・C2131 に、原因を言う見出しとヒントを付けた |
 | 0.16.1 | K-ErrorLog: エラーの中身（型・個数・名前）を使った 1 行のヒントを足した。`C2440` / `C2664`（変換できない理由を、型の組み合わせごとに: const・参照・文字列・数値・ポインター）、`C2660` / `C2661`（受け取らない引数の個数）、`C2672`、`C2512`、`C2280`、`C2676` / `C2678` / `C2679`。`std::` の名前が見つからない `C2039` は、綴りの確認を先に書く |
 | 0.23.1 | 宣言の名前を書き換えている間、一緒に変わる場所を点線の枠で囲むようにした（書き換えている宣言は実線。C# の名前の変更と同じ見え方）。設定の「一緒に変わる場所を枠で囲む」で切れる |
+| 0.23.2 | ヘッダーを編集している間の重さを減らした。ほかの開いているファイルの引数チェックを、打つたびではなく 3 秒あけて行う。cpp が見つからなかった探索も 20 秒覚えて、打つたびに cpp を読み直さない |
 | 0.23.0 | 電球（`Ctrl+.`）と Alt+X の一覧に、書き換えと生成を 24 項目足した。NULL → nullptr、typedef → using、C のキャスト → static_cast、範囲 for、if の反転、早期 return、auto、デバッグ出力の行、コピー禁止・ムーブ可、== と <=>、std::formatter、std::hash、JSON（nlohmann）、cereal、Natvis、enum の ToString / FromString、D3D の入力レイアウト、定数バッファの詰め物、初期化子リストの並べ替え、定義のない関数をまとめて作る、クラスを 名前.h / .cpp に移す |
 | 0.22.3 | エラーログ: 範囲 for の縮小変換の直し方を、`auto` ではなく、警告の変換元の型（`size_t` など）に変えた（`for (const size_t child : v)`） |
 | 0.22.2 | エラーログ: 範囲 for（`for (const int child : v)`）の縮小変換にも「クリックで修正」を出し、ループ変数の型を `auto` にする。「全部を修正」の対象にも入る |
