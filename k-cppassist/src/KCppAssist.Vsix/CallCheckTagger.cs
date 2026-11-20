@@ -48,7 +48,7 @@ namespace KCppAssist
             List<CallCheckTagger> list;
             lock (gate)
                 list = taggers.Select(w => { CallCheckTagger t; return w.TryGetTarget(out t) ? t : null; }).Where(t => t != null && t != from).ToList();
-            foreach (var t in list) t.Schedule();
+            foreach (var t in list) t.Schedule(3000);      // 別のファイルは急がない(打つたびに、開いている全部を調べ直さない)
         }
     }
 
@@ -182,7 +182,7 @@ namespace KCppAssist
         }
 
         /// <summary>少し待ってから、調べ直す(続けて呼ばれたら、最後の 1 回だけ)。</summary>
-        internal void Schedule()
+        internal void Schedule(int minDelayMs = 0)
         {
             int my = System.Threading.Interlocked.Increment(ref gen);
             _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
@@ -190,7 +190,7 @@ namespace KCppAssist
                 try
                 {
                     var o = Opt;
-                    int ms = o == null ? 700 : Math.Max(200, o.CallCheckDelayMs);
+                    int ms = Math.Max(minDelayMs, o == null ? 700 : Math.Max(200, o.CallCheckDelayMs));
                     await Task.Delay(ms);
                     if (my != gen) return;
                     await RunAsync(my);

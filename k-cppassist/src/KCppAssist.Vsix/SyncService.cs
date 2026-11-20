@@ -63,7 +63,7 @@ namespace KCppAssist
 
         /// <summary>
         /// root の下の cpp から、「cls::」を含むものを探す(最大 5000 ファイルまで読む)。
-        /// 引数の自動合わせは打つたびに呼ぶので、結果を 20 秒だけ覚える(見つからなかったときは覚えない)。
+        /// 引数の自動合わせは打つたびに呼ぶので、結果を 20 秒だけ覚える(見つからなかったときも覚える)。
         /// </summary>
         private static List<string> FindSources(string root, string cls, ISet<string> skip)
         {
@@ -71,16 +71,16 @@ namespace KCppAssist
             lock (findGate)
             {
                 Tuple<DateTime, List<string>> hit;
-                if (findCache.TryGetValue(key, out hit) && (DateTime.UtcNow - hit.Item1).TotalSeconds < 20 && hit.Item2.All(File.Exists))
+                if (findCache.TryGetValue(key, out hit) && (DateTime.UtcNow - hit.Item1).TotalSeconds < 20 && (hit.Item2.Count == 0 || hit.Item2.All(File.Exists)))
                     return new List<string>(hit.Item2);
             }
             var found = FindSourcesCore(root, cls, skip);
-            if (found.Count > 0)
-                lock (findGate)
-                {
-                    if (findCache.Count > 64) findCache.Clear();
-                    findCache[key] = Tuple.Create(DateTime.UtcNow, new List<string>(found));
-                }
+            // 見つからなかった結果も覚える(ヘッダーを打つたびに、cpp を最大 5000 個読み直さないため)
+            lock (findGate)
+            {
+                if (findCache.Count > 64) findCache.Clear();
+                findCache[key] = Tuple.Create(DateTime.UtcNow, new List<string>(found));
+            }
             return found;
         }
 
