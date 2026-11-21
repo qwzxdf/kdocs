@@ -31,316 +31,325 @@ namespace KCppAssist
     /// <summary>ツール → オプション → K-CppUltimateAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
-        [Category("Getter・Setter")]
-        [DisplayName("Getter と Setter の間に空行を入れる")]
-        [Description("True のとき、Alt+E で作る Getter と Setter の間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
+        [LocCategory("言語")]
+        [LocDisplayName("表示する言語")]
+        [LocDescription("メニュー・電球・ダイアログ・この設定の画面の言語。初期値は日本語で、初めて起動したときだけ、PC の表示言語に合わせます(日本語・中国語・韓国語以外は English)。設定の画面の文字は、Visual Studio を開き直すと変わります。")]
+        public UiLanguage Language { get; set; } = UiLanguage.Japanese;
+
+        /// <summary>初めて起動したときに、PC の言語から Language を決めたか。</summary>
+        [Browsable(false)]
+        public bool LanguageInitialized { get; set; } = false;
+
+        [LocCategory("Getter・Setter")]
+        [LocDisplayName("Getter と Setter の間に空行を入れる")]
+        [LocDescription("True のとき、Alt+E で作る Getter と Setter の間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
         public bool BlankLineBetweenAccessors { get; set; } = true;
 
-        [Category("#include")]
-        [DisplayName("#include を足すしかた")]
-        [Description("Off: 何もしない。ManualOnly: Alt+I (Include) を押したときだけ足す。Auto: Alt+I に加えて、入力中に未定義の型を見つけると、自動で足す。")]
+        [LocCategory("#include")]
+        [LocDisplayName("#include を足すしかた")]
+        [LocDescription("Off: 何もしない。ManualOnly: Alt+I (Include) を押したときだけ足す。Auto: Alt+I に加えて、入力中に未定義の型を見つけると、自動で足す。")]
         public IncludeMode IncludeMode { get; set; } = IncludeMode.Auto;
 
-        [Category("#include")]
-        [DisplayName("自動で足す前の待ち時間 (ミリ秒)")]
-        [Description("識別子を打ち終えてから、この時間だけ入力が止まったら調べます。")]
+        [LocCategory("#include")]
+        [LocDisplayName("自動で足す前の待ち時間 (ミリ秒)")]
+        [LocDescription("識別子を打ち終えてから、この時間だけ入力が止まったら調べます。")]
         public int IncludeDelayMs { get; set; } = 900;
 
-        [Category("#include")]
-        [DisplayName("自動で足さない名前")]
-        [Description("カンマ区切り。ソリューションのヘッダーから引くときだけ、この名前の型は自動で足しません(Alt+I では足せます)。標準ライブラリの名前には効きません。")]
+        [LocCategory("#include")]
+        [LocDisplayName("自動で足さない名前")]
+        [LocDescription("カンマ区切り。ソリューションのヘッダーから引くときだけ、この名前の型は自動で足しません(Alt+I では足せます)。標準ライブラリの名前には効きません。")]
         public string IncludeDeny { get; set; } = "Instance,Get,Create,Data,Type,Result,Init,Value,Node,Item,State,Info,Name,Id,Key,Index,Context,Config,Manager,Handle,Callback,Function,Object,Base,Impl,Self";
 
-        [Category("#include")]
-        [DisplayName("ヘッダーを探さないフォルダー")]
-        [Description("カンマ区切りのフォルダー名。この名前のフォルダーの下は、型の索引に入れません。")]
+        [LocCategory("#include")]
+        [LocDisplayName("ヘッダーを探さないフォルダー")]
+        [LocDescription("カンマ区切りのフォルダー名。この名前のフォルダーの下は、型の索引に入れません。")]
         public string IncludeSkipDirs { get; set; } = "third_party,external,extern,build,out,node_modules,vendor";
 
-        [Category("引数の同期")]
-        [DisplayName("宣言と定義の引数を合わせるしかた")]
-        [Description("Off: 何もしない。ManualOnly: Alt+G を押したときだけ合わせる。Auto: Alt+G に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手の引数を自動で書き換える(相手が開いていなければ開く)。")]
+        [LocCategory("引数の同期")]
+        [LocDisplayName("宣言と定義の引数を合わせるしかた")]
+        [LocDescription("Off: 何もしない。ManualOnly: Alt+G を押したときだけ合わせる。Auto: Alt+G に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手の引数を自動で書き換える(相手が開いていなければ開く)。")]
         public SyncMode SyncMode { get; set; } = SyncMode.Auto;
 
-        [Category("引数の同期")]
-        [DisplayName("自動で合わせるまでの待ち(ミリ秒)")]
-        [Description("最後に入力してから、相手の引数を書き換えるまでの待ち。0 なら、打つそばから(次の入力の処理が終わり次第)相手が変わります。初期値は 0。")]
+        [LocCategory("引数の同期")]
+        [LocDisplayName("自動で合わせるまでの待ち(ミリ秒)")]
+        [LocDescription("最後に入力してから、相手の引数を書き換えるまでの待ち。0 なら、打つそばから(次の入力の処理が終わり次第)相手が変わります。初期値は 0。")]
         public int SyncDelayMs { get; set; } = 0;
 
-        [Category("引数の同期")]
-        [DisplayName("書き換えた場所を小さなウィンドウで見せる")]
-        [Description("True のとき、引数を相手のファイルへ写したときや、名前を変えたときに、変えた内容を約 3 秒だけ見せます。ウィンドウは、変えた名前の 1 文字目に左端をそろえて、その行のすぐ上に出ます(名前には重なりません)。")]
+        [LocCategory("引数の同期")]
+        [LocDisplayName("書き換えた場所を小さなウィンドウで見せる")]
+        [LocDescription("True のとき、引数を相手のファイルへ写したときや、名前を変えたときに、変えた内容を約 3 秒だけ見せます。ウィンドウは、変えた名前の 1 文字目に左端をそろえて、その行のすぐ上に出ます(名前には重なりません)。")]
         public bool ShowSyncPreview { get; set; } = true;
 
-        [Category("名前の変更")]
-        [DisplayName("宣言の名前を変えたら、使っている場所も変える")]
-        [Description("Off: 何もしない。OnLeave: カーソルが名前から離れたときに、まとめて変える。Auto: 打つそばから変える。対象は、ローカル変数・引数・メンバー変数・メンバー関数・関数の、宣言(と定義)の名前。使っている側の名前を書き換えても、ほかは変えません。")]
+        [LocCategory("名前の変更")]
+        [LocDisplayName("宣言の名前を変えたら、使っている場所も変える")]
+        [LocDescription("Off: 何もしない。OnLeave: カーソルが名前から離れたときに、まとめて変える。Auto: 打つそばから変える。対象は、ローカル変数・引数・メンバー変数・メンバー関数・関数の、宣言(と定義)の名前。使っている側の名前を書き換えても、ほかは変えません。")]
         public SymbolRenameMode SymbolMode { get; set; } = SymbolRenameMode.Auto;
 
-        [Category("名前の変更")]
-        [DisplayName("型が分からない obj.name も変える")]
-        [Description("False(既定): obj.name や p->name のうち、obj の型を宣言から読めて、同じクラスだと分かるものだけ変える。分からないものは変えずに、出力ウィンドウの K-Cpp に一覧を出す。True: 分からないものも、同じ名前なら変える(別のクラスの同じ名前のメンバーも変わることがあります)。")]
+        [LocCategory("名前の変更")]
+        [LocDisplayName("型が分からない obj.name も変える")]
+        [LocDescription("False(既定): obj.name や p->name のうち、obj の型を宣言から読めて、同じクラスだと分かるものだけ変える。分からないものは変えずに、出力ウィンドウの K-Cpp に一覧を出す。True: 分からないものも、同じ名前なら変える(別のクラスの同じ名前のメンバーも変わることがあります)。")]
         public bool SymbolAmbiguous { get; set; } = false;
 
-        [Category("名前の変更")]
-        [DisplayName("一緒に変わる場所を枠で囲む")]
-        [Description("True(既定): 宣言の名前を書き換えている間、一緒に変わる場所を点線の枠で囲む(書き換えている宣言は実線)。名前の変更が終わると消える。色は ツール → オプション → 環境 → フォントおよび色 の「K-Cpp: 一緒に変わる場所」で変えられます。")]
+        [LocCategory("名前の変更")]
+        [LocDisplayName("一緒に変わる場所を枠で囲む")]
+        [LocDescription("True(既定): 宣言の名前を書き換えている間、一緒に変わる場所を点線の枠で囲む(書き換えている宣言は実線)。名前の変更が終わると消える。色は ツール → オプション → 環境 → フォントおよび色 の「K-Cpp: 一緒に変わる場所」で変えられます。")]
         public bool SymbolMarks { get; set; } = true;
 
-        [Category("名前の変更")]
-        [DisplayName("引数の並べ替え・削除を、呼び出しにも写す")]
-        [Description("True のとき、関数の引数を並べ替えるか消して、カーソルが括弧の外へ出ると、その関数の呼び出しの引数も同じ並びに直します。足した引数に渡す値は決められないので、その呼び出しは直さずに、出力ウィンドウの K-Cpp に一覧を出します。")]
+        [LocCategory("名前の変更")]
+        [LocDisplayName("引数の並べ替え・削除を、呼び出しにも写す")]
+        [LocDescription("True のとき、関数の引数を並べ替えるか消して、カーソルが括弧の外へ出ると、その関数の呼び出しの引数も同じ並びに直します。足した引数に渡す値は決められないので、その呼び出しは直さずに、出力ウィンドウの K-Cpp に一覧を出します。")]
         public bool CallArgSync { get; set; } = true;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("ヘッダー・cpp の名前を変えたときのしかた")]
-        [Description("Off: 何もしない。ManualOnly: Alt+N でまとめて変えたときだけ、相手・#include・CMake を直す。Auto: 名前を変えたことを自動で見つけて(Solution Explorer、フォルダー ビュー、エクスプローラー)、直す。Alt+N も使えます。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("ヘッダー・cpp の名前を変えたときのしかた")]
+        [LocDescription("Off: 何もしない。ManualOnly: Alt+N でまとめて変えたときだけ、相手・#include・CMake を直す。Auto: 名前を変えたことを自動で見つけて(Solution Explorer、フォルダー ビュー、エクスプローラー)、直す。Alt+N も使えます。")]
         public RenameMode RenameMode { get; set; } = RenameMode.Auto;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("相手のファイルも同じ名前にする")]
-        [Description("True のとき、Foo.h の名前を Bar.h に変えると、同じフォルダーの Foo.cpp も Bar.cpp にします(逆も同じ)。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("相手のファイルも同じ名前にする")]
+        [LocDescription("True のとき、Foo.h の名前を Bar.h に変えると、同じフォルダーの Foo.cpp も Bar.cpp にします(逆も同じ)。")]
         public bool RenamePair { get; set; } = true;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("CMake の書き方も直す")]
-        [Description("True のとき、CMakeLists.txt と .cmake の中の、古いファイル名(src/Foo.cpp など)も、新しい名前に直します。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("CMake の書き方も直す")]
+        [LocDescription("True のとき、CMakeLists.txt と .cmake の中の、古いファイル名(src/Foo.cpp など)も、新しい名前に直します。")]
         public bool RenameBuildFiles { get; set; } = true;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("引数の個数をビルド前にチェックする")]
-        [Description("True のとき、std::make_unique<T>(…)、std::make_shared<T>(…)、new T(…) の引数の個数が、T のどのコンストラクターにも合わないと、ビルドの前に、エディターで波線を引きます。型の細かい違い(const・暗黙の変換)は見ません。コンストラクターを書いていないクラス、テンプレート、継承したコンストラクター、マクロのあるクラスは調べません。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("引数の個数をビルド前にチェックする")]
+        [LocDescription("True のとき、std::make_unique<T>(…)、std::make_shared<T>(…)、new T(…) の引数の個数が、T のどのコンストラクターにも合わないと、ビルドの前に、エディターで波線を引きます。型の細かい違い(const・暗黙の変換)は見ません。コンストラクターを書いていないクラス、テンプレート、継承したコンストラクター、マクロのあるクラスは調べません。")]
         public bool CallCheckEnabled { get; set; } = true;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("波線の色")]
-        [Description("Error: 赤い波線(エラー)。Warning: 緑の波線(警告)。どちらも、ビルドの結果には影響しません。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("波線の色")]
+        [LocDescription("Error: 赤い波線(エラー)。Warning: 緑の波線(警告)。どちらも、ビルドの結果には影響しません。")]
         public CallCheckSeverity CallCheckSeverity { get; set; } = CallCheckSeverity.Error;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("入力が止まってから調べるまでの待ち(ミリ秒)")]
-        [Description("最後に入力してから、この時間だけ待って調べます。短くすると、すぐに波線が出ます。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("入力が止まってから調べるまでの待ち(ミリ秒)")]
+        [LocDescription("最後に入力してから、この時間だけ待って調べます。短くすると、すぐに波線が出ます。")]
         public int CallCheckDelayMs { get; set; } = 700;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("make_unique / make_shared を調べる")]
-        [Description("std::make_unique<T>(…) と std::make_shared<T>(…) を調べます。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("make_unique / make_shared を調べる")]
+        [LocDescription("std::make_unique<T>(…) と std::make_shared<T>(…) を調べます。")]
         public bool CallCheckMake { get; set; } = true;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("new T(…) を調べる")]
-        [Description("new T(…) を調べます(配置 new と new T[n] は調べません)。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("new T(…) を調べる")]
+        [LocDescription("new T(…) を調べます(配置 new と new T[n] は調べません)。")]
         public bool CallCheckNew { get; set; } = true;
 
-        [Category("呼び出しのチェック")]
-        [DisplayName("調べないクラス")]
-        [Description("カンマ区切りのクラス名。誤って波線が出るクラスがあれば、ここに書くと出なくなります。")]
+        [LocCategory("呼び出しのチェック")]
+        [LocDisplayName("調べないクラス")]
+        [LocDescription("カンマ区切りのクラス名。誤って波線が出るクラスがあれば、ここに書くと出なくなります。")]
         public string CallCheckIgnore { get; set; } = "";
 
-        [Category("キー")]
-        [DisplayName("ファイル名をまとめて変える (Name)")]
+        [LocCategory("キー")]
+        [LocDisplayName("ファイル名をまとめて変える (Name)")]
         [Description(KeyHelp)]
         public string RenameKey { get; set; } = "Alt+N";
 
-        [Category("全般")]
-        [DisplayName("ステータスバーに知らせる")]
-        [Description("True のとき、#include を足した、引数を写した、ファイル名を直した、などをステータスバーに 1 行出します。False でも、失敗の知らせは出ます。")]
+        [LocCategory("全般")]
+        [LocDisplayName("ステータスバーに知らせる")]
+        [LocDescription("True のとき、#include を足した、引数を写した、ファイル名を直した、などをステータスバーに 1 行出します。False でも、失敗の知らせは出ます。")]
         public bool ShowStatusMessages { get; set; } = true;
 
-        [Category("全般")]
-        [DisplayName("ログを残す")]
-        [Description("True のとき、動作の記録を %LOCALAPPDATA%\\K-CppAssist\\vsix.log に書きます。不具合のとき、これを見ると原因が分かります。")]
+        [LocCategory("全般")]
+        [LocDisplayName("ログを残す")]
+        [LocDescription("True のとき、動作の記録を %LOCALAPPDATA%\\K-CppAssist\\vsix.log に書きます。不具合のとき、これを見ると原因が分かります。")]
         public bool WriteLog { get; set; } = true;
 
-        [Category("#include")]
-        [DisplayName("標準・Windows・DirectX の表を使う")]
-        [Description("True のとき、std::vector → <vector> のような、組み込みの対応表で、ヘッダーを決めます。")]
+        [LocCategory("#include")]
+        [LocDisplayName("標準・Windows・DirectX の表を使う")]
+        [LocDescription("True のとき、std::vector → <vector> のような、組み込みの対応表で、ヘッダーを決めます。")]
         public bool IncludeUseTable { get; set; } = true;
 
-        [Category("#include")]
-        [DisplayName("ソリューションのヘッダーの索引を使う")]
-        [Description("True のとき、ソリューションの下のヘッダーから、class / struct / enum / using の定義を集めて、型の名前からヘッダーを決めます。")]
+        [LocCategory("#include")]
+        [LocDisplayName("ソリューションのヘッダーの索引を使う")]
+        [LocDescription("True のとき、ソリューションの下のヘッダーから、class / struct / enum / using の定義を集めて、型の名前からヘッダーを決めます。")]
         public bool IncludeUseIndex { get; set; } = true;
 
-        [Category("#include")]
-        [DisplayName("自分で決める対応 (名前=ヘッダー)")]
-        [Description("「名前=ヘッダー」を、; か改行で区切って書きます。組み込みの表より先に使います。例: Vec3=\"math/vec3.h\";Json=<nlohmann/json.hpp>")]
+        [LocCategory("#include")]
+        [LocDisplayName("自分で決める対応 (名前=ヘッダー)")]
+        [LocDescription("「名前=ヘッダー」を、; か改行で区切って書きます。組み込みの表より先に使います。例: Vec3=\"math/vec3.h\";Json=<nlohmann/json.hpp>")]
         public string IncludeCustom { get; set; } = "";
 
-        [Category("#include")]
-        [DisplayName(".h でも、ソリューションの型を自動で足す")]
-        [Description("False のとき、ヘッダーに自動で足すのは、標準・Windows・DirectX の表と、自分で決めた対応のものだけです(循環 include を避けるため)。True にすると、ソリューションの型も足します。")]
+        [LocCategory("#include")]
+        [LocDisplayName(".h でも、ソリューションの型を自動で足す")]
+        [LocDescription("False のとき、ヘッダーに自動で足すのは、標準・Windows・DirectX の表と、自分で決めた対応のものだけです(循環 include を避けるため)。True にすると、ソリューションの型も足します。")]
         public bool IncludeAutoInHeaders { get; set; } = false;
 
-        [Category("#include")]
-        [DisplayName("自動で足した #include を戻すまでの秒数")]
-        [Description("自動で足した直後に、その識別子を消したら、足した #include も戻します。その猶予の秒数です。0 で、戻さないようにします。")]
+        [LocCategory("#include")]
+        [LocDisplayName("自動で足した #include を戻すまでの秒数")]
+        [LocDescription("自動で足した直後に、その識別子を消したら、足した #include も戻します。その猶予の秒数です。0 で、戻さないようにします。")]
         public int IncludeRevertSeconds { get; set; } = 40;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("#include も新しい名前に直す")]
-        [Description("True のとき、ソリューションの全ファイルの #include を、新しい名前に直します。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("#include も新しい名前に直す")]
+        [LocDescription("True のとき、ソリューションの全ファイルの #include を、新しい名前に直します。")]
         public bool RenameUpdateIncludes { get; set; } = true;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("ファイルの名前変更を、フォルダーの監視でも見つける")]
-        [Description("True のとき、Solution Explorer 以外(フォルダー ビュー、エクスプローラー、別のツール)での名前変更も見つけて、自動で直します。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("ファイルの名前変更を、フォルダーの監視でも見つける")]
+        [LocDescription("True のとき、Solution Explorer 以外(フォルダー ビュー、エクスプローラー、別のツール)での名前変更も見つけて、自動で直します。")]
         public bool RenameWatchFiles { get; set; } = true;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("多数の名前変更を、自動では直さない件数")]
-        [Description("3 秒の間に、この件数より多くの名前変更が起きたら、git のブランチ切り替えなどの一括操作とみなして、自動では直しません。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("多数の名前変更を、自動では直さない件数")]
+        [LocDescription("3 秒の間に、この件数より多くの名前変更が起きたら、git のブランチ切り替えなどの一括操作とみなして、自動では直しません。")]
         public int RenameBulkLimit { get; set; } = 4;
 
-        [Category("ファイル名の同期")]
-        [DisplayName("直す前に確認する")]
-        [Description("True(既定)のとき、自動で直す前に、何を何に直すかを見せるダイアログを出します(相手・#include・CMake と、クラス名を直すかを、項目ごとに選べます)。False なら、確認せずに、ダイアログの初期値どおりに直します(相手・#include・CMake と、ファイル名と同じだったクラス名)。ダイアログの「次から確認しない」に印を付けて反映すると、False になります。")]
+        [LocCategory("ファイル名の同期")]
+        [LocDisplayName("直す前に確認する")]
+        [LocDescription("True(既定)のとき、自動で直す前に、何を何に直すかを見せるダイアログを出します(相手・#include・CMake と、クラス名を直すかを、項目ごとに選べます)。False なら、確認せずに、ダイアログの初期値どおりに直します(相手・#include・CMake と、ファイル名と同じだったクラス名)。ダイアログの「次から確認しない」に印を付けて反映すると、False になります。")]
         public bool RenameConfirm { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("先頭に「まず一番上から」の案内を出す")]
-        [Description("エラーが複数あるとき、先頭に、一番上のエラーから直す案内を出します。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("先頭に「まず一番上から」の案内を出す")]
+        [LocDescription("エラーが複数あるとき、先頭に、一番上のエラーから直す案内を出します。")]
         public bool ErrorLogShowOrderAdvice { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("連鎖の可能性を示す")]
-        [Description("True のとき、上のエラーの影響で出ていそうなエラーに、「連鎖の可能性」と書きます。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("連鎖の可能性を示す")]
+        [LocDescription("True のとき、上のエラーの影響で出ていそうなエラーに、「連鎖の可能性」と書きます。")]
         public bool ErrorLogShowCascade { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("直し方の例を出す")]
-        [Description("True のとき、主なエラーに、修正前と修正後のコードの例を出します。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("直し方の例を出す")]
+        [LocDescription("True のとき、主なエラーに、修正前と修正後のコードの例を出します。")]
         public bool ErrorLogShowExamples { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("一度に出すエラーの数の上限")]
-        [Description("これを超えるエラーは、省略します(「原文」表示では、全部読めます)。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("一度に出すエラーの数の上限")]
+        [LocDescription("これを超えるエラーは、省略します(「原文」表示では、全部読めます)。")]
         public int ErrorLogMaxItems { get; set; } = 400;
 
-        [Category("エラーログ")]
-        [DisplayName("エラーログを使う")]
-        [Description("False にすると、ビルドが終わってもエラーログを作りません(窓も自動では開きません)。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("エラーログを使う")]
+        [LocDescription("False にすると、ビルドが終わってもエラーログを作りません(窓も自動では開きません)。")]
         public bool ErrorLogEnabled { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("エラーがあるとき、窓を自動で前に出す")]
-        [Description("True のとき、ビルドが終わってエラーがあれば、窓を前に出します(入力は奪いません)。False のときは、拡張機能 メニューから開きます。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("エラーがあるとき、窓を自動で前に出す")]
+        [LocDescription("True のとき、ビルドが終わってエラーがあれば、窓を前に出します(入力は奪いません)。False のときは、拡張機能 メニューから開きます。")]
         public bool ErrorLogAutoShow { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("原因を探す (.lib とソースの検索)")]
-        [Description("True のとき、未解決の外部シンボル(LNK2019 など)について、ソリューションの .lib とソースを探して、原因を言い当てます。時間がかかるときは False にしてください。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("原因を探す (.lib とソースの検索)")]
+        [LocDescription("True のとき、未解決の外部シンボル(LNK2019 など)について、ソリューションの .lib とソースを探して、原因を言い当てます。時間がかかるときは False にしてください。")]
         public bool ErrorLogFindLibs { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("探す時間の上限 (秒)")]
-        [Description("原因を探す処理の、1 回あたりの時間の上限です。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("探す時間の上限 (秒)")]
+        [LocDescription("原因を探す処理の、1 回あたりの時間の上限です。")]
         public int ErrorLogSearchSeconds { get; set; } = 6;
 
-        [Category("エラーログ")]
-        [DisplayName("読む .lib の数の上限")]
-        [Description("原因を探すとき、読む .lib の数の上限です。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("読む .lib の数の上限")]
+        [LocDescription("原因を探すとき、読む .lib の数の上限です。")]
         public int ErrorLogMaxLibs { get; set; } = 800;
 
-        [Category("エラーログ")]
-        [DisplayName("型名を短くする")]
-        [Description("True のとき、std::basic_string<char, …> を std::string のように、読みやすい形にします。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("型名を短くする")]
+        [LocDescription("True のとき、std::basic_string<char, …> を std::string のように、読みやすい形にします。")]
         public bool ErrorLogShortenTypes { get; set; } = true;
 
-        [Category("エラーログ")]
-        [DisplayName("日本語のヒントを出す")]
-        [Description("True のとき、エラー コードごとの見出しの下に、対処のヒントを出します。")]
+        [LocCategory("エラーログ")]
+        [LocDisplayName("日本語のヒントを出す")]
+        [LocDescription("True のとき、エラー コードごとの見出しの下に、対処のヒントを出します。")]
         public bool ErrorLogShowHints { get; set; } = true;
 
-        [Category("エラーログ (窓の初期値)")]
-        [DisplayName("警告も表示")]
-        [Description("窓を開いたときの、「警告も表示」の初期値です。")]
+        [LocCategory("エラーログ (窓の初期値)")]
+        [LocDisplayName("警告も表示")]
+        [LocDescription("窓を開いたときの、「警告も表示」の初期値です。")]
         public bool ErrorLogShowWarnings { get; set; } = false;
 
-        [Category("エラーログ (窓の初期値)")]
-        [DisplayName("経路を全部表示")]
-        [Description("窓を開いたときの、「経路を全部表示」の初期値です。")]
+        [LocCategory("エラーログ (窓の初期値)")]
+        [LocDisplayName("経路を全部表示")]
+        [LocDescription("窓を開いたときの、「経路を全部表示」の初期値です。")]
         public bool ErrorLogFullTrace { get; set; } = false;
 
-        [Category("エラーログ (窓の初期値)")]
-        [DisplayName("原文を併記")]
-        [Description("窓を開いたときの、「原文を併記」の初期値です。")]
+        [LocCategory("エラーログ (窓の初期値)")]
+        [LocDisplayName("原文を併記")]
+        [LocDescription("窓を開いたときの、「原文を併記」の初期値です。")]
         public bool ErrorLogAttachRaw { get; set; } = false;
 
-        [Category("エラーログ (窓の初期値)")]
-        [DisplayName("原文")]
-        [Description("窓を開いたときの、「原文」(整理せずに色だけ付ける)の初期値です。")]
+        [LocCategory("エラーログ (窓の初期値)")]
+        [LocDisplayName("原文")]
+        [LocDescription("窓を開いたときの、「原文」(整理せずに色だけ付ける)の初期値です。")]
         public bool ErrorLogRawMode { get; set; } = false;
 
         private const string KeyHelp = "「Alt+Q」「Ctrl+Alt+M」のように書きます。空にすると、キーを外します。OK を押すと、Visual Studio のキー割り当てに反映されます。";
 
-        [Category("キー")]
-        [DisplayName("ローカル変数に型を付ける (Qualify type)")]
+        [LocCategory("キー")]
+        [LocDisplayName("ローカル変数に型を付ける (Qualify type)")]
         [Description(KeyHelp)]
         public string LocalKey { get; set; } = "Alt+Q";
 
-        [Category("キー")]
-        [DisplayName("メンバー変数として宣言する (Write member)")]
+        [LocCategory("キー")]
+        [LocDisplayName("メンバー変数として宣言する (Write member)")]
         [Description(KeyHelp)]
         public string MemberKey { get; set; } = "Alt+W";
 
-        [Category("キー")]
-        [DisplayName("Getter・Setter を作る (Getter)")]
+        [LocCategory("キー")]
+        [LocDisplayName("Getter・Setter を作る (Getter)")]
         [Description(KeyHelp)]
         public string AccessorKey { get; set; } = "Alt+G";
 
-        [Category("キー")]
-        [DisplayName("#include を足す (Include)")]
+        [LocCategory("キー")]
+        [LocDisplayName("#include を足す (Include)")]
         [Description(KeyHelp)]
         public string IncludeKey { get; set; } = "Alt+I";
 
-        [Category("キー")]
-        [DisplayName("宣言と定義の引数を合わせる (Sync)")]
+        [LocCategory("キー")]
+        [LocDisplayName("宣言と定義の引数を合わせる (Sync)")]
         [Description(KeyHelp)]
         public string SyncKey { get; set; } = "Alt+S";
 
-        [Category("キー")]
-        [DisplayName("宣言・定義の相手を作る (Resolve)")]
+        [LocCategory("キー")]
+        [LocDisplayName("宣言・定義の相手を作る (Resolve)")]
         [Description(KeyHelp)]
         public string CreateKey { get; set; } = "Alt+R";
 
-        [Category("キー")]
-        [DisplayName("関数をヘッダー ⇄ cpp に移す (Move)")]
+        [LocCategory("キー")]
+        [LocDisplayName("関数をヘッダー ⇄ cpp に移す (Move)")]
         [Description(KeyHelp)]
         public string MoveKey { get; set; } = "Alt+M";
 
-        [Category("キー")]
-        [DisplayName("#include を前方宣言にする (Forward)")]
+        [LocCategory("キー")]
+        [LocDisplayName("#include を前方宣言にする (Forward)")]
         [Description(KeyHelp)]
         public string ForwardKey { get; set; } = "Alt+F";
 
-        [Category("キー")]
-        [DisplayName("メンバーからコンストラクターを作る (Constructor)")]
+        [LocCategory("キー")]
+        [LocDisplayName("メンバーからコンストラクターを作る (Constructor)")]
         [Description(KeyHelp)]
         public string CtorKey { get; set; } = "Alt+C";
 
-        [Category("キー")]
-        [DisplayName("基底クラスの仮想関数を override する (Override)")]
+        [LocCategory("キー")]
+        [LocDisplayName("基底クラスの仮想関数を override する (Override)")]
         [Description(KeyHelp)]
         public string OverrideKey { get; set; } = "Alt+O";
 
-        [Category("キー")]
-        [DisplayName("呼び出しから関数を作る (Usage)")]
+        [LocCategory("キー")]
+        [LocDisplayName("呼び出しから関数を作る (Usage)")]
         [Description(KeyHelp)]
         public string UsageKey { get; set; } = "Alt+U";
 
-        [Category("キー")]
-        [DisplayName("この位置の書き換え・生成の一覧 (eXplore)")]
+        [LocCategory("キー")]
+        [LocDisplayName("この位置の書き換え・生成の一覧 (eXplore)")]
         [Description(KeyHelp)]
         public string RefactorKey { get; set; } = "Alt+X";
 
-        [Category("include 整理")]
-        [DisplayName("使っていない #include を、ヘッダーからも消す")]
-        [Description("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
+        [LocCategory("include 整理")]
+        [LocDisplayName("使っていない #include を、ヘッダーからも消す")]
+        [LocDescription("false(既定): 使っていない #include の削除は、cpp だけ。true: ヘッダーも対象にする(他のファイルが、そのヘッダー経由で include を受け取っていると、ビルドが通らなくなることがあります)。")]
         public bool RemoveUnusedInHeaders { get; set; } = false;
 
-        [Category("Quick Fix")]
-        [DisplayName("電球(Quick Fix)に出す")]
-        [Description("true: Ctrl+. の電球に、宣言・定義の相手を作る、引数を合わせる、変数に型を付ける、を出す。")]
+        [LocCategory("Quick Fix")]
+        [LocDisplayName("電球(Quick Fix)に出す")]
+        [LocDescription("true: Ctrl+. の電球に、宣言・定義の相手を作る、引数を合わせる、変数に型を付ける、を出す。")]
         public bool ShowQuickFix { get; set; } = true;
 
         /// <summary>設定画面を開いたとき、Visual Studio に今割り当てられているキーを表示する。</summary>
@@ -373,6 +382,7 @@ namespace KCppAssist
             base.OnApply(e);
             ThreadHelper.ThrowIfNotOnUIThread();
             KCppAssistPackage.LogEnabled = WriteLog;
+            if (e.ApplyBehavior == ApplyKind.Apply) L.Current = Language;
             if (e.ApplyBehavior != ApplyKind.Apply) return;
             try
             {
@@ -520,79 +530,79 @@ namespace KCppAssist
             SaveSettingsToStorage();
         }
 
-        [Category("書き換えと生成")]
-        [DisplayName("JSON (nlohmann) の項目を出す")]
-        [Description("True のとき、クラスの電球に「JSON に読み書きできるようにする (nlohmann)」を出します。初期値は False(nlohmann を使わないプロジェクトでは邪魔になるため)。")]
+        [LocCategory("書き換えと生成")]
+        [LocDisplayName("JSON (nlohmann) の項目を出す")]
+        [LocDescription("True のとき、クラスの電球に「JSON に読み書きできるようにする (nlohmann)」を出します。初期値は False(nlohmann を使わないプロジェクトでは邪魔になるため)。")]
         public bool OfferJson { get; set; } = false;
 
-        [Category("書き換えと生成")]
-        [DisplayName("cereal の項目を出す")]
-        [Description("True のとき、クラスの電球に「cereal で保存できるようにする (serialize)」を出します。初期値は False。")]
+        [LocCategory("書き換えと生成")]
+        [LocDisplayName("cereal の項目を出す")]
+        [LocDescription("True のとき、クラスの電球に「cereal で保存できるようにする (serialize)」を出します。初期値は False。")]
         public bool OfferCereal { get; set; } = false;
 
-        [Category("書き換えと生成")]
-        [DisplayName("Natvis の項目を出す")]
-        [Description("True のとき、クラスの電球に「デバッガーの表示 (Natvis) を作る」を出します。初期値は False。")]
+        [LocCategory("書き換えと生成")]
+        [LocDisplayName("Natvis の項目を出す")]
+        [LocDescription("True のとき、クラスの電球に「デバッガーの表示 (Natvis) を作る」を出します。初期値は False。")]
         public bool OfferNatvis { get; set; } = false;
 
-        [Category("switch")]
-        [DisplayName("switch を打ったら、case と default を自動で入れる")]
-        [Description("True のとき、enum / enum class の値を switch (値) { で受けて改行すると、本体が空なら、値ごとの「case 値: break;」と「default: break;」を自動で入れます。enum の型が決められない switch(整数など)では、何もしません。Ctrl+Z 1 回で消えます。")]
+        [LocCategory("switch")]
+        [LocDisplayName("switch を打ったら、case と default を自動で入れる")]
+        [LocDescription("True のとき、enum / enum class の値を switch (値) { で受けて改行すると、本体が空なら、値ごとの「case 値: break;」と「default: break;」を自動で入れます。enum の型が決められない switch(整数など)では、何もしません。Ctrl+Z 1 回で消えます。")]
         public bool AutoSwitch { get; set; } = true;
 
-        [Category("新規ファイル")]
-        [DisplayName("新しい空のファイルに、ひな形を書く")]
-        [Description("True のとき、プロジェクトに新しく足した空のヘッダーに #pragma once・namespace・class を、空の cpp に #include と namespace を書きます(作ってから 2 分以内の、空のファイルだけ)。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("新しい空のファイルに、ひな形を書く")]
+        [LocDescription("True のとき、プロジェクトに新しく足した空のヘッダーに #pragma once・namespace・class を、空の cpp に #include と namespace を書きます(作ってから 2 分以内の、空のファイルだけ)。")]
         public bool NewFileTemplate { get; set; } = true;
 
-        [Category("新規ファイル")]
-        [DisplayName("ヘッダーに class を書く")]
-        [Description("True のとき、ヘッダーに「class クラス名 {」から「};」までを書きます。False なら、namespace だけ。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("ヘッダーに class を書く")]
+        [LocDescription("True のとき、ヘッダーに「class クラス名 {」から「};」までを書きます。False なら、namespace だけ。")]
         public bool NewFileClass { get; set; } = true;
 
-        [Category("新規ファイル")]
-        [DisplayName("class にコンストラクター・デストラクターを = default で書く")]
-        [Description("True(初期値)のとき、新しいヘッダーのひな形と、VS の「クラスの追加」で作ったクラスの public: に、「Foo() = default;」と「~Foo() = default;」を書きます。VS がすでにコンストラクター・デストラクターを書いていれば、そちらを残します。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("class にコンストラクター・デストラクターを = default で書く")]
+        [LocDescription("True(初期値)のとき、新しいヘッダーのひな形と、VS の「クラスの追加」で作ったクラスの public: に、「Foo() = default;」と「~Foo() = default;」を書きます。VS がすでにコンストラクター・デストラクターを書いていれば、そちらを残します。")]
         public bool NewFileCtorDefault { get; set; } = true;
 
-        [Category("新規ファイル")]
-        [DisplayName("クラス名の決めかた")]
-        [Description("SameAsFile: ファイル名と同じ(初期値)。PascalCase: game_object → GameObject。SnakeCase: GameObject → game_object。CamelCase: game_object → gameObject。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("クラス名の決めかた")]
+        [LocDescription("SameAsFile: ファイル名と同じ(初期値)。PascalCase: game_object → GameObject。SnakeCase: GameObject → game_object。CamelCase: game_object → gameObject。")]
         public ClassNaming NewFileClassNaming { get; set; } = ClassNaming.SameAsFile;
 
-        [Category("新規ファイル")]
-        [DisplayName("namespace の決めかた")]
-        [Description("Auto: ソリューションの既存のヘッダーで、行頭の namespace が一番多いもの(初期値)。Fixed: 下の名前を使う。None: 書かない。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("namespace の決めかた")]
+        [LocDescription("Auto: ソリューションの既存のヘッダーで、行頭の namespace が一番多いもの(初期値)。Fixed: 下の名前を使う。None: 書かない。")]
         public NewFileNamespaceMode NewFileNamespaceMode { get; set; } = NewFileNamespaceMode.Auto;
 
-        [Category("新規ファイル")]
-        [DisplayName("固定の namespace")]
-        [Description("namespace の決めかたが Fixed のときに使う名前。「Game::Core」のように :: でつなげます。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("固定の namespace")]
+        [LocDescription("namespace の決めかたが Fixed のときに使う名前。「Game::Core」のように :: でつなげます。")]
         public string NewFileNamespace { get; set; } = "";
 
-        [Category("新規ファイル")]
-        [DisplayName("字下げ")]
-        [Description("Auto: 既存のヘッダーで多いほう(タブか、空白 2 / 4)。判断できなければタブ。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("字下げ")]
+        [LocDescription("Auto: 既存のヘッダーで多いほう(タブか、空白 2 / 4)。判断できなければタブ。")]
         public IndentKind NewFileIndent { get; set; } = IndentKind.Auto;
 
-        [Category("新規ファイル")]
-        [DisplayName("namespace の中を字下げする")]
-        [Description("True(初期値)のとき、namespace の中の class を 1 段字下げします。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("namespace の中を字下げする")]
+        [LocDescription("True(初期値)のとき、namespace の中の class を 1 段字下げします。")]
         public bool NewFileIndentInNamespace { get; set; } = true;
 
-        [Category("新規ファイル")]
-        [DisplayName("インクルード ガード")]
-        [Description("PragmaOnce: #pragma once(初期値)。IncludeGuard: #ifndef / #define / #endif。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("インクルード ガード")]
+        [LocDescription("PragmaOnce: #pragma once(初期値)。IncludeGuard: #ifndef / #define / #endif。")]
         public GuardKind NewFileGuard { get; set; } = GuardKind.PragmaOnce;
 
-        [Category("新規ファイル")]
-        [DisplayName("namespace を閉じる行にコメントを付ける")]
-        [Description("True のとき、「}  // namespace 名前」と書きます。False(初期値)なら「}」だけです。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("namespace を閉じる行にコメントを付ける")]
+        [LocDescription("True のとき、「}  // namespace 名前」と書きます。False(初期値)なら「}」だけです。")]
         public bool NewFileNamespaceComment { get; set; } = false;
 
-        [Category("新規ファイル")]
-        [DisplayName("強制インクルードにある pch の #include を書かない")]
-        [Description("True(初期値)のとき、プロジェクトの「強制インクルード ファイル」(/FI、ForcedIncludeFiles)に pch.h などがあれば、VS の「クラスの追加」が cpp に書いた #include \"pch.h\" を、書き直すときに消します。/FI で毎回読み込まれるので、書かなくてもビルドできます。")]
+        [LocCategory("新規ファイル")]
+        [LocDisplayName("強制インクルードにある pch の #include を書かない")]
+        [LocDescription("True(初期値)のとき、プロジェクトの「強制インクルード ファイル」(/FI、ForcedIncludeFiles)に pch.h などがあれば、VS の「クラスの追加」が cpp に書いた #include \"pch.h\" を、書き直すときに消します。/FI で毎回読み込まれるので、書かなくてもビルドできます。")]
         public bool SkipForcedPch { get; set; } = true;
 
         [Browsable(false)]

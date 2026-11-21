@@ -267,6 +267,7 @@ namespace KCppAssist
         public static Frame Create(string title, string subtitle, double width = 480)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            title = L.T(title);
             var f = new Frame { P = Colors() };
             f.Res = Styles(f.P);
             var p = f.P;
@@ -353,8 +354,8 @@ namespace KCppAssist
                 f.Body.Children.Add(scroll);
             }
             bool ok = false;
-            var yes = f.AddButton(okText, true, true, false, () => { ok = true; f.Window.Close(); });
-            f.AddButton(cancelText, false, false, true, () => f.Window.Close());
+            var yes = f.AddButton(L.T(okText), true, true, false, () => { ok = true; f.Window.Close(); });
+            f.AddButton(L.T(cancelText), false, false, true, () => f.Window.Close());
             f.Window.Loaded += (s, e) => yes.Focus();
             f.Show();
             return ok;
@@ -368,8 +369,8 @@ namespace KCppAssist
             var box = new TextBox { Text = initial ?? "", Style = (Style)f.Res["KText"], Margin = new Thickness(0, 12, 0, 0) };
             f.Body.Children.Add(box);
             string result = null;
-            f.AddButton(okText, true, true, false, () => { result = box.Text; f.Window.Close(); });
-            f.AddButton("やめる", false, false, true, () => f.Window.Close());
+            f.AddButton(L.T(okText), true, true, false, () => { result = box.Text; f.Window.Close(); });
+            f.AddButton(L.T("やめる"), false, false, true, () => f.Window.Close());
             f.Window.Loaded += (s, e) => { box.Focus(); box.SelectAll(); };
             f.Show();
             return result;
@@ -386,8 +387,8 @@ namespace KCppAssist
             f.Body.Children.Add(list);
             string result = null;
             Action pick = () => { var t = list.SelectedItem as TextBlock; if (t != null) { result = (string)t.Tag; f.Window.Close(); } };
-            f.AddButton("選ぶ", true, true, false, pick);
-            f.AddButton("やめる", false, false, true, () => f.Window.Close());
+            f.AddButton(L.T("選ぶ"), true, true, false, pick);
+            f.AddButton(L.T("やめる"), false, false, true, () => f.Window.Close());
             list.MouseDoubleClick += (s, e) => pick();
             f.Window.Loaded += (s, e) => { list.Focus(); var c = list.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem; if (c != null) c.Focus(); };
             f.Show();

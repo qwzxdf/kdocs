@@ -127,6 +127,7 @@ namespace KCppAssist
                 // 「メンバーからコンストラクターを作る」は、「コンストラクター・デストラクターを作る」の 3 つのすぐ下に出す(下の書き換えの一覧で入れる)
                 string lineText = line.GetText();
                 ISuggestedAction ctorAction = null;
+                int lastCtor = -1;          // コンストラクター・デストラクターの項目の最後の位置
                 int ctorAt = -1;
                 if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
                 else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) { ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
@@ -135,8 +136,8 @@ namespace KCppAssist
                 var assign = AssignScan.Find(text, caret);
                 if (assign != null)
                 {
-                    if (!assign.HasThis) list.Add(Action("ローカル変数として型を付ける (" + assign.Name + ")", () => Invoke(p => p.Run(false))));
-                    if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action("メンバー変数としてヘッダーに宣言する (" + assign.Name + ")", () => Invoke(p => p.Run(true))));
+                    if (!assign.HasThis) list.Add(Action(L.F("ローカル変数として型を付ける ({0})", assign.Name), () => Invoke(p => p.Run(false))));
+                    if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action(L.F("メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(true))));
                 }
 
                 // メンバー変数の宣言の行: Getter・Setter を作る(Alt+E)
@@ -160,7 +161,7 @@ namespace KCppAssist
                         && System.Text.RegularExpressions.Regex.IsMatch(text, @"#\s*include\s*[<""](?:[^"">]*/)?" + System.Text.RegularExpressions.Regex.Escape(ft) + @"\.(?:h|hpp|hh|hxx)["">]"))
                     {
                         string name = ft;
-                        list.Add(Action(name + " を前方宣言にする (#include を cpp に移す)", () => Invoke(p => p.RunForward(name))));
+                        list.Add(Action(L.F("{0} を前方宣言にする (#include を cpp に移す)", name), () => Invoke(p => p.RunForward(name))));
                     }
                 }
 
@@ -177,7 +178,7 @@ namespace KCppAssist
                         var files = IncludeService.Index.Lookup(incWord.Substring(incWord.LastIndexOf(':') + 1)).Where(f => !string.Equals(f, path, StringComparison.OrdinalIgnoreCase)).ToList();
                         missing = files.Count > 0 && !files.Any(f => text.Contains(Path.GetFileName(f)));
                     }
-                    if (missing) list.Add(Action("#include を足す (" + incWord + ")", () => Invoke(p => p.RunInclude())));
+                    if (missing) list.Add(Action(L.F("#include を足す ({0})", incWord), () => Invoke(p => p.RunInclude())));
                 }
 
                 // #include の行: このファイルの #include を整理する・使っていないものを消す
@@ -193,13 +194,12 @@ namespace KCppAssist
                 {
                     string id = o.Id;
                     list.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
-                    if (id == "ctordtor-cpp" && ctorAction != null) { list.Add(ctorAction); ctorAction = null; }
+                    if (id.StartsWith("ctordtor", StringComparison.Ordinal)) lastCtor = list.Count - 1;
                 }
                 if (ctorAction != null)
                 {
                     // .cpp の項目がない(cpp のファイルなど)ときは、コンストラクターの 2 通りのすぐ後ろ
-                    int k = list.FindLastIndex(x => x.DisplayText.StartsWith("コンストラクター・デストラクターを作る", StringComparison.Ordinal));
-                    list.Insert(k >= 0 ? k + 1 : Math.Min(ctorAt, list.Count), ctorAction);
+                    list.Insert(lastCtor >= 0 ? lastCtor + 1 : Math.Min(ctorAt, list.Count), ctorAction);
                 }
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
@@ -252,7 +252,7 @@ namespace KCppAssist
             return found.Count == 1 && !SignatureSync.HasDirectives(sig.Inner(text)) ? Counterpart.Different : Counterpart.Same;
         }
 
-        private static ISuggestedAction Action(string title, Action run) { return new QuickFixAction(title, run); }
+        private static ISuggestedAction Action(string title, Action run) { return new QuickFixAction(L.T(title), run); }
 
         private static void Invoke(Action<KCppAssistPackage> run)
         {

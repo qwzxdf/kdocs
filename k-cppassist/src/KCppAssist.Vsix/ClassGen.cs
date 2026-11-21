@@ -17,7 +17,7 @@ namespace KCppAssist
         {
             var list = new List<Refactor.Offer>();
             string why;
-            void Try(string id, string title) { if (Make(id, text, caret, eol, header, out why) != null) list.Add(new Refactor.Offer { Id = id, Title = title }); }
+            void Try(string id, string title) { if (Make(id, text, caret, eol, header, out why) != null) list.Add(new Refactor.Offer { Id = id, Title = L.T(title) }); }
             int ls = MemberScan.LineStart(text, caret);
             string near = text.Substring(Math.Max(0, ls - 200), Math.Min(text.Length, caret + 200) - Math.Max(0, ls - 200));
             if (near.Contains("enum")) Try("enumstr", "enum の ToString / FromString を作る");

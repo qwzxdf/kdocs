@@ -37,6 +37,23 @@ static class Tests
 
     static void Main()
     {
+        // ---- 言語 ----
+        {
+            var before = L.Current;
+            L.Current = UiLanguage.English;
+            Eq("lang: en", L.T("Getter を作る"), "Generate Getter");
+            Eq("lang: en format", L.F("#include を足す ({0})", "Foo"), "Add #include (Foo)");
+            Eq("lang: missing key stays ja", L.T("訳のない文"), "訳のない文");
+            L.Current = UiLanguage.Korean;
+            Eq("lang: ko", L.T("やめる"), "취소");
+            L.Current = UiLanguage.Japanese;
+            Eq("lang: ja", L.T("やめる"), "やめる");
+            Eq("lang: culture ja", L.FromCulture(new System.Globalization.CultureInfo("ja-JP")).ToString(), "Japanese");
+            Eq("lang: culture zh", L.FromCulture(new System.Globalization.CultureInfo("zh-CN")).ToString(), "ChineseSimplified");
+            Eq("lang: culture de -> en", L.FromCulture(new System.Globalization.CultureInfo("de-DE")).ToString(), "English");
+            L.Current = before;
+        }
+
         // ---- Getter だけ・Setter だけ ----
         {
             string h = "class A {\n public:\n private:\n  int hp_;\n  const int max_;\n};\n";

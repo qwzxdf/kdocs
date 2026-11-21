@@ -27,7 +27,7 @@ namespace KCppAssist
 
         private void RegisterRefactorCommands(OleMenuCommandService commands)
         {
-            commands.AddCommand(new MenuCommand((s, e) => ShowRefactorMenu(), new CommandID(CmdSet, CmdRefactor)));
+            commands.AddCommand(new OleMenuCommand((s, e) => ShowRefactorMenu(), new CommandID(CmdSet, CmdRefactor)));
         }
 
         private sealed class Active
@@ -145,7 +145,7 @@ namespace KCppAssist
             if (!list.Any(o => o.Id == "initorder") && !header)
             {
                 var sig = FunctionScan.Scan(text).FirstOrDefault(s => s.InitStart >= 0 && s.HasBody && s.PrefixStart <= caret && caret <= s.BodyOpen);
-                if (sig != null && sig.Class != null) list.Add(new Refactor.Offer { Id = "initorder", Title = "初期化子リストを、メンバーの宣言の順に並べ替える" });
+                if (sig != null && sig.Class != null) list.Add(new Refactor.Offer { Id = "initorder", Title = L.T("初期化子リストを、メンバーの宣言の順に並べ替える") });
             }
             var cls = MemberScan.At(text, caret);
             if (cls != null)
@@ -154,20 +154,20 @@ namespace KCppAssist
                 {
                     string stem0 = Path.GetFileNameWithoutExtension(path);
                     bool hasCpp = new[] { ".cpp", ".cc", ".cxx" }.Any(e => File.Exists(Path.Combine(Path.GetDirectoryName(path), stem0 + e)));
-                    if (!hasCpp) list.Add(new Refactor.Offer { Id = "makecpp", Title = stem0 + ".cpp を作る" });
+                    if (!hasCpp) list.Add(new Refactor.Offer { Id = "makecpp", Title = L.F("{0}.cpp を作る", stem0) });
                 }
                 if (header && ClassGen.AtClassLevel(text, caret))
                 {
                     // 「.h に宣言、.cpp に定義」は、ほかの 2 通りのすぐ後ろに並べる
                     int k = list.FindLastIndex(o => o.Id == "ctordtor-default" || o.Id == "ctordtor-inline");
-                    if (k >= 0) list.Insert(k + 1, new Refactor.Offer { Id = "ctordtor-cpp", Title = "コンストラクター・デストラクターを作る (.h に宣言、.cpp に定義)" });
+                    if (k >= 0) list.Insert(k + 1, new Refactor.Offer { Id = "ctordtor-cpp", Title = L.T("コンストラクター・デストラクターを作る (.h に宣言、.cpp に定義)") });
                 }
                 // クラス全体の項目は、クラスそのものを指している行でだけ(メンバーの行では出さない)
                 bool classLevel = ClassGen.AtClassLevel(text, caret);
-                if (classLevel && cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = "デバッガーの表示 (Natvis) を作る" });
-                if (classLevel && header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = "定義のない関数を、cpp にまとめて作る" });
+                if (classLevel && cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = L.T("デバッガーの表示 (Natvis) を作る") });
+                if (classLevel && header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = L.T("定義のない関数を、cpp にまとめて作る") });
                 if (classLevel && header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))
-                    list.Add(new Refactor.Offer { Id = "extract", Title = "クラスを " + cls.Name + ".h / .cpp に移す" });
+                    list.Add(new Refactor.Offer { Id = "extract", Title = L.F("クラスを {0}.h / .cpp に移す", cls.Name) });
             }
             // 使うライブラリ次第の項目は、設定で出したときだけ(初期値はどれも出さない)
             var opt = IncludeService.Options;

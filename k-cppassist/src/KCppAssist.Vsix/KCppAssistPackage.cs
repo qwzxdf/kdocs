@@ -56,6 +56,65 @@ namespace KCppAssist
         /// <summary>設定の「ログを残す」。ログは別のスレッドからも書くので、設定の値を、ここに写して持つ。</summary>
         internal static volatile bool LogEnabled = true;
 
+        // メニューの文字(.vsct の ButtonText)。ID → 日本語。表示のときに、いまの言語に訳す
+        private static readonly System.Collections.Generic.Dictionary<int, string> MenuTexts = new System.Collections.Generic.Dictionary<int, string>
+        {
+            [0x010E] = "K-Cpp: 使い方...",
+            [0x010A] = "K-Cpp: #include を整理（プロジェクト全体）",
+            [0x010B] = "K-Cpp: 使っていない #include を消す（プロジェクト全体）",
+            [0x010D] = "K-Cpp: このファイルの #include を整理",
+            [0x010C] = "K-Cpp: #include を前方宣言にする (Forward / Alt+F)",
+            [0x0111] = "K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)",
+            [0x0112] = "K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)",
+            [0x0113] = "K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)",
+            [0x0114] = "K-Cpp: ファイルの文字コードをそろえる...",
+            [0x0115] = "K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)",
+            [0x0100] = "ローカル変数に型を付ける (Qualify type / Alt+Q)",
+            [0x0101] = "メンバー変数として宣言する (Write member / Alt+W)",
+            [0x0102] = "Getter・Setter を作る (Getter / Alt+G)",
+            [0x0104] = "#include を足す (Include / Alt+I)",
+            [0x0105] = "宣言と定義の引数を合わせる (Sync / Alt+S)",
+            [0x0106] = "宣言・定義の相手を作る (Resolve / Alt+R)",
+            [0x0109] = "関数を ヘッダー ⇄ cpp に移す (Move / Alt+M)",
+            [0x0108] = "ファイル名をまとめて変える (Name / Alt+N)",
+            [0x0107] = "K-ErrorLog (エラーログ)を開く",
+            [0x0103] = "K-Cpp: 設定...",
+        };
+
+        /// <summary>メニューの文字を、いまの言語にする。表示のたびに読み直すので、設定で言語を変えると、次に開いたメニューから変わる。</summary>
+        private static void ApplyMenuTexts(OleMenuCommandService commands)
+        {
+            foreach (var kv in MenuTexts)
+            {
+                var cmd = commands.FindCommand(new CommandID(CmdSet, kv.Key)) as OleMenuCommand;
+                if (cmd == null) continue;
+                string ja = kv.Value;
+                cmd.Text = L.T(ja);
+                cmd.BeforeQueryStatus += (s, e) => { var c = s as OleMenuCommand; if (c != null) c.Text = L.T(ja); };
+            }
+        }
+
+        /// <summary>
+        /// 表示する言語を決める。初期値は日本語。初めて起動したとき(設定に言語を保存していないとき)だけ、PC(Windows)の表示言語に合わせて、保存する。
+        /// </summary>
+        private void InitLanguage()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var page = (OptionsPage)GetDialogPage(typeof(OptionsPage));
+                if (!page.LanguageInitialized)
+                {
+                    page.Language = L.FromCulture(System.Globalization.CultureInfo.InstalledUICulture);
+                    page.LanguageInitialized = true;
+                    page.SaveSettingsToStorage();
+                    Log("language: first run, set to " + page.Language + " (" + System.Globalization.CultureInfo.InstalledUICulture.Name + ")");
+                }
+                L.Current = page.Language;
+            }
+            catch (Exception ex) { Log("language init failed: " + ex.Message); }
+        }
+
         internal static void Log(string text)
         {
             if (!LogEnabled) return;
@@ -73,24 +132,26 @@ namespace KCppAssist
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             Instance = this;
             LogEnabled = ((OptionsPage)GetDialogPage(typeof(OptionsPage))).WriteLog;
+            InitLanguage();
             var commands = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commands != null)
             {
-                commands.AddCommand(new MenuCommand((s, e) => Run(false), new CommandID(CmdSet, CmdLocal)));
-                commands.AddCommand(new MenuCommand((s, e) => Run(true), new CommandID(CmdSet, CmdMember)));
-                commands.AddCommand(new MenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
-                commands.AddCommand(new MenuCommand((s, e) => RunInclude(), new CommandID(CmdSet, CmdInclude)));
-                commands.AddCommand(new MenuCommand((s, e) => RunSync(), new CommandID(CmdSet, CmdSync)));
-                commands.AddCommand(new MenuCommand((s, e) => ShowWindow(true, true), new CommandID(CmdSet, CmdErrorLog)));
-                commands.AddCommand(new MenuCommand((s, e) => RunRename(), new CommandID(CmdSet, CmdRename)));
-                commands.AddCommand(new MenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
-                commands.AddCommand(new MenuCommand((s, e) => RunMove(), new CommandID(CmdSet, CmdMove)));
+                commands.AddCommand(new OleMenuCommand((s, e) => Run(false), new CommandID(CmdSet, CmdLocal)));
+                commands.AddCommand(new OleMenuCommand((s, e) => Run(true), new CommandID(CmdSet, CmdMember)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunInclude(), new CommandID(CmdSet, CmdInclude)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunSync(), new CommandID(CmdSet, CmdSync)));
+                commands.AddCommand(new OleMenuCommand((s, e) => ShowWindow(true, true), new CommandID(CmdSet, CmdErrorLog)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunRename(), new CommandID(CmdSet, CmdRename)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
+                commands.AddCommand(new OleMenuCommand((s, e) => RunMove(), new CommandID(CmdSet, CmdMove)));
                 RegisterTidyCommands(commands);
                 RegisterGenCommands(commands);
                 RegisterRefactorCommands(commands);
                 RegisterHelpCommand(commands);
                 RegisterEncodingCommand(commands);
-                commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
+                commands.AddCommand(new OleMenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
+                ApplyMenuTexts(commands);
             }
             try { ((OptionsPage)GetDialogPage(typeof(OptionsPage))).MigrateKeyScopes(); }
             catch (Exception ex) { Log("migrate keys failed: " + ex.Message); }

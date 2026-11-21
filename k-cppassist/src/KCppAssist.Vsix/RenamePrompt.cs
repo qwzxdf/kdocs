@@ -25,15 +25,15 @@ namespace KCppAssist
         public static bool[] Show(string headline, string detail, IList<Item> items, out bool dontAsk, string okText = "反映する")
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var f = KDialog.Create(headline, detail);
-            f.Body.Children.Add(f.Text("ほかのファイルにも反映しますか?", 13, 0.8));
+            var f = KDialog.Create(L.T(headline), detail);
+            f.Body.Children.Add(f.Text(L.T("ほかのファイルにも反映しますか?"), 13, 0.8));
 
             // 項目は、1 つずつ薄い面のカードにする(チェックと、その下の等幅の補足)
             var boxes = new List<CheckBox>();
             foreach (var it in items)
             {
                 var sp = new StackPanel();
-                sp.Children.Add(f.Text(it.Text, 13.5));
+                sp.Children.Add(f.Text(L.T(it.Text), 13.5));
                 if (!string.IsNullOrEmpty(it.Detail))
                     sp.Children.Add(new TextBlock
                     {
@@ -59,14 +59,14 @@ namespace KCppAssist
             }
 
             // 「次から確認しない」は左下。初期値は印なし(印を付けて反映すると、設定の「直す前に確認する」を False にする)
-            var never = f.Check(f.Text("次から確認しない", 12, 0.8), false);
+            var never = f.Check(f.Text(L.T("次から確認しない"), 12, 0.8), false);
             never.VerticalAlignment = VerticalAlignment.Center;
             DockPanel.SetDock(never, Dock.Left);
             f.Footer.Children.Add(never);
 
             bool[] result = null;
             bool dont = false;
-            var ok = f.AddButton(okText, true, true, false, () =>
+            var ok = f.AddButton(L.T(okText), true, true, false, () =>
             {
                 result = new bool[boxes.Count];
                 for (int i = 0; i < boxes.Count; i++) result[i] = boxes[i].IsChecked == true;
@@ -74,7 +74,7 @@ namespace KCppAssist
                 f.Window.Close();
             });
             // 何もしないボタンは右端(Esc でも同じ)
-            f.AddButton("何もしない", false, false, true, () => f.Window.Close());
+            f.AddButton(L.T("何もしない"), false, false, true, () => f.Window.Close());
             f.Window.Loaded += (s, e) => ok.Focus();
             f.Show();
             dontAsk = dont;

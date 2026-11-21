@@ -127,7 +127,7 @@ namespace KCppAssist
                 bool dontAsk;
                 string text = matched
                     ? "ファイル名・相手のファイル・#include・CMake も直す"
-                    : "ファイル名も直す (いまのファイル名 " + Path.GetFileName(header) + " は、クラス名と違っています)";
+                    : L.F("ファイル名も直す (いまのファイル名 {0} は、クラス名と違っています)", Path.GetFileName(header));
                 var res = RenamePrompt.Show("クラス名が変わりました", oldName + " → " + newName,
                     new List<RenamePrompt.Item> { new RenamePrompt.Item { Text = text, Detail = detail, Checked = matched } },
                     out dontAsk);

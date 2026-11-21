@@ -15,7 +15,7 @@ namespace KCppAssist
 
         private void RegisterHelpCommand(OleMenuCommandService commands)
         {
-            commands.AddCommand(new MenuCommand((s, e) => ShowHelp(), new CommandID(CmdSet, CmdHelp)));
+            commands.AddCommand(new OleMenuCommand((s, e) => ShowHelp(), new CommandID(CmdSet, CmdHelp)));
         }
 
         private sealed class HelpItem

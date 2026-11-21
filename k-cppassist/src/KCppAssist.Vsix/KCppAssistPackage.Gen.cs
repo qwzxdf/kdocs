@@ -26,9 +26,9 @@ namespace KCppAssist
 
         private void RegisterGenCommands(OleMenuCommandService commands)
         {
-            commands.AddCommand(new MenuCommand((s, e) => RunGen(1), new CommandID(CmdSet, CmdCtor)));
-            commands.AddCommand(new MenuCommand((s, e) => RunGen(2), new CommandID(CmdSet, CmdOverride)));
-            commands.AddCommand(new MenuCommand((s, e) => RunUsage(), new CommandID(CmdSet, CmdUsage)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunGen(1), new CommandID(CmdSet, CmdCtor)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunGen(2), new CommandID(CmdSet, CmdOverride)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunUsage(), new CommandID(CmdSet, CmdUsage)));
         }
 
         internal void RunCtor() { RunGen(1); }

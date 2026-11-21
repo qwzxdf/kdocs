@@ -59,7 +59,7 @@ namespace KCppAssist
         {
             var list = new List<Offer>();
             string why;
-            void Try(string id, string title) { if (Make(id, text, caret, eol, header, out why) != null) list.Add(new Offer { Id = id, Title = title }); }
+            void Try(string id, string title) { if (Make(id, text, caret, eol, header, out why) != null) list.Add(new Offer { Id = id, Title = L.T(title) }); }
             // 電球はカーソルが動くたびに呼ばれる。行の文字で先にふるい、重い計算(ファイル全体の走査)を減らす
             int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
             string line = text.Substring(ls, le - ls);

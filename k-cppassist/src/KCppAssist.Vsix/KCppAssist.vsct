@@ -26,107 +26,126 @@
     <Buttons>
       <Button guid="guidKCppAssistCmdSet" id="CmdHelp" priority="0x0102" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 使い方...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0110" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: #include を整理（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0111" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 使っていない #include を消す（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyFile" priority="0x0112" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: このファイルの #include を整理</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdForward" priority="0x0113" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: #include を前方宣言にする (Forward / Alt+F)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdOverride" priority="0x0116" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUsage" priority="0x0117" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0118" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: ファイルの文字コードをそろえる...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)</ButtonText>
         </Strings>
       </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>ローカル変数に型を付ける (Qualify type / Alt+Q)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdMember" priority="0x0101" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>メンバー変数として宣言する (Write member / Alt+W)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdAccessor" priority="0x0102" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>Getter・Setter を作る (Getter / Alt+G)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdInclude" priority="0x0104" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>#include を足す (Include / Alt+I)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdSync" priority="0x0105" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>宣言と定義の引数を合わせる (Sync / Alt+S)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCreate" priority="0x0106" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>宣言・定義の相手を作る (Resolve / Alt+R)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdMove" priority="0x0109" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>関数を ヘッダー ⇄ cpp に移す (Move / Alt+M)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRename" priority="0x0108" type="Button">
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>ファイル名をまとめて変える (Name / Alt+N)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdErrorLog" priority="0x0107" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-ErrorLog (エラーログ)を開く</ButtonText>
         </Strings>
@@ -134,6 +153,7 @@
       <!-- 拡張機能 メニューに出るのは、設定画面を開くものと、エラーログを開くものの 2 つ -->
       <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 設定...</ButtonText>
         </Strings>

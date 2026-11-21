@@ -33,10 +33,10 @@ namespace KCppAssist
 
         private void RegisterTidyCommands(OleMenuCommandService commands)
         {
-            commands.AddCommand(new MenuCommand((s, e) => RunTidy(false, false), new CommandID(CmdSet, CmdTidyProject)));
-            commands.AddCommand(new MenuCommand((s, e) => RunTidy(true, false), new CommandID(CmdSet, CmdUnusedProject)));
-            commands.AddCommand(new MenuCommand((s, e) => RunForward(), new CommandID(CmdSet, CmdForward)));
-            commands.AddCommand(new MenuCommand((s, e) => RunTidy(false, true), new CommandID(CmdSet, CmdTidyFile)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunTidy(false, false), new CommandID(CmdSet, CmdTidyProject)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunTidy(true, false), new CommandID(CmdSet, CmdUnusedProject)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunForward(), new CommandID(CmdSet, CmdForward)));
+            commands.AddCommand(new OleMenuCommand((s, e) => RunTidy(false, true), new CommandID(CmdSet, CmdTidyFile)));
         }
 
         // ---- ファイルの読み書き(エンコードと BOM を保つ) ----
