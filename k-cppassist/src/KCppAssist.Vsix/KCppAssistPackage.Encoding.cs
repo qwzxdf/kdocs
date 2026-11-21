@@ -272,9 +272,8 @@ namespace KCppAssist
                 var t = Target();
                 var e = Eol();
                 string msg = todo.Count + " 個のファイルを " + EncodingTool.TargetName(t) + (e == EncodingTool.Eol.Keep ? "" : "・" + (e == EncodingTool.Eol.Lf ? "LF" : "CRLF")) + " にそろえます。"
-                    + "\n開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません。戻すときは Git などを使います)。"
-                    + "\n\n続けますか?";
-                if (MessageBox.Show(this, msg, "K-CppAssist", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                    + "\n開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません。戻すときは Git などを使います)。";
+                if (!KDialog.Confirm("文字コードをそろえる", msg, null, "そろえる")) return;
 
                 scanButton.IsEnabled = convertButton.IsEnabled = false;
                 summary.Text = "変換しています…";

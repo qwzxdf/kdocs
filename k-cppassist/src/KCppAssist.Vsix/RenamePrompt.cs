@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Microsoft.VisualStudio.Shell;
 
 namespace KCppAssist
@@ -18,60 +19,64 @@ namespace KCppAssist
 
         /// <summary>
         /// OK なら、項目ごとのチェックの結果を返す。キャンセルなら null。UI スレッドから呼ぶ。
+        /// headline は見出し、detail は見出しの下の等幅の箱(「A.h → B.h」など)。
         /// dontAsk は「次から確認しない」に印を付けて OK を押したとき true(キャンセルのときは、印があっても false)。
         /// </summary>
         public static bool[] Show(string headline, string detail, IList<Item> items, out bool dontAsk, string okText = "反映する")
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            bool[] result = null;
-            bool dont = false;
-            var panel = new StackPanel { Margin = new Thickness(16) };
-            panel.Children.Add(new TextBlock { Text = headline, FontSize = 15, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, MaxWidth = 460 });
-            if (!string.IsNullOrEmpty(detail))
-                panel.Children.Add(new TextBlock { Text = detail, Opacity = 0.75, Margin = new Thickness(0, 4, 0, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 460 });
+            var f = KDialog.Create(headline, detail);
+            f.Body.Children.Add(f.Text("ほかのファイルにも反映しますか?", 13, 0.8));
+
+            // 項目は、1 つずつ薄い面のカードにする(チェックと、その下の等幅の補足)
             var boxes = new List<CheckBox>();
             foreach (var it in items)
             {
                 var sp = new StackPanel();
-                sp.Children.Add(new TextBlock { Text = it.Text, TextWrapping = TextWrapping.Wrap, MaxWidth = 430 });
+                sp.Children.Add(f.Text(it.Text, 13.5));
                 if (!string.IsNullOrEmpty(it.Detail))
-                    sp.Children.Add(new TextBlock { Text = it.Detail, FontFamily = new System.Windows.Media.FontFamily("Consolas"), Opacity = 0.8, Margin = new Thickness(0, 2, 0, 0), TextWrapping = TextWrapping.Wrap, MaxWidth = 430 });
-                var cb = new CheckBox { Content = sp, IsChecked = it.Checked, Margin = new Thickness(0, 12, 0, 0) };
+                    sp.Children.Add(new TextBlock
+                    {
+                        Text = it.Detail,
+                        FontFamily = new FontFamily("Cascadia Mono, Consolas"),
+                        FontSize = 12,
+                        Foreground = new SolidColorBrush(f.P.Muted),
+                        Margin = new Thickness(0, 4, 0, 0),
+                        TextWrapping = TextWrapping.Wrap,
+                    });
+                var cb = f.Check(sp, it.Checked);
                 boxes.Add(cb);
-                panel.Children.Add(cb);
+                f.Body.Children.Add(new Border
+                {
+                    CornerRadius = new CornerRadius(8),
+                    Background = new SolidColorBrush(f.P.Panel),
+                    BorderBrush = new SolidColorBrush(f.P.Border),
+                    BorderThickness = new Thickness(1),
+                    Padding = new Thickness(14, 12, 14, 12),
+                    Margin = new Thickness(0, 10, 0, 0),
+                    Child = cb,
+                });
             }
-            var ok = new Button { Content = okText, IsDefault = true, MinWidth = 90, Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 8, 0) };
-            var no = new Button { Content = "何もしない", IsCancel = true, MinWidth = 90, Padding = new Thickness(10, 3, 10, 3) };
-            // 「次から確認しない」は左端、ボタンは右端。初期値は印なし(印を付けて OK を押すと、設定の「直す前に確認する」を False にする)
-            var never = new CheckBox { Content = "次から確認しない", IsChecked = false, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 24, 0), Opacity = 0.85 };
-            var buttons = new StackPanel { Orientation = Orientation.Horizontal };
-            buttons.Children.Add(ok);
-            buttons.Children.Add(no);
-            var row = new DockPanel { LastChildFill = false, Margin = new Thickness(0, 18, 0, 0) };
+
+            // 「次から確認しない」は左下。初期値は印なし(印を付けて反映すると、設定の「直す前に確認する」を False にする)
+            var never = f.Check(f.Text("次から確認しない", 12, 0.8), false);
+            never.VerticalAlignment = VerticalAlignment.Center;
             DockPanel.SetDock(never, Dock.Left);
-            DockPanel.SetDock(buttons, Dock.Right);
-            row.Children.Add(never);
-            row.Children.Add(buttons);
-            panel.Children.Add(row);
-            var w = new Window
-            {
-                Title = "K-CppAssist",
-                Content = panel,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode = ResizeMode.NoResize,
-                Topmost = true,
-                ShowInTaskbar = false,
-            };
-            ok.Click += (s, e) =>
+            f.Footer.Children.Add(never);
+
+            bool[] result = null;
+            bool dont = false;
+            var ok = f.AddButton(okText, true, true, false, () =>
             {
                 result = new bool[boxes.Count];
                 for (int i = 0; i < boxes.Count; i++) result[i] = boxes[i].IsChecked == true;
                 dont = never.IsChecked == true;
-                w.Close();
-            };
-            w.Loaded += (s, e) => ok.Focus();
-            w.ShowDialog();
+                f.Window.Close();
+            });
+            // 何もしないボタンは右端(Esc でも同じ)
+            f.AddButton("何もしない", false, false, true, () => f.Window.Close());
+            f.Window.Loaded += (s, e) => ok.Focus();
+            f.Show();
             dontAsk = dont;
             return result;
         }

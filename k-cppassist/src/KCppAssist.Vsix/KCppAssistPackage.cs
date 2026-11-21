@@ -885,29 +885,7 @@ namespace KCppAssist
         private static string Choose(string message, IList<string> items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string result = null;
-            var list = new ListBox { Margin = new Thickness(0, 8, 0, 8), MinWidth = 360, MaxHeight = 240 };
-            foreach (string s in items) list.Items.Add(s);
-            list.SelectedIndex = 0;
-            var ok = new Button { Content = "OK", IsDefault = true, Width = 80, HorizontalAlignment = HorizontalAlignment.Right };
-            var panel = new StackPanel { Margin = new Thickness(12) };
-            panel.Children.Add(new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, MaxWidth = 400 });
-            panel.Children.Add(list);
-            panel.Children.Add(ok);
-            var w = new System.Windows.Window
-            {
-                Title = "K-CppAssist",
-                Content = panel,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode = ResizeMode.NoResize,
-                Topmost = true,
-            };
-            ok.Click += (s, e) => { result = list.SelectedItem as string; w.Close(); };
-            list.MouseDoubleClick += (s, e) => { if (list.SelectedItem != null) { result = list.SelectedItem as string; w.Close(); } };
-            w.Loaded += (s, e) => list.Focus();
-            w.ShowDialog();
-            return result;
+            return KDialog.Choose("選んでください", message, items);
         }
 
         // ---- 型の入力欄 ----
@@ -915,26 +893,7 @@ namespace KCppAssist
         private static string Ask(string message, string initial)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string result = null;
-            var box = new TextBox { Text = initial, Margin = new Thickness(0, 8, 0, 8), MinWidth = 320 };
-            var ok = new Button { Content = "OK", IsDefault = true, Width = 80, HorizontalAlignment = HorizontalAlignment.Right };
-            var panel = new StackPanel { Margin = new Thickness(12) };
-            panel.Children.Add(new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, MaxWidth = 360 });
-            panel.Children.Add(box);
-            panel.Children.Add(ok);
-            var w = new System.Windows.Window
-            {
-                Title = "K-CppAssist",
-                Content = panel,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode = ResizeMode.NoResize,
-                Topmost = true,
-            };
-            ok.Click += (s, e) => { result = box.Text; w.Close(); };
-            w.Loaded += (s, e) => box.Focus();
-            w.ShowDialog();
-            return result;
+            return KDialog.Input("名前を入力", message, initial);
         }
     }
 }

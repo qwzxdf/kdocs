@@ -245,10 +245,9 @@ namespace KCppAssist
                 var byFile = fixes.GroupBy(f => f.File, StringComparer.OrdinalIgnoreCase).ToList();
                 string list = string.Join("\n", byFile.Take(15).Select(g => Path.GetFileName(g.Key) + ": " + g.Count() + " か所"))
                     + (byFile.Count > 15 ? "\n… ほか " + (byFile.Count - 15) + " ファイル" : "");
-                var ok = System.Windows.MessageBox.Show(fixes.Count + " か所の縮小変換を、static_cast<型>(…) で包みます。\n値が切り捨てられてよいか、確かめてから実行してください。\n\n" + list
-                    + "\n\nファイルを開いて書き換えます (保存はしません。ファイルごとに Ctrl+Z で戻せます)。続けますか?",
-                    "K-CppAssist: 全部を修正", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
-                if (ok != System.Windows.MessageBoxResult.Yes) return;
+                if (!KDialog.Confirm("縮小変換を全部直す",
+                    fixes.Count + " か所の縮小変換を、static_cast<型>(…) で包みます。値が切り捨てられてよいか、確かめてから実行してください。\nファイルを開いて書き換えます (保存はしません。ファイルごとに Ctrl+Z で戻せます)。",
+                    list, "直す")) return;
 
                 var model = (Microsoft.VisualStudio.ComponentModelHost.IComponentModel)GetService(typeof(Microsoft.VisualStudio.ComponentModelHost.SComponentModel));
                 var adapters = model.GetService<Microsoft.VisualStudio.Editor.IVsEditorAdaptersFactoryService>();

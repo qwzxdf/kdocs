@@ -208,17 +208,15 @@ namespace KCppAssist
             {
                 // プロジェクト全体の整理は、閉じているファイルも保存するので、Ctrl+Z で戻せない。先に聞く
                 string names = string.Join("\n", changes.Take(20).Select(c => c.Item3)) + (changes.Count > 20 ? "\n… ほか " + (changes.Count - 20) + " 個" : "");
-                var ok = System.Windows.MessageBox.Show("次の " + changes.Count + " 個のファイルの #include を並べ替えます。\n開いていないファイルは、そのまま保存します(Ctrl+Z では戻せません)。\n\n" + names + "\n\n並べ替えますか?",
-                    "K-CppAssist: #include を整理", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (ok != MessageBoxResult.Yes) { await ReportAsync("やめました", false); return; }
+                if (!KDialog.Confirm("#include を整理する", "次の " + changes.Count + " 個のファイルの #include を並べ替えます。開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません)。", names, "並べ替える"))
+                { await ReportAsync("やめました", false); return; }
             }
 
             if (unused)
             {
                 string preview = string.Join("\n", details.Take(25)) + (details.Count > 25 ? "\n… ほか " + (details.Count - 25) + " 件" : "");
-                var answer = System.Windows.MessageBox.Show("次の " + details.Count + " 件の #include を消します。\n名前の使われ方から調べているので、マクロや、他のヘッダー経由の使い方は見ていません。消したあと、ビルドして確かめてください。\n\n" + preview + "\n\n消しますか?",
-                    "K-CppAssist: 使っていない #include", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (answer != MessageBoxResult.Yes) { await ReportAsync("やめました", false); return; }
+                if (!KDialog.Confirm("使っていない #include を消す", "次の " + details.Count + " 件の #include を消します。名前の使われ方から調べているので、マクロや、他のヘッダー経由の使い方は見ていません。消したあと、ビルドして確かめてください。", preview, "消す"))
+                { await ReportAsync("やめました", false); return; }
             }
 
             int written = 0;

@@ -125,9 +125,11 @@ namespace KCppAssist
             if (opt != null && opt.RenameConfirm)
             {
                 bool dontAsk;
-                var res = RenamePrompt.Show("クラス名が " + oldName + " → " + newName + " に変わりました",
-                    matched ? "ファイル名がクラス名と同じでした。ファイル名と #include も直しますか?" : "ファイル名 (" + Path.GetFileName(header) + ") はクラス名と違っていました。ファイル名と #include も直しますか?",
-                    new List<RenamePrompt.Item> { new RenamePrompt.Item { Text = "ファイル名・相手のファイル・#include・CMake も直す", Detail = detail, Checked = matched } },
+                string text = matched
+                    ? "ファイル名・相手のファイル・#include・CMake も直す"
+                    : "ファイル名も直す (いまのファイル名 " + Path.GetFileName(header) + " は、クラス名と違っています)";
+                var res = RenamePrompt.Show("クラス名が変わりました", oldName + " → " + newName,
+                    new List<RenamePrompt.Item> { new RenamePrompt.Item { Text = text, Detail = detail, Checked = matched } },
                     out dontAsk);
                 if (res == null) return;
                 if (dontAsk) RenamePrompt.TurnOffConfirm();
