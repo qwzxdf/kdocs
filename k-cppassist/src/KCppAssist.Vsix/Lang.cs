@@ -22,7 +22,7 @@ namespace KCppAssist
         {
             if (string.IsNullOrEmpty(ja) || Current == UiLanguage.Japanese) return ja;
             string[] row;
-            if (!Table.TryGetValue(ja, out row) && !LangDescriptions.Rows.TryGetValue(ja, out row) && !LangMessages.Rows.TryGetValue(ja, out row)) return ja;
+            if (!Table.TryGetValue(ja, out row) && !LangDescriptions.Rows.TryGetValue(ja, out row) && !LangMessages.Rows.TryGetValue(ja, out row) && !LangMore.Rows.TryGetValue(ja, out row)) return ja;
             int i = Current == UiLanguage.English ? 0 : Current == UiLanguage.ChineseSimplified ? 1 : 2;
             if (i < row.Length && !string.IsNullOrEmpty(row[i])) return row[i];
             return string.IsNullOrEmpty(row[0]) ? ja : row[0];
@@ -32,6 +32,24 @@ namespace KCppAssist
         {
             try { return string.Format(T(jaFormat), args); }
             catch (FormatException) { return string.Format(jaFormat, args); }
+        }
+
+        // 文字コードの表などで、決まった言い回しを組み合わせた文を訳すための部品(長いものから順に置き換える)
+        private static readonly string[] PhraseKeys =
+        {
+            "読めない (バイナリか、どの文字コードでもない)", "Shift-JIS にない文字があるので変換しない: ", "大きすぎるので飛ばす (8 MB 超)",
+            "未保存なので飛ばす", "UTF-8 (BOM なし)", "UTF-8 (BOM 付き)", "変換しました", "ASCII のみ", "読めない: ", "失敗: ",
+            "バイナリ?", "そのまま", "改行 ", "混在", "なし", "、",
+        };
+
+        /// <summary>決まった言い回しを組み合わせた文(「UTF-8 (BOM なし) → UTF-8 (BOM 付き)、改行 LF → CRLF」など)を、言い回しごとに訳す。</summary>
+        public static string Phrases(string s)
+        {
+            if (string.IsNullOrEmpty(s) || Current == UiLanguage.Japanese) return s;
+            string whole = T(s);
+            if (whole != s) return whole;
+            foreach (string k in PhraseKeys) if (s.Contains(k)) s = s.Replace(k, T(k));
+            return s;
         }
 
         /// <summary>PC(Windows)の表示言語から決める。日本語・中国語・韓国語以外は英語。</summary>

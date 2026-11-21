@@ -35,6 +35,10 @@ namespace KCppAssist
             public string Current { get; set; }
             public string Eol { get; set; }
             public string Action { get; set; }
+            // 表に出す文字(決まった言い回しを、いまの言語にする)
+            public string CurrentText { get { return L.Phrases(Current); } }
+            public string EolText { get { return L.Phrases(Eol); } }
+            public string ActionText { get { return L.Phrases(Action); } }
             public EncodingTool.Plan Plan;
             public bool Dirty;
         }
@@ -51,22 +55,22 @@ namespace KCppAssist
         {
             private readonly KCppAssistPackage pkg;
             private readonly DTE dte;
-            private readonly RadioButton scopeProject = new RadioButton { Content = "選択中のプロジェクト", IsChecked = true, Margin = new Thickness(0, 0, 12, 0) };
-            private readonly RadioButton scopeSolution = new RadioButton { Content = "ソリューションのすべてのプロジェクト", Margin = new Thickness(0, 0, 12, 0) };
-            private readonly RadioButton scopeFolder = new RadioButton { Content = "ソリューションのフォルダー全体 (プロジェクトに入っていないファイルも)" };
+            private readonly RadioButton scopeProject = new RadioButton { Content = L.T("選択中のプロジェクト"), IsChecked = true, Margin = new Thickness(0, 0, 12, 0) };
+            private readonly RadioButton scopeSolution = new RadioButton { Content = L.T("ソリューションのすべてのプロジェクト"), Margin = new Thickness(0, 0, 12, 0) };
+            private readonly RadioButton scopeFolder = new RadioButton { Content = L.T("ソリューションのフォルダー全体 (プロジェクトに入っていないファイルも)") };
             private readonly ComboBox target = new ComboBox { Width = 330 };
             private readonly ComboBox eol = new ComboBox { Width = 330 };
             private readonly TextBox exts = new TextBox { Text = DefaultEncodingExts, Width = 420 };
-            private readonly CheckBox editorConfig = new CheckBox { Content = ".editorconfig に書く (これから新しく保存するファイルも、この文字コードと改行になります)", IsChecked = true };
-            private readonly CheckBox saveFirst = new CheckBox { Content = "開いている未保存のファイルを、先に全部保存する", IsChecked = true };
-            private readonly CheckBox sourceCharset = new CheckBox { Content = "BOM なし UTF-8 のとき、プロジェクトに /source-charset:utf-8 を付ける (MSVC が Shift-JIS として読まないように)", IsChecked = true };
-            private readonly CheckBox onlyChanges = new CheckBox { Content = "変換が要るファイルだけ一覧に出す", IsChecked = true };
+            private readonly CheckBox editorConfig = new CheckBox { Content = L.T(".editorconfig に書く (これから新しく保存するファイルも、この文字コードと改行になります)"), IsChecked = true };
+            private readonly CheckBox saveFirst = new CheckBox { Content = L.T("開いている未保存のファイルを、先に全部保存する"), IsChecked = true };
+            private readonly CheckBox sourceCharset = new CheckBox { Content = L.T("BOM なし UTF-8 のとき、プロジェクトに /source-charset:utf-8 を付ける (MSVC が Shift-JIS として読まないように)"), IsChecked = true };
+            private readonly CheckBox onlyChanges = new CheckBox { Content = L.T("変換が要るファイルだけ一覧に出す"), IsChecked = true };
             private readonly ListView list = new ListView { Height = 300 };
             private readonly TextBlock summary = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 6) };
-            private readonly Button scanButton = new Button { Content = "調べる", Padding = new Thickness(14, 3, 14, 3), Margin = new Thickness(0, 0, 8, 0) };
-            private readonly Button convertButton = new Button { Content = "変換する", Padding = new Thickness(14, 3, 14, 3), Margin = new Thickness(0, 0, 8, 0), IsEnabled = false };
-            private readonly Button copyButton = new Button { Content = "一覧をコピー", Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 8, 0), IsEnabled = false };
-            private readonly Button closeButton = new Button { Content = "閉じる", Padding = new Thickness(14, 3, 14, 3), IsCancel = true };
+            private readonly Button scanButton = new Button { Content = L.T("調べる"), Padding = new Thickness(14, 3, 14, 3), Margin = new Thickness(0, 0, 8, 0) };
+            private readonly Button convertButton = new Button { Content = L.T("変換する"), Padding = new Thickness(14, 3, 14, 3), Margin = new Thickness(0, 0, 8, 0), IsEnabled = false };
+            private readonly Button copyButton = new Button { Content = L.T("一覧をコピー"), Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(0, 0, 8, 0), IsEnabled = false };
+            private readonly Button closeButton = new Button { Content = L.T("閉じる"), Padding = new Thickness(14, 3, 14, 3), IsCancel = true };
             private List<EncRow> rows = new List<EncRow>();
             private List<Project> scannedProjects = new List<Project>();
             private string root;
@@ -76,26 +80,26 @@ namespace KCppAssist
                 ThreadHelper.ThrowIfNotOnUIThread();
                 this.pkg = pkg;
                 dte = (DTE)Package.GetGlobalService(typeof(DTE));
-                Title = "K-Cpp: ファイルの文字コードをそろえる";
+                Title = L.T("K-Cpp: ファイルの文字コードをそろえる");
                 Width = 900;
                 SizeToContent = SizeToContent.Height;
                 WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 ResizeMode = ResizeMode.CanResizeWithGrip;
 
-                target.Items.Add("UTF-8 (BOM 付き) … Visual Studio と MSVC がそのまま読めます (おすすめ)");
-                target.Items.Add("UTF-8 (BOM なし) … Git や他のエディターと相性がよい。MSVC には /source-charset:utf-8 が要ります");
-                target.Items.Add("Shift-JIS (CP932) … 古いプロジェクトに合わせるとき");
+                target.Items.Add(L.T("UTF-8 (BOM 付き) … Visual Studio と MSVC がそのまま読めます (おすすめ)"));
+                target.Items.Add(L.T("UTF-8 (BOM なし) … Git や他のエディターと相性がよい。MSVC には /source-charset:utf-8 が要ります"));
+                target.Items.Add(L.T("Shift-JIS (CP932) … 古いプロジェクトに合わせるとき"));
                 target.SelectedIndex = 0;
-                eol.Items.Add("改行はそのまま");
-                eol.Items.Add("CRLF にそろえる (Windows の標準)");
-                eol.Items.Add("LF にそろえる");
+                eol.Items.Add(L.T("改行はそのまま"));
+                eol.Items.Add(L.T("CRLF にそろえる (Windows の標準)"));
+                eol.Items.Add(L.T("LF にそろえる"));
                 eol.SelectedIndex = 0;
 
                 var view = new GridView();
-                view.Columns.Add(new GridViewColumn { Header = "ファイル", Width = 330, DisplayMemberBinding = new System.Windows.Data.Binding("Shown") });
-                view.Columns.Add(new GridViewColumn { Header = "いまの文字コード", Width = 130, DisplayMemberBinding = new System.Windows.Data.Binding("Current") });
-                view.Columns.Add(new GridViewColumn { Header = "改行", Width = 50, DisplayMemberBinding = new System.Windows.Data.Binding("Eol") });
-                view.Columns.Add(new GridViewColumn { Header = "すること", Width = 340, DisplayMemberBinding = new System.Windows.Data.Binding("Action") });
+                view.Columns.Add(new GridViewColumn { Header = L.T("ファイル"), Width = 330, DisplayMemberBinding = new System.Windows.Data.Binding("Shown") });
+                view.Columns.Add(new GridViewColumn { Header = L.T("いまの文字コード"), Width = 130, DisplayMemberBinding = new System.Windows.Data.Binding("CurrentText") });
+                view.Columns.Add(new GridViewColumn { Header = L.T("改行"), Width = 50, DisplayMemberBinding = new System.Windows.Data.Binding("EolText") });
+                view.Columns.Add(new GridViewColumn { Header = L.T("すること"), Width = 340, DisplayMemberBinding = new System.Windows.Data.Binding("ActionText") });
                 list.View = view;
                 list.MouseDoubleClick += (s, e) =>
                 {
@@ -105,15 +109,15 @@ namespace KCppAssist
                 };
 
                 var panel = new StackPanel { Margin = new Thickness(12) };
-                panel.Children.Add(Label("対象"));
+                panel.Children.Add(Label(L.T("対象")));
                 var scope = new WrapPanel { Margin = new Thickness(0, 0, 0, 8) };
                 scope.Children.Add(scopeProject);
                 scope.Children.Add(scopeSolution);
                 scope.Children.Add(scopeFolder);
                 panel.Children.Add(scope);
-                panel.Children.Add(Row("拡張子", exts));
-                panel.Children.Add(Row("文字コード", target));
-                panel.Children.Add(Row("改行", eol));
+                panel.Children.Add(Row(L.T("拡張子"), exts));
+                panel.Children.Add(Row(L.T("文字コード"), target));
+                panel.Children.Add(Row(L.T("改行"), eol));
                 foreach (var c in new[] { editorConfig, saveFirst, sourceCharset, onlyChanges }) { c.Margin = new Thickness(0, 2, 0, 2); panel.Children.Add(c); }
                 var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 6) };
                 buttons.Children.Add(scanButton);
@@ -125,7 +129,7 @@ namespace KCppAssist
                 panel.Children.Add(list);
                 panel.Children.Add(new TextBlock
                 {
-                    Text = "開いているファイルは、変換したあと Visual Studio が読み直します (「再読み込みしますか」と聞かれたら、はいを押します)。行をダブルクリックすると、そのファイルを開きます。",
+                    Text = L.T("開いているファイルは、変換したあと Visual Studio が読み直します (「再読み込みしますか」と聞かれたら、はいを押します)。行をダブルクリックすると、そのファイルを開きます。"),
                     TextWrapping = TextWrapping.Wrap,
                     Margin = new Thickness(0, 6, 0, 0),
                     Opacity = 0.75,
@@ -138,9 +142,9 @@ namespace KCppAssist
                 copyButton.Click += (s, e) => CopyList();
                 closeButton.Click += (s, e) => Close();
                 onlyChanges.Click += (s, e) => ShowRows();
-                target.SelectionChanged += (s, e) => { convertButton.IsEnabled = false; summary.Text = "設定を変えたので、もう一度「調べる」を押してください。"; };
-                eol.SelectionChanged += (s, e) => { convertButton.IsEnabled = false; summary.Text = "設定を変えたので、もう一度「調べる」を押してください。"; };
-                summary.Text = "対象と文字コードを選んで「調べる」を押すと、いまの文字コードと、変換するファイルの一覧が出ます。まだ何も書き換えません。";
+                target.SelectionChanged += (s, e) => { convertButton.IsEnabled = false; summary.Text = L.T("設定を変えたので、もう一度「調べる」を押してください。"); };
+                eol.SelectionChanged += (s, e) => { convertButton.IsEnabled = false; summary.Text = L.T("設定を変えたので、もう一度「調べる」を押してください。"); };
+                summary.Text = L.T("対象と文字コードを選んで「調べる」を押すと、いまの文字コードと、変換するファイルの一覧が出ます。まだ何も書き換えません。");
             }
 
             private static TextBlock Label(string s) { return new TextBlock { Text = s, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 2) }; }
@@ -180,7 +184,7 @@ namespace KCppAssist
                 try
                 {
                     scanButton.IsEnabled = convertButton.IsEnabled = copyButton.IsEnabled = false;
-                    summary.Text = "調べています…";
+                    summary.Text = L.T("調べています…");
                     if (saveFirst.IsChecked == true) { try { dte.ExecuteCommand("File.SaveAll"); } catch (Exception) { } }
 
                     var extSet = Exts();
@@ -190,7 +194,7 @@ namespace KCppAssist
                     var files = new List<string>();
                     if (scopeFolder.IsChecked == true)
                     {
-                        if (root == null) { summary.Text = "ソリューションを開いてから使ってください。"; return; }
+                        if (root == null) { summary.Text = L.T("ソリューションを開いてから使ってください。"); return; }
                         if (dte.Solution != null) foreach (Project p in dte.Solution.Projects) projects.Add(p);
                         var skip = IncludeService.SkipDirs(SyncService.Options);
                         files = await Task.Run(() => DiskFiles(root, extSet, skip));
@@ -232,7 +236,7 @@ namespace KCppAssist
                     convertButton.IsEnabled = rows.Any(Convertible);
                     copyButton.IsEnabled = rows.Count > 0;
                 }
-                catch (Exception ex) { summary.Text = "調べられませんでした: " + ex.Message; KCppAssistPackage.Log("encoding scan failed: " + ex); }
+                catch (Exception ex) { summary.Text = L.F("調べられませんでした: {0}", ex.Message); KCppAssistPackage.Log("encoding scan failed: " + ex); }
                 finally { scanButton.IsEnabled = true; }
             }
 
@@ -242,16 +246,16 @@ namespace KCppAssist
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
                 list.ItemsSource = onlyChanges.IsChecked == true ? rows.Where(r => r.Action != "そのまま").ToList() : rows;
-                if (rows.Count == 0) { summary.Text = "対象のファイルが見つかりませんでした。対象と拡張子を確かめてください。"; return; }
+                if (rows.Count == 0) { summary.Text = L.T("対象のファイルが見つかりませんでした。対象と拡張子を確かめてください。"); return; }
                 var byKind = rows.Where(r => r.Plan != null).GroupBy(r => r.Current).Select(g => g.Key + " " + g.Count());
                 int conv = rows.Count(Convertible), same = rows.Count(r => r.Action == "そのまま");
                 int blocked = rows.Count(r => r.Plan != null && r.Plan.Blocked), dirtyN = rows.Count(r => r.Dirty && r.Plan != null && r.Plan.NewBytes != null);
                 var sb = new StringBuilder();
-                sb.Append(rows.Count).Append(" ファイル。いまの内訳: ").Append(string.Join(" / ", byKind)).Append("\n");
-                sb.Append("変換する ").Append(conv).Append("、そのまま ").Append(same);
-                if (blocked > 0) sb.Append("、変換できない ").Append(blocked);
-                if (dirtyN > 0) sb.Append("、未保存で飛ばす ").Append(dirtyN);
-                if (Target() == EncodingTool.Target.ShiftJis && editorConfig.IsChecked == true) sb.Append("\n.editorconfig は Shift-JIS を書けない (規格にない) ので、文字コードは書きません。改行だけ書きます。");
+                sb.Append(rows.Count).Append(L.T(" ファイル。いまの内訳: ")).Append(string.Join(" / ", byKind)).Append("\n");
+                sb.Append(L.T("変換する ")).Append(conv).Append(L.T("、そのまま ")).Append(same);
+                if (blocked > 0) sb.Append(L.T("、変換できない ")).Append(blocked);
+                if (dirtyN > 0) sb.Append(L.T("、未保存で飛ばす ")).Append(dirtyN);
+                if (Target() == EncodingTool.Target.ShiftJis && editorConfig.IsChecked == true) sb.Append(L.T("\n.editorconfig は Shift-JIS を書けない (規格にない) ので、文字コードは書きません。改行だけ書きます。"));
                 summary.Text = sb.ToString();
             }
 
@@ -271,12 +275,13 @@ namespace KCppAssist
                 if (todo.Count == 0) return;
                 var t = Target();
                 var e = Eol();
-                string msg = todo.Count + " 個のファイルを " + EncodingTool.TargetName(t) + (e == EncodingTool.Eol.Keep ? "" : "・" + (e == EncodingTool.Eol.Lf ? "LF" : "CRLF")) + " にそろえます。"
-                    + "\n開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません。戻すときは Git などを使います)。";
-                if (!KDialog.Confirm("文字コードをそろえる", msg, null, "そろえる")) return;
+                string target = L.Phrases(EncodingTool.TargetName(t)) + (e == EncodingTool.Eol.Keep ? "" : " / " + (e == EncodingTool.Eol.Lf ? "LF" : "CRLF"));
+                string msg = L.F("{0} 個のファイルを {1} にそろえます。", todo.Count, target)
+                    + L.T("\n開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません。戻すときは Git などを使います)。");
+                if (!KDialog.Confirm(L.T("文字コードをそろえる"), msg, null, L.T("そろえる"))) return;
 
                 scanButton.IsEnabled = convertButton.IsEnabled = false;
-                summary.Text = "変換しています…";
+                summary.Text = L.T("変換しています…");
                 var result = await Task.Run(() =>
                 {
                     int ok = 0;
@@ -304,7 +309,7 @@ namespace KCppAssist
                 if (editorConfig.IsChecked == true && root != null) notes.Add(WriteEditorConfig(t, e));
                 if (t == EncodingTool.Target.Utf8 && sourceCharset.IsChecked == true) notes.Add(AddSourceCharset(scannedProjects));
                 ShowRows();
-                summary.Text = result.Item1 + " 個のファイルを変換しました" + (result.Item2.Count > 0 ? " (失敗 " + result.Item2.Count + ")" : "") + "。"
+                summary.Text = L.F("{0} 個のファイルを変換しました", result.Item1) + (result.Item2.Count > 0 ? L.F(" (失敗 {0})", result.Item2.Count) : "") + L.T("。")
                     + string.Concat(notes.Where(n => !string.IsNullOrEmpty(n)).Select(n => "\n" + n));
                 KCppAssistPackage.Log("encoding: converted " + result.Item1 + " failed " + result.Item2.Count);
                 list.Items.Refresh();
@@ -320,18 +325,18 @@ namespace KCppAssist
                     if (header == null) return null;
                     string charset = EncodingTool.CharsetValue(t);
                     string endOfLine = e == EncodingTool.Eol.Keep ? null : e == EncodingTool.Eol.Lf ? "lf" : "crlf";
-                    if (charset == null && endOfLine == null) return ".editorconfig には書きませんでした (Shift-JIS は .editorconfig の規格にありません)。";
+                    if (charset == null && endOfLine == null) return L.T(".editorconfig には書きませんでした (Shift-JIS は .editorconfig の規格にありません)。");
                     string path = Path.Combine(root, ".editorconfig");
                     Encoding enc = new UTF8Encoding(false);
                     string old = File.Exists(path) ? RenameSync.ReadKeepingEncoding(path, out enc) : "";
                     string eolText = old.Contains("\r\n") || old.Length == 0 ? "\r\n" : "\n";
                     string updated = EncodingTool.UpdateEditorConfig(old, header, charset, endOfLine, eolText);
-                    if (updated == old) return ".editorconfig は、すでにこの設定です。";
+                    if (updated == old) return L.T(".editorconfig は、すでにこの設定です。");
                     RenameSync.WriteKeepingEncoding(path, updated, enc);
                     try { if (dte.Solution != null) { var item = dte.Solution.FindProjectItem(path); } } catch (Exception) { }
-                    return ".editorconfig に書きました: " + path;
+                    return L.F(".editorconfig に書きました: {0}", path);
                 }
-                catch (Exception ex) { return ".editorconfig に書けませんでした: " + ex.Message; }
+                catch (Exception ex) { return L.F(".editorconfig に書けませんでした: {0}", ex.Message); }
             }
 
             /// <summary>
@@ -365,8 +370,8 @@ namespace KCppAssist
                     }
                     catch (Exception ex) { notCpp++; KCppAssistPackage.Log("source-charset failed for " + SafeName(p) + ": " + ex.Message); }
                 }
-                if (done == 0 && already == 0) return "/source-charset:utf-8 は付けられませんでした (C++ のプロジェクト (.vcxproj) が見つかりません。CMake なら add_compile_options(/source-charset:utf-8) を書きます)。";
-                return "/source-charset:utf-8 を " + done + " 個のプロジェクトに付けました" + (already > 0 ? " (すでに付いている構成 " + already + ")" : "") + "。";
+                if (done == 0 && already == 0) return L.T("/source-charset:utf-8 は付けられませんでした (C++ のプロジェクト (.vcxproj) が見つかりません。CMake なら add_compile_options(/source-charset:utf-8) を書きます)。");
+                return L.F("/source-charset:utf-8 を {0} 個のプロジェクトに付けました", done) + (already > 0 ? L.F(" (すでに付いている構成 {0})", already) : "") + L.T("。");
             }
 
             private static string SafeName(Project p) { try { return p.Name; } catch (Exception) { return "?"; } }

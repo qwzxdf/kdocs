@@ -47,6 +47,11 @@ static class Tests
             L.Current = UiLanguage.Korean;
             Eq("lang: ko", L.T("やめる"), "취소");
             L.Current = UiLanguage.English;
+            Eq("lang: phrases", L.Phrases("UTF-8 (BOM なし) → UTF-8 (BOM 付き)、改行 LF → CRLF"), "UTF-8 (no BOM) → UTF-8 (with BOM), Line ending LF → CRLF");
+            Eq("lang: phrases whole", L.Phrases("そのまま"), "Unchanged");
+            Eq("lang: phrases prefix", L.Phrases("読めない: access denied"), "Unreadable: access denied");
+            L.Current = UiLanguage.Korean;
+            L.Current = UiLanguage.English;
             Eq("lang: option description", L.T("True のとき、std::vector → <vector> のような、組み込みの対応表で、ヘッダーを決めます。"), "When True, decides the header from a built-in table such as std::vector → <vector>.");
             Eq("lang: description with path", L.T("True のとき、動作の記録を %LOCALAPPDATA%\\K-CppAssist\\vsix.log に書きます。不具合のとき、これを見ると原因が分かります。").StartsWith("When True, writes an activity log to %LOCALAPPDATA%\\K-CppAssist") ? "ok" : "ng", "ok");
             L.Current = UiLanguage.Japanese;
