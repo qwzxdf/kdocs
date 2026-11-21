@@ -12,23 +12,23 @@ namespace KCppAssist.ErrorLog
     public sealed class LogView : UserControl
     {
         private readonly RichTextBox _rtb = new RichTextBox();
-        private readonly CheckBox _raw = new CheckBox { Content = "原文", ToolTip = "ビルド出力を、整理せずに色だけ付けて表示します" };
-        private readonly CheckBox _warn = new CheckBox { Content = "警告も表示" };
-        private readonly MenuItem _trace = new MenuItem { Header = "経路を全部表示", IsCheckable = true, ToolTip = "テンプレートの経路のうち、ライブラリ内の段も省略せずに出します" };
-        private readonly MenuItem _attach = new MenuItem { Header = "原文を併記", IsCheckable = true, ToolTip = "整理した各項目の下に、元のメッセージも出します" };
-        private readonly MenuItem _expandAll = new MenuItem { Header = "すべての詳細を開く", IsCheckable = true, ToolTip = "各エラーの ▸ を、すべて開いた状態にします" };
-        private readonly MenuItem _copyRawItem = new MenuItem { Header = "原文をコピー", ToolTip = "ビルド出力をそのままコピーします(AI や質問に貼る用)" };
-        private readonly Button _more = new Button { Content = "…", ToolTip = "そのほかの表示とコピー" };
+        private readonly CheckBox _raw = new CheckBox { Content = L.T("原文"), ToolTip = L.T("ビルド出力を、整理せずに色だけ付けて表示します") };
+        private readonly CheckBox _warn = new CheckBox { Content = L.T("警告も表示") };
+        private readonly MenuItem _trace = new MenuItem { Header = L.T("経路を全部表示"), IsCheckable = true, ToolTip = L.T("テンプレートの経路のうち、ライブラリ内の段も省略せずに出します") };
+        private readonly MenuItem _attach = new MenuItem { Header = L.T("原文を併記"), IsCheckable = true, ToolTip = L.T("整理した各項目の下に、元のメッセージも出します") };
+        private readonly MenuItem _expandAll = new MenuItem { Header = L.T("すべての詳細を開く"), IsCheckable = true, ToolTip = L.T("各エラーの ▸ を、すべて開いた状態にします") };
+        private readonly MenuItem _copyRawItem = new MenuItem { Header = L.T("原文をコピー"), ToolTip = L.T("ビルド出力をそのままコピーします(AI や質問に貼る用)") };
+        private readonly Button _more = new Button { Content = "…", ToolTip = L.T("そのほかの表示とコピー") };
         private readonly HashSet<int> _open = new HashSet<int>();
         private readonly Dictionary<string, Paragraph> _anchors = new Dictionary<string, Paragraph>();
-        private readonly Button _reload = new Button { Content = "再読み込み" };
-        private readonly Button _copy = new Button { Content = "コピー", ToolTip = "いま表示している内容を、文字としてコピーします" };
-        private readonly Button _fixAll = new Button { Content = "全部を修正", Visibility = Visibility.Collapsed };
+        private readonly Button _reload = new Button { Content = L.T("再読み込み") };
+        private readonly Button _copy = new Button { Content = L.T("コピー"), ToolTip = L.T("いま表示している内容を、文字としてコピーします") };
+        private readonly Button _fixAll = new Button { Content = L.T("全部を修正"), Visibility = Visibility.Collapsed };
         private readonly WrapPanel _bar = new WrapPanel { Margin = new Thickness(6, 4, 6, 4) };
 
         private RenderInput _input;
         private Doc _doc = new Doc();
-        private string _message = "ビルドすると、ここにエラーが出ます。";
+        private string _message = L.T("ビルドすると、ここにエラーが出ます。");
 
         /// <summary>「再読み込み」が押された。</summary>
         public Action RefreshRequested;
@@ -197,14 +197,14 @@ namespace KCppAssist.ErrorLog
                 // 自動で直せる行があるときだけ、「全部を修正」を出す(警告を隠しているときは、表示している分だけ)
                 int n = _doc.Fixes.Count;
                 _fixAll.Visibility = n > 0 ? Visibility.Visible : Visibility.Collapsed;
-                _fixAll.Content = "全部を修正 (" + n + ")";
-                _fixAll.ToolTip = "表示している " + n + " か所の縮小変換を、まとめて static_cast<型>(…) で包みます (ファイルごとに Ctrl+Z で戻せます)";
+                _fixAll.Content = L.F("全部を修正 ({0})", n);
+                _fixAll.ToolTip = L.F("表示している {0} か所の縮小変換を、まとめて static_cast<型>(…) で包みます (ファイルごとに Ctrl+Z で戻せます)", n);
             }
             catch (Exception ex)
             {
                 KCppAssistPackage.Log("render failed: " + ex);
                 _doc = new Doc();
-                new LineBuilder(_doc).Add("表示の組み立てに失敗しました: " + ex.Message, Role.Error).Done();
+                new LineBuilder(_doc).Add(L.F("表示の組み立てに失敗しました: {0}", ex.Message), Role.Error).Done();
                 try { Fill(_doc); } catch (Exception) { }
             }
         }
@@ -278,7 +278,7 @@ namespace KCppAssist.ErrorLog
                     Foreground = r.Toggle > 0 ? Theme.BrushFor(Role.Dim) : Theme.BrushFor(Role.Link),
                     Cursor = System.Windows.Input.Cursors.Hand,
                     TextDecorations = r.Toggle > 0 ? null : TextDecorations.Underline,
-                    ToolTip = r.Toggle > 0 ? "押すと、詳細を開閉します" : "このファイルの最初のエラーへ移動します"
+                    ToolTip = r.Toggle > 0 ? L.T("押すと、詳細を開閉します") : L.T("このファイルの最初のエラーへ移動します")
                 };
                 int group = r.Toggle;
                 string jump = r.Jump;
@@ -302,9 +302,9 @@ namespace KCppAssist.ErrorLog
             {
                 Foreground = Theme.BrushFor(Role.Link),
                 Cursor = System.Windows.Input.Cursors.Hand,
-                ToolTip = !string.IsNullOrEmpty(r.Fix) ? "押すと、" + r.Line + " 行目の右辺を static_cast<" + r.Fix + ">(…) で包みます"
+                ToolTip = !string.IsNullOrEmpty(r.Fix) ? L.F("押すと、{0} 行目の右辺を static_cast<{1}>(…) で包みます", r.Line, r.Fix)
                     : !string.IsNullOrEmpty(r.File) ? r.File + (r.Line > 0 ? " (" + r.Line + ")" : "")
-                    : !string.IsNullOrEmpty(r.Url) ? "ブラウザーで開く: " + r.Url : "ソリューション内を検索"
+                    : !string.IsNullOrEmpty(r.Url) ? L.F("ブラウザーで開く: {0}", r.Url) : L.T("ソリューション内を検索")
             };
             Run captured = r;
             link.Click += (s, e) =>

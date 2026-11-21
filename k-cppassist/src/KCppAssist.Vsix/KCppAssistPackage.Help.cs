@@ -18,17 +18,23 @@ namespace KCppAssist
             commands.AddCommand(new OleMenuCommand((s, e) => ShowHelp(), new CommandID(CmdSet, CmdHelp)));
         }
 
+        // 表は、パッケージを読み込んだとき(言語を決める前)に作られるので、文字は表示のときに訳す
         private sealed class HelpItem
         {
-            public string Key, Title, Desc;
-            public HelpItem(string key, string title, string desc) { Key = key; Title = title; Desc = desc; }
+            private readonly string key, title, desc;
+            public string Key { get { return L.T(key); } }
+            public string Title { get { return L.T(title); } }
+            public string Desc { get { return L.T(desc); } }
+            public HelpItem(string key, string title, string desc) { this.key = key; this.title = title; this.desc = desc; }
         }
 
         private sealed class HelpSection
         {
-            public string Icon, Title;
+            private readonly string title;
+            public string Icon;
+            public string Title { get { return L.T(title); } }
             public List<HelpItem> Items = new List<HelpItem>();
-            public HelpSection(string icon, string title, params HelpItem[] items) { Icon = icon; Title = title; Items.AddRange(items); }
+            public HelpSection(string icon, string title, params HelpItem[] items) { Icon = icon; this.title = title; Items.AddRange(items); }
         }
 
         private static HelpItem H(string key, string title, string desc) { return new HelpItem(key, title, desc); }
@@ -41,7 +47,7 @@ namespace KCppAssist
                 H("Alt+G", "Getter・Setter を作る (Getter)", "ヘッダーのメンバー変数の行で押すと、public: の末尾に GetXxx / SetXxx を足す")),
             new HelpSection("📎", "#include",
                 H("Alt+I", "#include を足す (Include)", "カーソルの型名 (std::vector、ComPtr、自作クラス) のヘッダーを、cpp / ヘッダーの先頭に足す"),
-                H("Alt+F", "#include を前方宣言にする (Forward)", "ヘッダーの #include \"x.h\" を class X; にして、#include を cpp に移す (ポインター・参照・shared_ptr だけで使っている型が対象)"),
+                H("Alt+F", "#include を前方宣言にする (Forward)", "ヘッダーの #include \"x.h\" を class X; にして、#include を cpp に移す (ポインター・参照・スマート ポインターだけで使っている型が対象)"),
                 H("メニュー", "整理・不要の削除", "このファイル／プロジェクト全体の #include を整理、使っていない #include を消す (#include の行の電球にも出る)")),
             new HelpSection("🧱", "クラスと関数を作る",
                 H("Alt+U", "呼び出しから関数を作る (Use)", "Foo(a, 1) の行で押すと、型を読んで宣言と定義の雛形を作る"),
@@ -124,7 +130,7 @@ namespace KCppAssist
             }
 
             var search = new TextBox { Margin = new Thickness(0, 0, 0, 12), Padding = new Thickness(8, 5, 8, 5), FontSize = 13, Background = bg, Foreground = fg, BorderBrush = border };
-            search.ToolTip = "機能名・キーで絞り込み (例: include, Alt+C, cpp)";
+            search.ToolTip = L.T("機能名・キーで絞り込み (例: include, Alt+C, cpp)");
             search.TextChanged += (s, e) =>
             {
                 string q = search.Text.Trim().ToLowerInvariant();
@@ -140,11 +146,11 @@ namespace KCppAssist
 
             var heading = new StackPanel { Margin = new Thickness(0, 0, 0, 12) };
             heading.Children.Add(new TextBlock { Text = "K-CppUltimateAssist", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = fg });
-            heading.Children.Add(new TextBlock { Text = "ほとんどの機能は Alt+Enter (電球) でも出ます。キーを覚えなくても、カーソルを置いて Alt+Enter を押してください。", Foreground = dim, FontSize = 13, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) });
+            heading.Children.Add(new TextBlock { Text = L.T("ほとんどの機能は Alt+Enter (電球) でも出ます。キーを覚えなくても、カーソルを置いて Alt+Enter を押してください。"), Foreground = dim, FontSize = 13, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) });
 
             var scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = cards };
-            var web = new Button { Content = "詳しい説明 (Web) を開く", Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 0) };
-            var close = new Button { Content = "閉じる", IsDefault = true, IsCancel = true, Width = 80, Padding = new Thickness(0, 5, 0, 5) };
+            var web = new Button { Content = L.T("詳しい説明 (Web) を開く"), Padding = new Thickness(14, 5, 14, 5), Margin = new Thickness(0, 0, 8, 0) };
+            var close = new Button { Content = L.T("閉じる"), IsDefault = true, IsCancel = true, Width = 80, Padding = new Thickness(0, 5, 0, 5) };
             var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
             buttons.Children.Add(web);
             buttons.Children.Add(close);
@@ -164,7 +170,7 @@ namespace KCppAssist
             grid.Children.Add(buttons);
             var w = new Window
             {
-                Title = "K-CppUltimateAssist の使い方",
+                Title = L.T("K-CppUltimateAssist の使い方"),
                 Content = grid,
                 Width = 860,
                 Height = 720,
