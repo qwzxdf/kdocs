@@ -58,10 +58,26 @@ namespace KCppAssist
         }
 
         /// <summary>同じ名前のヘッダーがすでに #include されているか(フォルダーの書き方と &lt;&gt; / "" の違いは見ない)。</summary>
+        /// <summary>
+        /// 「#」で始まる行(前の空白は可)を、上から順に返す。Directive.Matches(text) と同じ結果。
+        /// 大きいファイルで行ごとに正規表現を試すと遅いので、「#」の位置から行の頭を確かめる。
+        /// </summary>
+        private static IEnumerable<Match> Directives(string text)
+        {
+            for (int i = text.IndexOf('#'); i >= 0; i = text.IndexOf('#', i + 1))
+            {
+                int ls = i;
+                while (ls > 0 && (text[ls - 1] == ' ' || text[ls - 1] == '\t')) ls--;
+                if (ls > 0 && text[ls - 1] != '\n') continue;
+                var d = Directive.Match(text, ls);
+                if (d.Success && d.Index == ls) yield return d;
+            }
+        }
+
         public static bool Has(string text, string path)
         {
             string file = FileName(path);
-            foreach (Match d in Directive.Matches(text))
+            foreach (Match d in Directives(text))
             {
                 if (d.Groups[1].Value != "include") continue;
                 var a = IncArg.Match(d.Groups[2].Value);
@@ -208,7 +224,7 @@ namespace KCppAssist
             int depth = 0, baseDepth = 0;
             string first = null;
             string guard = null;
-            foreach (Match d in Directive.Matches(text))
+            foreach (Match d in Directives(text))
             {
                 string kind = d.Groups[1].Value;
                 if (first == null)

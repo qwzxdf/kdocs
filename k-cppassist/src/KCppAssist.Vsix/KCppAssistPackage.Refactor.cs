@@ -56,7 +56,7 @@ namespace KCppAssist
             string text = view.TextSnapshot.GetText();
             return new Active
             {
-                View = view, Path = path, Text = text, Eol = text.Contains("\r\n") ? "\r\n" : "\n",
+                View = view, Path = path, Text = text, Eol = CppText.Eol(text),
                 Caret = view.Caret.Position.BufferPosition.Position, Dte = dte, Adapters = adapters,
                 Undo = model.GetService<ITextUndoHistoryRegistry>(),
             };
@@ -254,7 +254,7 @@ namespace KCppAssist
             string cppMsg = "";
             if (defs != null && defs.Count > 0)
             {
-                string cEol = cppText.Contains("\r\n") ? "\r\n" : "\n";
+                string cEol = CppText.Eol(cppText);
                 File.WriteAllText(newCpp, FileGen.NewSource(cppText, ex.ClassName, defs, cEol), enc);
                 SyncService.ApplyEdits(cppBuf, defs.Select(d => Tuple.Create(d.Item1, d.Item2 - d.Item1, "")).ToList(), a.Undo, "K-CppAssist: 定義を移す");
                 cppMsg = "。定義 " + defs.Count + " 個を " + Path.GetFileName(newCpp) + " に移しました";

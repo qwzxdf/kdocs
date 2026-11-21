@@ -165,7 +165,7 @@ namespace KCppAssist
                 }
 
                 // 書き換え・生成(NULL → nullptr、if の反転、formatter、入力レイアウト…)
-                string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+                string eol = CppText.Eol(text);
                 foreach (var o in KCppAssistPackage.OffersAt(path, text, caret, eol))
                 {
                     string id = o.Id;

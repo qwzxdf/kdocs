@@ -107,7 +107,7 @@ namespace KCppAssist
             var enums = await Task.Run(() => SwitchEnums.Gather(file, text));
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             if (view.TextSnapshot.Version.VersionNumber != snap.Version.VersionNumber) return;     // 調べている間に、打たれた
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             string why;
             var plan = SwitchGen.Make(text, caret, enums, eol, out why, true);
             if (plan == null) return;

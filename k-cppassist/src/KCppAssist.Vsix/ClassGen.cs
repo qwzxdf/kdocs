@@ -607,7 +607,7 @@ namespace KCppAssist
             if (second < to && text[second] == '\n') { second++; while (second < to && (text[second] == ' ' || text[second] == '\t')) second++; }
             bool perLine = text.Substring(MemberScan.LineStart(text, second), second - MemberScan.LineStart(text, second)).Trim().Length == 0
                 && MemberScan.LineStart(text, second) > MemberScan.LineStart(text, from);
-            string eolS = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eolS = CppText.Eol(text);
             string sep = perLine ? "," + eolS + MemberScan.Indent(text, second) : ", ";
             // 先頭の「:」の後ろの空白と、本体の「{」の前の空白は、元のまま残す
             string region = text.Substring(from, to - from);

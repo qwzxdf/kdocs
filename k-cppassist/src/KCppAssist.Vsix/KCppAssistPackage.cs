@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.26.0")]
+    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.26.1")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
@@ -252,7 +252,7 @@ namespace KCppAssist
             if (Regex.IsMatch(body, @"[\w>*&]\s+\*?&?" + Regex.Escape(name) + @"\s*(;|=|\{)"))
             { await ReportAsync(name + " は " + Path.GetFileName(loc.File) + " の " + classRef.Name + " にすでにあります", true); return; }
 
-            string eol = all.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(all);
             var edit = HeaderEditor.PlanAt(all, loc.Scope.Open, declaration, eol);
             if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + classRef.Name + " の本体を読めませんでした", true); return; }
 
@@ -378,8 +378,8 @@ namespace KCppAssist
             string masked = CppText.Mask(text);
             int pos = view.Caret.Position.BufferPosition.Position;
             int a = pos, b = pos;
-            while (a > 0 && IsId(masked[a - 1])) a--;
-            while (b < masked.Length && IsId(masked[b])) b++;
+            while (a > 0 && CppText.IsId(masked[a - 1])) a--;
+            while (b < masked.Length && CppText.IsId(masked[b])) b++;
             if (b <= a) { await ReportAsync("カーソルの位置に識別子がありません (コメントや文字列の中かもしれません)", true); return; }
 
             int chainStart;
@@ -405,7 +405,7 @@ namespace KCppAssist
             }
             if (IncludeService.WouldCycle(file, path)) { await ReportAsync(token + " は、このヘッダーを #include しているので、足すと循環します", true); return; }
 
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             string stem = IncludeService.IsHeader(path) ? null : Path.GetFileNameWithoutExtension(path);
             var edit = IncludeEditor.Plan(text, token, stem, eol);
             if (edit == null) { await ReportAsync(token + " はすでに #include されています", true); return; }
@@ -581,7 +581,7 @@ namespace KCppAssist
             ITextBuffer buf = SyncService.OpenForEdit(cppFile, adapters);
             if (buf == null) { await ReportAsync(Path.GetFileName(cppFile) + " を開けませんでした", true); return; }
             string cppText = buf.CurrentSnapshot.GetText();
-            string eol = cppText.Contains("\r\n") ? "\r\n" : cppText.Contains("\n") ? "\n" : (text.Contains("\r\n") ? "\r\n" : "\n");
+            string eol = CppText.Eol(cppText, CppText.Eol(text));
 
             string why;
             var edit = DefinitionGen.PlanDefinition(text, sig, cppText, eol, out why);
@@ -629,7 +629,7 @@ namespace KCppAssist
                 && SyncPlan.SameKeysAny(SignatureSync.KeyVariants(s.Inner(loc.Text)), keys)).ToList();
             if (inClass.Count > 0) { await ReportAsync(label + " の宣言は、すでに " + Path.GetFileName(loc.File) + " にあります", true); return; }
 
-            string eol = loc.Text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(loc.Text);
             var edit = DefinitionGen.PlanPublicMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, declaration, eol);
             if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
             SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, "K-CppAssist: 宣言を作る");
@@ -716,7 +716,7 @@ namespace KCppAssist
             var lines = AccessorEditor.MakeLines(all, cls, member, type, readOnly, page.BlankLineBetweenAccessors, skipped, out refused);
             if (lines == null) { await ReportAsync(refused, true); return; }
             if (lines.Count == 0) { await ReportAsync(string.Join("、", skipped) + " はすでにあります", true); return; }
-            string eol = all.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(all);
             var edit = AccessorEditor.PlanPublic(all, cls, lines, eol, page.BlankLineBetweenAccessors);
             target.TextBuffer.Insert(edit.Position, edit.Text);
 
@@ -852,17 +852,6 @@ namespace KCppAssist
             }
             return -1;
         }
-
-        private static string IdentifierAt(string s, int col)
-        {
-            if (col > s.Length) col = s.Length;
-            int a = col, b = col;
-            while (a > 0 && IsId(s[a - 1])) a--;
-            while (b < s.Length && IsId(s[b])) b++;
-            return b > a ? s.Substring(a, b - a) : null;
-        }
-
-        private static bool IsId(char c) { return char.IsLetterOrDigit(c) || c == '_'; }
 
         /// <summary>Quick Info の内容(入れ子のリスト・ContainerElement)を、文字だけの 1 本にする。</summary>
         private static string Flatten(object content)

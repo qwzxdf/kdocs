@@ -43,7 +43,7 @@ namespace KCppAssist
             var scopes = Scopes.Parse(text);
             var cls = scopes.Where(s => s.IsClass && s.Open < caret && caret <= s.Close).OrderByDescending(s => s.Open).FirstOrDefault();
             if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
-            if (LineStart(text, cls.Open) == LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
+            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
 
             var members = new List<Member>();
             var ctorCounts = new List<int>();
@@ -75,27 +75,11 @@ namespace KCppAssist
                     {
                         i = close; st = close + 1; continue;
                     }
-                    if (prefix.Contains("(") && !HasTopEquals(prefix))
+                    if (prefix.Contains("(") && !MemberScan.HasTopEquals(prefix))
                     {
                         // 関数(本体つき)。コンストラクターの初期化リストの「b{2}」の後ろに本体が続くので、そこまで読み進める
                         RecordFunction(prefix, ctorCounts, cls.Name);
-                        int e = close;
-                        while (true)
-                        {
-                            int k = e + 1;
-                            while (k < cls.Close && char.IsWhiteSpace(m[k])) k++;
-                            if (k < cls.Close && m[k] == '{') { e = Scopes.MatchBrace(m, k); if (e < 0) { e = cls.Close; } break; }
-                            if (k < cls.Close && m[k] == ',')
-                            {
-                                int n = k;
-                                while (n < cls.Close && m[n] != '{' && m[n] != ';') n++;
-                                if (n >= cls.Close || m[n] == ';') { e = n; break; }
-                                e = Scopes.MatchBrace(m, n);
-                                if (e < 0) { e = cls.Close; break; }
-                                continue;
-                            }
-                            break;
-                        }
+                        int e = MemberScan.SkipToBodyEnd(m, close, cls.Close);
                         i = e; st = e + 1;
                         if (st < cls.Close && m[st] == ';') { i = st; st = st + 1; }
                         continue;
@@ -125,7 +109,7 @@ namespace KCppAssist
                 if (firstStmt < 0) firstStmt = stmtStart + (stmt.Length - stmt.TrimStart().Length);
 
                 // 「(」が <> の外にあるものだけが関数(std::function<void(int)> cb_; はメンバー)
-                if (ParenOutsideAngles(orig)) { RecordFunction(orig, ctorCounts, cls.Name); if (!HasTopEquals(orig)) continue; }
+                if (ParenOutsideAngles(orig)) { RecordFunction(orig, ctorCounts, cls.Name); if (!MemberScan.HasTopEquals(orig)) continue; }
                 if (Skip.IsMatch(orig) || orig.Contains("~")) continue;
 
                 string decl = CutInitializer(orig);
@@ -167,10 +151,10 @@ namespace KCppAssist
 
             // ---- 字下げ ----
             string classIndent = LeadingSpace(text, cls.Open);
-            if (text.Substring(LineStart(text, cls.Open), cls.Open - LineStart(text, cls.Open)).Trim().Length == 0)
+            if (text.Substring(MemberScan.LineStart(text, cls.Open), cls.Open - MemberScan.LineStart(text, cls.Open)).Trim().Length == 0)
             {
                 // 「{」だけの行。クラス名の行の字下げを使う
-                int prev = LineStart(text, cls.Open) - 1;
+                int prev = MemberScan.LineStart(text, cls.Open) - 1;
                 if (prev > 0) classIndent = LeadingSpace(text, prev - 1 < 0 ? 0 : prev - 1);
             }
             string indent = firstStmt >= 0 ? LeadingSpace(text, firstStmt) : classIndent + "  ";
@@ -197,7 +181,7 @@ namespace KCppAssist
                 bool startsWithLabel = firstLabelStart >= 0 && text.Substring(cls.Open + 1, firstLabelStart - cls.Open - 1).Trim().Length == 0;
                 if (startsWithLabel)
                 {
-                    pos = LineStart(text, firstLabelStart);
+                    pos = MemberScan.LineStart(text, firstLabelStart);
                     outText = labelIndent + "public:" + eol + ctor + eol;
                 }
                 else
@@ -240,25 +224,6 @@ namespace KCppAssist
                 if (c == '<' && i > 0 && (CppText.IsId(s[i - 1]) || s[i - 1] == ' ' && i > 1 && CppText.IsId(s[i - 2]))) angle++;
                 else if (c == '>' && angle > 0 && !(i > 0 && s[i - 1] == '-')) angle--;
                 else if (c == '(' && angle == 0) return true;
-            }
-            return false;
-        }
-
-        private static bool HasTopEquals(string s)
-        {
-            int depth = 0;
-            for (int i = 0; i < s.Length; i++)
-            {
-                char c = s[i];
-                if (c == '(' || c == '<' || c == '[') depth++;
-                else if (c == ')' || c == '>' || c == ']') depth--;
-                else if (c == '=' && depth == 0)
-                {
-                    char prev = i > 0 ? s[i - 1] : ' ';
-                    char next = i + 1 < s.Length ? s[i + 1] : ' ';
-                    if (prev == '=' || prev == '!' || prev == '<' || prev == '>' || next == '=') continue;
-                    return true;
-                }
             }
             return false;
         }
@@ -351,13 +316,6 @@ namespace KCppAssist
             return sb.ToString();
         }
 
-        private static int LineStart(string text, int pos)
-        {
-            int i = Math.Min(pos, text.Length);
-            while (i > 0 && text[i - 1] != '\n') i--;
-            return i;
-        }
-
         private static int NextLineStart(string text, int pos)
         {
             int i = text.IndexOf('\n', Math.Min(pos, text.Length));
@@ -366,7 +324,7 @@ namespace KCppAssist
 
         private static string LeadingSpace(string text, int pos)
         {
-            int ls = LineStart(text, pos);
+            int ls = MemberScan.LineStart(text, pos);
             int e = ls;
             while (e < text.Length && (text[e] == ' ' || text[e] == '\t')) e++;
             return text.Substring(ls, e - ls);

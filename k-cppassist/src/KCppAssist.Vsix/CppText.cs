@@ -11,7 +11,19 @@ namespace KCppAssist
         /// コメント・文字列・文字リテラルと、「#」で始まる行(継続行を含む)を空白に置き換える。
         /// 長さと改行の位置は変えないので、元の文字と位置がそのまま対応する。
         /// </summary>
+        // 電球の一覧などは、同じ文字(同じ string)を何度も走査する。直前の 1 つを、スレッドごとに覚えて使い回す
+        // (string は変わらないので、同じ参照なら結果も同じ)
+        [ThreadStatic] private static string maskIn, maskOut;
+
         public static string Mask(string s)
+        {
+            if (ReferenceEquals(s, maskIn)) return maskOut;
+            string r = MaskCore(s);
+            maskIn = s; maskOut = r;
+            return r;
+        }
+
+        private static string MaskCore(string s)
         {
             var r = s.ToCharArray();
             int n = s.Length;
@@ -116,6 +128,12 @@ namespace KCppAssist
         }
 
         public static bool IsId(char c) { return char.IsLetterOrDigit(c) || c == '_'; }
+
+        /// <summary>文字の改行の種類。CRLF が 1 つでもあれば「\r\n」、なければ「\n」。足す文字の改行を、元のファイルにそろえるために使う。</summary>
+        public static string Eol(string text) { return text.Contains("\r\n") ? "\r\n" : "\n"; }
+
+        /// <summary>Eol と同じ。ただし、改行が 1 つもない(新しい・1 行の)ファイルなら、fallback(相手のファイルの改行)を使う。</summary>
+        public static string Eol(string text, string fallback) { return text.Contains("\r\n") ? "\r\n" : text.Contains("\n") ? "\n" : fallback; }
 
         /// <summary>
         /// 識別子 [start, end) の左へ「a::b::」をたどって、修飾名(a::b::name)と、その先頭の位置を返す。

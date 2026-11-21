@@ -21,7 +21,6 @@ namespace KCppAssist
     /// </summary>
     public sealed partial class KCppAssistPackage
     {
-        internal const int CmdSwitch = 0x0110;
         internal const int CmdCtor = 0x0111;
         internal const int CmdOverride = 0x0112;
 
@@ -61,7 +60,7 @@ namespace KCppAssist
             if (path == null) { await ReportAsync("ファイルが保存されていません", true); return; }
 
             string text = view.TextSnapshot.GetText();
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             int caret = view.Caret.Position.BufferPosition.Position;
             string why;
             int pos;
@@ -205,7 +204,7 @@ namespace KCppAssist
             if (path == null) { await ReportAsync("ファイルが保存されていません", true); return; }
 
             string text = view.TextSnapshot.GetText();
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             int caret = view.Caret.Position.BufferPosition.Position;
             string why;
             var u = UsageGen.Find(text, caret, out why);
@@ -249,7 +248,7 @@ namespace KCppAssist
             var existing = FunctionScan.Scan(loc.Text).FirstOrDefault(s => s.Name == u.Name && s.Open > loc.Scope.Open && s.Close < loc.Scope.Close);
             if (existing != null) { await ReportAsync(cref.Name + "::" + u.Name + " は " + Path.GetFileName(loc.File) + " にすでにあります", true); return; }
 
-            string hEol = loc.Text.Contains("\r\n") ? "\r\n" : "\n";
+            string hEol = CppText.Eol(loc.Text);
             string root = IncludeService.RootFor(loc.File);
             var opt = SyncService.Options;
             var cpps = await Task.Run(() => SyncService.Candidates(loc.File, cref.Name, root, true, opt).Where(f => !IncludeService.IsHeader(f)).ToList());
@@ -286,7 +285,7 @@ namespace KCppAssist
                 else
                 {
                     string cppText = buf.CurrentSnapshot.GetText();
-                    string cEol = cppText.Contains("\r\n") ? "\r\n" : cppText.Contains("\n") ? "\n" : hEol;
+                    string cEol = CppText.Eol(cppText, hEol);
                     string why2;
                     var def = DefinitionGen.PlanDefinition(newHeader, sig, cppText, cEol, out why2);
                     if (def == null) defMsg = "。定義の雛形は作れませんでした (" + why2 + ")";

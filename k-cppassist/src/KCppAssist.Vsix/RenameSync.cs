@@ -52,9 +52,15 @@ namespace KCppAssist
         public static string PickClass(IList<string> classes, string stem)
         {
             if (classes == null || classes.Count == 0) return null;
-            Func<string, string> norm = s => s.Replace("_", "").Replace("-", "").ToLowerInvariant();
-            foreach (string c in classes) if (norm(c) == norm(stem)) return c;
+            foreach (string c in classes) if (SameName(c, stem)) return c;
             return classes[0];
+        }
+
+        /// <summary>クラス名とファイル名が「同じ名前」か。大文字小文字と「_」「-」の違いは見ない(GameObject と game_object は同じ)。</summary>
+        public static bool SameName(string cls, string stem)
+        {
+            Func<string, string> norm = s => s.Replace("_", "").Replace("-", "").ToLowerInvariant();
+            return norm(cls) == norm(stem);
         }
 
         /// <summary>識別子 oldName を、単語の単位で newName に置き換える編集を作る(「Foo」は、「FooBar」「m_Foo」には当たらない)。</summary>

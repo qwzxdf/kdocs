@@ -201,7 +201,7 @@ namespace KCppAssist
             int caret = view.Caret.Position.BufferPosition.Position;
             bool inHeader = IncludeService.IsHeader(path);
             string stem = inHeader ? null : Path.GetFileNameWithoutExtension(path);
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
 
             int done = 0;
             foreach (Pending p in pending.ToList())

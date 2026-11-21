@@ -108,11 +108,34 @@ namespace KCppAssist
 
         private sealed class Counts { public int IncludeSites, IncludeFiles, BuildSites; }
 
-        /// <summary>エディターで開いていないファイルを、直接書き換える(別のスレッドで呼ぶ)。</summary>
+        /// <summary>エディターで開いていないファイルの #include とビルド ファイルを、直接書き換える(別のスレッドで呼ぶ)。</summary>
         private static Counts RewriteDiskFiles(string root, ISet<string> skip, List<RenameSync.Move> moves, List<string> roots, HashSet<string> open, bool includes, bool buildFiles)
         {
             var c = new Counts();
-            if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return c;
+            var edited = RewriteClosedFiles(root, skip, open,
+                f => (includes && RenameSync.IsCode(f)) || (buildFiles && RenameSync.IsBuildFile(f)),
+                (f, text) => RenameSync.IsBuildFile(f)
+                    ? RenameSync.RewriteBuildFile(text, Path.GetDirectoryName(f), moves)
+                    : RenameSync.RewriteIncludes(text, Path.GetDirectoryName(f), moves, roots, File.Exists),
+                "rename");
+            foreach (var kv in edited)
+            {
+                if (RenameSync.IsBuildFile(kv.Key)) c.BuildSites += kv.Value;
+                else { c.IncludeSites += kv.Value; c.IncludeFiles++; }
+            }
+            return c;
+        }
+
+        /// <summary>
+        /// root の下の、want に合うファイルのうち、エディターで開いていないもの(open にないもの)を、plan の編集で書き換える。
+        /// 文字コードと BOM は元のまま。書き換えたファイルと、編集の数を返す。skip のフォルダーと cmake-build* は見ない。
+        /// 別のスレッドで呼ぶ。数えるファイルは 30000 まで(巨大なフォルダーで止まらないように)。
+        /// </summary>
+        private static Dictionary<string, int> RewriteClosedFiles(string root, ISet<string> skip, HashSet<string> open,
+            Func<string, bool> want, Func<string, string, List<RenameSync.TextEdit>> plan, string logTag)
+        {
+            var edited = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return edited;
             var stack = new Stack<string>();
             stack.Push(root);
             int seen = 0;
@@ -123,23 +146,18 @@ namespace KCppAssist
                 {
                     foreach (string f in Directory.GetFiles(dir))
                     {
-                        bool code = includes && RenameSync.IsCode(f);
-                        bool build = buildFiles && RenameSync.IsBuildFile(f);
-                        if (!code && !build) continue;
+                        if (!want(f)) continue;
                         seen++;
-                        if (open.Contains(f)) continue;
-                        if (new FileInfo(f).Length > 4 * 1024 * 1024) continue;
+                        if (open.Contains(f) || new FileInfo(f).Length > 4 * 1024 * 1024) continue;
                         Encoding enc;
                         string text;
                         try { text = RenameSync.ReadKeepingEncoding(f, out enc); } catch (Exception) { continue; }
-                        var edits = build
-                            ? RenameSync.RewriteBuildFile(text, dir, moves)
-                            : RenameSync.RewriteIncludes(text, dir, moves, roots, File.Exists);
+                        var edits = plan(f, text);
                         if (edits.Count == 0) continue;
                         try { RenameSync.WriteKeepingEncoding(f, RenameSync.Apply(text, edits), enc); }
-                        catch (Exception ex) { KCppAssistPackage.Log("rename: write failed " + f + ": " + ex.Message); continue; }
-                        if (build) c.BuildSites += edits.Count; else { c.IncludeSites += edits.Count; c.IncludeFiles++; }
-                        KCppAssistPackage.Log("rename: edited " + f + " (" + edits.Count + ")");
+                        catch (Exception ex) { KCppAssistPackage.Log(logTag + ": write failed " + f + ": " + ex.Message); continue; }
+                        edited[f] = edits.Count;
+                        KCppAssistPackage.Log(logTag + ": edited " + f + " (" + edits.Count + ")");
                     }
                     foreach (string d in Directory.GetDirectories(dir))
                     {
@@ -149,7 +167,7 @@ namespace KCppAssist
                 }
                 catch (Exception) { }
             }
-            return c;
+            return edited;
         }
 
         /// <summary>
@@ -172,42 +190,8 @@ namespace KCppAssist
                 ApplyToBuffer(buf, edits, undo);
                 total += edits.Count;
             }
-            total += await Task.Run(() =>
-            {
-                int n = 0;
-                if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return 0;
-                var stack = new Stack<string>();
-                stack.Push(root);
-                int seen = 0;
-                while (stack.Count > 0 && seen < 30000)
-                {
-                    string dir = stack.Pop();
-                    try
-                    {
-                        foreach (string f in Directory.GetFiles(dir))
-                        {
-                            if (!RenameSync.IsCode(f)) continue;
-                            seen++;
-                            if (open.Contains(f) || new FileInfo(f).Length > 4 * 1024 * 1024) continue;
-                            Encoding enc;
-                            string text;
-                            try { text = RenameSync.ReadKeepingEncoding(f, out enc); } catch (Exception) { continue; }
-                            var edits = RenameSync.ReplaceWord(text, oldName, newName);
-                            if (edits.Count == 0) continue;
-                            try { RenameSync.WriteKeepingEncoding(f, RenameSync.Apply(text, edits), enc); n += edits.Count; KCppAssistPackage.Log("rename class: edited " + f + " (" + edits.Count + ")"); }
-                            catch (Exception ex) { KCppAssistPackage.Log("rename class: write failed " + f + ": " + ex.Message); }
-                        }
-                        foreach (string d in Directory.GetDirectories(dir))
-                        {
-                            string leaf = Path.GetFileName(d);
-                            if (!skip.Contains(leaf) && !leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase)) stack.Push(d);
-                        }
-                    }
-                    catch (Exception) { }
-                }
-                return n;
-            });
-            return total;
+            var disk = await Task.Run(() => RewriteClosedFiles(root, skip, open, RenameSync.IsCode, (f, text) => RenameSync.ReplaceWord(text, oldName, newName), "rename class"));
+            return total + disk.Values.Sum();
         }
 
         /// <summary>ヘッダー(か、その相手)の文字を、開いていればエディターから、なければディスクから読む。</summary>

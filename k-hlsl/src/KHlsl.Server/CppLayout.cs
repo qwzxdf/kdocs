@@ -122,13 +122,13 @@ namespace KHlsl.Server
                     if (brace < 0) continue;
                     string between = m.Substring(p, brace - p);
                     if (!Regex.IsMatch(between, @"^\s*(?:final\s*)?(?::\s*(?:public\s+|private\s+|protected\s+)?[\w:]+\s*)?$")) continue;
-                    int end = MatchBrace(m, brace);
+                    int end = Analyzer.MatchBrace(m, brace);
                     if (end < 0) continue;
                     string name = x.Groups["n"].Value;
                     var def = new Def
                     {
                         Name = name, Src = src, BodyStart = brace + 1, BodyEnd = end,
-                        Line = LineOf(src, x.Groups["n"].Index), IsUnion = x.Groups["k"].Value == "union"
+                        Line = CBufferLayout.LineOf(src, x.Groups["n"].Index), IsUnion = x.Groups["k"].Value == "union"
                     };
                     var bm = Regex.Match(between, @":\s*(?:public\s+|private\s+|protected\s+)?([\w:]+)");
                     if (bm.Success) def.Base = StripNs(bm.Groups[1].Value);
@@ -174,24 +174,6 @@ namespace KHlsl.Server
             return t;
         }
 
-        private static int LineOf(CBufferLayout.Source s, int offset)
-        {
-            int idx = s.LineStarts.BinarySearch(offset);
-            if (idx < 0) idx = ~idx - 1;
-            return idx;
-        }
-
-        private static int MatchBrace(string m, int open)
-        {
-            int d = 0;
-            for (int i = open; i < m.Length; i++)
-            {
-                if (m[i] == '{') d++;
-                else if (m[i] == '}') { d--; if (d == 0) return i; }
-            }
-            return -1;
-        }
-
         /// <summary>ソースにある struct / class の一覧(定義の順)。</summary>
         public static List<string> StructNames(Table t, string file)
         {
@@ -207,7 +189,7 @@ namespace KHlsl.Server
             foreach (var d in t.Structs.Values)
             {
                 if (d.Src.Path != file) continue;
-                int l0 = LineOf(d.Src, d.BodyStart), l1 = LineOf(d.Src, d.BodyEnd);
+                int l0 = CBufferLayout.LineOf(d.Src, d.BodyStart), l1 = CBufferLayout.LineOf(d.Src, d.BodyEnd);
                 if (line >= d.Line && line <= l1 && (best == null || d.Line > best.Line)) best = d;
             }
             return best == null ? null : best.Name;
@@ -420,9 +402,9 @@ namespace KHlsl.Server
             type = Regex.Replace(type, @"\s*::\s*", "::");
             type = Regex.Replace(type, @"\s*<\s*", "<").Replace(" >", ">");
             type = type.Replace(" *", "*").Replace(" &", "&");
-            int lineBase = LineOf(def.Src, from + Math.Max(0, raw.IndexOf(rest.TrimStart('*', '&', ' '), StringComparison.Ordinal)));
+            int lineBase = CBufferLayout.LineOf(def.Src, from + Math.Max(0, raw.IndexOf(rest.TrimStart('*', '&', ' '), StringComparison.Ordinal)));
 
-            foreach (string part in SplitTop(rest, ','))
+            foreach (string part in CBufferLayout.SplitTop(rest, ','))
             {
                 var pm = Regex.Match(part.Trim(), @"^(?<p>[\*&]*)\s*(?<n>[A-Za-z_]\w*)\s*(?<a>(?:\[[^\]]*\]\s*)*)(?::\s*(?<b>\d+))?$");
                 if (!pm.Success) continue;
@@ -450,19 +432,6 @@ namespace KHlsl.Server
             }
             if (close < 0) return text;
             return text.Substring(0, head.Index) + head.Groups[1].Value + " " + text.Substring(close + 1);
-        }
-
-        private static IEnumerable<string> SplitTop(string s, char sep)
-        {
-            int depth = 0, start = 0;
-            for (int i = 0; i < s.Length; i++)
-            {
-                char c = s[i];
-                if (c == '(' || c == '[' || c == '{' || c == '<') depth++;
-                else if (c == ')' || c == ']' || c == '}' || c == '>') depth--;
-                else if (c == sep && depth == 0) { yield return s.Substring(start, i - start); start = i + 1; }
-            }
-            yield return s.Substring(start);
         }
 
         private static int ArrayCountOf(Table table, Decl d)

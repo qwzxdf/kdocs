@@ -90,37 +90,6 @@ namespace KHlsl.Vsix
             IsVisibleChanged += (s, e) => { if (IsVisible) Reload(false); };
         }
 
-        private static TextBox MakeCodeBox()
-        {
-            var tb = new TextBox
-            {
-                IsReadOnly = true,
-                FontFamily = new FontFamily("Consolas"),
-                FontSize = 12,
-                AcceptsReturn = true,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                BorderThickness = new Thickness(0)
-            };
-            tb.SetResourceReference(Control.BackgroundProperty, EnvironmentColors.ToolWindowBackgroundBrushKey);
-            tb.SetResourceReference(Control.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
-            return tb;
-        }
-
-        private static UIElement WithCopy(UIElement content, TextBox source)
-        {
-            var dock = new DockPanel();
-            var copy = new Button { Content = "コピー", Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(4), HorizontalAlignment = HorizontalAlignment.Left };
-            copy.Click += (s, e) =>
-            {
-                try { if (source.Text.Length > 0) Clipboard.SetText(source.Text); } catch (Exception) { }
-            };
-            DockPanel.SetDock(copy, Dock.Bottom);
-            dock.Children.Add(copy);
-            dock.Children.Add(content);
-            return dock;
-        }
-
         public void Initialize(IServiceProvider services)
         {
             _services = services;

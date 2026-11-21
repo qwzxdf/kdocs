@@ -37,7 +37,7 @@ namespace KCppAssist
                 char c = body[i];
                 if (c == '{') depth++;
                 else if (c == '}') depth--;
-                else if (depth == 0 && (c == 'p') && (i == 0 || !IsId(body[i - 1])))
+                else if (depth == 0 && (c == 'p') && (i == 0 || !CppText.IsId(body[i - 1])))
                 {
                     var s = Regex.Match(body.Substring(i), @"^(public|protected|private)\s*:(?!:)");
                     if (s.Success) { lastSpec = s.Groups[1].Value; lastSpecAt = i; }
@@ -85,8 +85,6 @@ namespace KCppAssist
                 Text = braceFirst ? sb.ToString() : eol + sb.ToString(),
             };
         }
-
-        private static bool IsId(char c) { return char.IsLetterOrDigit(c) || c == '_'; }
 
         /// <summary>open の '{' に対応する '}' の位置。コメントと文字列の中は数えない。</summary>
         private static int FindClose(string s, int open)

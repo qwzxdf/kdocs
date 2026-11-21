@@ -121,12 +121,6 @@ namespace KCppAssist.ErrorLog
             return this;
         }
 
-        public LineBuilder FixLink(string text, string file, int line, int col, string type, string lineText)
-        {
-            _line.Runs.Add(new Run { Text = text, Role = Role.Good, Bold = true, File = file, Line = line, Col = col, Fix = type, FixLine = lineText });
-            return this;
-        }
-
         public LineBuilder JumpLink(string text, string anchor)
         {
             _line.Runs.Add(new Run { Text = text, Role = Role.Link, Jump = anchor });

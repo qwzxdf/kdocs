@@ -62,7 +62,7 @@ namespace KCppAssist
                 bool startsWithLabel = firstLabelStart >= 0 && text.Substring(cls.Open + 1, firstLabelStart - cls.Open - 1).Trim().Length == 0;
                 if (startsWithLabel)
                 {
-                    pos = LineStart(text, firstLabelStart);
+                    pos = MemberScan.LineStart(text, firstLabelStart);
                     outText = labelIndent + "public:" + eol + block + eol;
                 }
                 else
@@ -96,18 +96,11 @@ namespace KCppAssist
 
         public static string ClassIndent(string text, Scopes.Scope cls)
         {
-            int ls = LineStart(text, cls.Open);
+            int ls = MemberScan.LineStart(text, cls.Open);
             string ci = LeadingSpace(text, cls.Open);
             if (text.Substring(ls, cls.Open - ls).Trim().Length == 0 && ls > 1)
                 ci = LeadingSpace(text, ls - 2);   // 「{」だけの行(Allman): クラス名の行の字下げ
             return ci;
-        }
-
-        public static int LineStart(string text, int pos)
-        {
-            int i = Math.Min(pos, text.Length);
-            while (i > 0 && text[i - 1] != '\n') i--;
-            return i;
         }
 
         public static int NextLineStart(string text, int pos)
@@ -118,7 +111,7 @@ namespace KCppAssist
 
         public static string LeadingSpace(string text, int pos)
         {
-            int ls = LineStart(text, pos);
+            int ls = MemberScan.LineStart(text, pos);
             int e = ls;
             while (e < text.Length && (text[e] == ' ' || text[e] == '\t')) e++;
             return text.Substring(ls, e - ls);

@@ -11,7 +11,7 @@ namespace KHlsl.Server
     internal sealed partial class Server
     {
         // LSP の CompletionItemKind
-        private const int KText = 1, KMethod = 2, KFunction = 3, KField = 5, KVariable = 6, KClass = 7, KModule = 9,
+        private const int KMethod = 2, KFunction = 3, KField = 5, KVariable = 6, KClass = 7, KModule = 9,
             KProperty = 10, KEnum = 13, KKeyword = 14, KSnippet = 15, KConstant = 21, KStruct = 22, KEnumMember = 20,
             KTypeParameter = 25;
 
@@ -401,7 +401,6 @@ namespace KHlsl.Server
             }
             parts.Add(sb.ToString());
             string type = null;
-            string file = null;
             for (int k = 0; k < parts.Count; k++)
             {
                 var pm = Regex.Match(parts[k].Trim(), @"^(?<n>[A-Za-z_]\w*)(?<idx>(?:\s*\[.*\])*)$", RegexOptions.Singleline);

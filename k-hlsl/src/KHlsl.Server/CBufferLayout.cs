@@ -38,8 +38,6 @@ namespace KHlsl.Server
         public List<LMember> Fields = new List<LMember>();   // 構造体の中身(配列なら先頭の要素)
 
         public bool IsMatrix { get { return Rows > 0; } }
-        /// <summary>16 バイトの境界から始まらなければならない型(配列・行列・構造体・16 バイトを超えるベクトル)。</summary>
-        public bool NeedsRegisterStart { get { return ArrayCount > 0 || IsMatrix || IsStruct || Size > 16; } }
         public int End { get { return Offset + Size; } }
         public LMember ShallowCopy() { return (LMember)MemberwiseClone(); }
     }
@@ -133,7 +131,7 @@ namespace KHlsl.Server
             return s;
         }
 
-        private static int LineOf(Source s, int offset)
+        internal static int LineOf(Source s, int offset)
         {
             int idx = s.LineStarts.BinarySearch(offset);
             if (idx < 0) idx = ~idx - 1;
@@ -175,7 +173,7 @@ namespace KHlsl.Server
                     if (brace < 0) continue;
                     string between = m.Substring(p, brace - p);
                     if (!Regex.IsMatch(between, @"^\s*(?::\s*[\w:,\s<>]+?(?:\(\s*[\w\s,]*\))?\s*)?$")) continue;
-                    int end = MatchBrace(m, brace);
+                    int end = Analyzer.MatchBrace(m, brace);
                     if (end < 0) continue;
                     string kind = x.Groups["k"].Value;
                     string name = x.Groups["n"].Value;
@@ -192,17 +190,6 @@ namespace KHlsl.Server
                 }
             }
             return table;
-        }
-
-        private static int MatchBrace(string m, int open)
-        {
-            int d = 0;
-            for (int i = open; i < m.Length; i++)
-            {
-                if (m[i] == '{') d++;
-                else if (m[i] == '}') { d--; if (d == 0) return i; }
-            }
-            return -1;
         }
 
         // ---- 配置 ----
@@ -401,7 +388,7 @@ namespace KHlsl.Server
             return -1;
         }
 
-        private static IEnumerable<string> SplitTop(string s, char sep)
+        internal static IEnumerable<string> SplitTop(string s, char sep)
         {
             int depth = 0, start = 0;
             for (int i = 0; i < s.Length; i++)

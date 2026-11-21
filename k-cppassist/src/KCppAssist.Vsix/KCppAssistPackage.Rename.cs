@@ -87,7 +87,7 @@ namespace KCppAssist
                             {
                                 clsNew = NewFileGen.ClassName(newStem, NewFileService.NamingOf(opt));
                                 if (clsNew.Length == 0 || clsNew == clsOld) clsOld = null;
-                                else matched = NamesMatch(clsOld, oldStem);
+                                else matched = RenameSync.SameName(clsOld, oldStem);
                             }
                         }
                         var items = new System.Collections.Generic.List<RenamePrompt.Item>();
@@ -128,8 +128,6 @@ namespace KCppAssist
             });
         }
 
-        private static string Norm(string s) { return s.Replace("_", "").Replace("-", "").ToLowerInvariant(); }
-        private static bool NamesMatch(string cls, string stem) { return Norm(cls) == Norm(stem); }
 
         private void RunRename()
         {

@@ -375,7 +375,7 @@ namespace KHlsl.Server
             return -1;
         }
 
-        private static int MatchBrace(string m, int open)
+        internal static int MatchBrace(string m, int open)
         {
             int d = 0;
             for (int i = open; i < m.Length; i++)

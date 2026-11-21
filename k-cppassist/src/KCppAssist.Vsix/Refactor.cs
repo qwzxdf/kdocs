@@ -409,7 +409,7 @@ namespace KCppAssist
             string cond = text.Substring(s.CondOpen + 1, s.CondClose - s.CondOpen - 1);
             // 本体の行を 1 段浅くする(本体の最初の行の字下げと、if の字下げの差を外す)
             string body = text.Substring(s.ThenOpen + 1, s.ThenClose - s.ThenOpen - 1);
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             var lines = body.Split('\n').Select(l => l.TrimEnd('\r')).ToList();
             while (lines.Count > 0 && lines[0].Trim().Length == 0) lines.RemoveAt(0);
             while (lines.Count > 0 && lines[lines.Count - 1].Trim().Length == 0) lines.RemoveAt(lines.Count - 1);

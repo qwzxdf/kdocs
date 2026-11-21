@@ -51,7 +51,7 @@ namespace KCppAssist
             if (sig == null || !sig.HasBody) { await ReportAsync("カーソルの位置に、本体のある関数が見つかりません", true); return; }
             string label = (sig.Class == null ? "" : sig.Class + "::") + sig.Name;
             bool header = IncludeService.IsHeader(path);
-            string eolHere = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eolHere = CppText.Eol(text);
 
             if (header)
             {
@@ -72,7 +72,7 @@ namespace KCppAssist
                 ITextBuffer cppBuf = SyncService.OpenForEdit(cppFile, adapters);
                 if (cppBuf == null) { await ReportAsync(Path.GetFileName(cppFile) + " を開けませんでした", true); return; }
                 string cppText = cppBuf.CurrentSnapshot.GetText();
-                string eol = cppText.Contains("\r\n") ? "\r\n" : cppText.Contains("\n") ? "\n" : eolHere;
+                string eol = CppText.Eol(cppText, eolHere);
 
                 // すでに同じ定義が cpp にあれば、二重にしない
                 var keys = SignatureSync.KeyVariants(sig.Inner(text));
@@ -113,7 +113,7 @@ namespace KCppAssist
                 var decl = FunctionScan.Scan(hText).FirstOrDefault(s => !s.HasBody && s.Name == t0.Sig.Name && s.Open == t0.Sig.Open)
                     ?? FunctionScan.Scan(hText).FirstOrDefault(s => !s.HasBody && SyncPlan.Counterpart(s, sig, false) > 0 && SyncPlan.SameKeysAny(SignatureSync.KeyVariants(s.Inner(hText)), keys));
                 if (decl == null) { await ReportAsync(label + " の宣言を読み直せませんでした", true); return; }
-                string eol = hText.Contains("\r\n") ? "\r\n" : hText.Contains("\n") ? "\n" : eolHere;
+                string eol = CppText.Eol(hText, eolHere);
 
                 string why;
                 var plan = MoveGen.ToHeader(text, sig, hText, decl, eol, out why);

@@ -100,7 +100,7 @@ namespace KCppAssist
                 if (ob >= m.Length || m[ob] != '{') continue;
                 int cb = Scopes.MatchBrace(m, ob);
                 if (cb < 0) continue;
-                int lineStart = LineStart(text, x.Index);
+                int lineStart = MemberScan.LineStart(text, x.Index);
                 if (caret < lineStart || caret > cb + 1) continue;
                 if (sw == null || x.Index > sw.Start) sw = new Sw { Start = x.Index, Open = ob, Close = cb, Expr = text.Substring(po + 1, pc - po - 1).Trim() };
             }
@@ -249,9 +249,9 @@ namespace KCppAssist
             // ---- 本体が空で複数行のとき: 空の行を、足す文字で置き換える ----
             bool emptyBody = firstCase < 0 && defaultPos < 0 && text.Substring(sw.Open + 1, sw.Close - sw.Open - 1).Trim().Length == 0;
             int firstNl = text.IndexOf('\n', sw.Open);
-            if (emptyBody && firstNl >= 0 && firstNl < sw.Close && text.Substring(LineStart(text, sw.Close), sw.Close - LineStart(text, sw.Close)).Trim().Length == 0)
+            if (emptyBody && firstNl >= 0 && firstNl < sw.Close && text.Substring(MemberScan.LineStart(text, sw.Close), sw.Close - MemberScan.LineStart(text, sw.Close)).Trim().Length == 0)
             {
-                int from = firstNl + 1, to = LineStart(text, sw.Close);
+                int from = firstNl + 1, to = MemberScan.LineStart(text, sw.Close);
                 var p0 = new Plan { Position = from, Length = to - from, Text = sb.ToString(), EnumName = best.Name, AddedDefault = needDefault };
                 p0.Added.AddRange(missing);
                 return p0;
@@ -262,7 +262,7 @@ namespace KCppAssist
             string textOut = sb.ToString();
             // default: の直前の case が、break などで終わらずに default へ落ちているときは、その間に入れると動きが変わる。末尾に入れる
             int anchor = defaultPos >= 0 && EndsFlow(m, sw.Open + 1, defaultPos) ? defaultPos : sw.Close;
-            int ls = LineStart(text, anchor);
+            int ls = MemberScan.LineStart(text, anchor);
             if (text.Substring(ls, anchor - ls).Trim().Length == 0) pos = ls;
             else { pos = anchor; textOut = eol + textOut + LeadingSpace(text, sw.Start); }
 
@@ -299,17 +299,10 @@ namespace KCppAssist
             return -1;
         }
 
-        private static int LineStart(string text, int pos)
-        {
-            int i = Math.Min(pos, text.Length);
-            while (i > 0 && text[i - 1] != '\n') i--;
-            return i;
-        }
-
         /// <summary>pos のある行の、行頭の空白。</summary>
         private static string LeadingSpace(string text, int pos)
         {
-            int ls = LineStart(text, pos);
+            int ls = MemberScan.LineStart(text, pos);
             int e = ls;
             while (e < text.Length && (text[e] == ' ' || text[e] == '\t')) e++;
             return text.Substring(ls, e - ls);

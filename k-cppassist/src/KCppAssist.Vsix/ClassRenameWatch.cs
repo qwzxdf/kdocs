@@ -109,7 +109,7 @@ namespace KCppAssist
         {
             string dir = Path.GetDirectoryName(header), ext = Path.GetExtension(header), oldStem = Path.GetFileNameWithoutExtension(header);
             if (string.Equals(oldStem, newName, StringComparison.Ordinal)) return;
-            bool matched = NamesMatch(oldName, oldStem);
+            bool matched = RenameSync.SameName(oldName, oldStem);
             string newPath = Path.Combine(dir, newName + ext);
             if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || File.Exists(newPath)) return;
             var move = new RenameSync.Move { Old = header, New = newPath };

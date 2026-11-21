@@ -94,23 +94,7 @@ namespace KCppAssist
                     {
                         AddFunction(info, prefix);
                         // 初期化子リストの「a{1}, b{2}」の後ろに本体が続く。本体の「}」まで進める
-                        int e = close;
-                        while (true)
-                        {
-                            int k = e + 1;
-                            while (k < cls.Close && char.IsWhiteSpace(m[k])) k++;
-                            if (k < cls.Close && m[k] == '{') { e = Scopes.MatchBrace(m, k); if (e < 0) e = cls.Close; break; }
-                            if (k < cls.Close && m[k] == ',')
-                            {
-                                int n = k;
-                                while (n < cls.Close && m[n] != '{' && m[n] != ';') n++;
-                                if (n >= cls.Close || m[n] == ';') { e = n; break; }
-                                e = Scopes.MatchBrace(m, n);
-                                if (e < 0) { e = cls.Close; break; }
-                                continue;
-                            }
-                            break;
-                        }
+                        int e = SkipToBodyEnd(m, close, cls.Close);
                         i = e; st = e + 1;
                         if (st < cls.Close && m[st] == ';') { i = st; st++; }
                         continue;
@@ -180,7 +164,30 @@ namespace KCppAssist
             return info.Functions.Any(f => rx.IsMatch(f));
         }
 
-        private static bool HasTopEquals(string s)
+        /// <summary>
+        /// クラスの本体で、最初の「{…}」(初期化子リストの「a{1}」か、関数の本体)の「}」が close のとき、
+        /// 「, b{2}」と続く初期化子を読み飛ばして、関数の本体の「}」の位置を返す。本体がなければ、最後に読んだ「}」か「;」。
+        /// 対応する括弧がない(書きかけ)ときは limit(クラスの「}」)。m は CppText.Mask した文字。
+        /// </summary>
+        internal static int SkipToBodyEnd(string m, int close, int limit)
+        {
+            int e = close;
+            while (true)
+            {
+                int k = e + 1;
+                while (k < limit && char.IsWhiteSpace(m[k])) k++;
+                if (k < limit && m[k] == '{') { e = Scopes.MatchBrace(m, k); return e < 0 ? limit : e; }
+                if (k >= limit || m[k] != ',') return e;
+                // 「, b{2}」: 次の「{」まで進んで、その「}」へ。「;」が先なら、宣言の終わり
+                int n = k;
+                while (n < limit && m[n] != '{' && m[n] != ';') n++;
+                if (n >= limit || m[n] == ';') return n;
+                e = Scopes.MatchBrace(m, n);
+                if (e < 0) return limit;
+            }
+        }
+
+        internal static bool HasTopEquals(string s)
         {
             int depth = 0;
             for (int i = 0; i < s.Length; i++)

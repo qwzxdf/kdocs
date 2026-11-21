@@ -175,7 +175,7 @@ namespace KCppAssist
             {
                 var src = ReadSource(path, adapters);
                 if (src == null) { skipped++; Log("tidy: skipped (read/encoding) " + path); continue; }
-                string eol = src.Text.Contains("\r\n") ? "\r\n" : "\n";
+                string eol = CppText.Eol(src.Text);
                 bool header = IncludeService.IsHeader(path);
                 string stem = header ? null : Path.GetFileNameWithoutExtension(path);
                 string text = src.Text;
@@ -232,7 +232,6 @@ namespace KCppAssist
         internal sealed class ProvidedCache
         {
             private readonly OptionsPage opt;
-            private readonly Dictionary<string, HashSet<string>> direct = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
             public ProvidedCache(OptionsPage opt) { this.opt = opt; }
 
@@ -325,7 +324,7 @@ namespace KCppAssist
             if (path == null || !IncludeService.IsHeader(path)) { await ReportAsync("前方宣言にするのは、ヘッダーで押してください", true); return; }
 
             string text = view.TextSnapshot.GetText();
-            string eol = text.Contains("\r\n") ? "\r\n" : "\n";
+            string eol = CppText.Eol(text);
             int caret = view.Caret.Position.BufferPosition.Position;
             var includes = IncludeTidy.Parse(text).Where(i => i.Depth == 0 && !i.Angle).ToList();
             if (includes.Count == 0) { await ReportAsync("このヘッダーに、\"...\" の #include がありません", true); return; }
@@ -377,7 +376,7 @@ namespace KCppAssist
                 ITextBuffer buf = SyncService.OpenForEdit(cpp, adapters);
                 if (buf == null) continue;
                 string cppText = buf.CurrentSnapshot.GetText();
-                string cppEol = cppText.Contains("\r\n") ? "\r\n" : cppText.Contains("\n") ? "\n" : eol;
+                string cppEol = CppText.Eol(cppText, eol);
                 var edits = new List<Tuple<int, int, string>>();
                 string work = cppText;
                 foreach (string token in cppTokens)

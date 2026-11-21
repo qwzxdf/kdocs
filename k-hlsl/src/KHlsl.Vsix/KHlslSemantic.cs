@@ -190,16 +190,26 @@ namespace KHlsl.Vsix
                 }
             }
 
-            foreach (Match d in RxMemberFunc.Matches(m))
+            // メンバー関数は、構造体の本体の中だけにある。ファイル全体ではなく、いちばん外側の構造体の本体だけを調べる
+            // (本体は「{」で始まり「}」で終わるので、範囲の外にまたがる一致はなく、全体を調べたときと同じ結果になる)
+            foreach (var sb in blocks)
             {
-                string t = d.Groups["t"].Value;
-                if (!isTypeWord(t) && t != "void") continue;
-                var ctx = innermost(d.Groups["n"].Index);
-                if (ctx == null || ctx.Kind != 'S' || parenAt[d.Groups["n"].Index] != 0) continue;
-                memberFuncs.Add(d.Groups["n"].Value);
-                HashSet<string> set;
-                if (!memberFuncsOf.TryGetValue(ctx, out set)) memberFuncsOf[ctx] = set = new HashSet<string>();
-                set.Add(d.Groups["n"].Value);
+                if (sb.Kind != 'S') continue;
+                var anc = sb.Parent;
+                while (anc != null && anc.Kind != 'S') anc = anc.Parent;
+                if (anc != null) continue;      // 入れ子の構造体は、外側の構造体を調べるときに含まれる
+                int len = Math.Min(n, sb.Close + 1) - sb.Open;
+                for (Match d = RxMemberFunc.Match(m, sb.Open, len); d.Success; d = d.NextMatch())
+                {
+                    string t = d.Groups["t"].Value;
+                    if (!isTypeWord(t) && t != "void") continue;
+                    var ctx = innermost(d.Groups["n"].Index);
+                    if (ctx == null || ctx.Kind != 'S' || parenAt[d.Groups["n"].Index] != 0) continue;
+                    memberFuncs.Add(d.Groups["n"].Value);
+                    HashSet<string> set;
+                    if (!memberFuncsOf.TryGetValue(ctx, out set)) memberFuncsOf[ctx] = set = new HashSet<string>();
+                    set.Add(d.Groups["n"].Value);
+                }
             }
 
             foreach (var b in blocks.Where(x => x.Kind == 'E'))
@@ -222,11 +232,11 @@ namespace KHlsl.Vsix
                 }
             }
 
-            foreach (Match l in RxLabel.Matches(m))
+            foreach (var l in Labels(m))
             {
-                string name = l.Groups["l"].Value;
+                string name = l.Value;
                 if (NotNames.Contains(name) || lx.Semantics.Contains(name)) continue;
-                if (enclosing(l.Groups["l"].Index, 'F') == null) continue;
+                if (enclosing(l.Key, 'F') == null) continue;
                 labels.Add(name);
             }
 
@@ -312,6 +322,32 @@ namespace KHlsl.Vsix
             {
                 toks.AddRange(added);
                 toks.Sort((x, y) => x.Start.CompareTo(y.Start));
+            }
+        }
+
+        /// <summary>
+        /// ラベル「name:」の候補(位置と名前)。文の頭(ファイルの頭・行の頭・; { } の直後、空白と改行は飛ばす)の識別子で、
+        /// 空白とタブのあとに「:」(「::」ではない)が続くもの。RxLabel.Matches と同じ候補を、正規表現を全体に当てずに集める
+        /// (正規表現は 1 文字ずつ試すので、大きいファイルで遅い)。
+        /// </summary>
+        private static IEnumerable<KeyValuePair<int, string>> Labels(string m)
+        {
+            int n = m.Length;
+            for (int i = 0; i < n; i++)
+            {
+                char c = m[i];
+                bool head = i == 0 || m[i - 1] == '\n';
+                int k;
+                if (c == ';' || c == '{' || c == '}') k = i + 1;
+                else if (head) k = i;
+                else continue;
+                while (k < n && (m[k] == ' ' || m[k] == '\t' || m[k] == '\r' || m[k] == '\n')) k++;
+                if (k >= n || !(char.IsLetter(m[k]) || m[k] == '_') || m[k] > 127) continue;
+                int s = k;
+                while (k < n && (char.IsLetterOrDigit(m[k]) || m[k] == '_')) k++;
+                int e = k;
+                while (k < n && (m[k] == ' ' || m[k] == '\t')) k++;
+                if (k < n && m[k] == ':' && !(k + 1 < n && m[k + 1] == ':')) yield return new KeyValuePair<int, string>(s, m.Substring(s, e - s));
             }
         }
 

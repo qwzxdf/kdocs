@@ -53,7 +53,7 @@ namespace KCppAssist
         {
             why = null;
             string m = CppText.Mask(text);
-            int ls = LineStart(text, caret);
+            int ls = MemberScan.LineStart(text, caret);
             int le = text.IndexOf('\n', Math.Min(caret, text.Length));
             if (le < 0) le = text.Length;
             string line = m.Substring(ls, le - ls);
@@ -266,7 +266,7 @@ namespace KCppAssist
         /// <summary>enclosing 関数の前に、引数のない関数 u の定義(中身は TODO)を足す編集。enclosingStart は、囲んでいる関数の頭の位置。</summary>
         public static void PlanFreeDefinition(string text, int enclosingStart, Usage u, string eol, out int pos, out string outText)
         {
-            pos = LineStart(text, enclosingStart);
+            pos = MemberScan.LineStart(text, enclosingStart);
             var sb = new StringBuilder();
             sb.Append(u.Signature()).Append(" {").Append(eol);
             sb.Append("  // TODO: ").Append(u.Name).Append(" を実装する").Append(eol);
@@ -299,11 +299,5 @@ namespace KCppAssist
             return -1;
         }
 
-        private static int LineStart(string text, int pos)
-        {
-            int i = Math.Min(pos, text.Length);
-            while (i > 0 && text[i - 1] != '\n') i--;
-            return i;
-        }
     }
 }

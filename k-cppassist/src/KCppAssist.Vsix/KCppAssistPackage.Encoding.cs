@@ -132,8 +132,9 @@ namespace KCppAssist
                 });
                 Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
 
-                scanButton.Click += async (s, e) => await ScanAsync();
-                convertButton.Click += async (s, e) => await ConvertAsync();
+                // async void のラムダは、例外が VS ごと落とすので、JoinableTaskFactory で走らせて、例外は記録に残す
+                scanButton.Click += (s, e) => RunGuarded(ScanAsync);
+                convertButton.Click += (s, e) => RunGuarded(ConvertAsync);
                 copyButton.Click += (s, e) => CopyList();
                 closeButton.Click += (s, e) => Close();
                 onlyChanges.Click += (s, e) => ShowRows();
@@ -163,6 +164,15 @@ namespace KCppAssist
             }
 
             // ---- 調べる ----
+
+            private static void RunGuarded(Func<Task> work)
+            {
+                _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                {
+                    try { await work(); }
+                    catch (Exception ex) { Log("encoding window failed: " + ex); }
+                });
+            }
 
             private async Task ScanAsync()
             {

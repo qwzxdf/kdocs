@@ -42,7 +42,19 @@ namespace KCppAssist
         private static readonly Regex Cls = new Regex(@"\b(class|struct)\s+(?:[A-Za-z_]\w*\s+)*?([A-Za-z_]\w*)\s*(?:final\s*)?(?::[^;{]*)?\{");
 
         /// <summary>text の中の namespace と class / struct(enum class は除く)を、位置の順に集める。</summary>
+        // 同じ string を続けて調べるとき(電球の一覧)の使い回し。呼ぶ側は、返した一覧を書き換えない
+        [ThreadStatic] private static string parseIn;
+        [ThreadStatic] private static List<Scope> parseOut;
+
         public static List<Scope> Parse(string text)
+        {
+            if (ReferenceEquals(text, parseIn)) return parseOut;
+            var r = ParseCore(text);
+            parseIn = text; parseOut = r;
+            return r;
+        }
+
+        private static List<Scope> ParseCore(string text)
         {
             string m = CppText.Mask(text);
             var list = new List<Scope>();

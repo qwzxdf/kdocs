@@ -192,7 +192,7 @@ namespace KCppAssist
             string m = CppText.Mask(text);
             var cls = Innermost(text, caret);
             if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
-            if (ClassPlace.LineStart(text, cls.Open) == ClassPlace.LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
+            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
             var bases = BaseNames(m, cls);
             if (bases.Count == 0) { why = "基底クラスがありません。class " + cls.Name + " : public Base の形にしてください"; return null; }
 
