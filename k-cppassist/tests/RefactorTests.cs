@@ -184,6 +184,37 @@ static class RefactorTests
         Check("ctor declare (for cpp)", R("ctordtor", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  void F();\n  A();\n  ~A();\n};\n");
         Check("offers if",string.Join(",", Offers("void F() {\n  if (a) {|\n    G();\n  }\n}\n")), "guard");
 
+        // ---- pimpl ----
+        {
+            string ph = "#pragma once\n#include <string>\n\nnamespace Prest {\nclass Player {\npublic:\n    Player();\n    ~Player() = default;\n    int GetHp() const;\n    void Damage(int d);\nprivate:\n    int hp_ = 100;\n    std::string name_;\n};\n}\n";
+            string pc = "#include \"Player.h\"\n\nnamespace Prest {\n\nPlayer::Player() : hp_(50), name_(\"p\")\n{\n}\n\nint Player::GetHp() const\n{\n    return hp_;\n}\n\nvoid Player::Damage(int d)\n{\n    this->hp_ -= d;\n}\n\n}\n";
+            string pw;
+            var pr = PimplGen.Make(ph, pc, ph.IndexOf("class Player"), "\n", out pw);
+            Check("pimpl: made", pr == null ? "!" + pw : "ok", "ok");
+            if (pr != null)
+            {
+                Has("pimpl: header", pr.Header, "    struct Impl;\n    std::unique_ptr<Impl> impl_;\n", "~Player();", "#include <memory>");
+                Check("pimpl: header has no moved members", pr.Header.Contains("hp_") || pr.Header.Contains("name_") ? "found" : "none", "none");
+                Has("pimpl: cpp", pr.Cpp,
+                    "struct Player::Impl {\n    int hp_ = 100;\n    std::string name_;\n};\n\nPlayer::Player() : impl_(std::make_unique<Impl>())\n{\n    impl_->hp_ = 50;\n    impl_->name_ = \"p\";\n}",
+                    "    return impl_->hp_;", "    impl_->hp_ -= d;", "Player::~Player() = default;");
+            }
+            // ヘッダーに本体のある関数がメンバーを使っていれば、作らない
+            string ph2 = "class A {\npublic:\n    int Get() const { return v_; }\nprivate:\n    int v_;\n};\n";
+            Check("pimpl: inline use refused", PimplGen.Make(ph2, "", ph2.IndexOf("class A"), "\n", out pw) == null ? "refused" : "made", "refused");
+            // コンストラクターがないクラス: Foo() を足して、Impl を作る定義を置く
+            string ph3 = "#include <memory>\nnamespace g {\nclass B {\npublic:\n    void F();\nprivate:\n    int n_ = 0;\n};\n}\n";
+            string pc3 = "#include \"B.h\"\n\nnamespace g {\n\nvoid B::F()\n{\n    ++n_;\n}\n\n}\n";
+            var pr3 = PimplGen.Make(ph3, pc3, ph3.IndexOf("class B"), "\n", out pw);
+            Check("pimpl: no ctor made", pr3 == null ? "!" + pw : "ok", "ok");
+            if (pr3 != null)
+            {
+                Has("pimpl: adds ctor/dtor decl", pr3.Header, "    B();", "    ~B();");
+                Has("pimpl: ctor makes Impl", pr3.Cpp, "B::B()\n    : impl_(std::make_unique<Impl>())\n{\n}", "B::~B() = default;", "    ++impl_->n_;", "struct B::Impl {\n    int n_ = 0;\n};");
+            }
+            Check("pimpl: rewrite keeps obj.member", PimplGen.RewriteUses("a.hp_ + hp_ + p->hp_ + this->hp_", "a.hp_ + hp_ + p->hp_ + this->hp_", new[] { "hp_" }), "a.hp_ + impl_->hp_ + p->hp_ + impl_->hp_");
+        }
+
         Console.WriteLine("Refactor: " + pass + " passed, " + fail + " failed");
         return fail;
     }

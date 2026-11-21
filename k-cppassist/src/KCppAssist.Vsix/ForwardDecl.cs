@@ -218,6 +218,55 @@ namespace KCppAssist
             return text;
         }
 
+        /// <summary>
+        /// cpp に、クラス cls のデストラクターかムーブ代入の定義を「= default;」で足す(FunctionScan は ~Foo と operator を数えないので、
+        /// DefinitionGen.PlanDefinition では作れない)。置き場所は、Foo:: の最後の定義の後ろ、なければ同じ namespace の枠の中、なければ末尾。
+        /// kind は "dtor" か "moveassign"。すでに定義があれば、cpp をそのまま返す。
+        /// </summary>
+        public static string AddOutOfClassDef(string header, string cpp, string cls, string kind, bool noexcept, string eol)
+        {
+            string c = Regex.Escape(cls);
+            string cm = CppText.Mask(cpp ?? "");
+            if (kind == "dtor" && Regex.IsMatch(cm, @"\b" + c + @"\s*::\s*~\s*" + c + @"\s*\(")) return cpp;
+            if (kind == "moveassign" && Regex.IsMatch(cm, @"\b" + c + @"\s*::\s*operator\s*=\s*\(\s*(?:[\w:]*::)?" + c + @"\s*&&")) return cpp;
+            // クラスを囲む namespace(ヘッダーから)
+            var scope = Scopes.Parse(header).Where(s => s.IsClass && s.Name == cls).OrderBy(s => s.Open).FirstOrDefault();
+            var ns = scope == null ? new List<string>() : scope.ParentChain();
+            // 置き場所
+            int pos; string lead, tail; int skip;
+            var anchor = FunctionScan.Scan(cpp).Where(s => s.HasBody && !s.InClass && s.Class == cls).OrderByDescending(s => s.End).FirstOrDefault();
+            Scopes.Scope box = null;
+            if (anchor != null)
+            {
+                pos = anchor.End + 1; lead = eol + eol; tail = "";
+                skip = anchor.Enclosing;
+            }
+            else
+            {
+                box = Scopes.Parse(cpp).Where(s => !s.IsClass && s.Name != null && s.Chain().Count > 0 && s.Chain().Count <= ns.Count && s.Chain().SequenceEqual(ns.Take(s.Chain().Count)))
+                    .OrderByDescending(s => s.Chain().Count).FirstOrDefault();
+                if (box != null)
+                {
+                    int last = box.Close - 1;
+                    while (last > box.Open && char.IsWhiteSpace(cm[last])) last--;
+                    if (last == box.Open) { pos = box.Open + 1; lead = eol + eol; tail = eol + eol; }     // 空の枠
+                    else { pos = last + 1; lead = eol + eol; tail = ""; }
+                    skip = box.Chain().Count;
+                }
+                else { pos = cpp.Length; lead = cpp.Length == 0 ? "" : (cpp.EndsWith("\n") ? eol : eol + eol); tail = eol; skip = 0; }
+            }
+            string q = string.Join("", ns.Skip(skip).Select(n => n + "::")) + cls + "::";
+            string def = kind == "dtor"
+                ? q + "~" + cls + "() = default;"
+                : string.Join("", ns.Skip(skip).Select(n => n + "::")) + cls + "& " + q + "operator=(" + cls + "&&)" + (noexcept ? " noexcept" : "") + " = default;";
+            if (box != null && tail == eol + eol)
+            {
+                // 空の枠: 中の空白を置き換えて、前後に空行を 1 行ずつ
+                return cpp.Substring(0, box.Open + 1) + eol + eol + def + eol + eol + cpp.Substring(box.Close);
+            }
+            return cpp.Substring(0, pos) + lead + def + tail + cpp.Substring(pos);
+        }
+
         /// <summary>DefinitionGen.PlanDefinition の「{ }」の本体を、「= default;」にする(コンストラクター・デストラクター・ムーブは、空の本体だと中身を移さないため)。</summary>
         public static string AsDefaulted(string stub, string eol)
         {

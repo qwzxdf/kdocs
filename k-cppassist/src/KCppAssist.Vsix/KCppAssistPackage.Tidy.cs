@@ -410,7 +410,7 @@ namespace KCppAssist
                     {
                         if (decl.Name.StartsWith("operator", StringComparison.Ordinal) && !decl.Inner(current).Contains("&&")) continue;     // ムーブ代入だけ
                         if (decl.Name == decl.Class && decl.Inner(current).Trim().Length > 0 && !decl.Inner(current).Contains("&&")) continue;   // 引数のあるコンストラクターは対象外
-                        if (FunctionScan.Scan(work).Any(d => d.HasBody && SyncPlan.Counterpart(d, decl, true) > 0)) continue;     // すでに定義がある
+                        if (FunctionScan.Scan(work).Any(d => d.HasBody && d.Name == decl.Name && SyncPlan.Counterpart(d, decl, true) > 0)) continue;     // すでに定義がある
                         string why2;
                         var de = DefinitionGen.PlanDefinition(current, decl, work, cppEol, out why2);
                         if (de == null) continue;
@@ -418,6 +418,17 @@ namespace KCppAssist
                         work = work.Substring(0, de.Position) + t + work.Substring(de.Position);
                         edits.Add(Tuple.Create(de.Position, 0, t));
                     }
+                    // デストラクターとムーブ代入は FunctionScan で見つからないので、別に作る
+                    foreach (string label in movedSpecials)
+                    {
+                        string cn = label.Substring(0, label.IndexOf("::", StringComparison.Ordinal));
+                        string after = null;
+                        if (label == cn + "::~" + cn) after = ForwardDecl.AddOutOfClassDef(current, work, cn, "dtor", false, cppEol);
+                        else if (label == cn + "::operator=(&&)")
+                            after = ForwardDecl.AddOutOfClassDef(current, work, cn, "moveassign", System.Text.RegularExpressions.Regex.IsMatch(current, System.Text.RegularExpressions.Regex.Escape(cn) + @"&\s*operator\s*=\s*\(\s*" + System.Text.RegularExpressions.Regex.Escape(cn) + @"\s*&&\s*\)\s*noexcept"), cppEol);
+                        if (after != null && after != work) work = after;
+                    }
+                    edits = SyncService.Diff(cppText, work);
                 }
                 if (edits.Count == 0) continue;
                 // Plan は、足すたびの文字列に対する位置なので、まとめて 1 回で置き換える

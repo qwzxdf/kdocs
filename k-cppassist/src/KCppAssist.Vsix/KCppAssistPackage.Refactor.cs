@@ -83,6 +83,7 @@ namespace KCppAssist
                 case "extract": await ExtractAsync(a); return;
                 case "makecpp": await MakeCppAsync(a); return;
                 case "ctordtor-cpp": await CtorDtorCppAsync(a); return;
+                case "pimpl": await PimplAsync(a); return;
             }
             string why;
             var ch = Refactor.Make(id, a.Text, a.Caret, a.Eol, IncludeService.IsHeader(a.Path), out why);
@@ -164,6 +165,7 @@ namespace KCppAssist
                 }
                 // クラス全体の項目は、クラスそのものを指している行でだけ(メンバーの行では出さない)
                 bool classLevel = ClassGen.AtClassLevel(text, caret);
+                if (classLevel && header && cls.Members.Any(m => m.Access == "private")) list.Add(new Refactor.Offer { Id = "pimpl", Title = L.T("pimpl にする (実装を cpp の Impl に移す)") });
                 if (classLevel && cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = L.T("デバッガーの表示 (Natvis) を作る") });
                 if (classLevel && header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = L.T("定義のない関数を、cpp にまとめて作る") });
                 if (classLevel && header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))
@@ -202,6 +204,28 @@ namespace KCppAssist
         }
 
         // ---- 定義のない関数をまとめて作る ----
+
+        /// <summary>
+        /// クラスを pimpl にする。private のデータ メンバーを cpp の struct Foo::Impl に移し、cpp の Foo:: の関数では impl_-&gt; で使う。
+        /// cpp がなければ作る。ヘッダーと cpp は、どちらもエディターの文字を書き換える(保存はしない。ファイルごとに Ctrl+Z で戻せる)。
+        /// </summary>
+        private async Task PimplAsync(Active a)
+        {
+            var cls = MemberScan.At(a.Text, a.Caret);
+            if (cls == null) { await ReportAsync("クラスの中で押してください", true); return; }
+            string cpp = await EnsureCppAsync(a, cls);
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            ITextBuffer buf = cpp == null ? null : SyncService.OpenForEdit(cpp, a.Adapters);
+            if (buf == null) { await ReportAsync(cls.Name + " の cpp を開けませんでした", true); return; }
+            string cppText = buf.CurrentSnapshot.GetText();
+            string why;
+            var r = PimplGen.Make(a.Text, cppText, a.Caret, a.Eol, out why);
+            if (r == null) { await ReportAsync(why, true); return; }
+            SyncService.ApplyEdits(buf, SyncService.Diff(cppText, r.Cpp), a.Undo, "K-Cpp: pimpl にする");
+            SyncService.ApplyEdits(a.View.TextBuffer, SyncService.Diff(a.Text, r.Header), a.Undo, "K-Cpp: pimpl にする");
+            ReturnTo(a.Path, cpp);
+            await ReportAsync(cls.Name + " を pimpl にしました (" + string.Join(", ", r.Moved) + " を " + Path.GetFileName(cpp) + " の Impl に移しました。保存はしていません)", false);
+        }
 
         private async Task AllDefinitionsAsync(Active a)
         {
