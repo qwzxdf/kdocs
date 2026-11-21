@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.26.2.vsix" download>K-CppAssist 0.26.2 をダウンロード（.vsix、約 318 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.26.3.vsix" download>K-CppAssist 0.26.3 をダウンロード（.vsix、約 317 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -415,19 +415,19 @@ switch (state) {
 
 プロジェクトに新しく足した<strong>空のファイル</strong>を開くと、ひな形を書きます（作ってから 2 分以内の、空のファイルだけ。昔からある空のファイルには触りません）。
 
-ヘッダーには、次の形を書きます。クラス名は、初期値ではファイル名と同じです。
+ヘッダーには、次の形を書きます。クラス名は、初期値ではファイル名と同じです。初期値では namespace の中を 1 段字下げし、閉じる `}` にはコメントを付けません。
 
 ```cpp
 #pragma once
 
 namespace Prest {
 
-class GameObject {
-public:
+    class GameObject {
+    public:
 
-};
+    };
 
-}  // namespace Prest
+}
 ```
 
 cpp には、同じ名前のヘッダーがあれば `#include "GameObject.h"` と、namespace の枠だけを書きます。
@@ -439,8 +439,9 @@ namespace と字下げは、ソリューションの既存のヘッダー（新�
 - ひな形を書くかどうか。ヘッダーに `class` を書くかどうか。
 - クラス名の決めかた: ファイル名のまま（初期値）、PascalCase（`game_object` → `GameObject`）、SnakeCase（`GameObject` → `game_object`）、CamelCase（`game_object` → `gameObject`）。
 - namespace: 既存のヘッダーから決める（初期値）、固定の名前、書かない。
-- 字下げ（自動・タブ・空白 2・空白 4）と、namespace の中を字下げするかどうか。
-- `#pragma once` かインクルード ガードか。`}  // namespace X` のコメントを付けるかどうか。
+- 字下げ（自動・タブ・空白 2・空白 4）と、namespace の中を字下げするかどうか（初期値は字下げする）。
+- `#pragma once` かインクルード ガードか。
+- namespace を閉じる行に `}  // namespace X` のコメントを付けるかどうか（初期値は付けない）。
 
 ## 書き換えと生成（Ctrl+.・Alt+X）
 
@@ -724,6 +725,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 
 | 版 | 内容 |
 | --- | --- |
+| 0.26.3 | 新しいファイルのひな形で、namespace の中を字下げするのと、閉じる `}` に `// namespace 名前` のコメントを付けないのを、初期値にした（どちらも設定で戻せる）。前の初期値のまま保存されていた設定は、起動したときに 1 回だけ新しい初期値に移す |
 | 0.26.2 | ファイル名を変えたとき（F2 など）と、クラス名を変えたとき（Ctrl+R, R）に、確認のダイアログが出なかったのを直した。0.13 のころの既定（「直す前に確認する」が False、「#include を足すしかた」が ManualOnly）のまま設定が保存されていると、0.26.0 で変えた既定が効かなかった。起動したときに 1 回だけ、この 2 つを新しい既定（True と Auto）に移す |
 | 0.26.1 | 電球（Alt+Enter）の一覧を軽くした。カーソルが動くたびに、同じ文字を何度も読み直していたのをやめ、関数を探す処理と `#include` を探す処理を速くした（111 KB のヘッダーで 69 ms → 9 ms）。使っていないコードと、同じ処理の重複を整理した。文字コードをそろえる画面で、例外が VS を落とさないようにした |
 | 0.26.0 | ゲッター・セッターを Alt+G に、宣言と定義の引数を合わせるのを Alt+S に変えた。キーの名前・コマンド名に、覚えやすい英語（Getter・Sync・Override など）を全部書いた。`#include` を足すしかたの初期値を `Auto` にした。ファイル名を変えたとき、何を何に直すかを見せるダイアログを出す（相手・`#include`・CMake と、クラス名を、項目ごとに選べる）。クラス名を変えたときも、ファイル名・`#include` を直すか聞く。VS のひな形（`#pragma once` だけ）の新しい `.h` にも、ひな形を書く |

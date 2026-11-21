@@ -27,7 +27,7 @@ namespace KCppAssist
             public string Namespace = "";               // 空なら namespace を書かない。「A::B」も可
             public string Indent = "\t";                // クラスの中の 1 段の字下げ
             public bool IndentInNamespace;              // namespace の中を字下げする
-            public bool NamespaceComment = true;        // 「}  // namespace X」
+            public bool NamespaceComment = false;       // 「}  // namespace X」
             public string Eol = "\r\n";
         }
 

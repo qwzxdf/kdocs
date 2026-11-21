@@ -557,8 +557,8 @@ namespace KCppAssist
 
         [Category("新規ファイル")]
         [DisplayName("namespace の中を字下げする")]
-        [Description("True のとき、namespace の中の class を 1 段字下げします。")]
-        public bool NewFileIndentInNamespace { get; set; } = false;
+        [Description("True(初期値)のとき、namespace の中の class を 1 段字下げします。")]
+        public bool NewFileIndentInNamespace { get; set; } = true;
 
         [Category("新規ファイル")]
         [DisplayName("インクルード ガード")]
@@ -567,8 +567,8 @@ namespace KCppAssist
 
         [Category("新規ファイル")]
         [DisplayName("namespace を閉じる行にコメントを付ける")]
-        [Description("True のとき、「}  // namespace 名前」と書きます。")]
-        public bool NewFileNamespaceComment { get; set; } = true;
+        [Description("True のとき、「}  // namespace 名前」と書きます。False(初期値)なら「}」だけです。")]
+        public bool NewFileNamespaceComment { get; set; } = false;
 
         [Browsable(false)]
         public bool KeyScopeMigrated { get; set; } = false;
@@ -587,10 +587,21 @@ namespace KCppAssist
         internal void MigrateDefaults()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (DefaultsVersion >= 26) return;
+            if (DefaultsVersion >= 26) { MigrateDefaults27(); return; }
             if (!RenameConfirm) { RenameConfirm = true; KCppAssistPackage.Log("migrate: RenameConfirm False -> True"); }
             if (IncludeMode == IncludeMode.ManualOnly) { IncludeMode = IncludeMode.Auto; KCppAssistPackage.Log("migrate: IncludeMode ManualOnly -> Auto"); }
             DefaultsVersion = 26;
+            SaveSettingsToStorage();
+            MigrateDefaults27();
+        }
+
+        /// <summary>0.26.3 で既定を変えた、ひな形の namespace(中を字下げする: False → True、閉じる行のコメント: True → False)を、1 回だけ移す。</summary>
+        private void MigrateDefaults27()
+        {
+            if (DefaultsVersion >= 27) return;
+            if (!NewFileIndentInNamespace) { NewFileIndentInNamespace = true; KCppAssistPackage.Log("migrate: NewFileIndentInNamespace False -> True"); }
+            if (NewFileNamespaceComment) { NewFileNamespaceComment = false; KCppAssistPackage.Log("migrate: NewFileNamespaceComment True -> False"); }
+            DefaultsVersion = 27;
             SaveSettingsToStorage();
         }
     }
