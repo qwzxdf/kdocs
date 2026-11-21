@@ -14,7 +14,8 @@ namespace KCppAssist
     {
         private sealed class Entry { public long Ticks; public string[] Names; public string[] Includes = new string[0]; }
 
-        private static readonly Regex QuotedInclude = new Regex(@"^[ \t]*#[ \t]*include[ \t]*""([^""\r\n]+/[^""\r\n]+)""", RegexOptions.Multiline | RegexOptions.Compiled);
+        // "a/b.h" と <a/b.h> の両方(フォルダーつきのもの)から、基準を学ぶ。<> は、ソリューションの中にあるファイルを指すときだけ票になる
+        private static readonly Regex QuotedInclude = new Regex(@"^[ \t]*#[ \t]*include[ \t]*[""<]([^"">\r\n]+/[^"">\r\n]+)["">]", RegexOptions.Multiline | RegexOptions.Compiled);
         private static readonly string[] SourceExt = { ".cpp", ".cc", ".cxx", ".c++" };
         private List<string> includeRoots = new List<string>();
 

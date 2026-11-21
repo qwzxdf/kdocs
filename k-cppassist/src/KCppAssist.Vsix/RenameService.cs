@@ -56,6 +56,28 @@ namespace KCppAssist
         }
 
         /// <summary>
+        /// 範囲選択でまとめて名前を変えた(動かした)ファイルの、相手の名前・#include・CMake を直す。pairs は、あわせて名前を変える相手(null なら変えない)。
+        /// UI スレッドから呼ぶ。
+        /// </summary>
+        public static async Task<string> FollowManyAsync(List<RenameSync.Move> moves, List<RenameSync.Move> pairs, IVsEditorAdaptersFactoryService adapters, ITextUndoHistoryRegistry undo)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            var all = new List<RenameSync.Move>(moves);
+            var notes = new List<string>();
+            foreach (var m in moves) RenameHub.Remember(m);
+            if (pairs != null)
+                foreach (var p in pairs)
+                {
+                    RenameHub.Remember(p);
+                    string err = RenameFile(p.Old, p.New);
+                    if (err == null) all.Add(p);
+                    else notes.Add("相手 " + Path.GetFileName(p.Old) + " は、名前を変えられませんでした (" + err + ")");
+                }
+            if (pairs != null && pairs.Count > 0) notes.Insert(0, "相手 " + (all.Count - moves.Count) + " 個");
+            return await RewriteForMovesAsync(all, notes, moves.Count + " 個のファイル", adapters, undo);
+        }
+
+        /// <summary>
         /// フォルダーの名前が変わった(か、別の場所に移った)とき、その中のコード ファイルを、古いパス → 新しいパスの一覧にする。
         /// 中のファイルは、もう新しいフォルダーにある。多すぎる(2000 を超える)ときは、先頭の 2000 だけ。
         /// </summary>
@@ -93,6 +115,43 @@ namespace KCppAssist
             return tail2(oldDir) + " → " + tail2(newDir);
         }
 
+        /// <summary>
+        /// path を含むプロジェクト(上のフォルダーへさかのぼって最初の .vcxproj)の「追加のインクルード ディレクトリ」を、絶対パスにしたもの。
+        /// $(ProjectDir)・$(SolutionDir)・$(MSBuildProjectDirectory) だけを置き換える。ほかのマクロを含むものと、ないフォルダーは除く。
+        /// </summary>
+        public static List<string> ProjectIncludeDirs(string path)
+        {
+            var list = new List<string>();
+            try
+            {
+                string dir = Path.GetDirectoryName(path);
+                for (int i = 0; i < 8 && !string.IsNullOrEmpty(dir); i++, dir = Path.GetDirectoryName(dir))
+                {
+                    if (!Directory.Exists(dir)) continue;          // 移動の前のパス(もうないフォルダー)は、上へ
+                    string proj = Directory.GetFiles(dir, "*.vcxproj").FirstOrDefault();
+                    if (proj == null) continue;
+                    string projDir = Path.GetDirectoryName(proj) + "\\";
+                    string sln = null;
+                    for (string d = Path.GetDirectoryName(proj); d != null && sln == null; d = Path.GetDirectoryName(d))
+                        try { sln = Directory.GetFiles(d, "*.sln").Concat(Directory.GetFiles(d, "*.slnx")).Select(Path.GetDirectoryName).FirstOrDefault(); } catch (Exception) { break; }
+                    string xml = File.ReadAllText(proj);
+                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(xml, @"<AdditionalIncludeDirectories>([^<]*)</AdditionalIncludeDirectories>"))
+                        foreach (string raw in m.Groups[1].Value.Split(';'))
+                        {
+                            string t = raw.Trim().Replace("$(ProjectDir)", projDir).Replace("$(MSBuildProjectDirectory)", projDir.TrimEnd('\\'));
+                            if (sln != null) t = t.Replace("$(SolutionDir)", sln + "\\");
+                            if (t.Length == 0 || t.Contains("$(") || t.Contains("%(")) continue;
+                            if (!Path.IsPathRooted(t)) t = Path.Combine(projDir, t);
+                            string full = Path.GetFullPath(t).TrimEnd('\\');
+                            if (Directory.Exists(full) && !list.Contains(full, StringComparer.OrdinalIgnoreCase)) list.Add(full);
+                        }
+                    break;
+                }
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("rename: read include dirs failed: " + ex.Message); }
+            return list;
+        }
+
         /// <summary>moves(古いパス → 新しいパス)に合わせて、#include と CMake を直す。notes は先に書く補足。UI スレッドから呼ぶ。</summary>
         private static async Task<string> RewriteForMovesAsync(List<RenameSync.Move> moves, List<string> notes, string head, IVsEditorAdaptersFactoryService adapters, ITextUndoHistoryRegistry undo)
         {
@@ -104,6 +163,11 @@ namespace KCppAssist
             await Task.Run(() => IncludeService.Index.Refresh(root, skip, false));
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             var roots = IncludeService.Index.IncludeRoots();
+            // 既存の #include から学んだ基準に、プロジェクト(.vcxproj)の「追加のインクルード ディレクトリ」を足す。
+            // <Prest/Network/TCPServer.h> のような、基準からの書き方を直すのに要る(学んだ基準は、移動のあとは古いパスを指して数えられない)
+            foreach (var m in moves)
+                foreach (string d in ProjectIncludeDirs(m.Old).Concat(ProjectIncludeDirs(m.New)))
+                    if (!roots.Contains(d, StringComparer.OrdinalIgnoreCase)) roots.Add(d);
 
             var openPaths = OpenDocumentPaths();
             bool buildFiles = opt.RenameBuildFiles;
@@ -333,7 +397,9 @@ namespace KCppAssist
                     if (string.IsNullOrEmpty(oldName) || string.IsNullOrEmpty(newName)) continue;
                     if (!(RenameSync.IsHeader(oldName) || RenameSync.IsSource(oldName))) continue;
                     var move = new RenameSync.Move { Old = oldName, New = newName };
-                    if (RenameHub.Accept(move)) package.OnFileRenamed(move, false);
+                    // フォルダーの監視が先に受けていても(duplicate)、Solution Explorer からの操作だと知らせる(一括の操作とみなさないため)
+                    bool dup;
+                    if (RenameHub.Accept(move, false, out dup) || dup) package.OnFileRenamed(move, false);
                 }
             }
             catch (Exception ex) { KCppAssistPackage.Log("rename watcher failed: " + ex.Message); }
@@ -389,10 +455,12 @@ namespace KCppAssist
 
         private static string Key(RenameSync.Move m) { return (m.Old + "|" + m.New).ToLowerInvariant(); }
 
+        private static readonly Dictionary<string, DateTime> Own = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>自分で名前を変えたものを覚える。そのあとに来る、同じ変更の通知を無視するため。</summary>
         public static void Remember(RenameSync.Move m)
         {
-            lock (Gate) Seen[Key(m)] = DateTime.UtcNow;
+            lock (Gate) { Seen[Key(m)] = DateTime.UtcNow; Own[Key(m)] = DateTime.UtcNow; }
         }
 
         /// <summary>
@@ -401,13 +469,27 @@ namespace KCppAssist
         /// </summary>
         public static bool Accept(RenameSync.Move m)
         {
+            bool dup;
+            return Accept(m, true, out dup);
+        }
+
+        /// <summary>
+        /// countBurst が false のとき(Solution Explorer からの通知)は、一括の操作の数に入れない(git のブランチ切り替えではないため)。
+        /// duplicate は、ほかの通知(フォルダーの監視)ですでに受けた変更のとき true。自分で変えたものは、false のまま。
+        /// </summary>
+        public static bool Accept(RenameSync.Move m, bool countBurst, out bool duplicate)
+        {
+            duplicate = false;
             DateTime now = DateTime.UtcNow;
             lock (Gate)
             {
                 foreach (string k in Seen.Where(kv => (now - kv.Value).TotalSeconds > 30).Select(kv => kv.Key).ToList()) Seen.Remove(k);
+                foreach (string k in Own.Where(kv => (now - kv.Value).TotalSeconds > 30).Select(kv => kv.Key).ToList()) Own.Remove(k);
                 string key = Key(m);
-                if (Seen.ContainsKey(key)) return false;
+                if (Own.ContainsKey(key)) return false;
+                if (Seen.ContainsKey(key)) { duplicate = true; return false; }
                 Seen[key] = now;
+                if (!countBurst) return true;
 
                 Burst.RemoveAll(t => (now - t).TotalSeconds > 3);
                 Burst.Add(now);

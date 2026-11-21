@@ -230,6 +230,8 @@ namespace KCppAssist
                     if (!IncludeService.HasError(errors, new SnapshotSpan(snap, chainStart, end - chainStart)))
                     { keep = true; continue; }                                              // 波線がまだ出ていない(か、解決済み)
 
+                    // ヘッダーで前方宣言(class Foo;)している名前には、#include を足さない(前方宣言で済ませるつもりで書いたもの)
+                    if (inHeader && CppText.IsForwardDeclared(masked, chain)) continue;
                     var res = IncludeService.Resolve(chain, path, root, opt, false);
                     if (res == null || res.Token == null) continue;                         // 知らない名前、または複数あって決まらない
                     if (inHeader && res.Source == IncludeService.IndexSource && !opt.IncludeAutoInHeaders) continue;   // ヘッダーでは、ソリューションの型は自動で足さない(設定で変えられる)

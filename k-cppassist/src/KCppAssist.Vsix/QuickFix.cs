@@ -147,6 +147,7 @@ namespace KCppAssist
 
                 // 足りない #include: カーソルの名前のヘッダーを足す(Alt+F)
                 var incWord = IncludeWordAt(text, caret);
+                if (incWord != null && header && CppText.IsForwardDeclared(CppText.Mask(text), incWord)) incWord = null;   // 前方宣言で済ませている
                 if (incWord != null && opt.IncludeMode != IncludeMode.Off)
                 {
                     string stdh = StdHeaders.Lookup(incWord);

@@ -127,6 +127,18 @@ static class RenameTests
         Check("folder: include from root", Fix("#include \"src/Render/Mesh.h\"\n", @"C:\p\app", fmoves, new[] { @"C:\p" }) == "#include \"src/Draw/Mesh.h\"\n");
         Check("folder: same-folder include unchanged", Fix("#include \"Mesh.h\"\n", @"C:\p\src\Draw", fmoves, new string[0]) == "#include \"Mesh.h\"\n");
 
+        // ---- ファイルを別のフォルダーへ移す(<> の書き方、プロジェクトの基準からのパス) ----
+        var tmove = new[] { M(@"C:\p\Engine\Source\Prest\Network\TCPServer.h", @"C:\p\Engine\Source\Prest\Memory\TCPServer.h") };
+        Check("move: angle include from project root", Fix("#include <Prest/Network/TCPServer.h>\n", @"C:\p\Engine\Source\Prest\Core", tmove, new[] { @"C:\p\Engine\Source" }) == "#include <Prest/Memory/TCPServer.h>\n");
+        Check("move: angle include without root is untouched", Fix("#include <Prest/Network/TCPServer.h>\n", @"C:\p\Engine\Source\Prest\Core", tmove, new string[0]) == "#include <Prest/Network/TCPServer.h>\n");
+        Check("move: own-folder include", Fix("#include \"TCPServer.h\"\n", @"C:\p\Engine\Source\Prest\Network", tmove, new string[0]) == "#include \"../Memory/TCPServer.h\"\n");
+
+        // ---- 前方宣言 ----
+        Check("forward: class X;", CppText.IsForwardDeclared(CppText.Mask("namespace Prest {\n    class TCPServer;\n}\n"), "TCPServer"));
+        Check("forward: qualified name", CppText.IsForwardDeclared(CppText.Mask("class TCPServer;\n"), "Prest::TCPServer"));
+        Check("forward: definition is not a forward", !CppText.IsForwardDeclared(CppText.Mask("class TCPServer {\n};\n"), "TCPServer"));
+        Check("forward: in comment is ignored", !CppText.IsForwardDeclared(CppText.Mask("// class TCPServer;\n"), "TCPServer"));
+
         // ---- コーディング スタイルごとの、ファイル名とクラス名の対応 ----
         string pre;
         Check("google: game_object corresponds to GameObject", RenameSync.Corresponds("GameObject", "game_object", out pre) && pre == "");

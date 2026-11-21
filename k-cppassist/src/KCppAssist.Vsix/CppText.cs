@@ -136,6 +136,18 @@ namespace KCppAssist
         /// ファイルの字下げ 1 段の文字(タブ、空白 2 つ、空白 4 つ)。行頭がタブの行と空白の行を数えて、多いほう。
         /// 空白なら、4 の倍数でない字下げ(2・6・10…)が 2 割以上あれば 2、なければ 4。字下げのある行が 1 行もないときは、タブ(VS の C++ の既定)。
         /// </summary>
+        /// <summary>
+        /// text(Mask したもの)に、name の前方宣言(「class name;」「struct name;」)があるか。
+        /// name は「a::b::Foo」でもよい(最後の名前で探す)。前方宣言で済ませている名前に、#include を足さないために使う。
+        /// </summary>
+        public static bool IsForwardDeclared(string masked, string name)
+        {
+            if (string.IsNullOrEmpty(masked) || string.IsNullOrEmpty(name)) return false;
+            int k = name.LastIndexOf("::", StringComparison.Ordinal);
+            string last = k < 0 ? name : name.Substring(k + 2);
+            return System.Text.RegularExpressions.Regex.IsMatch(masked, @"\b(?:class|struct)\s+(?:[A-Z][A-Z0-9_]*_API\s+)?" + System.Text.RegularExpressions.Regex.Escape(last) + @"\s*;");
+        }
+
         /// <summary>IndentUnit と同じ。ただし、text に字下げのある行がなければ(新しい cpp など)、fallback(相手のヘッダーなど)から決める。</summary>
         public static string IndentUnit(string text, string fallback)
         {

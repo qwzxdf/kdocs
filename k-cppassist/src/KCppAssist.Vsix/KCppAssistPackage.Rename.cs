@@ -52,21 +52,48 @@ namespace KCppAssist
         }
 
         /// <summary>Solution Explorer などで、ヘッダー・cpp の名前が変わった(監視から呼ばれる)。</summary>
-        internal void OnFileRenamed(RenameSync.Move move, bool fromFileSystem)
+        // 範囲選択でまとめて動かしたときの通知を、1 つにまとめる(鍵は「古い|新しい」、値は(変更, フォルダーの監視からだけ来たか))
+        private readonly object _batchGate = new object();
+        private readonly System.Collections.Generic.Dictionary<string, System.Collections.Generic.KeyValuePair<RenameSync.Move, bool>> _batch
+            = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.KeyValuePair<RenameSync.Move, bool>>(StringComparer.OrdinalIgnoreCase);
+        private int _batchVer;
+
+        internal void OnFileRenamed(RenameSync.Move renamed, bool fromFileSystem)
         {
+            int ver;
+            lock (_batchGate)
+            {
+                string key = renamed.Old + "|" + renamed.New;
+                System.Collections.Generic.KeyValuePair<RenameSync.Move, bool> had;
+                bool fs = fromFileSystem;
+                if (_batch.TryGetValue(key, out had)) fs = had.Value && fromFileSystem;
+                _batch[key] = new System.Collections.Generic.KeyValuePair<RenameSync.Move, bool>(renamed, fs);
+                ver = ++_batchVer;
+            }
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try
                 {
-                    await Task.Delay(120);   // 名前変更の処理が終わるのを待つ(長いと、ダイアログが遅れて見える)
+                    // 範囲選択でまとめて動かすと、通知が 1 つずつ届く。最後の通知から少し待って、まとめて 1 回だけ聞く
+                    await Task.Delay(250);
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<RenameSync.Move, bool>> taken;
+                    lock (_batchGate)
+                    {
+                        if (ver != _batchVer) return;               // あとから別の通知が来た(そちらがまとめて扱う)
+                        taken = _batch.Values.ToList();
+                        _batch.Clear();
+                    }
                     await JoinableTaskFactory.SwitchToMainThreadAsync();
                     if (RenameService.Busy) return;
                     var opt = RenameService.Options;
                     if (opt == null || opt.RenameMode != RenameMode.Auto) return;
-                    if (fromFileSystem && !opt.RenameWatchFiles) return;
-                    // 通知のあと、元に戻された・すでに別の名前になった、などのときは、何もしない
-                    if (!File.Exists(move.New) || File.Exists(move.Old)) return;
-                    if (RenameHub.IsBulk) { IncludeService.Status("多数のファイル名の変更を検出したので、自動では直しません"); return; }
+                    // 通知のあと、元に戻された・すでに別の名前になった、などのものは除く
+                    var picked = taken.Where(t => !t.Value || opt.RenameWatchFiles).Where(t => File.Exists(t.Key.New) && !File.Exists(t.Key.Old)).ToList();
+                    if (picked.Count == 0) return;
+                    // 一括の操作(git のブランチ切り替えなど)とみなすのは、全部がフォルダーの監視から来たときだけ
+                    if (picked.All(t => t.Value) && RenameHub.IsBulk) { IncludeService.Status("多数のファイル名の変更を検出したので、自動では直しません"); return; }
+                    if (picked.Count > 1) { await FollowManyAsync(picked.Select(t => t.Key).ToList(), opt); return; }
+                    var move = picked[0].Key;
                     var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
                     var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
                     var undo = model.GetService<ITextUndoHistoryRegistry>();
@@ -146,6 +173,59 @@ namespace KCppAssist
             });
         }
 
+
+        /// <summary>範囲選択でまとめて名前を変えた(動かした)ファイルを、1 つのダイアログで聞いて、まとめて直す。UI スレッドから呼ぶ。</summary>
+        private async Task FollowManyAsync(System.Collections.Generic.List<RenameSync.Move> moves, OptionsPage opt)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
+            var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
+            var undo = model.GetService<ITextUndoHistoryRegistry>();
+            // 相手(Foo.h に対する Foo.cpp)のうち、まとめて動かした中に入っていないもの
+            var pairs = new System.Collections.Generic.List<RenameSync.Move>();
+            if (opt.RenamePair)
+                foreach (var m in moves)
+                {
+                    var p = RenameSync.PairOf(m.Old, m.New, File.Exists);
+                    if (p != null && !moves.Any(x => string.Equals(x.Old, p.Old, StringComparison.OrdinalIgnoreCase)) && !pairs.Any(x => string.Equals(x.Old, p.Old, StringComparison.OrdinalIgnoreCase))) pairs.Add(p);
+                }
+            bool doPairs = pairs.Count > 0;
+            if (opt.RenameConfirm)
+            {
+                var oldDirs = moves.Select(m => Path.GetDirectoryName(m.Old)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                var newDirs = moves.Select(m => Path.GetDirectoryName(m.New)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                bool moved = moves.Any(m => !string.Equals(Path.GetDirectoryName(m.Old), Path.GetDirectoryName(m.New), StringComparison.OrdinalIgnoreCase));
+                string title = moved ? moves.Count + " 個のファイルを移しました" : moves.Count + " 個のファイルの名前が変わりました";
+                string sub = moved && oldDirs.Count == 1 && newDirs.Count == 1 ? RenameService.FolderLabel(oldDirs[0], newDirs[0]) : null;
+                System.Func<RenameSync.Move, string> line = m => moved
+                    ? Path.GetFileName(m.Old) + " → " + Path.GetFileName(Path.GetDirectoryName(m.New)) + "/" + Path.GetFileName(m.New)
+                    : Path.GetFileName(m.Old) + " → " + Path.GetFileName(m.New);
+                string list = string.Join("\n", moves.Take(8).Select(line)) + (moves.Count > 8 ? "\n… ほか " + (moves.Count - 8) + " 個" : "");
+                var items = new System.Collections.Generic.List<RenamePrompt.Item>
+                {
+                    new RenamePrompt.Item { Text = "全部の #include・CMake を、新しいパスに直す", Detail = list, Checked = true },
+                };
+                if (pairs.Count > 0)
+                    items.Add(new RenamePrompt.Item
+                    {
+                        Text = "相手のファイル " + pairs.Count + " 個の名前も直す",
+                        Detail = string.Join("\n", pairs.Take(6).Select(p => Path.GetFileName(p.Old) + " → " + Path.GetFileName(p.New))) + (pairs.Count > 6 ? "\n…" : ""),
+                        Checked = true,
+                    });
+                bool dontAsk;
+                var res = RenamePrompt.Show(title, sub, items, out dontAsk, "全部に反映する");
+                if (res == null) return;
+                if (dontAsk) RenamePrompt.TurnOffConfirm();
+                if (!res[0]) return;
+                doPairs = pairs.Count > 0 && res[1];
+            }
+            RenameService.Busy = true;
+            _classWatchRun++;
+            string msg;
+            try { msg = await RenameService.FollowManyAsync(moves, doPairs ? pairs : null, adapters, undo); }
+            finally { RenameService.Busy = false; }
+            IncludeService.Status(msg);
+        }
 
         /// <summary>ディスクのフォルダーの名前が変わった(か、移った)。中のヘッダーを #include している所と、CMake を直すか聞く。</summary>
         internal void OnFolderRenamed(string oldDir, string newDir, bool fromFileSystem)
