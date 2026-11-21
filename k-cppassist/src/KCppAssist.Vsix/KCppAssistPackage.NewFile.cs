@@ -84,6 +84,17 @@ namespace KCppAssist
             return st;
         }
 
+        public static NewFileGen.Naming NamingOf(OptionsPage opt)
+        {
+            switch (opt.NewFileClassNaming)
+            {
+                case ClassNaming.PascalCase: return NewFileGen.Naming.Pascal;
+                case ClassNaming.SnakeCase: return NewFileGen.Naming.Snake;
+                case ClassNaming.CamelCase: return NewFileGen.Naming.Camel;
+                default: return NewFileGen.Naming.SameAsFile;
+            }
+        }
+
         /// <summary>設定と、調べた既存の様子から、書き出しの設定を作る。</summary>
         public static NewFileGen.Options Build(OptionsPage opt, Style st)
         {
@@ -95,13 +106,7 @@ namespace KCppAssist
                 Guard = opt.NewFileGuard == GuardKind.IncludeGuard ? NewFileGen.Guard.IncludeGuard : NewFileGen.Guard.PragmaOnce,
                 Eol = st.Eol,
             };
-            switch (opt.NewFileClassNaming)
-            {
-                case ClassNaming.PascalCase: o.Naming = NewFileGen.Naming.Pascal; break;
-                case ClassNaming.SnakeCase: o.Naming = NewFileGen.Naming.Snake; break;
-                case ClassNaming.CamelCase: o.Naming = NewFileGen.Naming.Camel; break;
-                default: o.Naming = NewFileGen.Naming.SameAsFile; break;
-            }
+            o.Naming = NamingOf(opt);
             switch (opt.NewFileNamespaceMode)
             {
                 case NewFileNamespaceMode.Fixed: o.Namespace = (opt.NewFileNamespace ?? "").Trim(); break;
@@ -170,7 +175,7 @@ namespace KCppAssist
                 if (view.Properties.ContainsProperty(typeof(NewFileListener))) return;
                 view.Properties.AddProperty(typeof(NewFileListener), true);
                 // 作ったばかり(2 分以内)で、中身が空のものだけ。昔からある空のファイルには触らない
-                if (new FileInfo(path).Length > 3) return;       // BOM だけは空とみなす
+                if (new FileInfo(path).Length > 64) return;      // BOM だけ・VS のひな形(#pragma once だけ)は空とみなす
                 if ((DateTime.UtcNow - File.GetCreationTimeUtc(path)).TotalMinutes > 2) return;
                 if (!NewFileGen.IsBlank(view.TextBuffer.CurrentSnapshot.GetText())) return;
                 var ignored = ThreadHelper.JoinableTaskFactory.RunAsync(() => FillAsync(view, path));

@@ -57,19 +57,19 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: メンバーからコンストラクターを作る</ButtonText>
+          <ButtonText>K-CppAssist: メンバーからコンストラクターを作る (Constructor / Alt+C)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdOverride" priority="0x0116" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: 基底クラスの仮想関数を override する</ButtonText>
+          <ButtonText>K-CppAssist: 基底クラスの仮想関数を override する (Override / Alt+O)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUsage" priority="0x0117" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: 呼び出しから関数を作る</ButtonText>
+          <ButtonText>K-CppAssist: 呼び出しから関数を作る (Usage / Alt+U)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0118" type="Button">
@@ -81,23 +81,23 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧... (Alt+X)</ButtonText>
+          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧... (eXplore / Alt+X)</ButtonText>
         </Strings>
       </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
         <Strings>
-          <ButtonText>ローカル変数に型を付ける</ButtonText>
+          <ButtonText>ローカル変数に型を付ける (Qualify type / Alt+Q)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdMember" priority="0x0101" type="Button">
         <Strings>
-          <ButtonText>メンバー変数として宣言する</ButtonText>
+          <ButtonText>メンバー変数として宣言する (Write member / Alt+W)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdAccessor" priority="0x0102" type="Button">
         <Strings>
-          <ButtonText>ゲッター・セッターを作る</ButtonText>
+          <ButtonText>ゲッター・セッターを作る (Getter / Alt+G)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdInclude" priority="0x0104" type="Button">
@@ -107,22 +107,22 @@
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdSync" priority="0x0105" type="Button">
         <Strings>
-          <ButtonText>宣言と定義の引数を合わせる</ButtonText>
+          <ButtonText>宣言と定義の引数を合わせる (Sync / Alt+S)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCreate" priority="0x0106" type="Button">
         <Strings>
-          <ButtonText>宣言・定義の相手を作る</ButtonText>
+          <ButtonText>宣言・定義の相手を作る (Resolve / Alt+R)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdMove" priority="0x0109" type="Button">
         <Strings>
-          <ButtonText>関数を ヘッダー ⇄ cpp に移す</ButtonText>
+          <ButtonText>関数を ヘッダー ⇄ cpp に移す (Move / Alt+M)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRename" priority="0x0108" type="Button">
         <Strings>
-          <ButtonText>ファイル名をまとめて変える</ButtonText>
+          <ButtonText>ファイル名をまとめて変える (Name / Alt+N)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdErrorLog" priority="0x0107" type="Button">
@@ -154,10 +154,10 @@
   <KeyBindings>
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidTextEditor" key1="Q" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidTextEditor" key1="W" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidTextEditor" key1="E" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidTextEditor" key1="G" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidTextEditor" key1="I" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRename" editor="guidTextEditor" key1="N" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidTextEditor" key1="G" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidTextEditor" key1="S" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidTextEditor" key1="R" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidTextEditor" key1="M" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidTextEditor" key1="F" mod1="Alt" />

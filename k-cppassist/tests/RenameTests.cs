@@ -112,6 +112,15 @@ static class RenameTests
         Check("custom: empty text", StdHeaders.ParseCustom("").Count == 0 && StdHeaders.ParseCustom(null).Count == 0);
         Check("custom: spaces are trimmed", StdHeaders.ParseCustom("  A = <a.h>  ")["A"] == "<a.h>");
 
+        // ---- クラス名 ----
+        var cls = RenameSync.ClassesIn("#pragma once\nclass Fwd;\nclass FOO_API Widget final : public Base {\n};\nstruct Pod {\n};\n");
+        Check("classes: definitions only, in order", cls.Count == 2 && cls[0] == "Widget" && cls[1] == "Pod");
+        Check("pick: same name ignoring case/underscore", RenameSync.PickClass(new[] { "Pod", "game_object" }, "GameObject") == "game_object");
+        Check("pick: falls back to the first", RenameSync.PickClass(new[] { "Pod", "Other" }, "Foo") == "Pod");
+        Check("pick: none", RenameSync.PickClass(new string[0], "Foo") == null);
+        string src2 = "Foo f; FooBar g; m_Foo h; Foo::Foo() {} // Foo";
+        Check("replace word: whole word only", RenameSync.Apply(src2, RenameSync.ReplaceWord(src2, "Foo", "Bar")) == "Bar f; FooBar g; m_Foo h; Bar::Bar() {} // Bar");
+
         Console.WriteLine("rename: pass=" + pass + " fail=" + fail);
         Environment.Exit(fail == 0 ? 0 : 1);
     }

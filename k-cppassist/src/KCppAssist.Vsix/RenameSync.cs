@@ -32,6 +32,41 @@ namespace KCppAssist
         public static bool IsSource(string path) { return SourceExt.Contains(Path.GetExtension(path).ToLowerInvariant()); }
         public static bool IsCode(string path) { return IsHeader(path) || IsSource(path) || Path.GetExtension(path).ToLowerInvariant() == ".c" || Path.GetExtension(path).ToLowerInvariant() == ".inl"; }
 
+        private static readonly Regex ClassDecl = new Regex(
+            @"\b(?:class|struct)\s+(?:(?:alignas\s*\([^)]*\)|__declspec\s*\([^)]*\)|\w+_API|[A-Z_]+_EXPORT)\s+)*(\w+)\s*(?:final\s*)?(?::[^;{]*)?\{", RegexOptions.Compiled);
+
+        /// <summary>ヘッダーの文字から、クラス・構造体の定義の名前を、出てくる順に集める(前方宣言「class X;」は含めない)。</summary>
+        public static List<string> ClassesIn(string text)
+        {
+            var list = new List<string>();
+            foreach (Match m in ClassDecl.Matches(text))
+            {
+                string n = m.Groups[1].Value;
+                if (n == "final" || n == "class" || n == "struct") continue;
+                if (!list.Contains(n)) list.Add(n);
+            }
+            return list;
+        }
+
+        /// <summary>ファイル名(拡張子なし)に対応するクラス名を選ぶ。同じ名前(大文字小文字・「_」の違いは無視)があればそれ、なければ最初のクラス。なければ null。</summary>
+        public static string PickClass(IList<string> classes, string stem)
+        {
+            if (classes == null || classes.Count == 0) return null;
+            Func<string, string> norm = s => s.Replace("_", "").Replace("-", "").ToLowerInvariant();
+            foreach (string c in classes) if (norm(c) == norm(stem)) return c;
+            return classes[0];
+        }
+
+        /// <summary>識別子 oldName を、単語の単位で newName に置き換える編集を作る(「Foo」は、「FooBar」「m_Foo」には当たらない)。</summary>
+        public static List<TextEdit> ReplaceWord(string text, string oldName, string newName)
+        {
+            var edits = new List<TextEdit>();
+            if (string.IsNullOrEmpty(oldName) || oldName == newName) return edits;
+            foreach (Match m in Regex.Matches(text, @"(?<![A-Za-z0-9_])" + Regex.Escape(oldName) + @"(?![A-Za-z0-9_])"))
+                edits.Add(new TextEdit { Start = m.Index, Length = m.Length, Text = newName });
+            return edits;
+        }
+
         public static bool IsBuildFile(string path)
         {
             string name = Path.GetFileName(path);

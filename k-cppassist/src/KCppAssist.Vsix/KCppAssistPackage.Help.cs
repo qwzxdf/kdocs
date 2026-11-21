@@ -36,9 +36,9 @@ namespace KCppAssist
         private static readonly List<HelpSection> HelpSections = new List<HelpSection>
         {
             new HelpSection("🔤", "変数まわり",
-                H("Alt+Q", "ローカル変数に型を付ける (Quick)", "count = 0;  →  int count = 0;"),
-                H("Alt+W", "メンバー変数として宣言する (Write)", "cpp の stride_ = 1; から、ヘッダーのクラスに UINT stride_; を足す"),
-                H("Alt+E", "ゲッター・セッターを作る (gEt)", "ヘッダーのメンバー変数の行で押すと、public: の末尾に GetXxx / SetXxx を足す")),
+                H("Alt+Q", "ローカル変数に型を付ける (Qualify type)", "count = 0;  →  int count = 0;"),
+                H("Alt+W", "メンバー変数として宣言する (Write member)", "cpp の stride_ = 1; から、ヘッダーのクラスに UINT stride_; を足す"),
+                H("Alt+G", "ゲッター・セッターを作る (Getter)", "ヘッダーのメンバー変数の行で押すと、public: の末尾に GetXxx / SetXxx を足す")),
             new HelpSection("📎", "#include",
                 H("Alt+I", "#include を足す (Include)", "カーソルの型名 (std::vector、ComPtr、自作クラス) のヘッダーを、cpp / ヘッダーの先頭に足す"),
                 H("Alt+F", "#include を前方宣言にする (Forward)", "ヘッダーの #include \"x.h\" を class X; にして、#include を cpp に移す (ポインター・参照・shared_ptr だけで使っている型が対象)"),
@@ -49,8 +49,8 @@ namespace KCppAssist
                 H("Alt+C", "コンストラクターを作る (Constructor)", "データ メンバーから、初期化リストつきのコンストラクターを作る"),
                 H("Alt+Enter", "クラス名の上で", "cpp を作る／コンストラクター・デストラクターを宣言／宣言して cpp に定義／コピー・ムーブを禁止")),
             new HelpSection("🔗", "宣言と定義",
-                H("Alt+G", "宣言と定義の引数を合わせる (Go with)", "変えた側に、相手 (開いていなくても) を合わせる。引数を変えると自動でも合う"),
-                H("Alt+R", "宣言・定義の相手を作る (Responding)", "ヘッダーの宣言から cpp の定義の雛形、cpp の定義からヘッダーの宣言"),
+                H("Alt+S", "宣言と定義の引数を合わせる (Sync)", "変えた側に、相手 (開いていなくても) を合わせる。引数を変えると自動でも合う"),
+                H("Alt+R", "宣言・定義の相手を作る (Resolve)", "ヘッダーの宣言から cpp の定義の雛形、cpp の定義からヘッダーの宣言"),
                 H("Alt+M", "関数を ヘッダー ⇄ cpp に移す (Move)", "ヘッダーの本体を cpp へ／cpp の Class::Func の本体をヘッダーへ")),
             new HelpSection("✏️", "名前の変更 (自動)",
                 H("自動", "宣言の名前を書き換える", "ローカル変数・引数・メンバー・関数の名前を書き換えると、使っている場所も打つそばから同じ名前になる"),

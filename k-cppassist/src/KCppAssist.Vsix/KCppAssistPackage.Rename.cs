@@ -36,6 +36,7 @@ namespace KCppAssist
                 var dte = await GetServiceAsync(typeof(DTE)) as DTE;
                 string sln = dte == null ? null : dte.Solution.FullName;
                 if (!string.IsNullOrEmpty(sln)) RenameHub.EnsureDir(Path.GetDirectoryName(sln));
+                if (dte != null) HookClassRename(dte);
                 if (dte != null)
                 {
                     _solutionEvents = dte.Events.SolutionEvents;
@@ -66,25 +67,69 @@ namespace KCppAssist
                     // 通知のあと、元に戻された・すでに別の名前になった、などのときは、何もしない
                     if (!File.Exists(move.New) || File.Exists(move.Old)) return;
                     if (RenameHub.IsBulk) { IncludeService.Status("多数のファイル名の変更を検出したので、自動では直しません"); return; }
-                    if (opt.RenameConfirm)
-                    {
-                        var ans = System.Windows.MessageBox.Show(
-                            Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New) + "\n\n相手のファイル、#include、CMake も、新しい名前に直しますか?",
-                            "K-CppAssist", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
-                        if (ans != System.Windows.MessageBoxResult.Yes) return;
-                    }
                     var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
                     var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
                     var undo = model.GetService<ITextUndoHistoryRegistry>();
+                    bool follow = true, renameClass = false;
+                    string clsOld = null, clsNew = null;
+                    if (opt.RenameConfirm)
+                    {
+                        // クラス名の候補(ヘッダーにあるクラス)を探す
+                        string oldStem = Path.GetFileNameWithoutExtension(move.Old), newStem = Path.GetFileNameWithoutExtension(move.New);
+                        var pairMove = RenameSync.PairOf(move.Old, move.New, File.Exists);
+                        string hdr = RenameSync.IsHeader(move.New) ? move.New : (pairMove != null && RenameSync.IsHeader(pairMove.Old) ? pairMove.Old : null);
+                        bool matched = false;
+                        if (hdr != null && !string.Equals(oldStem, newStem, StringComparison.Ordinal))
+                        {
+                            string htext = RenameService.ReadAny(hdr, adapters);
+                            clsOld = htext == null ? null : RenameSync.PickClass(RenameSync.ClassesIn(htext), oldStem);
+                            if (clsOld != null)
+                            {
+                                clsNew = NewFileGen.ClassName(newStem, NewFileService.NamingOf(opt));
+                                if (clsNew.Length == 0 || clsNew == clsOld) clsOld = null;
+                                else matched = NamesMatch(clsOld, oldStem);
+                            }
+                        }
+                        var items = new System.Collections.Generic.List<RenamePrompt.Item>();
+                        items.Add(new RenamePrompt.Item
+                        {
+                            Text = "相手のファイル・#include・CMake も、新しい名前に直す",
+                            Detail = (pairMove != null ? Path.GetFileName(pairMove.Old) + " → " + Path.GetFileName(pairMove.New) + "\n" : "") + "#include\"" + Path.GetFileName(move.Old) + "\" → #include \"" + Path.GetFileName(move.New) + "\"",
+                            Checked = true,
+                        });
+                        if (clsOld != null)
+                            items.Add(new RenamePrompt.Item
+                            {
+                                Text = matched ? "クラス名も、新しいファイル名に合わせて直す" : "クラス名も直す(いまはファイル名と一致していません)",
+                                Detail = "class " + clsOld + " → " + clsNew + "  (コード全体の同じ名前の単語が変わります)",
+                                Checked = matched,
+                            });
+                        var res = RenamePrompt.Show(Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), "ファイル名が変わりました。ほかも直しますか?", items);
+                        if (res == null) return;
+                        follow = res[0];
+                        renameClass = clsOld != null && res[1];
+                        if (!follow && !renameClass) return;
+                    }
                     RenameService.Busy = true;
-                    string msg;
-                    try { msg = await RenameService.FollowAsync(this, move, adapters, undo); }
+                    string msg = "";
+                    try
+                    {
+                        if (follow) msg = await RenameService.FollowAsync(this, move, adapters, undo);
+                        if (renameClass)
+                        {
+                            int n = await RenameService.ReplaceWordAsync(clsOld, clsNew, IncludeService.RootFor(move.New), IncludeService.SkipDirs(opt), adapters, undo);
+                            msg += (msg.Length > 0 ? "。" : "") + "クラス名 " + clsOld + " → " + clsNew + " (" + n + " か所)";
+                        }
+                    }
                     finally { RenameService.Busy = false; }
                     IncludeService.Status(msg);
                 }
                 catch (Exception ex) { Log("rename follow failed: " + ex); }
             });
         }
+
+        private static string Norm(string s) { return s.Replace("_", "").Replace("-", "").ToLowerInvariant(); }
+        private static bool NamesMatch(string cls, string stem) { return Norm(cls) == Norm(stem); }
 
         private void RunRename()
         {

@@ -152,6 +152,79 @@ namespace KCppAssist
             return c;
         }
 
+        /// <summary>
+        /// プロジェクトのコード(.h .cpp など)で、識別子 oldName を単語の単位で newName に書き換える。
+        /// 開いているファイルはエディターの文字を、閉じているファイルはディスクを書き換える。書き換えた数を返す。UI スレッドから呼ぶ。
+        /// </summary>
+        public static async Task<int> ReplaceWordAsync(string oldName, string newName, string root, ISet<string> skip, IVsEditorAdaptersFactoryService adapters, ITextUndoHistoryRegistry undo)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            var open = OpenDocumentPaths();
+            int total = 0;
+            foreach (string path in open)
+            {
+                if (!RenameSync.IsCode(path)) continue;
+                ITextBuffer buf;
+                SymbolService.FindOpen(path, adapters, out buf);
+                if (buf == null) continue;
+                var edits = RenameSync.ReplaceWord(buf.CurrentSnapshot.GetText(), oldName, newName);
+                if (edits.Count == 0) continue;
+                ApplyToBuffer(buf, edits, undo);
+                total += edits.Count;
+            }
+            total += await Task.Run(() =>
+            {
+                int n = 0;
+                if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) return 0;
+                var stack = new Stack<string>();
+                stack.Push(root);
+                int seen = 0;
+                while (stack.Count > 0 && seen < 30000)
+                {
+                    string dir = stack.Pop();
+                    try
+                    {
+                        foreach (string f in Directory.GetFiles(dir))
+                        {
+                            if (!RenameSync.IsCode(f)) continue;
+                            seen++;
+                            if (open.Contains(f) || new FileInfo(f).Length > 4 * 1024 * 1024) continue;
+                            Encoding enc;
+                            string text;
+                            try { text = RenameSync.ReadKeepingEncoding(f, out enc); } catch (Exception) { continue; }
+                            var edits = RenameSync.ReplaceWord(text, oldName, newName);
+                            if (edits.Count == 0) continue;
+                            try { RenameSync.WriteKeepingEncoding(f, RenameSync.Apply(text, edits), enc); n += edits.Count; KCppAssistPackage.Log("rename class: edited " + f + " (" + edits.Count + ")"); }
+                            catch (Exception ex) { KCppAssistPackage.Log("rename class: write failed " + f + ": " + ex.Message); }
+                        }
+                        foreach (string d in Directory.GetDirectories(dir))
+                        {
+                            string leaf = Path.GetFileName(d);
+                            if (!skip.Contains(leaf) && !leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase)) stack.Push(d);
+                        }
+                    }
+                    catch (Exception) { }
+                }
+                return n;
+            });
+            return total;
+        }
+
+        /// <summary>ヘッダー(か、その相手)の文字を、開いていればエディターから、なければディスクから読む。</summary>
+        public static string ReadAny(string path, IVsEditorAdaptersFactoryService adapters)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                ITextBuffer buf;
+                SymbolService.FindOpen(path, adapters, out buf);
+                if (buf != null) return buf.CurrentSnapshot.GetText();
+                Encoding enc;
+                return RenameSync.ReadKeepingEncoding(path, out enc);
+            }
+            catch (Exception) { return null; }
+        }
+
         private static HashSet<string> OpenDocumentPaths()
         {
             ThreadHelper.ThrowIfNotOnUIThread();

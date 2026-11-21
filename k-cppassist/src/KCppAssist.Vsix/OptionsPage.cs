@@ -39,7 +39,7 @@ namespace KCppAssist
         [Category("#include")]
         [DisplayName("#include を足すしかた")]
         [Description("Off: 何もしない。ManualOnly: Alt+I (Include) を押したときだけ足す。Auto: Alt+I に加えて、入力中に未定義の型を見つけると、自動で足す。")]
-        public IncludeMode IncludeMode { get; set; } = IncludeMode.ManualOnly;
+        public IncludeMode IncludeMode { get; set; } = IncludeMode.Auto;
 
         [Category("#include")]
         [DisplayName("自動で足す前の待ち時間 (ミリ秒)")]
@@ -137,7 +137,7 @@ namespace KCppAssist
         public string CallCheckIgnore { get; set; } = "";
 
         [Category("キー")]
-        [DisplayName("ファイル名をまとめて変える")]
+        [DisplayName("ファイル名をまとめて変える (Name)")]
         [Description(KeyHelp)]
         public string RenameKey { get; set; } = "Alt+N";
 
@@ -193,8 +193,8 @@ namespace KCppAssist
 
         [Category("ファイル名の同期")]
         [DisplayName("直す前に確認する")]
-        [Description("True のとき、自動で直す前に、確認のダイアログを出します。")]
-        public bool RenameConfirm { get; set; } = false;
+        [Description("True(既定)のとき、自動で直す前に、何を何に直すかを見せるダイアログを出します(相手・#include・CMake と、クラス名を直すかを、項目ごとに選べます)。False なら、確認せずに、相手・#include・CMake を直します。")]
+        public bool RenameConfirm { get; set; } = true;
 
         [Category("エラーログ")]
         [DisplayName("先頭に「まず一番上から」の案内を出す")]
@@ -274,19 +274,19 @@ namespace KCppAssist
         private const string KeyHelp = "「Alt+Q」「Ctrl+Alt+M」のように書きます。空にすると、キーを外します。OK を押すと、Visual Studio のキー割り当てに反映されます。";
 
         [Category("キー")]
-        [DisplayName("ローカル変数に型を付ける")]
+        [DisplayName("ローカル変数に型を付ける (Qualify type)")]
         [Description(KeyHelp)]
         public string LocalKey { get; set; } = "Alt+Q";
 
         [Category("キー")]
-        [DisplayName("メンバー変数として宣言する")]
+        [DisplayName("メンバー変数として宣言する (Write member)")]
         [Description(KeyHelp)]
         public string MemberKey { get; set; } = "Alt+W";
 
         [Category("キー")]
-        [DisplayName("ゲッター・セッターを作る")]
+        [DisplayName("ゲッター・セッターを作る (Getter)")]
         [Description(KeyHelp)]
-        public string AccessorKey { get; set; } = "Alt+E";
+        public string AccessorKey { get; set; } = "Alt+G";
 
         [Category("キー")]
         [DisplayName("#include を足す (Include)")]
@@ -294,17 +294,17 @@ namespace KCppAssist
         public string IncludeKey { get; set; } = "Alt+I";
 
         [Category("キー")]
-        [DisplayName("宣言と定義の引数を合わせる")]
+        [DisplayName("宣言と定義の引数を合わせる (Sync)")]
         [Description(KeyHelp)]
-        public string SyncKey { get; set; } = "Alt+G";
+        public string SyncKey { get; set; } = "Alt+S";
 
         [Category("キー")]
-        [DisplayName("宣言・定義の相手を作る")]
+        [DisplayName("宣言・定義の相手を作る (Resolve)")]
         [Description(KeyHelp)]
         public string CreateKey { get; set; } = "Alt+R";
 
         [Category("キー")]
-        [DisplayName("関数をヘッダー ⇄ cpp に移す")]
+        [DisplayName("関数をヘッダー ⇄ cpp に移す (Move)")]
         [Description(KeyHelp)]
         public string MoveKey { get; set; } = "Alt+M";
 
@@ -314,22 +314,22 @@ namespace KCppAssist
         public string ForwardKey { get; set; } = "Alt+F";
 
         [Category("キー")]
-        [DisplayName("メンバーからコンストラクターを作る")]
+        [DisplayName("メンバーからコンストラクターを作る (Constructor)")]
         [Description(KeyHelp)]
         public string CtorKey { get; set; } = "Alt+C";
 
         [Category("キー")]
-        [DisplayName("基底クラスの仮想関数を override する")]
+        [DisplayName("基底クラスの仮想関数を override する (Override)")]
         [Description(KeyHelp)]
         public string OverrideKey { get; set; } = "Alt+O";
 
         [Category("キー")]
-        [DisplayName("呼び出しから関数を作る")]
+        [DisplayName("呼び出しから関数を作る (Usage)")]
         [Description(KeyHelp)]
         public string UsageKey { get; set; } = "Alt+U";
 
         [Category("キー")]
-        [DisplayName("この位置の書き換え・生成の一覧")]
+        [DisplayName("この位置の書き換え・生成の一覧 (eXplore)")]
         [Description(KeyHelp)]
         public string RefactorKey { get; set; } = "Alt+X";
 

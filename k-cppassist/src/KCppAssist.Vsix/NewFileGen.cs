@@ -165,6 +165,10 @@ namespace KCppAssist
         }
 
         /// <summary>空(空白と改行だけ)か。</summary>
-        public static bool IsBlank(string text) { return text.Trim().Length == 0; }
+        public static bool IsBlank(string text)
+        {
+            // VS の「新しい項目」のひな形(#pragma once だけ)も、空とみなして、中身を入れ直す
+            return Regex.Replace(text, @"^\s*#\s*pragma\s+once\s*$", "", RegexOptions.Multiline).Trim().Length == 0;
+        }
     }
 }
