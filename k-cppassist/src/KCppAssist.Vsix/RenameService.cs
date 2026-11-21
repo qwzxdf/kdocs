@@ -52,6 +52,52 @@ namespace KCppAssist
                 }
             }
 
+            return await RewriteForMovesAsync(moves, notes, Path.GetFileName(first.Old) + " → " + Path.GetFileName(first.New), adapters, undo);
+        }
+
+        /// <summary>
+        /// フォルダーの名前が変わった(か、別の場所に移った)とき、その中のコード ファイルを、古いパス → 新しいパスの一覧にする。
+        /// 中のファイルは、もう新しいフォルダーにある。多すぎる(2000 を超える)ときは、先頭の 2000 だけ。
+        /// </summary>
+        public static List<RenameSync.Move> MovesInFolder(string oldDir, string newDir)
+        {
+            var list = new List<RenameSync.Move>();
+            try
+            {
+                foreach (string f in Directory.EnumerateFiles(newDir, "*", SearchOption.AllDirectories))
+                {
+                    if (!(RenameSync.IsCode(f))) continue;
+                    string rel = f.Substring(newDir.TrimEnd('\\').Length).TrimStart('\\');
+                    list.Add(new RenameSync.Move { Old = Path.Combine(oldDir, rel), New = f });
+                    if (list.Count >= 2000) break;
+                }
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("rename folder: list failed: " + ex.Message); }
+            return list;
+        }
+
+        /// <summary>フォルダーの名前の変更(移動)に合わせて、#include と CMake を直す。結果を 1 行の文にして返す。UI スレッドから呼ぶ。</summary>
+        public static async Task<string> FollowFolderAsync(string oldDir, string newDir, List<RenameSync.Move> moves, IVsEditorAdaptersFactoryService adapters, ITextUndoHistoryRegistry undo)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            foreach (var m in moves) RenameHub.Remember(m);
+            return await RewriteForMovesAsync(moves, new List<string>(), FolderLabel(oldDir, newDir), adapters, undo);
+        }
+
+        /// <summary>「Render → Draw」(名前だけ変わった)か「Game\\Render → Engine\\Render」(場所が変わった)。</summary>
+        public static string FolderLabel(string oldDir, string newDir)
+        {
+            string op = Path.GetDirectoryName(oldDir.TrimEnd('\\')), np = Path.GetDirectoryName(newDir.TrimEnd('\\'));
+            if (string.Equals(op, np, StringComparison.OrdinalIgnoreCase)) return Path.GetFileName(oldDir.TrimEnd('\\')) + " → " + Path.GetFileName(newDir.TrimEnd('\\'));
+            Func<string, string> tail2 = d => { string t = d.TrimEnd('\\'); string p = Path.GetFileName(Path.GetDirectoryName(t) ?? ""); return (p.Length > 0 ? p + "\\" : "") + Path.GetFileName(t); };
+            return tail2(oldDir) + " → " + tail2(newDir);
+        }
+
+        /// <summary>moves(古いパス → 新しいパス)に合わせて、#include と CMake を直す。notes は先に書く補足。UI スレッドから呼ぶ。</summary>
+        private static async Task<string> RewriteForMovesAsync(List<RenameSync.Move> moves, List<string> notes, string head, IVsEditorAdaptersFactoryService adapters, ITextUndoHistoryRegistry undo)
+        {
+            var opt = Options;
+            var first = moves[0];
             // 2. #include と CMake
             string root = IncludeService.RootFor(first.New);
             var skip = IncludeService.SkipDirs(opt);
@@ -96,7 +142,6 @@ namespace KCppAssist
                 KCppAssistPackage.Log("rename: edited open document " + path + " (" + edits.Count + ")");
             }
 
-            string head = Path.GetFileName(first.Old) + " → " + Path.GetFileName(first.New);
             var parts = new List<string>(notes);
             if (sites > 0) parts.Add("#include " + sites + " か所 (" + files + " ファイル)");
             if (build > 0) parts.Add("CMake " + build + " か所 (保存したあと、CMake を再構成してください)");
@@ -303,7 +348,25 @@ namespace KCppAssist
         public int OnAfterRemoveDirectories(int cProjects, int cDirectories, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEDIRECTORYFLAGS[] rgFlags) { return VSConstants.S_OK; }
         public int OnQueryRenameFiles(IVsProject pProject, int cFiles, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] rgFlags, VSQUERYRENAMEFILERESULTS[] pSummaryResult, VSQUERYRENAMEFILERESULTS[] rgResults) { return VSConstants.S_OK; }
         public int OnQueryRenameDirectories(IVsProject pProject, int cDirs, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEDIRECTORYFLAGS[] rgFlags, VSQUERYRENAMEDIRECTORYRESULTS[] pSummaryResult, VSQUERYRENAMEDIRECTORYRESULTS[] rgResults) { return VSConstants.S_OK; }
-        public int OnAfterRenameDirectories(int cProjects, int cDirs, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEDIRECTORYFLAGS[] rgFlags) { return VSConstants.S_OK; }
+        public int OnAfterRenameDirectories(int cProjects, int cDirs, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEDIRECTORYFLAGS[] rgFlags)
+        {
+            try
+            {
+                // C++ のプロジェクトの「フィルター」はディスクのフォルダーではないので、ディスクにあるフォルダーの変更だけを見る
+                if (RenameService.Busy || rgszMkOldNames == null || rgszMkNewNames == null) return VSConstants.S_OK;
+                var opt = RenameService.Options;
+                if (opt == null || opt.RenameMode != RenameMode.Auto) return VSConstants.S_OK;
+                for (int i = 0; i < Math.Min(cDirs, rgszMkOldNames.Length); i++)
+                {
+                    string o = rgszMkOldNames[i], n = rgszMkNewNames[i];
+                    if (string.IsNullOrEmpty(o) || string.IsNullOrEmpty(n) || !Directory.Exists(n)) continue;
+                    var move = new RenameSync.Move { Old = o.TrimEnd('\\'), New = n.TrimEnd('\\') };
+                    if (RenameHub.Accept(move)) package.OnFolderRenamed(move.Old, move.New, false);
+                }
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("rename watcher (folder) failed: " + ex.Message); }
+            return VSConstants.S_OK;
+        }
         public int OnQueryAddDirectories(IVsProject pProject, int cDirectories, string[] rgpszMkDocuments, VSQUERYADDDIRECTORYFLAGS[] rgFlags, VSQUERYADDDIRECTORYRESULTS[] pSummaryResult, VSQUERYADDDIRECTORYRESULTS[] rgResults) { return VSConstants.S_OK; }
         public int OnQueryRemoveFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, VSQUERYREMOVEFILERESULTS[] pSummaryResult, VSQUERYREMOVEFILERESULTS[] rgResults) { return VSConstants.S_OK; }
         public int OnQueryRemoveDirectories(IVsProject pProject, int cDirectories, string[] rgpszMkDocuments, VSQUERYREMOVEDIRECTORYFLAGS[] rgFlags, VSQUERYREMOVEDIRECTORYRESULTS[] pSummaryResult, VSQUERYREMOVEDIRECTORYRESULTS[] rgResults) { return VSConstants.S_OK; }
@@ -383,7 +446,7 @@ namespace KCppAssist
                     if (string.Equals(root, k, StringComparison.OrdinalIgnoreCase) || root.StartsWith(k.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase)) return;
                 try
                 {
-                    var w = new FileSystemWatcher(root) { IncludeSubdirectories = true, NotifyFilter = NotifyFilters.FileName, InternalBufferSize = 64 * 1024 };
+                    var w = new FileSystemWatcher(root) { IncludeSubdirectories = true, NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName, InternalBufferSize = 64 * 1024 };
                     w.Renamed += OnRenamed;
                     w.EnableRaisingEvents = true;
                     Watchers[root] = w;
@@ -397,6 +460,17 @@ namespace KCppAssist
         {
             try
             {
+                // フォルダーの名前の変更。中にコードがあるときだけ(.git や build の中は、下で除く)
+                if (Directory.Exists(e.FullPath))
+                {
+                    foreach (string seg in e.FullPath.Split('\\')) if (skipSegments.Contains(seg, StringComparer.OrdinalIgnoreCase)) return;
+                    if (Path.GetFileName(e.FullPath).StartsWith(".")) return;
+                    var fm = new RenameSync.Move { Old = e.OldFullPath, New = e.FullPath };
+                    if (!Accept(fm)) return;
+                    var fp = KCppAssistPackage.Instance;
+                    if (fp != null) fp.OnFolderRenamed(e.OldFullPath, e.FullPath, true);
+                    return;
+                }
                 // ヘッダーや cpp どうしの名前変更だけ。保存の一時ファイル(.tmp → .cpp)などは、見ない
                 if (!(RenameSync.IsHeader(e.OldFullPath) || RenameSync.IsSource(e.OldFullPath))) return;
                 if (!(RenameSync.IsHeader(e.FullPath) || RenameSync.IsSource(e.FullPath))) return;

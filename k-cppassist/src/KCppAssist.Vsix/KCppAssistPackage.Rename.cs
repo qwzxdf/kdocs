@@ -96,13 +96,19 @@ namespace KCppAssist
                     }
                     if (opt.RenameConfirm)
                     {
+                        // 何が変わるかで、文面を変える(ヘッダー・cpp、相手のファイルのあるなし、別のフォルダーへの移動)
+                        bool isHeader = RenameSync.IsHeader(move.New);
+                        bool moved = !string.Equals(Path.GetDirectoryName(move.Old), Path.GetDirectoryName(move.New), StringComparison.OrdinalIgnoreCase);
+                        string hOld = isHeader ? move.Old : pairMove?.Old, hNew = isHeader ? move.New : pairMove?.New;
+                        var lines = new System.Collections.Generic.List<string>();
+                        if (pairMove != null) lines.Add(Path.GetFileName(pairMove.Old) + " → " + Path.GetFileName(pairMove.New));
+                        if (hOld != null) lines.Add("#include \"" + Path.GetFileName(hOld) + "\" → #include \"" + Path.GetFileName(hNew) + "\"" + (moved ? "  (パスも)" : ""));
+                        lines.Add("CMakeLists.txt の " + Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New));
+                        string what = pairMove != null
+                            ? (isHeader ? "相手の cpp の名前・#include・CMake も直す" : "相手のヘッダーの名前・#include・CMake も直す")
+                            : (hOld != null ? "#include・CMake も直す" : "CMake のファイル名も直す");
                         var items = new System.Collections.Generic.List<RenamePrompt.Item>();
-                        items.Add(new RenamePrompt.Item
-                        {
-                            Text = "相手のファイル・#include・CMake も、新しい名前に直す",
-                            Detail = (pairMove != null ? Path.GetFileName(pairMove.Old) + " → " + Path.GetFileName(pairMove.New) + "\n" : "") + "#include\"" + Path.GetFileName(move.Old) + "\" → #include \"" + Path.GetFileName(move.New) + "\"",
-                            Checked = true,
-                        });
+                        items.Add(new RenamePrompt.Item { Text = what, Detail = string.Join("\n", lines), Checked = true });
                         if (clsOld != null)
                             items.Add(new RenamePrompt.Item
                             {
@@ -111,7 +117,10 @@ namespace KCppAssist
                                 Checked = matched,
                             });
                         bool dontAsk;
-                        var res = RenamePrompt.Show(Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), "ファイル名が変わりました。ほかも直しますか?", items, out dontAsk);
+                        string title = moved
+                            ? (string.Equals(Path.GetFileName(move.Old), Path.GetFileName(move.New), StringComparison.OrdinalIgnoreCase) ? "ファイルを別のフォルダーに移しました" : "ファイルの名前と場所が変わりました")
+                            : (isHeader ? "ヘッダーの名前が変わりました" : "cpp の名前が変わりました");
+                        var res = RenamePrompt.Show(title, Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), items, out dontAsk);
                         if (res == null) return;
                         if (dontAsk) RenamePrompt.TurnOffConfirm();
                         follow = res[0];
@@ -137,6 +146,58 @@ namespace KCppAssist
             });
         }
 
+
+        /// <summary>ディスクのフォルダーの名前が変わった(か、移った)。中のヘッダーを #include している所と、CMake を直すか聞く。</summary>
+        internal void OnFolderRenamed(string oldDir, string newDir, bool fromFileSystem)
+        {
+            _ = JoinableTaskFactory.RunAsync(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300);   // 中のファイルの通知が落ち着くのを待つ
+                    await JoinableTaskFactory.SwitchToMainThreadAsync();
+                    if (RenameService.Busy) return;
+                    var opt = RenameService.Options;
+                    if (opt == null || opt.RenameMode != RenameMode.Auto) return;
+                    if (fromFileSystem && !opt.RenameWatchFiles) return;
+                    if (!Directory.Exists(newDir) || Directory.Exists(oldDir)) return;
+                    var moves = await Task.Run(() => RenameService.MovesInFolder(oldDir, newDir));
+                    await JoinableTaskFactory.SwitchToMainThreadAsync();
+                    if (moves.Count == 0) return;
+                    int headers = moves.Count(m => RenameSync.IsHeader(m.New));
+                    var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
+                    var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
+                    var undo = model.GetService<ITextUndoHistoryRegistry>();
+                    string label = RenameService.FolderLabel(oldDir, newDir);
+                    bool samePlace = string.Equals(Path.GetDirectoryName(oldDir), Path.GetDirectoryName(newDir), StringComparison.OrdinalIgnoreCase);
+                    if (opt.RenameConfirm)
+                    {
+                        var sample = moves.FirstOrDefault(m => RenameSync.IsHeader(m.New)) ?? moves[0];
+                        string relOld = Path.GetFileName(oldDir) + "/" + Path.GetFileName(sample.Old), relNew = Path.GetFileName(newDir) + "/" + Path.GetFileName(sample.New);
+                        var items = new System.Collections.Generic.List<RenamePrompt.Item>
+                        {
+                            new RenamePrompt.Item
+                            {
+                                Text = "中のファイルを #include している所と、CMake のパスを直す",
+                                Detail = "ヘッダー " + headers + " 個、cpp " + (moves.Count - headers) + " 個\n例: #include \"" + relOld + "\" → #include \"" + relNew + "\"",
+                                Checked = true,
+                            },
+                        };
+                        bool dontAsk;
+                        var res = RenamePrompt.Show(samePlace ? "フォルダーの名前が変わりました" : "フォルダーを移しました", label, items, out dontAsk);
+                        if (res == null) return;
+                        if (dontAsk) RenamePrompt.TurnOffConfirm();
+                        if (!res[0]) return;
+                    }
+                    RenameService.Busy = true;
+                    string msg;
+                    try { msg = await RenameService.FollowFolderAsync(oldDir, newDir, moves, adapters, undo); }
+                    finally { RenameService.Busy = false; }
+                    IncludeService.Status(msg);
+                }
+                catch (Exception ex) { Log("rename folder failed: " + ex); }
+            });
+        }
 
         private void RunRename()
         {

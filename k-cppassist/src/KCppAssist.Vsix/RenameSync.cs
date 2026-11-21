@@ -218,22 +218,33 @@ namespace KCppAssist
                     // コンパイラは、"" の include を、そのファイルのフォルダー、プロジェクトの基準の順に探す。
                     // 先に見つかるファイルが、別の(実在する)ファイルなら、動かしたファイルのことではない
                     bool hit = false, shadowed = false;
+                    string baseDir = null;                      // 見つけた基準(そのファイルのフォルダーか、プロジェクトの基準)
                     if (quoted)
                     {
                         string local = Path.Combine(includerDir, relWin);
-                        if (Same(local, mv.Old)) hit = true;
+                        if (Same(local, mv.Old)) { hit = true; baseDir = includerDir; }
                         else if (exists(local)) shadowed = true;
                     }
                     if (!hit && !shadowed && roots != null)
                         foreach (string r in roots)
                         {
                             string cand = Path.Combine(r, relWin);
-                            if (Same(cand, mv.Old)) { hit = true; break; }
+                            if (Same(cand, mv.Old)) { hit = true; baseDir = r; break; }
                             if (exists(cand)) break;
                         }
                     if (!hit) continue;
 
-                    string newRel = rel.Substring(0, rel.Length - file.Length) + Path.GetFileName(mv.New);
+                    // 同じフォルダーの中の名前の変更なら、ファイル名だけ替える(書き方をそのまま残す)。
+                    // フォルダーが変わったら(フォルダーの名前の変更・別のフォルダーへの移動)、見つけた基準からの相対パスに書き直す
+                    string newRel;
+                    if (string.Equals(Path.GetDirectoryName(mv.Old), Path.GetDirectoryName(mv.New), StringComparison.OrdinalIgnoreCase))
+                        newRel = rel.Substring(0, rel.Length - file.Length) + Path.GetFileName(mv.New);
+                    else
+                    {
+                        newRel = Rel(baseDir, mv.New);
+                        if (newRel == null) continue;
+                        if (rel.Contains("\\") && !rel.Contains("/")) newRel = newRel.Replace('/', '\\');
+                    }
                     edits.Add(new TextEdit { Start = m.Groups[3].Index, Length = rel.Length, Text = newRel });
                     break;
                 }

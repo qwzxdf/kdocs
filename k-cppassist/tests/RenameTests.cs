@@ -121,6 +121,12 @@ static class RenameTests
         string src2 = "Foo f; FooBar g; m_Foo h; Foo::Foo() {} // Foo";
         Check("replace word: whole word only", RenameSync.Apply(src2, RenameSync.ReplaceWord(src2, "Foo", "Bar")) == "Bar f; FooBar g; m_Foo h; Bar::Bar() {} // Bar");
 
+        // ---- フォルダーの名前の変更 ----
+        var fmoves = new[] { M(@"C:\p\src\Render\Mesh.h", @"C:\p\src\Draw\Mesh.h"), M(@"C:\p\src\Render\Mesh.cpp", @"C:\p\src\Draw\Mesh.cpp") };
+        Check("folder: include with folder", Fix("#include \"Render/Mesh.h\"\n", @"C:\p\src", fmoves, new string[0]) == "#include \"Draw/Mesh.h\"\n");
+        Check("folder: include from root", Fix("#include \"src/Render/Mesh.h\"\n", @"C:\p\app", fmoves, new[] { @"C:\p" }) == "#include \"src/Draw/Mesh.h\"\n");
+        Check("folder: same-folder include unchanged", Fix("#include \"Mesh.h\"\n", @"C:\p\src\Draw", fmoves, new string[0]) == "#include \"Mesh.h\"\n");
+
         // ---- コーディング スタイルごとの、ファイル名とクラス名の対応 ----
         string pre;
         Check("google: game_object corresponds to GameObject", RenameSync.Corresponds("GameObject", "game_object", out pre) && pre == "");
