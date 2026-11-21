@@ -520,6 +520,11 @@ namespace KCppAssist
             SaveSettingsToStorage();
         }
 
+        [Category("switch")]
+        [DisplayName("switch を打ったら、case と default を自動で入れる")]
+        [Description("True のとき、enum / enum class の値を switch (値) { で受けて改行すると、本体が空なら、値ごとの「case 値: break;」と「default: break;」を自動で入れます。enum の型が決められない switch(整数など)では、何もしません。Ctrl+Z 1 回で消えます。")]
+        public bool AutoSwitch { get; set; } = true;
+
         [Category("新規ファイル")]
         [DisplayName("新しい空のファイルに、ひな形を書く")]
         [Description("True のとき、プロジェクトに新しく足した空のヘッダーに #pragma once・namespace・class を、空の cpp に #include と namespace を書きます(作ってから 2 分以内の、空のファイルだけ)。")]

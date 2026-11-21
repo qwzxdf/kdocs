@@ -545,6 +545,32 @@ static class GenTests
             Check("offers: body hides ctordtor", Refactor.Offers(code, code.IndexOf("int a"), "\n", true).Any(x => x.Id == "ctordtor") ? "y" : "n", "n");
         }
 
+        // ---- switch を打ったら、case と default を自動で入れる ----
+        {
+            string src = "enum class State { Idle, Walk, Run };\nvoid F(State s) {\n\tswitch (s) {\n\t\n\t}\n}\n";
+            int caret2 = src.IndexOf("\t\n\t}") + 1;
+            Check("autoswitch: empty body detected", SwitchGen.BodyEmptyAt(src, caret2) ? "y" : "n", "y");
+            string why2;
+            var en = SwitchGen.ParseEnums(src);
+            var pl = SwitchGen.Make(src, caret2, en, "\n", out why2, true);
+            string outText = pl == null ? why2 : src.Remove(pl.Position, pl.Length).Insert(pl.Position, pl.Text);
+            Check("autoswitch: cases and default, tab indent",
+                outText,
+                "enum class State { Idle, Walk, Run };\nvoid F(State s) {\n\tswitch (s) {\n\t\tcase State::Idle:\n\t\t\tbreak;\n\t\tcase State::Walk:\n\t\t\tbreak;\n\t\tcase State::Run:\n\t\t\tbreak;\n\t\tdefault:\n\t\t\tbreak;\n\t}\n}\n");
+            string plain = "enum Color { Red, Green };\nvoid G(Color c) {\n  switch (c) {}\n}\n";
+            var pl2 = SwitchGen.Make(plain, plain.IndexOf("{}") + 1, SwitchGen.ParseEnums(plain), "\n", out why2, true);
+            string out2 = pl2 == null ? why2 : plain.Remove(pl2.Position, pl2.Length).Insert(pl2.Position, pl2.Text);
+            Check("autoswitch: plain enum, one-line body", out2.Contains("case Red:") && out2.Contains("case Green:") && out2.Contains("default:") ? "ok" : out2, "ok");
+            string filled = "enum class State { Idle, Walk };\nvoid H(State s) {\n\tswitch (s) {\n\tcase State::Idle:\n\t\tbreak;\n\t}\n}\n";
+            Check("autoswitch: not empty -> not triggered", SwitchGen.BodyEmptyAt(filled, filled.IndexOf("case")) ? "y" : "n", "n");
+            string nodef = "enum class State { Idle };\nvoid K(State s) {\n\tswitch (s) {\n\tcase State::Idle:\n\t\tbreak;\n\t}\n}\n";
+            var pl3 = SwitchGen.Make(nodef, nodef.IndexOf("case"), SwitchGen.ParseEnums(nodef), "\n", out why2, true);
+            Check("autoswitch: default only when all cases exist", pl3 != null && pl3.Added.Count == 0 && pl3.AddedDefault ? "ok" : "ng", "ok");
+            Check("autoswitch: no default requested -> nothing to add", SwitchGen.Make(nodef, nodef.IndexOf("case"), SwitchGen.ParseEnums(nodef), "\n", out why2) == null ? "null" : "made", "null");
+            string ints = "void M(int n) {\n\tswitch (n) {\n\t\n\t}\n}\n";
+            Check("autoswitch: int switch -> no plan", SwitchGen.Make(ints, ints.IndexOf("\t\n\t}") + 1, new List<SwitchGen.EnumDef>(), "\n", out why2, true) == null ? "null" : "made", "null");
+        }
+
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

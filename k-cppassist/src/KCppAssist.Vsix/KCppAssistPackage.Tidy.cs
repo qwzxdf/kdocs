@@ -229,7 +229,7 @@ namespace KCppAssist
         }
 
         /// <summary>#include 先のヘッダーが(間接に include するものも含めて)定義している名前。結果は、1 回の実行の間だけ覚える。</summary>
-        private sealed class ProvidedCache
+        internal sealed class ProvidedCache
         {
             private readonly OptionsPage opt;
             private readonly Dictionary<string, HashSet<string>> direct = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);

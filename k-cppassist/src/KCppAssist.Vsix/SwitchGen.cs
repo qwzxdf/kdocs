@@ -23,6 +23,8 @@ namespace KCppAssist
 
         public sealed class Plan
         {
+            public int Length;                                    // 挿入の前に消す長さ(本体の空の行を置き換えるとき)
+            public bool AddedDefault;                             // default: も足した
             public int Position;                                  // 挿入する位置
             public string Text;                                   // 挿入する文字
             public string EnumName;
@@ -84,12 +86,9 @@ namespace KCppAssist
         private sealed class Sw { public int Start, Open, Close; public string Expr; }
 
         /// <summary>caret を含む switch(複数なら一番内側)に足りない case を足す計画。できなければ null で、理由を why に入れる。</summary>
-        public static Plan Make(string text, int caret, IList<EnumDef> enums, string eol, out string why)
+        /// <summary>caret を含む switch(一番内側)。なければ null。</summary>
+        private static Sw FindSwitch(string text, string m, int caret)
         {
-            why = null;
-            string m = CppText.Mask(text);
-
-            // ---- caret を含む switch ----
             Sw sw = null;
             foreach (Match x in Regex.Matches(m, @"\bswitch\s*\("))
             {
@@ -105,6 +104,34 @@ namespace KCppAssist
                 if (caret < lineStart || caret > cb + 1) continue;
                 if (sw == null || x.Index > sw.Start) sw = new Sw { Start = x.Index, Open = ob, Close = cb, Expr = text.Substring(po + 1, pc - po - 1).Trim() };
             }
+            return sw;
+        }
+
+        /// <summary>caret が、本体が空(空白と改行だけ)の switch の中にあるか。打ち始めに自動で case を入れる判断に使う。</summary>
+        public static bool BodyEmptyAt(string text, int caret) { int open; return BodyEmptyAt(text, caret, out open); }
+
+        /// <summary>open は、その switch の「{」の位置(同じ switch かどうかの目印)。</summary>
+        public static bool BodyEmptyAt(string text, int caret, out int open)
+        {
+            open = -1;
+            string m = CppText.Mask(text);
+            Sw sw = FindSwitch(text, m, caret);
+            if (sw == null || caret <= sw.Open || caret > sw.Close) return false;
+            open = sw.Open;
+            return text.Substring(sw.Open + 1, sw.Close - sw.Open - 1).Trim().Length == 0;
+        }
+
+        /// <summary>
+        /// caret のある switch に、足りない case を足す。addDefault なら、default がないときに default: も足す。
+        /// 本体が空で複数行なら、その空の行を、足す文字で置き換える(Plan.Length)。
+        /// </summary>
+        public static Plan Make(string text, int caret, IList<EnumDef> enums, string eol, out string why, bool addDefault = false)
+        {
+            why = null;
+            string m = CppText.Mask(text);
+
+            // ---- caret を含む switch ----
+            Sw sw = FindSwitch(text, m, caret);
             if (sw == null) { why = "カーソルが、switch の中にありません"; return null; }
 
             // ---- いまある case と default(switch 直下だけ。入れ子の switch は見ない) ----
@@ -186,13 +213,17 @@ namespace KCppAssist
             var values = best.Values.ToList();
             if (values.Count > 1 && Sentinel.IsMatch(values[values.Count - 1])) values.RemoveAt(values.Count - 1);
             var missing = values.Where(v => !labelNames.Contains(v)).ToList();
-            if (missing.Count == 0) { why = "足りない case はありません (" + best.Name + ")"; return null; }
+            bool needDefault = addDefault && defaultPos < 0;
+            if (missing.Count == 0 && !needDefault) { why = "足りない case はありません (" + best.Name + ")"; return null; }
 
             // ---- 書き方(字下げと、名前の前の修飾)を、いまの case にそろえる ----
+            // 1 段の字下げは、switch の行の字下げがタブならタブ、そうでなければ、ファイルで多いほう(判断できなければ空白 2 つ)
+            string swIndent = LeadingSpace(text, sw.Start);
+            string unit = swIndent.Contains("\t") ? "\t" : (NewFileGen.DetectIndent(new[] { text }) ?? "  ");
             string indent;
             if (firstCase >= 0) indent = LeadingSpace(text, firstCase);
-            else indent = LeadingSpace(text, sw.Start) + "  ";
-            string body = indent + "  ";
+            else indent = swIndent + unit;
+            string body = indent + unit;
 
             string prefix;
             if (prefixStyle != null) prefix = prefixStyle;
@@ -211,6 +242,21 @@ namespace KCppAssist
             foreach (string v in missing)
                 sb.Append(indent).Append("case ").Append(prefix).Append(v).Append(':').Append(eol).Append(body).Append("break;").Append(eol);
 
+            // default がなければ、最後に default: を足す(break で終える。足し忘れた値を、実行時に気づけるようにするのは、使う人が決める)
+            if (needDefault)
+                sb.Append(indent).Append("default:").Append(eol).Append(body).Append("break;").Append(eol);
+
+            // ---- 本体が空で複数行のとき: 空の行を、足す文字で置き換える ----
+            bool emptyBody = firstCase < 0 && defaultPos < 0 && text.Substring(sw.Open + 1, sw.Close - sw.Open - 1).Trim().Length == 0;
+            int firstNl = text.IndexOf('\n', sw.Open);
+            if (emptyBody && firstNl >= 0 && firstNl < sw.Close && text.Substring(LineStart(text, sw.Close), sw.Close - LineStart(text, sw.Close)).Trim().Length == 0)
+            {
+                int from = firstNl + 1, to = LineStart(text, sw.Close);
+                var p0 = new Plan { Position = from, Length = to - from, Text = sb.ToString(), EnumName = best.Name, AddedDefault = needDefault };
+                p0.Added.AddRange(missing);
+                return p0;
+            }
+
             // ---- 挿入する位置: default の前、なければ、閉じる } の前 ----
             int pos;
             string textOut = sb.ToString();
@@ -220,7 +266,7 @@ namespace KCppAssist
             if (text.Substring(ls, anchor - ls).Trim().Length == 0) pos = ls;
             else { pos = anchor; textOut = eol + textOut + LeadingSpace(text, sw.Start); }
 
-            var plan = new Plan { Position = pos, Text = textOut, EnumName = best.Name };
+            var plan = new Plan { Position = pos, Text = textOut, EnumName = best.Name, AddedDefault = needDefault };
             plan.Added.AddRange(missing);
             return plan;
         }

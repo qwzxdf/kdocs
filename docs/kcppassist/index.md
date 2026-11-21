@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.24.0.vsix" download>K-CppAssist 0.24.0 をダウンロード（.vsix、約 309 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.25.0.vsix" download>K-CppAssist 0.25.0 をダウンロード（.vsix、約 311 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -366,6 +366,31 @@ void Player::Update(float dt) {
 
 どれも電球（`Alt+Enter`）に出ます（`class` / `struct` の行。呼び出しから関数を作るのは、キーだけです）。1 回の編集なので、Undo も 1 回です。
 
+## switch を打ったら、case を自動で入れる
+
+enum の値を `switch` で受けるたびに、値の名前を 1 つずつ書くのは面倒で、書き忘れもします。`switch (state) {` と打って改行すると、本体が空なら、enum の値ごとの `case` と `default:` を自動で入れます。
+
+```cpp
+enum class State { Idle, Walk, Run };
+
+switch (state) {
+	case State::Idle:
+		break;
+	case State::Walk:
+		break;
+	case State::Run:
+		break;
+	default:
+		break;
+}
+```
+
+- enum の型は、`switch` の式の変数の宣言から決めます。定義は、いまのファイルと、`#include "..."` をたどった先（2 段まで）から探します。整数の `switch` のように、enum の型が決められないときは、何もしません。
+- `enum class` の値は `State::Walk`、昔の `enum` は `Walk` の形で書きます。末尾が `Count`・`Max`・`Num`・`Size` のような「個数を数えるための印」の値は、入れません。
+- 字下げは、`switch` の行がタブならタブ、そうでなければファイルで多いほう（判断できなければ空白 2 つ）です。
+- 入れるのは、本体が空の `switch` に、改行を打った直後だけです。入れたあとに `Ctrl+Z` を 1 回押せば、消えます。<strong>消した `switch`（本体を自分で消したときも含む）には、もう入れません。</strong>
+- 設定の「switch を打ったら、case と default を自動で入れる」で、オフにできます。
+
 ## Alt+Enter の電球（ほとんどの機能）
 
 キーを覚えなくても、カーソルを置いて `Alt+Enter`（`Ctrl+.` でも同じです）を押せば、その位置で使える機能が並びます。エディターの右クリックにも「K-CppAssist: この位置の書き換え・生成の一覧...」が出ます。キーは今までどおりです。
@@ -692,6 +717,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 
 | 版 | 内容 |
 | --- | --- |
+| 0.25.0 | switch (enum の値) { と打って改行すると、本体が空なら、値ごとの case（break つき）と default: を自動で入れるようにした（整数の switch では入れない。Ctrl+Z で消せる。一度入れた switch には、消されても 2 度と入れない。設定でオフにできる）。字下げは、switch の行がタブならタブにそろえる |
 | 0.24.0 | `switch` の足りない `case` を足す機能（Alt+Z）をなくした。`#include` を足すのを Alt+I（Include）、前方宣言にするのを Alt+F（Forward）に変えた。ほとんどの機能を電球（Alt+Enter）と、エディターの右クリックから使えるようにした（ゲッター・セッター、`#include` を足す、`#include` の整理）。クラス名の上の電球に、cpp を作る・コンストラクター・デストラクターを宣言して cpp に定義する・コピー・ムーブを禁止する、を足した。新しい空のファイルに、`#pragma once`・namespace・class のひな形を書く（クラス名の決めかた・namespace・字下げは設定で変えられる）。「K-CppAssist の使い方」の画面を、カードと検索つきの見た目にした |
 | 0.7.1 | 引数の自動合わせで、相手が開いていなくても開いて書き換えるようにした(書き換えたあとは、作業中のファイルへ戻る) |
 | 0.14.2 | 拡張機能 メニューに「K-ErrorLog を下のパネルにドッキングし直す」を足した。K-ErrorLog の窓が浮いたまま、出力・エラー一覧の仲間にドッキングできないときに使う |
