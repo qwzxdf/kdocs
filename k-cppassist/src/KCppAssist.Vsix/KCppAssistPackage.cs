@@ -59,16 +59,16 @@ namespace KCppAssist
         // メニューの文字(.vsct の ButtonText)。ID → 日本語。表示のときに、いまの言語に訳す
         private static readonly System.Collections.Generic.Dictionary<int, string> MenuTexts = new System.Collections.Generic.Dictionary<int, string>
         {
-            [0x010E] = "K-Cpp: 使い方...",
-            [0x010A] = "K-Cpp: #include を整理（プロジェクト全体）",
-            [0x010B] = "K-Cpp: 使っていない #include を消す（プロジェクト全体）",
-            [0x010D] = "K-Cpp: このファイルの #include を整理",
-            [0x010C] = "K-Cpp: #include を前方宣言にする (Forward / Alt+F)",
-            [0x0111] = "K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)",
-            [0x0112] = "K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)",
-            [0x0113] = "K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)",
-            [0x0114] = "K-Cpp: ファイルの文字コードをそろえる...",
-            [0x0115] = "K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)",
+            [0x010E] = L.T("K-Cpp: 使い方..."),
+            [0x010A] = L.T("K-Cpp: #include を整理（プロジェクト全体）"),
+            [0x010B] = L.T("K-Cpp: 使っていない #include を消す（プロジェクト全体）"),
+            [0x010D] = L.T("K-Cpp: このファイルの #include を整理"),
+            [0x010C] = L.T("K-Cpp: #include を前方宣言にする (Forward / Alt+F)"),
+            [0x0111] = L.T("K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)"),
+            [0x0112] = L.T("K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)"),
+            [0x0113] = L.T("K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)"),
+            [0x0114] = L.T("K-Cpp: ファイルの文字コードをそろえる..."),
+            [0x0115] = L.T("K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)"),
             [0x0100] = "ローカル変数に型を付ける (Qualify type / Alt+Q)",
             [0x0101] = "メンバー変数として宣言する (Write member / Alt+W)",
             [0x0102] = "Getter・Setter を作る (Getter / Alt+G)",
@@ -78,7 +78,7 @@ namespace KCppAssist
             [0x0109] = "関数を ヘッダー ⇄ cpp に移す (Move / Alt+M)",
             [0x0108] = "ファイル名をまとめて変える (Name / Alt+N)",
             [0x0107] = "K-ErrorLog (エラーログ)を開く",
-            [0x0103] = "K-Cpp: 設定...",
+            [0x0103] = L.T("K-Cpp: 設定..."),
         };
 
         /// <summary>メニューの文字を、いまの言語にする。表示のたびに読み直すので、設定で言語を変えると、次に開いたメニューから変わる。</summary>
@@ -221,9 +221,9 @@ namespace KCppAssist
                 if (!member) { type = "auto"; how = "auto"; }
                 else
                 {
-                    type = Ask("型を決められませんでした。" + name + " の型を入力してください。", "");
+                    type = Ask(L.F("型を決められませんでした。{0} の型を入力してください。", name), "");
                     how = "入力";
-                    if (string.IsNullOrWhiteSpace(type)) { await ReportAsync("型を決められませんでした (右辺: " + Regex.Replace(rhs, @"\s+", " ") + ")", true); return; }
+                    if (string.IsNullOrWhiteSpace(type)) { await ReportAsync(L.F("型を決められませんでした (右辺: {0})", Regex.Replace(rhs, @"\s+", " ")), true); return; }
                     type = type.Trim();
                 }
             }
@@ -235,7 +235,7 @@ namespace KCppAssist
                 // Quick Info を待つ間に、文字が変わっていることがある。snap の位置を、今の位置へ写してから入れる
                 int at = snap.CreateTrackingPoint(assign.NameStart, PointTrackingMode.Positive).GetPosition(view.TextBuffer.CurrentSnapshot);
                 view.TextBuffer.Insert(at, type + " ");
-                await ReportAsync(L.F("{0} {1} にしました ({2})", type, name, how), false);
+                await ReportAsync(L.F("{0} {1} にしました ({2})", type, name, L.T(how)), false);
                 return;
             }
 
@@ -321,7 +321,7 @@ namespace KCppAssist
 
             loc.View.TextBuffer.Insert(edit.Position, edit.Text);
             ReturnTo(cppPath, loc.File);
-            await ReportAsync(L.F("{0} を {1} に追加しました ({2})", declaration, Path.GetFileName(loc.File), how), false);
+            await ReportAsync(L.F("{0} を {1} に追加しました ({2})", declaration, Path.GetFileName(loc.File), L.T(how)), false);
         }
 
         /// <summary>開いたファイルから、作業中のファイルへ戻る(同じファイルなら何もしない)。</summary>
@@ -378,7 +378,7 @@ namespace KCppAssist
                 {
                     var names = new Dictionary<string, ClassSite>();
                     foreach (var s in best) names[s.Chain + "  —  " + s.File] = s;
-                    string choice = Choose(r.Name + " の宣言が複数あります。足し先のクラスを選んでください。", names.Keys.ToList());
+                    string choice = Choose(L.F("{0} の宣言が複数あります。足し先のクラスを選んでください。", r.Name), names.Keys.ToList());
                     if (choice == null) { await ReportAsync(L.T("やめました"), true); return null; }
                     pick = names[choice];
                 }
@@ -462,7 +462,7 @@ namespace KCppAssist
             if (token == null)
             {
                 var items = res.Choices.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).ToList();
-                token = Choose(chain + " の宣言が複数あります。足すヘッダーを選んでください。", items);
+                token = Choose(L.F("{0} の宣言が複数あります。足すヘッダーを選んでください。", chain), items);
                 if (token == null) { await ReportAsync(L.T("やめました"), true); return; }
                 res.Choices.TryGetValue(token, out file);
             }
@@ -473,8 +473,8 @@ namespace KCppAssist
             var edit = IncludeEditor.Plan(text, token, stem, eol);
             if (edit == null) { await ReportAsync(L.F("{0} はすでに #include されています", token), true); return; }
 
-            IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: #include を追加");
-            await ReportAsync(L.F("{0} のために {1} を追加しました ({2})", chain, token, res.Source), false);
+            IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, undo, L.T("K-Cpp: #include を追加"));
+            await ReportAsync(L.F("{0} のために {1} を追加しました ({2})", chain, token, L.T(res.Source)), false);
         }
 
         // ---- 宣言と定義の引数を合わせる ----
@@ -547,7 +547,7 @@ namespace KCppAssist
             if (targets.Count > 1)
             {
                 var names = targets.ToDictionary(t => Path.GetFileName(t.File) + ": " + label + "(" + SignatureSync.Norm(t.Inner) + ")" + " #" + t.Sig.Open, t => t);
-                string pick = Choose(label + " の" + (wantDef ? "定義" : "宣言") + "が複数あります。引数を写す先を選んでください。", names.Keys.ToList());
+                string pick = Choose(L.F("{0} の{1}が複数あります。引数を写す先を選んでください。", label, (wantDef ? L.T("定義") : L.T("宣言"))), names.Keys.ToList());
                 if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                 target = names[pick];
             }
@@ -561,7 +561,7 @@ namespace KCppAssist
             ITextBuffer buf = target.Buffer ?? SyncService.OpenForEdit(target.File, adapters);
             if (buf == null) { await ReportAsync(L.F("{0} を開けませんでした", Path.GetFileName(target.File)), true); return; }
             if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(L.F("{0} が読み込み中に変わりました。もう一度押してください", Path.GetFileName(target.File)), true); return; }
-            SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-Cpp: 引数を合わせる");
+            SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, L.T("K-Cpp: 引数を合わせる"));
             SyncPreview.Show(view, SyncPreview.NameStart(view.TextSnapshot, sig.Open), Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
 
             if (target.Buffer == null)
@@ -571,7 +571,7 @@ namespace KCppAssist
                 catch (Exception) { }
             }
             var writtenList = SignatureSync.SplitParams(newInner);
-            string warnText = !wantDef && writtenList != null && SignatureSync.DefaultsOutOfOrder(writtenList) ? "(注意: 既定値のある引数のあとに、既定値のない引数があります)" : "";
+            string warnText = !wantDef && writtenList != null && SignatureSync.DefaultsOutOfOrder(writtenList) ? L.T("(注意: 既定値のある引数のあとに、既定値のない引数があります)") : "";
             await ReportAsync(L.F("{0} の引数を {1} に写しました{2}", label, Path.GetFileName(target.File), warnText), false);
         }
 
@@ -636,7 +636,7 @@ namespace KCppAssist
             if (sources.Count > 1)
             {
                 var names = sources.ToDictionary(f => f, f => f);
-                string pick = Choose(label + " の定義を足す .cpp を選んでください。", names.Keys.ToList());
+                string pick = Choose(L.F("{0} の定義を足す .cpp を選んでください。", label), names.Keys.ToList());
                 if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                 cppFile = names[pick];
             }
@@ -649,7 +649,7 @@ namespace KCppAssist
             string why;
             var edit = DefinitionGen.PlanDefinition(text, sig, cppText, eol, out why);
             if (edit == null) { await ReportAsync(label + ": " + why, true); return; }
-            SyncService.Insert(buf, edit.Position, edit.Text, undo, "K-Cpp: 定義を作る");
+            SyncService.Insert(buf, edit.Position, edit.Text, undo, L.T("K-Cpp: 定義を作る"));
 
             // 足した関数の本体へカーソルを置く(cpp がアクティブのまま)
             try
@@ -695,7 +695,7 @@ namespace KCppAssist
             string eol = CppText.Eol(loc.Text);
             var edit = DefinitionGen.PlanPublicMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, declaration, eol);
             if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), cref.Name), true); return; }
-            SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: 宣言を作る");
+            SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, L.T("K-Cpp: 宣言を作る"));
             ReturnTo(path, loc.File);
             await ReportAsync(L.F("{0} を {1} の {2} に足しました (public)", declaration, Path.GetFileName(loc.File), cref.Name), false);
         }
@@ -757,7 +757,7 @@ namespace KCppAssist
             {
                 // cpp の「名前 = 右辺;」の文(クラスの中に書いた関数や、ラムダの中でもよい)にカーソルがあるとき
                 var assign = AssignScan.Find(curText, caret.Position);
-                if (assign == null) { await ReportAsync(inHeader ? "この行は、メンバー変数の宣言でも「名前 = 右辺;」の文でもありません" : "この文は「名前 = 右辺;」の形ではありません", true); return; }
+                if (assign == null) { await ReportAsync(inHeader ? L.T("この行は、メンバー変数の宣言でも「名前 = 右辺;」の文でもありません") : L.T("この文は「名前 = 右辺;」の形ではありません"), true); return; }
                 member = assign.Name;
                 var cref = CppScan.EnclosingClassRef(curText, caret.Position);
                 if (cref == null) { await ReportAsync(L.T("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)"), true); return; }

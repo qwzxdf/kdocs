@@ -131,22 +131,18 @@ namespace KCppAssist
                         if (pairMove != null) lines.Add(Path.GetFileName(pairMove.Old) + " → " + Path.GetFileName(pairMove.New));
                         if (hOld != null) lines.Add("#include \"" + Path.GetFileName(hOld) + "\" → #include \"" + Path.GetFileName(hNew) + "\"" + (moved ? L.T("  (パスも)") : ""));
                         lines.Add(L.F("CMakeLists.txt の {0} → {1}", Path.GetFileName(move.Old), Path.GetFileName(move.New)));
-                        string what = pairMove != null
-                            ? (isHeader ? "相手の cpp の名前・#include・CMake も直す" : "相手のヘッダーの名前・#include・CMake も直す")
-                            : (hOld != null ? "#include・CMake も直す" : "CMake のファイル名も直す");
+                        string what = pairMove != null ? (isHeader ? L.T("相手の cpp の名前・#include・CMake も直す") : L.T("相手のヘッダーの名前・#include・CMake も直す")) : (hOld != null ? L.T("#include・CMake も直す") : L.T("CMake のファイル名も直す"));
                         var items = new System.Collections.Generic.List<RenamePrompt.Item>();
                         items.Add(new RenamePrompt.Item { Text = what, Detail = string.Join("\n", lines), Checked = true });
                         if (clsOld != null)
                             items.Add(new RenamePrompt.Item
                             {
-                                Text = matched ? "クラス名も、新しいファイル名に合わせて直す" : "クラス名も直す(いまはファイル名と一致していません)",
+                                Text = matched ? L.T("クラス名も、新しいファイル名に合わせて直す") : L.T("クラス名も直す(いまはファイル名と一致していません)"),
                                 Detail = "class " + clsOld + " → " + clsNew + L.T("  (コード全体の同じ名前の単語が変わります)"),
                                 Checked = matched,
                             });
                         bool dontAsk;
-                        string title = moved
-                            ? (string.Equals(Path.GetFileName(move.Old), Path.GetFileName(move.New), StringComparison.OrdinalIgnoreCase) ? "ファイルを別のフォルダーに移しました" : "ファイルの名前と場所が変わりました")
-                            : (isHeader ? "ヘッダーの名前が変わりました" : "cpp の名前が変わりました");
+                        string title = moved ? (string.Equals(Path.GetFileName(move.Old), Path.GetFileName(move.New), StringComparison.OrdinalIgnoreCase) ? L.T("ファイルを別のフォルダーに移しました") : L.T("ファイルの名前と場所が変わりました")) : (isHeader ? L.T("ヘッダーの名前が変わりました") : L.T("cpp の名前が変わりました"));
                         var res = RenamePrompt.Show(title, Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), items, out dontAsk);
                         if (res == null) return;
                         if (dontAsk) RenamePrompt.TurnOffConfirm();
@@ -163,7 +159,7 @@ namespace KCppAssist
                         if (renameClass)
                         {
                             int n = await RenameService.ReplaceWordAsync(clsOld, clsNew, IncludeService.RootFor(move.New), IncludeService.SkipDirs(opt), adapters, undo);
-                            msg += (msg.Length > 0 ? "。" : "") + "クラス名 " + clsOld + " → " + clsNew + " (" + n + " か所)";
+                            msg += L.F("{0}クラス名 {1} → {2} ({3} か所)", (msg.Length > 0 ? "。" : ""), clsOld, clsNew, n);
                         }
                     }
                     finally { RenameService.Busy = false; }
@@ -203,7 +199,7 @@ namespace KCppAssist
                 string list = string.Join("\n", moves.Take(8).Select(line)) + (moves.Count > 8 ? L.F("\n… ほか {0} 個", moves.Count - 8) : "");
                 var items = new System.Collections.Generic.List<RenamePrompt.Item>
                 {
-                    new RenamePrompt.Item { Text = "全部の #include・CMake を、新しいパスに直す", Detail = list, Checked = true },
+                    new RenamePrompt.Item { Text = L.T("全部の #include・CMake を、新しいパスに直す"), Detail = list, Checked = true },
                 };
                 if (pairs.Count > 0)
                     items.Add(new RenamePrompt.Item
@@ -258,7 +254,7 @@ namespace KCppAssist
                         {
                             new RenamePrompt.Item
                             {
-                                Text = "中のファイルを #include している所と、CMake のパスを直す",
+                                Text = L.T("中のファイルを #include している所と、CMake のパスを直す"),
                                 Detail = L.F("ヘッダー {0} 個、cpp {1} 個\n例: #include \"{2}\" → #include \"{3}\"", headers, moves.Count - headers, relOld, relNew),
                                 Checked = true,
                             },
@@ -308,7 +304,7 @@ namespace KCppAssist
             string dir = Path.GetDirectoryName(path);
             string ext = Path.GetExtension(path);
             string oldStem = Path.GetFileNameWithoutExtension(path);
-            string input = Ask("新しいファイル名を入力してください (拡張子なし)。\n相手のファイル、#include、CMake も、同じ名前に直します。", oldStem);
+            string input = Ask(L.T("新しいファイル名を入力してください (拡張子なし)。\n相手のファイル、#include、CMake も、同じ名前に直します。"), oldStem);
             if (string.IsNullOrWhiteSpace(input)) { await ReportAsync(L.T("やめました"), true); return; }
             string newStem = input.Trim();
             if (newStem.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || newStem.EndsWith(".")) { await ReportAsync(L.T("ファイル名に使えない文字があります"), true); return; }

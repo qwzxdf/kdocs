@@ -207,21 +207,21 @@ namespace KCppAssist
             if (!unused && !currentFileOnly)
             {
                 // プロジェクト全体の整理は、閉じているファイルも保存するので、Ctrl+Z で戻せない。先に聞く
-                string names = string.Join("\n", changes.Take(20).Select(c => c.Item3)) + (changes.Count > 20 ? "\n… ほか " + (changes.Count - 20) + " 個" : "");
-                if (!KDialog.Confirm("#include を整理する", "次の " + changes.Count + " 個のファイルの #include を並べ替えます。開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません)。", names, "並べ替える"))
+                string names = string.Join("\n", changes.Take(20).Select(c => c.Item3)) + (changes.Count > 20 ? L.F("\n… ほか {0} 個", changes.Count - 20) : "");
+                if (!KDialog.Confirm("#include を整理する", L.F("次の {0} 個のファイルの #include を並べ替えます。開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません)。", changes.Count), names, "並べ替える"))
                 { await ReportAsync(L.T("やめました"), false); return; }
             }
 
             if (unused)
             {
-                string preview = string.Join("\n", details.Take(25)) + (details.Count > 25 ? "\n… ほか " + (details.Count - 25) + " 件" : "");
-                if (!KDialog.Confirm("使っていない #include を消す", "次の " + details.Count + " 件の #include を消します。名前の使われ方から調べているので、マクロや、他のヘッダー経由の使い方は見ていません。消したあと、ビルドして確かめてください。", preview, "消す"))
+                string preview = string.Join("\n", details.Take(25)) + (details.Count > 25 ? L.F("\n… ほか {0} 件", details.Count - 25) : "");
+                if (!KDialog.Confirm("使っていない #include を消す", L.F("次の {0} 件の #include を消します。名前の使われ方から調べているので、マクロや、他のヘッダー経由の使い方は見ていません。消したあと、ビルドして確かめてください。", details.Count), preview, "消す"))
                 { await ReportAsync(L.T("やめました"), false); return; }
             }
 
             int written = 0;
             foreach (var c in changes)
-                if (WriteSource(c.Item1, c.Item2, undo, unused ? "K-Cpp: 使っていない #include を消す" : "K-Cpp: #include を整理")) written++;
+                if (WriteSource(c.Item1, c.Item2, undo, unused ? L.T("K-Cpp: 使っていない #include を消す") : L.T("K-Cpp: #include を整理"))) written++;
             Log("tidy: " + (unused ? "unused" : "organize") + " files=" + files.Count + " changed=" + written + " skipped=" + skipped);
             await ReportAsync(L.F("{0} ({1} / {2} ファイル{3})。エディターで開いていないファイルは、保存済みです", (unused ? L.T("使っていない #include を ") + details.Count + L.T(" 件消しました") : L.T("#include を整理しました")), written, files.Count, (skipped > 0 ? L.T("、読めなかったもの ") + skipped : "")), false);
         }
@@ -365,7 +365,7 @@ namespace KCppAssist
 
             if (done.Count == 0)
             {
-                await ReportAsync((typeName != null && why.Count == 0 ? typeName + " を定義している #include が見つかりません。" : "前方宣言にできる #include がありません。") + (why.Count > 0 ? why[0] : ""), true);
+                await ReportAsync((typeName != null && why.Count == 0 ? typeName + L.T(" を定義している #include が見つかりません。") : L.T("前方宣言にできる #include がありません。")) + (why.Count > 0 ? why[0] : ""), true);
                 Log("forward: " + string.Join(" / ", why));
                 return;
             }
@@ -432,10 +432,10 @@ namespace KCppAssist
                 }
                 if (edits.Count == 0) continue;
                 // Plan は、足すたびの文字列に対する位置なので、まとめて 1 回で置き換える
-                SyncService.ApplyEdits(buf, SyncService.Diff(cppText, work), undo, "K-Cpp: #include を cpp に移す");
+                SyncService.ApplyEdits(buf, SyncService.Diff(cppText, work), undo, L.T("K-Cpp: #include を cpp に移す"));
                 addedTo.Add(Path.GetFileName(cpp));
             }
-            SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, "K-Cpp: #include を前方宣言にする");
+            SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, L.T("K-Cpp: #include を前方宣言にする"));
             Log("forward: " + string.Join(" / ", done));
             await ReportAsync(L.F("{0} を前方宣言にしました{1}{2}", string.Join("、", done), (addedTo.Count > 0 ? L.T("。#include は ") + string.Join(L.T("・"), addedTo) + L.T(" に足しました") : L.T("。cpp が見つからないので、#include は移していません")), (movedSpecials.Count > 0 ? L.T("。unique_ptr のため、") + string.Join(L.T("・"), movedSpecials.Select(x => x.Substring(x.IndexOf("::") + 2))) + L.T(" を cpp に = default で定義しました") : "")), false);
         }

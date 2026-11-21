@@ -212,7 +212,7 @@ namespace KCppAssist
             }
             if (found.Count == 0)
             {
-                why = missingBases.Count > 0 ? "基底クラスの定義が見つかりません (" + string.Join(", ", missingBases) + ")" : "基底クラスに、仮想関数がありません";
+                why = missingBases.Count > 0 ? L.F("基底クラスの定義が見つかりません ({0})", string.Join(", ", missingBases)) : L.T("基底クラスに、仮想関数がありません");
                 return null;
             }
 

@@ -62,7 +62,7 @@ namespace KCppAssist
             {
                 int ls = MemberScan.LineStart(header, m.Start), le = MemberScan.LineEnd(header, m.End);
                 string rest = (header.Substring(ls, m.Start - ls) + header.Substring(m.End + 1, le - m.End - 1)).Trim();
-                if (rest.Length > 0 && !rest.StartsWith("//")) { why = m.Name + " の行に、ほかのものも書いてあります。1 行 1 メンバーにしてください"; return null; }
+                if (rest.Length > 0 && !rest.StartsWith("//")) { why = L.F("{0} の行に、ほかのものも書いてあります。1 行 1 メンバーにしてください", m.Name); return null; }
                 int next = le < header.Length && header[le] == '\r' ? le + 1 : le;
                 if (next < header.Length && header[next] == '\n') next++;
                 lines.Add(Tuple.Create(ls, next));

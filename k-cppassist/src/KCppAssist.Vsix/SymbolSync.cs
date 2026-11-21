@@ -903,7 +903,7 @@ namespace KCppAssist
                     edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
                     editIdx.Add(si);
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 名前を変える", link.Buffer == buffer))
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, L.T("K-Cpp: 名前を変える"), link.Buffer == buffer))
                 {
                     n += edits.Count;
                     RetrackAfterReplace(link, snap, edits, editIdx, name);
@@ -953,21 +953,21 @@ namespace KCppAssist
             int places = r.Links.Sum(l => l.Spans.Count);
             int files = r.Links.Count(l => l.Spans.Count > 0) + r.Closed.Count;
             var lines = new List<string>();
-            if (r.Conflict) lines.Add("同じ名前がすでにあるので、ほかの場所は変えていません(別の名前にすると変わります)");
-            else if (r.Resolving) lines.Add("使っている場所を調べています…");
+            if (r.Conflict) lines.Add(L.T("同じ名前がすでにあるので、ほかの場所は変えていません(別の名前にすると変わります)"));
+            else if (r.Resolving) lines.Add(L.T("使っている場所を調べています…"));
             else
             {
-                string where = files > 1 ? files + " ファイル " : "";
-                if (Mode == SymbolRenameMode.Auto || done) lines.Add(where + places + " か所" + (r.Closed.Count > 0 ? "(開いているファイル)" : "") + "を変えました");
-                else lines.Add(where + places + " か所を、カーソルが名前から離れたときに変えます");
+                string where = files > 1 ? L.F("{0} ファイル ", files) : "";
+                if (Mode == SymbolRenameMode.Auto || done) lines.Add(where + places + L.T(" か所") + (r.Closed.Count > 0 ? L.T("(開いているファイル)") : "") + L.T("を変えました"));
+                else lines.Add(where + places + L.T(" か所を、カーソルが名前から離れたときに変えます"));
                 if (r.Closed.Count > 0)
-                    lines.Add(done ? "閉じているファイル " + closedFiles + " 個も書き換えました" : "閉じているファイル " + r.Closed.Count + " 個は、打ち終えたときに書き換えます");
-                if (r.Overloaded) lines.Add("同じ名前で引数の違う関数があるので、呼び出しは変えていません");
-                if (r.SameNameClass) lines.Add("同じ名前のクラスが別のファイルにもあるので、そちらは変えていません");
-                if (r.AmbiguousLines.Count > 0) lines.Add("同じ物か決められない " + r.AmbiguousLines.Count + " か所は変えていません(出力ウィンドウ)");
-                if (r.Locked.Count > 0) lines.Add("開いているのに書き換えられなかった文書が " + r.Locked.Count + " 個あります(出力ウィンドウ)");
+                    lines.Add(done ? L.F("閉じているファイル {0} 個も書き換えました", closedFiles) : L.F("閉じているファイル {0} 個は、打ち終えたときに書き換えます", r.Closed.Count));
+                if (r.Overloaded) lines.Add(L.T("同じ名前で引数の違う関数があるので、呼び出しは変えていません"));
+                if (r.SameNameClass) lines.Add(L.T("同じ名前のクラスが別のファイルにもあるので、そちらは変えていません"));
+                if (r.AmbiguousLines.Count > 0) lines.Add(L.F("同じ物か決められない {0} か所は変えていません(出力ウィンドウ)", r.AmbiguousLines.Count));
+                if (r.Locked.Count > 0) lines.Add(L.F("開いているのに書き換えられなかった文書が {0} 個あります(出力ウィンドウ)", r.Locked.Count));
             }
-            SyncPreview.ShowNote(view, AnchorOf(r), "名前を変える", r.OldName, name, lines, true);
+            SyncPreview.ShowNote(view, AnchorOf(r), L.T("名前を変える"), r.OldName, name, lines, true);
         }
 
         private async Task ResolveAsync(Run r, ITextSnapshot before)
@@ -1150,13 +1150,13 @@ namespace KCppAssist
                 // 調べたあとで開かれた文書は、エディターの上で書き換える。開いているのにバッファーを取れない文書は、触らない
                 ITextBuffer buf;
                 if (!SymbolService.FindOpen(f, owner.Adapters, out buf)) { closed.Add(f); continue; }
-                if (buf == null) { failed.Add(f + ": 開いていますが、文字を取り出せませんでした"); continue; }
+                if (buf == null) { failed.Add(L.F("{0}: 開いていますが、文字を取り出せませんでした", f)); continue; }
                 ITextSnapshot snap = buf.CurrentSnapshot;
                 var edits = SymbolScan.MemberRefs(snap.GetText(), was, r.Ctx, -1).Where(x => x.Certain || amb)
                     .Select(x => Tuple.Create(x.Start, from.Length, to)).ToList();
-                if (!SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 名前を変える")) failed.Add(f + ": 書き換えられませんでした");
+                if (!SymbolService.ApplyEdits(snap, edits, owner.Undo, L.T("K-Cpp: 名前を変える"))) failed.Add(L.F("{0}: 書き換えられませんでした", f));
             }
-            failed.AddRange(r.Locked.Select(f => f + ": 開いていますが、文字を取り出せませんでした"));
+            failed.AddRange(r.Locked.Select(f => L.F("{0}: 開いていますが、文字を取り出せませんでした", f)));
             r.DiskTask = FinishAsync(r, was, to, closed, failed, amb, r.DiskTask);
         }
 
@@ -1176,8 +1176,8 @@ namespace KCppAssist
                                 .Select(x => new SymbolScan.Edit { Start = x.Start, Length = was.Name.Length, Text = name }).ToList()));
                         return list;
                     });
-                    written.AddRange(done.Where(x => x.Count > 0).Select(x => x.File + ": " + x.Count + " か所"));
-                    failed.AddRange(done.Where(x => x.Failed).Select(x => x.File + ": 読めないか、書き込めませんでした(読み取り専用かもしれません)"));
+                    written.AddRange(done.Where(x => x.Count > 0).Select(x => L.F("{0}: {1} か所", x.File, x.Count)));
+                    failed.AddRange(done.Where(x => x.Failed).Select(x => L.F("{0}: 読めないか、書き込めませんでした(読み取り専用かもしれません)", x.File)));
                 }
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 int places = r.Links.Sum(l => l.Spans.Count);
@@ -1187,15 +1187,15 @@ namespace KCppAssist
                     outLines.Add("---- " + was.Name + " → " + name + " ----");
                     if (failed.Count > 0)
                     {
-                        outLines.Add("次のファイルは書き換えられませんでした。" + was.Name + " が残っているので、手で直してください:");
+                        outLines.Add(L.F("次のファイルは書き換えられませんでした。{0} が残っているので、手で直してください:", was.Name));
                         outLines.AddRange(failed.Select(x => "  " + x));
                     }
-                    if (written.Count > 0) { outLines.Add("閉じていたファイルを書き換えて、保存しました:"); outLines.AddRange(written.Select(x => "  " + x)); }
+                    if (written.Count > 0) { outLines.Add(L.T("閉じていたファイルを書き換えて、保存しました:")); outLines.AddRange(written.Select(x => "  " + x)); }
                     if (r.AmbiguousLines.Count > 0)
                     {
-                        outLines.Add("同じ物か決められないので、変えていない場所(同じクラスのメンバーなら、手で直してください):");
+                        outLines.Add(L.T("同じ物か決められないので、変えていない場所(同じクラスのメンバーなら、手で直してください):"));
                         outLines.AddRange(r.AmbiguousLines.Take(MaxOutputLines));
-                        if (r.AmbiguousLines.Count > MaxOutputLines) outLines.Add("  …ほか " + (r.AmbiguousLines.Count - MaxOutputLines) + " か所");
+                        if (r.AmbiguousLines.Count > MaxOutputLines) outLines.Add(L.F("  …ほか {0} か所", (r.AmbiguousLines.Count - MaxOutputLines)));
                     }
                     SymbolService.Output(outLines);
                 }
@@ -1308,7 +1308,7 @@ namespace KCppAssist
         {
             var spans = edits.Select(x => Tuple.Create(cur.CreateTrackingSpan(x.Start, x.Length, SpanTrackingMode.EdgeInclusive), text.Substring(x.Start, x.Length), x.Text)).ToList();
             var list = edits.Select(x => Tuple.Create(x.Start, x.Length, x.Text)).ToList();
-            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, "K-Cpp: 呼び出しの引数を合わせる", cur.TextBuffer == buffer)) return -1;
+            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, L.T("K-Cpp: 呼び出しの引数を合わせる"), cur.TextBuffer == buffer)) return -1;
             cu.Open.AddRange(spans);
             return list.Count;
         }
@@ -1358,21 +1358,21 @@ namespace KCppAssist
                     {
                         // 調べている間に書き換わっていたら、位置がずれているので、やめる
                         ITextSnapshot cur = snap.TextBuffer.CurrentSnapshot;
-                        if (cur != snap && cur.GetText() != p.Text) { failed.Add(p.File + ": 調べている間に書き換わったので、呼び出しを直していません"); continue; }
+                        if (cur != snap && cur.GetText() != p.Text) { failed.Add(L.F("{0}: 調べている間に書き換わったので、呼び出しを直していません", p.File)); continue; }
                         int n = ApplyCallEdits(cur, p.Text, p.Edits, cu);
-                        if (n < 0) failed.Add(p.File + ": 書き換えられませんでした");
+                        if (n < 0) failed.Add(L.F("{0}: 書き換えられませんでした", p.File));
                         else { done += n; files++; }
                         continue;
                     }
-                    if (locked.Contains(p.File)) { failed.Add(p.File + ": 開いていますが、文字を取り出せませんでした"); continue; }
+                    if (locked.Contains(p.File)) { failed.Add(L.F("{0}: 開いていますが、文字を取り出せませんでした", p.File)); continue; }
                     // 調べたあとで開かれた文書は、エディターの上で直す
                     ITextBuffer buf;
                     if (!SymbolService.FindOpen(p.File, owner.Adapters, out buf)) { closed.Add(p); continue; }
-                    if (buf == null) { failed.Add(p.File + ": 開いていますが、文字を取り出せませんでした"); continue; }
+                    if (buf == null) { failed.Add(L.F("{0}: 開いていますが、文字を取り出せませんでした", p.File)); continue; }
                     ITextSnapshot now = buf.CurrentSnapshot;
                     string text = now.GetText();
                     int m2 = ApplyCallEdits(now, text, SymbolScan.CallEdits(text, d, ctx, amb, oldCount, map, hasDef, new List<int>()), cu);
-                    if (m2 < 0) failed.Add(p.File + ": 書き換えられませんでした");
+                    if (m2 < 0) failed.Add(L.F("{0}: 書き換えられませんでした", p.File));
                     else if (m2 > 0) { done += m2; files++; }
                 }
                 var written = new List<string>();
@@ -1383,10 +1383,10 @@ namespace KCppAssist
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     foreach (var r in results)
                     {
-                        if (r.Failed) { failed.Add(r.File + ": 読めないか、書き込めませんでした(読み取り専用かもしれません)"); continue; }
+                        if (r.Failed) { failed.Add(L.F("{0}: 読めないか、書き込めませんでした(読み取り専用かもしれません)", r.File)); continue; }
                         if (r.Count == 0) continue;
                         cu.Closed.Add(r);
-                        written.Add(r.File + ": " + r.Count + " か所");
+                        written.Add(L.F("{0}: {1} か所", r.File, r.Count));
                         done += r.Count;
                         files++;
                     }
@@ -1396,29 +1396,28 @@ namespace KCppAssist
                 int skipped = plans.Sum(p => p.Skipped.Count);
                 if (notes.Count > 0 || failed.Count > 0 || written.Count > 0)
                 {
-                    var outLines = new List<string> { "---- " + label + " の呼び出しの引数 ----" };
+                    var outLines = new List<string> { L.F("---- {0} の呼び出しの引数 ----", label) };
                     if (failed.Count > 0)
                     {
-                        outLines.Add("次のファイルの呼び出しは直せませんでした。前の引数の並びのままなので、手で直してください:");
+                        outLines.Add(L.T("次のファイルの呼び出しは直せませんでした。前の引数の並びのままなので、手で直してください:"));
                         outLines.AddRange(failed.Select(x => "  " + x));
                     }
-                    if (written.Count > 0) { outLines.Add("閉じていたファイルの呼び出しを書き換えて、保存しました:"); outLines.AddRange(written.Select(x => "  " + x)); }
+                    if (written.Count > 0) { outLines.Add(L.T("閉じていたファイルの呼び出しを書き換えて、保存しました:")); outLines.AddRange(written.Select(x => "  " + x)); }
                     if (skipped > 0)
-                        outLines.Add(a.Overloaded ? "同じ名前で引数の違う関数があるので、次の呼び出しは直していません:"
-                            : "次の呼び出しは、自動では直していません(足した引数に渡す値がない、受け手の型が分からない、など):");
+                        outLines.Add(a.Overloaded ? L.T("同じ名前で引数の違う関数があるので、次の呼び出しは直していません:") : L.T("次の呼び出しは、自動では直していません(足した引数に渡す値がない、受け手の型が分からない、など):"));
                     outLines.AddRange(notes.Take(MaxOutputLines));
-                    if (notes.Count > MaxOutputLines) outLines.Add("  …ほか " + (notes.Count - MaxOutputLines) + " 行");
+                    if (notes.Count > MaxOutputLines) outLines.Add(L.F("  …ほか {0} 行", (notes.Count - MaxOutputLines)));
                     SymbolService.Output(outLines);
                 }
                 if (done == 0 && skipped == 0 && failed.Count == 0) return;
                 var lines = new List<string>();
-                if (done > 0) lines.Add((files > 1 ? files + " ファイル " : "") + done + " か所の呼び出しを、新しい引数の並びに直しました");
-                if (skipped > 0) lines.Add(skipped + " か所は直していません(出力ウィンドウ)");
-                if (failed.Count > 0) lines.Add("直せなかったファイルが " + failed.Count + " 個あります(出力ウィンドウ)");
+                if (done > 0) lines.Add((files > 1 ? files + L.T(" ファイル ") : "") + done + L.T(" か所の呼び出しを、新しい引数の並びに直しました"));
+                if (skipped > 0) lines.Add(L.F("{0} か所は直していません(出力ウィンドウ)", skipped));
+                if (failed.Count > 0) lines.Add(L.F("直せなかったファイルが {0} 個あります(出力ウィンドウ)", failed.Count));
                 if (!view.IsClosed)
                 {
                     int anchor = d.Start >= 0 ? snapNow.CreateTrackingPoint(Math.Min(d.Start, snapNow.Length), PointTrackingMode.Negative).GetPosition(view.TextSnapshot) : -1;
-                    SyncPreview.ShowNote(view, anchor, label + " の呼び出し", null, null, lines);
+                    SyncPreview.ShowNote(view, anchor, L.F("{0} の呼び出し", label), null, null, lines);
                 }
                 IncludeService.Status(L.F("{0} の呼び出し {1} か所の引数を直しました{2}", label, done, (skipped + failed.Count > 0 ? L.T("(直していない所があります。出力ウィンドウの K-Cpp)") : "")));
             }
@@ -1452,7 +1451,7 @@ namespace KCppAssist
                     string from = revert ? x.Item3 : x.Item2, to = revert ? x.Item2 : x.Item3;
                     if (sp.GetText() == from) edits.Add(Tuple.Create(sp.Start.Position, sp.Length, to));
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 呼び出しの引数を合わせる")) n += edits.Count;
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, L.T("K-Cpp: 呼び出しの引数を合わせる"))) n += edits.Count;
             }
             _ = FollowArgsAsync(cu, revert, n);
         }

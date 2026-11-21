@@ -56,7 +56,7 @@ namespace KCppAssist
                 CancelEnrich();
                 _current = null;
                 var window = FindToolWindow(typeof(ErrorLogToolWindow), 0, false) as ErrorLogToolWindow;
-                if (window != null) window.View.ShowMessage("ビルド中です…");
+                if (window != null) window.View.ShowMessage(L.T("ビルド中です…"));
             }
             catch (Exception ex) { Log("build begin failed: " + ex.Message); }
         }
@@ -228,7 +228,7 @@ namespace KCppAssist
             if (text.Trim() != run.FixLine) { _ = ReportAsync(L.T("ファイルがビルドのあとで変わっています。ビルドし直してください。"), true); return; }
             var plan = NarrowFix.Make(text, run.Fix);
             if (plan == null) { _ = ReportAsync(L.T("この行は、自動では直せません。"), true); return; }
-            SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-Cpp: static_cast を付ける");
+            SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, L.T("K-Cpp: static_cast を付ける"));
             _ = ReportAsync(L.F("static_cast<{0}>(…) を付けました({1} 行目)。ビルドし直すと、ログが更新されます。", run.Fix, run.Line), false);
         }
 
@@ -243,8 +243,8 @@ namespace KCppAssist
             {
                 if (fixes == null || fixes.Count == 0) return;
                 var byFile = fixes.GroupBy(f => f.File, StringComparer.OrdinalIgnoreCase).ToList();
-                string list = string.Join("\n", byFile.Take(15).Select(g => Path.GetFileName(g.Key) + ": " + g.Count() + " か所"))
-                    + (byFile.Count > 15 ? "\n… ほか " + (byFile.Count - 15) + " ファイル" : "");
+                string list = string.Join("\n", byFile.Take(15).Select(g => L.F("{0}: {1} か所", Path.GetFileName(g.Key), g.Count())))
+                    + (byFile.Count > 15 ? L.F("\n… ほか {0} ファイル", byFile.Count - 15) : "");
                 if (!KDialog.Confirm("縮小変換を全部直す",
                     fixes.Count + " か所の縮小変換を、static_cast<型>(…) で包みます。値が切り捨てられてよいか、確かめてから実行してください。\nファイルを開いて書き換えます (保存はしません。ファイルごとに Ctrl+Z で戻せます)。",
                     list, "直す")) return;
@@ -269,7 +269,7 @@ namespace KCppAssist
                         edits.Add(Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text));
                     }
                     if (edits.Count == 0) continue;
-                    SyncService.ApplyEdits(buf, edits, undo, "K-Cpp: static_cast をまとめて付ける");
+                    SyncService.ApplyEdits(buf, edits, undo, L.T("K-Cpp: static_cast をまとめて付ける"));
                     done += edits.Count;
                 }
                 _ = ReportAsync(L.F("static_cast を {0} か所に付けました{1}。ビルドし直すと、ログが更新されます。", done, (skipped > 0 ? "(" + skipped + L.T(" か所は、ビルドのあとで行が変わっているか、自動で直せないので飛ばしました)") : "")), done == 0);

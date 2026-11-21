@@ -356,7 +356,7 @@ namespace KCppAssist
             var ch = Refactor.Make("ctordtor", a.Text, a.Caret, a.Eol, true, out why);
             if (ch == null) { await ReportAsync(why, true); return; }
             var cls = MemberScan.At(a.Text, a.Caret);
-            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, "K-Cpp: コンストラクター・デストラクターを作る");
+            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, L.T("K-Cpp: コンストラクター・デストラクターを作る"));
             string cpp = await EnsureCppAsync(a, cls);
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var a2 = await ActiveAsync();

@@ -158,7 +158,7 @@ namespace KCppAssist
                 ch.Add(at, 0, string.Concat(lines.Select(l => ind + l + eol)));
             }
             else AddPublic(ch, text, cls, lines, eol);
-            string what = string.Join(" と ", lines.Select(l => "~" + cls.Name == l.Replace("virtual ", "").Split('(')[0] ? "~" + cls.Name + "()" : cls.Name + "()"));
+            string what = string.Join(L.T(" と "), lines.Select(l => "~" + cls.Name == l.Replace("virtual ", "").Split('(')[0] ? "~" + cls.Name + "()" : cls.Name + "()"));
             ch.Message = L.F("{0} に {1}{2}", cls.Name, what, (style == CtorStyle.Default ? L.T(" を = default で作りました") : style == CtorStyle.Inline ? L.T(" を {} で作りました") : L.T(" を宣言しました")));
             return ch;
         }
@@ -394,7 +394,7 @@ namespace KCppAssist
             };
             AddPublic(ch, text, cls, lines, eol);
             Refactor.AddInclude(ch, text, "<nlohmann/json.hpp>", eol);
-            string skipped = cls.Members.Count > ms.Count ? "。ポインターと参照のメンバーは入れていません" : "";
+            string skipped = cls.Members.Count > ms.Count ? L.T("。ポインターと参照のメンバーは入れていません") : "";
             ch.Message = L.F("{0} を JSON に読み書きできるようにしました (メンバー {1} 個{2})", cls.Name, ms.Count, skipped);
             return ch;
         }
@@ -519,9 +519,9 @@ namespace KCppAssist
                 case "XMVECTOR": return new CbType { Size = 16, Align = 16 };
                 case "XMFLOAT4X4": case "Matrix": return new CbType { Size = 64, Align = 4, Matrix = true };
                 case "XMMATRIX": return new CbType { Size = 64, Align = 16, Matrix = true };
-                case "bool": return new CbType { Error = "bool は C++ で 1 バイト、HLSL で 4 バイトです。uint32_t か BOOL にしてください" };
-                case "XMFLOAT3X3": return new CbType { Error = "XMFLOAT3X3 は HLSL の float3x3 と並びが違います (HLSL は行ごとに 16 バイト)。XMFLOAT4X4 か XMFLOAT3X4 にしてください" };
-                case "double": return new CbType { Error = "double は、定数バッファではほとんど使いません。float にしてください" };
+                case "bool": return new CbType { Error = L.T("bool は C++ で 1 バイト、HLSL で 4 バイトです。uint32_t か BOOL にしてください")};
+                case "XMFLOAT3X3": return new CbType { Error = L.T("XMFLOAT3X3 は HLSL の float3x3 と並びが違います (HLSL は行ごとに 16 バイト)。XMFLOAT4X4 か XMFLOAT3X4 にしてください")};
+                case "double": return new CbType { Error = L.T("double は、定数バッファではほとんど使いません。float にしてください")};
             }
             return null;
         }
@@ -545,9 +545,9 @@ namespace KCppAssist
                 if (mem.Array.Length > 0)
                 {
                     Match a = Regex.Match(mem.Array, @"^\[(\d+)\]$");
-                    if (!a.Success) { why = mem.Name + mem.Array + " の要素数が分かりません (数で書いた 1 次元の配列だけ)"; return null; }
+                    if (!a.Success) { why = mem.Name + mem.Array + L.T(" の要素数が分かりません (数で書いた 1 次元の配列だけ)"); return null; }
                     n = int.Parse(a.Groups[1].Value);
-                    if (t.Size % 16 != 0 && n > 1) { why = mem.Name + mem.Array + ": HLSL の配列は要素ごとに 16 バイトに広がるので、" + mem.Type + " の配列は並びが合いません。XMFLOAT4 の配列にしてください"; return null; }
+                    if (t.Size % 16 != 0 && n > 1) { why = mem.Name + mem.Array + L.T(": HLSL の配列は要素ごとに 16 バイトに広がるので、") + mem.Type + L.T(" の配列は並びが合いません。XMFLOAT4 の配列にしてください"); return null; }
                 }
                 int start;
                 if (mem.Array.Length > 0 || t.Matrix) start = Up16(hlsl);
@@ -559,7 +559,7 @@ namespace KCppAssist
                     int floats = (start - cppStart) / 4;
                     string pn; do { pn = "pad" + padNo++; } while (names.Contains(pn));
                     string decl = "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";";
-                    inserted.Add(mem.Name + " の前に " + (floats * 4) + " バイト");
+                    inserted.Add(L.F("{0} の前に {1} バイト", mem.Name, (floats * 4)));
                     ch.Add(MemberScan.LineStart(text, mem.Start), 0, MemberScan.Indent(text, mem.Start) + decl + eol);
                     cppStart = start;
                 }
@@ -575,7 +575,7 @@ namespace KCppAssist
             {
                 int floats = (total - cpp) / 4;
                 string pn; do { pn = "pad" + padNo++; } while (names.Contains(pn));
-                inserted.Add("末尾に " + (floats * 4) + " バイト");
+                inserted.Add(L.F("末尾に {0} バイト", (floats * 4)));
                 ch.Add(MemberScan.LineEnd(text, last.End), 0, eol + MemberScan.Indent(text, last.Start) + "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";");
             }
             string assert = "static_assert(sizeof(" + cls.Name + ") % 16 == 0, \"定数バッファの大きさは 16 の倍数にする\");";
@@ -585,8 +585,7 @@ namespace KCppAssist
                 ch.Add(after, 0, eol + MemberScan.Indent(text, cls.Scope.Close) + assert);
             }
             if (ch.Edits.Count == 0) { why = L.F("{0} の並びは、HLSL と同じです ({1} バイト)", cls.Name, total); return null; }
-            ch.Message = inserted.Count == 0 ? cls.Name + " の並びは HLSL と同じです。static_assert だけ足しました (" + total + " バイト)"
-                : cls.Name + " に詰め物を足しました (" + string.Join("、", inserted) + "。全体 " + total + " バイト)";
+            ch.Message = inserted.Count == 0 ? L.F("{0} の並びは HLSL と同じです。static_assert だけ足しました ({1} バイト)", cls.Name, total) : L.F("{0} に詰め物を足しました ({1}。全体 {2} バイト)", cls.Name, string.Join("、", inserted), total);
             return ch;
         }
 

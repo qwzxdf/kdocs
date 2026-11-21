@@ -74,7 +74,7 @@ namespace KCppAssist
             else if (blankBefore && text.Substring(cut).StartsWith("\n")) cut += 1;
             x2.OldHeader.Add(start, cut - start, "");
             Refactor.AddInclude(x2.OldHeader, text, "\"" + newName + "\"", eol);
-            x2.OldHeader.Message = cls.Name + " を " + newName + " に移しました";
+            x2.OldHeader.Message = L.F("{0} を {1} に移しました", cls.Name, newName);
             return x2;
         }
 

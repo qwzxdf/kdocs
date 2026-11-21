@@ -115,12 +115,12 @@ namespace KCppAssist
         {
             var sb = new System.Text.StringBuilder();
             string what = via == "new" ? "new " + name : via + "<" + name + ">";
-            sb.Append(what).Append(": ").Append(name).Append(" のコンストラクターに、").Append(given).Append(" 個の引数を受け取るものがありません。");
+            sb.Append(L.F("{0}: {1} のコンストラクターに、{2} 個の引数を受け取るものがありません。", what, name, given));
             sb.Append("\n");
-            if (given < minAll) sb.Append("引数が足りません(最低 ").Append(minAll).Append(" 個)。");
-            else if (!unbounded && given > maxAll) sb.Append("引数が多すぎます(最大 ").Append(maxAll).Append(" 個)。");
-            else sb.Append("その個数のコンストラクターがありません。");
-            sb.Append("\n候補:");
+            if (given < minAll) sb.Append(L.F("引数が足りません(最低 {0} 個)。", minAll));
+            else if (!unbounded && given > maxAll) sb.Append(L.F("引数が多すぎます(最大 {0} 個)。", maxAll));
+            else sb.Append(L.T("その個数のコンストラクターがありません。"));
+            sb.Append(L.T("\n候補:"));
             foreach (var c in ci.Ctors.Take(5)) sb.Append("\n  ").Append(c.Text);
             if (ci.Ctors.Count > 5) sb.Append("\n  ...");
             return sb.ToString();

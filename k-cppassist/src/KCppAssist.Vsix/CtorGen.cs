@@ -115,7 +115,7 @@ namespace KCppAssist
                 string decl = CutInitializer(orig);
                 if (ParenOutsideAngles(decl)) continue;                 // 関数ポインターなど
                 if (Regex.IsMatch(decl, @"(?<!:):(?!:)")) continue;     // ビットフィールド
-                if (TopComma(decl)) { refused = true; refuseReason = "1 行に複数のメンバーを宣言している行があります: " + orig; break; }
+                if (TopComma(decl)) { refused = true; refuseReason = L.F("1 行に複数のメンバーを宣言している行があります: {0}", orig); break; }
                 if (Regex.IsMatch(decl, @"\]\s*$")) continue;           // 配列
 
                 Match dm = Regex.Match(decl, @"^(.*?[\s&*>])([A-Za-z_]\w*)$");

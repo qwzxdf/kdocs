@@ -32,7 +32,7 @@ if ($LASTEXITCODE -ne 0) { $code = 1 }
 
 # 4. Argument-count check for make_unique / make_shared / new (CallCheck; no VS dependency)
 $outCall = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-callcheck-tests.exe'
-$callFiles = @('CallCheck', 'CppText', 'FunctionScan') | ForEach-Object { Join-Path $src "$_.cs" }
+$callFiles = @('CallCheck', 'CppText', 'FunctionScan', 'Lang', 'LangDescriptions', 'LangMessages', 'LangMore') | ForEach-Object { Join-Path $src "$_.cs" }
 & $csc -nologo "-out:$outCall" -langversion:latest (Join-Path $PSScriptRoot 'CallCheckTests.cs') @callFiles
 if ($LASTEXITCODE -ne 0) { throw 'callcheck compile failed' }
 & $outCall

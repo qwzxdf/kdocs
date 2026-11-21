@@ -47,8 +47,8 @@ namespace KCppAssist
                 {
                     RenameHub.Remember(pair);
                     string err = RenameFile(pair.Old, pair.New);
-                    if (err == null) { moves.Add(pair); notes.Add("相手 " + Path.GetFileName(pair.Old) + " → " + Path.GetFileName(pair.New)); }
-                    else notes.Add("相手 " + Path.GetFileName(pair.Old) + " は、名前を変えられませんでした (" + err + ")");
+                    if (err == null) { moves.Add(pair); notes.Add(L.F("相手 {0} → {1}", Path.GetFileName(pair.Old), Path.GetFileName(pair.New))); }
+                    else notes.Add(L.F("相手 {0} は、名前を変えられませんでした ({1})", Path.GetFileName(pair.Old), err));
                 }
             }
 
@@ -71,10 +71,10 @@ namespace KCppAssist
                     RenameHub.Remember(p);
                     string err = RenameFile(p.Old, p.New);
                     if (err == null) all.Add(p);
-                    else notes.Add("相手 " + Path.GetFileName(p.Old) + " は、名前を変えられませんでした (" + err + ")");
+                    else notes.Add(L.F("相手 {0} は、名前を変えられませんでした ({1})", Path.GetFileName(p.Old), err));
                 }
-            if (pairs != null && pairs.Count > 0) notes.Insert(0, "相手 " + (all.Count - moves.Count) + " 個");
-            return await RewriteForMovesAsync(all, notes, moves.Count + " 個のファイル", adapters, undo);
+            if (pairs != null && pairs.Count > 0) notes.Insert(0, L.F("相手 {0} 個", (all.Count - moves.Count)));
+            return await RewriteForMovesAsync(all, notes, L.F("{0} 個のファイル", moves.Count), adapters, undo);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace KCppAssist
                         var need = RenameSync.IsBuildFile(path)
                             ? RenameSync.RewriteBuildFile(disk, Path.GetDirectoryName(path), moves)
                             : RenameSync.RewriteIncludes(disk, Path.GetDirectoryName(path), moves, roots, File.Exists);
-                        if (need.Count > 0) notes.Add(Path.GetFileName(path) + " は開いているのに書き換えられませんでした (手で直してください)");
+                        if (need.Count > 0) notes.Add(L.F("{0} は開いているのに書き換えられませんでした (手で直してください)", Path.GetFileName(path)));
                     }
                     catch (Exception) { }
                     continue;
@@ -207,11 +207,11 @@ namespace KCppAssist
             }
 
             var parts = new List<string>(notes);
-            if (sites > 0) parts.Add("#include " + sites + " か所 (" + files + " ファイル)");
-            if (build > 0) parts.Add("CMake " + build + " か所 (保存したあと、CMake を再構成してください)");
-            if (parts.Count == 0) parts.Add("ほかに直す所はありませんでした");
+            if (sites > 0) parts.Add(L.F("#include {0} か所 ({1} ファイル)", sites, files));
+            if (build > 0) parts.Add(L.F("CMake {0} か所 (保存したあと、CMake を再構成してください)", build));
+            if (parts.Count == 0) parts.Add(L.T("ほかに直す所はありませんでした"));
             string msg = head + ": " + string.Join("、", parts);
-            if (openPaths.Count > 0 && (sites > 0 || build > 0)) msg += "。開いているファイルは、保存していません";
+            if (openPaths.Count > 0 && (sites > 0 || build > 0)) msg += L.T("。開いているファイルは、保存していません");
             return msg;
         }
 
@@ -338,7 +338,7 @@ namespace KCppAssist
         {
             ITextUndoHistory history = null;
             if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
-            using (var tx = history == null ? null : history.CreateTransaction("K-Cpp: ファイル名の変更を反映"))
+            using (var tx = history == null ? null : history.CreateTransaction(L.T("K-Cpp: ファイル名の変更を反映")))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
                 foreach (var e in edits.OrderBy(x => x.Start))
@@ -356,7 +356,7 @@ namespace KCppAssist
             Busy = true;
             try
             {
-                if (File.Exists(newPath)) return "同じ名前のファイルがあります";
+                if (File.Exists(newPath)) return L.T("同じ名前のファイルがあります");
                 try
                 {
                     var dte = (DTE)Package.GetGlobalService(typeof(DTE));
@@ -368,7 +368,7 @@ namespace KCppAssist
                     }
                 }
                 catch (Exception ex) { KCppAssistPackage.Log("rename: project item rename failed: " + ex.Message); }
-                if (!File.Exists(oldPath)) return File.Exists(newPath) ? null : "元のファイルがありません";
+                if (!File.Exists(oldPath)) return File.Exists(newPath) ? null : L.T("元のファイルがありません");
                 File.Move(oldPath, newPath);
                 return null;
             }

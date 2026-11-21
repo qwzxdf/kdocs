@@ -130,7 +130,7 @@ namespace KCppAssist
                     var offers = OffersAt(a.Path, a.Text, a.Caret, a.Eol);
                     if (offers.Count == 0) { await ReportAsync(L.T("この位置で使える書き換えはありません"), true); return; }
                     var titles = offers.Select(o => o.Title).ToList();
-                    string pick = Choose("書き換えを選んでください", titles);
+                    string pick = Choose(L.T("書き換えを選んでください"), titles);
                     if (pick == null) return;
                     await RunRefactorAsync(offers[titles.IndexOf(pick)].Id);
                 }
@@ -221,8 +221,8 @@ namespace KCppAssist
             string why;
             var r = PimplGen.Make(a.Text, cppText, a.Caret, a.Eol, out why);
             if (r == null) { await ReportAsync(why, true); return; }
-            SyncService.ApplyEdits(buf, SyncService.Diff(cppText, r.Cpp), a.Undo, "K-Cpp: pimpl にする");
-            SyncService.ApplyEdits(a.View.TextBuffer, SyncService.Diff(a.Text, r.Header), a.Undo, "K-Cpp: pimpl にする");
+            SyncService.ApplyEdits(buf, SyncService.Diff(cppText, r.Cpp), a.Undo, L.T("K-Cpp: pimpl にする"));
+            SyncService.ApplyEdits(a.View.TextBuffer, SyncService.Diff(a.Text, r.Header), a.Undo, L.T("K-Cpp: pimpl にする"));
             ReturnTo(a.Path, cpp);
             await ReportAsync(L.F("{0} を pimpl にしました ({1} を {2} の Impl に移しました。保存はしていません)", cls.Name, string.Join(", ", r.Moved), Path.GetFileName(cpp)), false);
         }
@@ -248,7 +248,7 @@ namespace KCppAssist
                 string why;
                 var def = DefinitionGen.PlanDefinition(a.Text, decl, cppText, cEol, out why);
                 if (def == null) { failed.Add(decl.Name); continue; }
-                SyncService.Insert(buf, def.Position, def.Text, a.Undo, "K-Cpp: 定義を作る");
+                SyncService.Insert(buf, def.Position, def.Text, a.Undo, L.T("K-Cpp: 定義を作る"));
                 made++;
             }
             ReturnTo(a.Path, cpps[0]);
@@ -291,10 +291,10 @@ namespace KCppAssist
             {
                 string cEol = CppText.Eol(cppText);
                 File.WriteAllText(newCpp, FileGen.NewSource(cppText, ex.ClassName, defs, cEol), enc);
-                SyncService.ApplyEdits(cppBuf, defs.Select(d => Tuple.Create(d.Item1, d.Item2 - d.Item1, "")).ToList(), a.Undo, "K-Cpp: 定義を移す");
-                cppMsg = "。定義 " + defs.Count + " 個を " + Path.GetFileName(newCpp) + " に移しました";
+                SyncService.ApplyEdits(cppBuf, defs.Select(d => Tuple.Create(d.Item1, d.Item2 - d.Item1, "")).ToList(), a.Undo, L.T("K-Cpp: 定義を移す"));
+                cppMsg = L.F("。定義 {0} 個を {1} に移しました", defs.Count, Path.GetFileName(newCpp));
             }
-            SyncService.ApplyEdits(a.View.TextBuffer, ex.OldHeader.Edits, a.Undo, "K-Cpp: クラスを移す");
+            SyncService.ApplyEdits(a.View.TextBuffer, ex.OldHeader.Edits, a.Undo, L.T("K-Cpp: クラスを移す"));
 
             // プロジェクトに足す
             try
@@ -307,7 +307,7 @@ namespace KCppAssist
                 }
             }
             catch (Exception e2) { Log("extract add failed: " + e2.Message); }
-            await ReportAsync(ex.OldHeader.Message + cppMsg + " (元のファイルは保存していません)", false);
+            await ReportAsync(ex.OldHeader.Message + cppMsg + L.T(" (元のファイルは保存していません)"), false);
         }
     }
 }

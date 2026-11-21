@@ -59,7 +59,7 @@ namespace KCppAssist
                 int innerLen = Math.Max(0, Math.Min(block.Length - innerAt, newLength));
                 string oldBlock = block.Substring(0, innerAt) + oldInner + block.Substring(innerAt + innerLen);
 
-                var panel = Panel(file + " に写しました");
+                var panel = Panel(L.F("{0} に写しました", file));
                 AddCode(panel, oldBlock, Red);
                 AddCode(panel, block, Green);
                 Present(anchor, anchorPos, panel);

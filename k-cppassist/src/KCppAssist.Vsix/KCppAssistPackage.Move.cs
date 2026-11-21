@@ -65,7 +65,7 @@ namespace KCppAssist
                 string cppFile = sources[0];
                 if (sources.Count > 1)
                 {
-                    string pick = Choose(label + " の本体を移す .cpp を選んでください。", sources);
+                    string pick = Choose(L.F("{0} の本体を移す .cpp を選んでください。", label), sources);
                     if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                     cppFile = pick;
                 }
@@ -82,8 +82,8 @@ namespace KCppAssist
                 string why;
                 var plan = MoveGen.ToCpp(text, sig, cppText, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
-                SyncService.ApplyEdits(cppBuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数を cpp に移す");
-                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数を cpp に移す");
+                SyncService.ApplyEdits(cppBuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, L.T("K-Cpp: 関数を cpp に移す"));
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, L.T("K-Cpp: 関数を cpp に移す"));
                 await ReportAsync(L.F("{0} の本体を {1} に移しました (必要な #include は足していません)", label, Path.GetFileName(cppFile)), false);
                 return;
             }
@@ -103,7 +103,7 @@ namespace KCppAssist
                 if (targets.Count > 1)
                 {
                     var names = targets.ToDictionary(t => t.File + " (" + t.Sig.Open + ")", t => t);
-                    string pick = Choose(label + " の宣言が複数あります。本体を移すヘッダーを選んでください。", names.Keys.ToList());
+                    string pick = Choose(L.F("{0} の宣言が複数あります。本体を移すヘッダーを選んでください。", label), names.Keys.ToList());
                     if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                     t0 = names[pick];
                 }
@@ -118,8 +118,8 @@ namespace KCppAssist
                 string why;
                 var plan = MoveGen.ToHeader(text, sig, hText, decl, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
-                SyncService.ApplyEdits(hbuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数をヘッダーに移す");
-                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数をヘッダーに移す");
+                SyncService.ApplyEdits(hbuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, L.T("K-Cpp: 関数をヘッダーに移す"));
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, L.T("K-Cpp: 関数をヘッダーに移す"));
                 await ReportAsync(L.F("{0} の本体を {1} に移しました (cpp の #include のうち、本体が使うものは、ヘッダーに足してください)", label, Path.GetFileName(t0.File)), false);
             }
         }

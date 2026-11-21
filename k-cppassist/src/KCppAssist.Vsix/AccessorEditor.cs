@@ -118,7 +118,7 @@ namespace KCppAssist
         {
             refused = null;
             if (Regex.IsMatch(type, @"^(?:std::)?(?:mutex|recursive_mutex|shared_mutex|timed_mutex|thread|jthread|atomic_flag|condition_variable)\b"))
-            { refused = type + " はコピーも移動もできないので、Getter・Setter は作れません"; return null; }
+            { refused = L.F("{0} はコピーも移動もできないので、Getter・Setter は作れません", type); return null; }
 
             string body = text.Substring(c.Open + 1, c.Close - c.Open - 1);
             string stem = member.StartsWith("m_") ? member.Substring(2) : member;
@@ -168,7 +168,7 @@ namespace KCppAssist
             // Setter だけを頼まれたのに、作れない型(const のメンバー、unique_ptr など)
             if (!wantGetter && setter == null)
             {
-                refused = readOnly ? member + " は const なので、Setter は作れません" : type + " のメンバーには、Setter を作りません (持ち主を移す型のため)";
+                refused = readOnly ? L.F("{0} は const なので、Setter は作れません", member) : L.F("{0} のメンバーには、Setter を作りません (持ち主を移す型のため)", type);
                 return null;
             }
             if (!wantSetter) setter = null;
