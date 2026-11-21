@@ -29,6 +29,11 @@ namespace KCppAssist
             public bool IndentInNamespace;              // namespace の中を字下げする
             public bool NamespaceComment = false;       // 「}  // namespace X」
             public string Eol = "\r\n";
+            // VS の「クラスの追加」が作ったファイルを書き直すときに、元の中身を引き継ぐ(null ならふつうのひな形)
+            public string ClassHead;                    // 「class Foo : public Bar」。null ならファイル名から決める
+            public List<string> Members;                // public: の下に置く宣言(「Foo();」など)
+            public List<string> Includes;               // #pragma once / cpp の先頭に置く #include の行
+            public List<string> Bodies;                 // cpp の namespace の中に置く定義(「Foo::Foo()\n{\n}」など)
         }
 
         // ---- 名前 ----
@@ -123,15 +128,29 @@ namespace KCppAssist
             if (o.Guard == Guard.PragmaOnce) sb.Append("#pragma once").Append(eol);
             else sb.Append("#ifndef ").Append(guard).Append(eol).Append("#define ").Append(guard).Append(eol);
             sb.Append(eol);
+            if (o.Includes != null && o.Includes.Count > 0)
+            {
+                foreach (string inc in o.Includes) sb.Append(inc).Append(eol);
+                sb.Append(eol);
+            }
             string ind = o.IndentInNamespace && o.Namespace.Length > 0 ? o.Indent : "";
             if (o.Namespace.Length > 0) sb.Append("namespace ").Append(o.Namespace).Append(" {").Append(eol).Append(eol);
             if (o.MakeClass)
             {
-                string cls = ClassName(stem, o.Naming);
-                sb.Append(ind).Append(o.IsStruct ? "struct " : "class ").Append(cls).Append(" {").Append(eol);
-                if (!o.IsStruct) sb.Append(ind).Append("public:").Append(eol);
-                caret = sb.Length + ind.Length + o.Indent.Length;    // カーソルを置く行(クラスの中の空行)
-                sb.Append(ind).Append(o.Indent).Append(eol);
+                string head = o.ClassHead ?? ((o.IsStruct ? "struct " : "class ") + ClassName(stem, o.Naming));
+                bool isStruct = head.StartsWith("struct", StringComparison.Ordinal);
+                sb.Append(ind).Append(head).Append(" {").Append(eol);
+                if (!isStruct) sb.Append(ind).Append("public:").Append(eol);
+                if (o.Members != null && o.Members.Count > 0)
+                {
+                    foreach (string mem in o.Members) sb.Append(ind).Append(o.Indent).Append(mem).Append(eol);
+                    caret = sb.Length - eol.Length;                  // 最後の宣言の行末
+                }
+                else
+                {
+                    caret = sb.Length + ind.Length + o.Indent.Length;    // カーソルを置く行(クラスの中の空行)
+                    sb.Append(ind).Append(o.Indent).Append(eol);
+                }
                 sb.Append(ind).Append("};").Append(eol);
                 sb.Append(eol);
             }
@@ -146,14 +165,60 @@ namespace KCppAssist
         {
             string eol = o.Eol;
             var sb = new StringBuilder();
-            if (headerFile != null) sb.Append("#include \"").Append(headerFile).Append('"').Append(eol).Append(eol);
+            if (o.Includes != null && o.Includes.Count > 0)
+            {
+                foreach (string inc in o.Includes) sb.Append(inc).Append(eol);
+                sb.Append(eol);
+            }
+            else if (headerFile != null) sb.Append("#include \"").Append(headerFile).Append('"').Append(eol).Append(eol);
+            string body = o.Bodies != null && o.Bodies.Count > 0 ? string.Join(eol + eol, o.Bodies.Select(b => b.Replace("\r\n", "\n").Replace("\n", eol))) : null;
             if (o.Namespace.Length > 0)
             {
                 sb.Append("namespace ").Append(o.Namespace).Append(" {").Append(eol).Append(eol);
+                if (body != null) sb.Append(body).Append(eol);
                 sb.Append(eol);
                 sb.Append("}").Append(o.NamespaceComment ? "  // namespace " + o.Namespace : "").Append(eol);
             }
+            else if (body != null) sb.Append(body).Append(eol);
             return sb.ToString();
+        }
+
+        // ---- VS の「クラスの追加」が作ったファイル ----
+
+        private static readonly Regex WizardHeaderRx = new Regex(
+            @"^\s*#\s*pragma\s+once\s*((?:#\s*include[^\r\n]*\s*)*)((?:class|struct)\s+([A-Za-z_]\w*)(?:\s*:\s*[^{;]+?)?)\s*\{\s*(?:public\s*:\s*)?((?:(?:virtual\s+)?~?\3\s*\(\s*\)\s*(?:override\s*)?;\s*)*)\}\s*;\s*$");
+
+        private static readonly Regex WizardSourceRx = new Regex(
+            @"^\s*((?:#\s*include[^\r\n]*\s*)+)((?:[A-Za-z_]\w*::~?[A-Za-z_]\w*\s*\(\s*\)\s*\{\s*\}\s*)*)$");
+
+        /// <summary>
+        /// VS の「クラスの追加」が作ったヘッダー(#pragma once と、空のクラスか、コンストラクター・デストラクターの宣言だけ)なら true。
+        /// head に「class Foo : public Bar」、members に宣言、includes に #include の行を返す。手で書き足したものは、false(触らない)。
+        /// </summary>
+        public static bool ParseWizardHeader(string text, out string head, out List<string> members, out List<string> includes)
+        {
+            head = null; members = new List<string>(); includes = new List<string>();
+            var m = WizardHeaderRx.Match(text ?? "");
+            if (!m.Success) return false;
+            head = Regex.Replace(m.Groups[2].Value, @"\s+", " ").Trim();
+            foreach (string l in m.Groups[1].Value.Split('\n')) if (l.Trim().Length > 0) includes.Add(l.Trim());
+            foreach (Match d in Regex.Matches(m.Groups[4].Value, @"[^;]+;")) members.Add(Regex.Replace(d.Value, @"\s+", " ").Trim().Replace(" (", "(").Replace("( ", "(").Replace(" )", ")"));
+            return true;
+        }
+
+        /// <summary>
+        /// VS の「クラスの追加」が作った cpp(#include と、空のコンストラクター・デストラクターの定義だけ)なら true。
+        /// includes に #include の行、bodies に定義(namespace は付けない形)を返す。
+        /// </summary>
+        public static bool ParseWizardSource(string text, out List<string> includes, out List<string> bodies)
+        {
+            includes = new List<string>(); bodies = new List<string>();
+            var m = WizardSourceRx.Match(text ?? "");
+            if (!m.Success) return false;
+            foreach (string l in m.Groups[1].Value.Split('\n')) if (l.Trim().Length > 0) includes.Add(l.Trim());
+            foreach (Match d in Regex.Matches(m.Groups[2].Value, @"([A-Za-z_]\w*::~?[A-Za-z_]\w*)\s*\(\s*\)"))
+                bodies.Add(d.Groups[1].Value + "()\n{\n}");
+            return true;
         }
 
         /// <summary>インクルード ガードのマクロ名。「Prest::Foo」と「game_object」から PREST_GAME_OBJECT_H_。</summary>

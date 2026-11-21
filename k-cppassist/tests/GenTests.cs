@@ -526,6 +526,27 @@ static class GenTests
             o = new NewFileGen.Options { Namespace = "Prest", Eol = "\n", NamespaceComment = true };
             Check("source", NewFileGen.Source("Foo.h", o), "#include \"Foo.h\"\n\nnamespace Prest {\n\n\n}  // namespace Prest\n");
             Check("source: no header, no namespace", NewFileGen.Source(null, new NewFileGen.Options { Eol = "\n" }), "");
+
+            // VS の「クラスの追加」が作ったファイル
+            string wh = "#pragma once\r\n#include \"Base.h\"\r\nclass RPCDispatcher :\r\n    public Base\r\n{\r\npublic:\r\n\tRPCDispatcher();\r\n\t~RPCDispatcher();\r\n};\r\n\r\n";
+            string head; List<string> mems, incs;
+            Check("wizard header: parsed", NewFileGen.ParseWizardHeader(wh, out head, out mems, out incs).ToString(), "True");
+            Check("wizard header: head", head, "class RPCDispatcher : public Base");
+            Check("wizard header: members", string.Join("|", mems), "RPCDispatcher();|~RPCDispatcher();");
+            Check("wizard header: includes", string.Join("|", incs), "#include \"Base.h\"");
+            o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", IndentInNamespace = true, Eol = "\n", ClassHead = head, Members = mems, Includes = incs };
+            Check("wizard header: rewritten", NewFileGen.Header("RPCDispatcher", o, out caret),
+                "#pragma once\n\n#include \"Base.h\"\n\nnamespace Prest {\n\n\tclass RPCDispatcher : public Base {\n\tpublic:\n\t\tRPCDispatcher();\n\t\t~RPCDispatcher();\n\t};\n\n}\n");
+            Check("wizard header: empty class", NewFileGen.ParseWizardHeader("#pragma once\nclass Foo\n{\n};\n", out head, out mems, out incs) && head == "class Foo" && mems.Count == 0 ? "ok" : "ng", "ok");
+            Check("wizard header: hand-written member is not touched", NewFileGen.ParseWizardHeader("#pragma once\nclass Foo\n{\npublic:\n\tint x;\n};\n", out head, out mems, out incs).ToString(), "False");
+            string ws = "#include \"pch.h\"\r\n#include \"RPCDispatcher.h\"\r\n\r\nRPCDispatcher::RPCDispatcher()\r\n{\r\n}\r\n\r\nRPCDispatcher::~RPCDispatcher()\r\n{\r\n}\r\n";
+            List<string> bodies;
+            Check("wizard source: parsed", NewFileGen.ParseWizardSource(ws, out incs, out bodies).ToString(), "True");
+            o = new NewFileGen.Options { Namespace = "Prest", Eol = "\n", Includes = incs, Bodies = bodies };
+            Check("wizard source: rewritten", NewFileGen.Source(null, o),
+                "#include \"pch.h\"\n#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\nRPCDispatcher::~RPCDispatcher()\n{\n}\n\n}\n");
+            Check("wizard source: only include", NewFileGen.ParseWizardSource("#include \"Foo.h\"\n", out incs, out bodies) && bodies.Count == 0 ? "ok" : "ng", "ok");
+            Check("wizard source: hand-written body is not touched", NewFileGen.ParseWizardSource("#include \"Foo.h\"\nFoo::Foo()\n{\n\tx = 1;\n}\n", out incs, out bodies).ToString(), "False");
         }
 
         // ---- クラス名の上の電球 ----

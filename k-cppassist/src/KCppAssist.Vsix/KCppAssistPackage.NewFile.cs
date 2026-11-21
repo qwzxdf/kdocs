@@ -123,6 +123,34 @@ namespace KCppAssist
             return o;
         }
 
+        /// <summary>
+        /// VS の「クラスの追加」が作ったばかりのファイルを、ひな形の形(namespace・字下げ・{ の位置)に書き直した中身。
+        /// そのファイルでなければ null。クラス名・基底クラス・#include・コンストラクターとデストラクターは引き継ぐ。
+        /// </summary>
+        public static string WizardContent(string path, string text, OptionsPage opt, Style st, out int caret)
+        {
+            caret = -1;
+            var o = Build(opt, st);
+            string stem = Path.GetFileNameWithoutExtension(path);
+            if (IncludeService.IsHeader(path))
+            {
+                string head; List<string> members, includes;
+                if (!NewFileGen.ParseWizardHeader(text, out head, out members, out includes)) return null;
+                o.ClassHead = head; o.Members = members; o.Includes = includes; o.MakeClass = true;
+                int c;
+                string res = NewFileGen.Header(stem, o, out c);
+                caret = c;
+                return res;
+            }
+            List<string> incs, bodies;
+            if (!NewFileGen.ParseWizardSource(text, out incs, out bodies)) return null;
+            o.Includes = incs; o.Bodies = bodies;
+            string src = NewFileGen.Source(null, o);
+            int k = src.IndexOf("namespace", StringComparison.Ordinal);
+            caret = k >= 0 ? Math.Min(src.Length, src.IndexOf('\n', k) + 1) : src.Length;
+            return src;
+        }
+
         /// <summary>新しい空のファイルの中身と、カーソルの位置(なければ -1)。書く必要がなければ null。</summary>
         public static string Content(string path, OptionsPage opt, Style st, out int caret)
         {
@@ -174,16 +202,26 @@ namespace KCppAssist
                 if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
                 if (view.Properties.ContainsProperty(typeof(NewFileListener))) return;
                 view.Properties.AddProperty(typeof(NewFileListener), true);
-                // 作ったばかり(2 分以内)で、中身が空のものだけ。昔からある空のファイルには触らない
-                if (new FileInfo(path).Length > 64) return;      // BOM だけ・VS のひな形(#pragma once だけ)は空とみなす
+                // 作ったばかり(2 分以内)のものだけ。昔からある空のファイルには触らない
+                if (new FileInfo(path).Length > 2048) return;
                 if ((DateTime.UtcNow - File.GetCreationTimeUtc(path)).TotalMinutes > 2) return;
-                if (!NewFileGen.IsBlank(view.TextBuffer.CurrentSnapshot.GetText())) return;
-                var ignored = ThreadHelper.JoinableTaskFactory.RunAsync(() => FillAsync(view, path));
+                string now = view.TextBuffer.CurrentSnapshot.GetText();
+                // 空(BOM だけ・#pragma once だけ)か、VS の「クラスの追加」が作ったままの形(class X { }; と、#include だけの cpp)
+                bool blank = NewFileGen.IsBlank(now);
+                if (!blank && !IsWizard(path, now)) return;
+                var ignored = ThreadHelper.JoinableTaskFactory.RunAsync(() => FillAsync(view, path, blank ? null : now));
             }
             catch (Exception ex) { KCppAssistPackage.Log("new file listener failed: " + ex.Message); }
         }
 
-        private static async Task FillAsync(IWpfTextView view, string path)
+        private static bool IsWizard(string path, string text)
+        {
+            string h; List<string> a, b, c;
+            if (IncludeService.IsHeader(path)) return NewFileGen.ParseWizardHeader(text, out h, out a, out c);
+            return NewFileGen.ParseWizardSource(text, out a, out b);
+        }
+
+        private static async Task FillAsync(IWpfTextView view, string path, string wizardText)
         {
             try
             {
@@ -196,9 +234,13 @@ namespace KCppAssist
                 if (needScan) st = await Task.Run(() => NewFileService.Detect(root, skip));
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 var buf = view.TextBuffer;
-                if (!NewFileGen.IsBlank(buf.CurrentSnapshot.GetText())) return;       // 調べている間に、何か書かれた
+                string cur = buf.CurrentSnapshot.GetText();
+                // 調べている間に、何か書かれた
+                if (wizardText == null ? !NewFileGen.IsBlank(cur) : cur != wizardText) return;
                 int caret;
-                string text = NewFileService.Content(path, opt, st ?? new NewFileService.Style(), out caret);
+                string text = wizardText == null
+                    ? NewFileService.Content(path, opt, st ?? new NewFileService.Style(), out caret)
+                    : NewFileService.WizardContent(path, wizardText, opt, st ?? new NewFileService.Style(), out caret);
                 if (text == null) return;
                 using (var edit = buf.CreateEdit(EditOptions.None, null, NewFileService.EditTag))
                 {
@@ -207,7 +249,7 @@ namespace KCppAssist
                 }
                 if (caret >= 0 && caret <= buf.CurrentSnapshot.Length)
                     view.Caret.MoveTo(new SnapshotPoint(buf.CurrentSnapshot, caret));
-                KCppAssistPackage.Log("new file: wrote template to " + Path.GetFileName(path));
+                KCppAssistPackage.Log("new file: wrote template to " + Path.GetFileName(path) + (wizardText != null ? " (from the Add Class wizard)" : ""));
             }
             catch (Exception ex) { KCppAssistPackage.Log("new file fill failed: " + ex); }
         }
