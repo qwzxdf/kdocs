@@ -48,12 +48,94 @@ namespace KCppAssist
             return list;
         }
 
-        /// <summary>ファイル名(拡張子なし)に対応するクラス名を選ぶ。同じ名前(大文字小文字・「_」の違いは無視)があればそれ、なければ最初のクラス。なければ null。</summary>
+        /// <summary>
+        /// ファイル名(拡張子なし)に対応するクラス名を選ぶ。対応する名前(大文字小文字・「_」の違いと、接頭辞の C・A・U・F などは無視)が
+        /// あればそれ、なければ最初のクラス。なければ null。
+        /// </summary>
         public static string PickClass(IList<string> classes, string stem)
         {
             if (classes == null || classes.Count == 0) return null;
             foreach (string c in classes) if (SameName(c, stem)) return c;
+            string prefix;
+            foreach (string c in classes) if (Corresponds(c, stem, out prefix)) return c;
             return classes[0];
+        }
+
+        /// <summary>
+        /// クラス名がファイル名に対応しているか。書き方の違い(GameObject と game_object)に加えて、
+        /// 大文字 1〜2 字の接頭辞(CPlayer と Player.h、APlayerController と PlayerController.h)も対応とみなし、prefix に返す。
+        /// </summary>
+        public static bool Corresponds(string cls, string stem, out string prefix)
+        {
+            prefix = "";
+            if (string.IsNullOrEmpty(cls) || string.IsNullOrEmpty(stem)) return false;
+            if (SameName(cls, stem)) return true;
+            for (int k = 1; k <= 2 && k < cls.Length; k++)
+            {
+                string p = cls.Substring(0, k);
+                if (!p.All(ch => ch >= 'A' && ch <= 'Z')) break;
+                string core = cls.Substring(k);
+                // 接頭辞のあとは大文字で始まる(「Cat」の C は接頭辞ではない)
+                if (!char.IsUpper(core[0])) continue;
+                if (SameName(core, stem)) { prefix = p; return true; }
+            }
+            return false;
+        }
+
+        private enum Style { Unknown, Pascal, Camel, Lower, LowerSnake, UpperSnake, CapSnake, Kebab }
+
+        private static Style StyleOf(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return Style.Unknown;
+            bool hasLower = s.Any(char.IsLower), hasUpper = s.Any(char.IsUpper);
+            if (s.Contains('-')) return Style.Kebab;
+            if (s.Contains('_'))
+            {
+                if (!hasUpper) return Style.LowerSnake;
+                if (!hasLower) return Style.UpperSnake;
+                return Style.CapSnake;
+            }
+            if (!hasUpper) return Style.Lower;
+            if (!hasLower) return Style.Unknown;      // 「RPC」のような大文字だけの 1 語は、どの書き方とも決められない
+            return char.IsUpper(s[0]) ? Style.Pascal : Style.Camel;
+        }
+
+        private static string Up1(string w) { return w.Length == 0 ? w : char.ToUpperInvariant(w[0]) + w.Substring(1); }
+
+        /// <summary>
+        /// name を、sample と同じ書き方(PascalCase・camelCase・snake_case など)に直す。
+        /// sample の書き方が決められないとき(大文字だけの 1 語など)と、name がすでに同じ書き方のときは、name をそのまま返す(HTTPServer の略語を壊さないため)。
+        /// </summary>
+        public static string StyleLike(string name, string sample)
+        {
+            Style want = StyleOf(sample);
+            if (want == Style.Unknown || StyleOf(name) == want) return name;
+            var words = NewFileGen.Words(name);
+            if (words.Count == 0) return name;
+            switch (want)
+            {
+                case Style.Pascal: return string.Concat(words.Select(w => Up1(w.Any(char.IsLower) ? w : w.ToLowerInvariant())));
+                case Style.Camel: return words[0].ToLowerInvariant() + string.Concat(words.Skip(1).Select(w => Up1(w.Any(char.IsLower) ? w : w.ToLowerInvariant())));
+                case Style.Lower: return string.Concat(words.Select(w => w.ToLowerInvariant()));
+                case Style.LowerSnake: return string.Join("_", words.Select(w => w.ToLowerInvariant()));
+                case Style.UpperSnake: return string.Join("_", words.Select(w => w.ToUpperInvariant()));
+                case Style.CapSnake: return string.Join("_", words.Select(w => Up1(w.ToLowerInvariant())));
+                case Style.Kebab: return string.Join("-", words.Select(w => w.ToLowerInvariant()));
+            }
+            return name;
+        }
+
+        /// <summary>ファイル名が old → new に変わったとき、クラス名 cls(old に対応していること)の新しい名前。接頭辞と書き方を保つ。</summary>
+        public static string ClassForNewStem(string cls, string prefix, string newStem)
+        {
+            return prefix + StyleLike(newStem, cls.Substring(prefix.Length));
+        }
+
+        /// <summary>クラス名が変わったとき、ファイル名(拡張子なし)oldStem の新しい名前。接頭辞を外し、古いファイル名の書き方に合わせる。</summary>
+        public static string StemForNewClass(string newClass, string prefix, string oldStem)
+        {
+            string core = prefix.Length > 0 && newClass.StartsWith(prefix, StringComparison.Ordinal) && newClass.Length > prefix.Length ? newClass.Substring(prefix.Length) : newClass;
+            return StyleLike(core, oldStem);
         }
 
         /// <summary>クラス名とファイル名が「同じ名前」か。大文字小文字と「_」「-」の違いは見ない(GameObject と game_object は同じ)。</summary>

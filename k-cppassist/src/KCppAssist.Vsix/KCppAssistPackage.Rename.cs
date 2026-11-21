@@ -84,9 +84,12 @@ namespace KCppAssist
                             clsOld = htext == null ? null : RenameSync.PickClass(RenameSync.ClassesIn(htext), oldStem);
                             if (clsOld != null)
                             {
-                                clsNew = NewFileGen.ClassName(newStem, NewFileService.NamingOf(opt));
-                                if (clsNew.Length == 0 || clsNew == clsOld) clsOld = null;
-                                else matched = RenameSync.SameName(clsOld, oldStem);
+                                // クラス名が古いファイル名に対応していれば(Google の game_object.h と GameObject、Unreal の APawn と Pawn.h も)、
+                                // 接頭辞と書き方を保って新しい名前を作る。対応していなければ、新規ファイルの「クラス名の決めかた」で作る
+                                string prefix;
+                                matched = RenameSync.Corresponds(clsOld, oldStem, out prefix);
+                                clsNew = matched ? RenameSync.ClassForNewStem(clsOld, prefix, newStem) : NewFileGen.ClassName(newStem, NewFileService.NamingOf(opt));
+                                if (clsNew.Length == 0 || clsNew == clsOld) { clsOld = null; matched = false; }
                             }
                         }
                         renameClass = clsOld != null && matched;

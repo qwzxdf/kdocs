@@ -512,7 +512,7 @@ static class GenTests
             Check("ns: ignores std and nested", NewFileGen.DetectNamespace(new[] { "namespace std {\n}\nnamespace A::B {\n  namespace c {\n  }\n}\n" }), "A::B");
             Check("indent: tab", NewFileGen.DetectIndent(new[] { "class A {\n\tint a;\n\tint b;\n\tint c;\n\tint d;\n\tint e;\n};\n" }), "\t");
             Check("indent: 4 spaces", NewFileGen.DetectIndent(new[] { "class A {\n    int a;\n    int b;\n    int c;\n    int d;\n    int e;\n};\n" }), "    ");
-            var o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", Eol = "\n" };
+            var o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", Eol = "\n", NamespaceComment = true };
             int caret;
             string h = NewFileGen.Header("game_object", o, out caret);
             Check("header: pragma once class", h, "#pragma once\n\nnamespace Prest {\n\nclass game_object {\npublic:\n\t\n};\n\n}  // namespace Prest\n");
@@ -522,7 +522,7 @@ static class GenTests
                 "#ifndef GAME_OBJECT_H_\n#define GAME_OBJECT_H_\n\nclass GameObject {\npublic:\n\t\n};\n\n\n#endif  // GAME_OBJECT_H_\n");
             o = new NewFileGen.Options { Namespace = "A::B", MakeClass = false, Eol = "\n", NamespaceComment = false };
             Check("header: no class", NewFileGen.Header("x", o, out caret), "#pragma once\n\nnamespace A::B {\n\n\n}\n");
-            o = new NewFileGen.Options { Namespace = "Prest", Eol = "\n" };
+            o = new NewFileGen.Options { Namespace = "Prest", Eol = "\n", NamespaceComment = true };
             Check("source", NewFileGen.Source("Foo.h", o), "#include \"Foo.h\"\n\nnamespace Prest {\n\n\n}  // namespace Prest\n");
             Check("source: no header, no namespace", NewFileGen.Source(null, new NewFileGen.Options { Eol = "\n" }), "");
         }

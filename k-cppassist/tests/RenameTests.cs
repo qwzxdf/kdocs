@@ -121,6 +121,26 @@ static class RenameTests
         string src2 = "Foo f; FooBar g; m_Foo h; Foo::Foo() {} // Foo";
         Check("replace word: whole word only", RenameSync.Apply(src2, RenameSync.ReplaceWord(src2, "Foo", "Bar")) == "Bar f; FooBar g; m_Foo h; Bar::Bar() {} // Bar");
 
+        // ---- コーディング スタイルごとの、ファイル名とクラス名の対応 ----
+        string pre;
+        Check("google: game_object corresponds to GameObject", RenameSync.Corresponds("GameObject", "game_object", out pre) && pre == "");
+        Check("google: file -> class", RenameSync.ClassForNewStem("GameObject", "", "game_entity") == "GameEntity");
+        Check("google: class -> file", RenameSync.StemForNewClass("GameEntity", "", "game_object") == "game_entity");
+        Check("same: file -> class", RenameSync.ClassForNewStem("GameObject", "", "GameEntity") == "GameEntity");
+        Check("same: class -> file", RenameSync.StemForNewClass("GameEntity", "", "GameObject") == "GameEntity");
+        Check("acronym kept", RenameSync.StemForNewClass("HTTPServer", "", "GameObject") == "HTTPServer");
+        Check("snake class & file", RenameSync.ClassForNewStem("game_object", "", "game_entity") == "game_entity");
+        Check("snake class, pascal file", RenameSync.ClassForNewStem("game_object", "", "GameEntity") == "game_entity");
+        Check("unreal: APawn corresponds to Pawn", RenameSync.Corresponds("APlayerController", "PlayerController", out pre) && pre == "A");
+        Check("unreal: file -> class", RenameSync.ClassForNewStem("APlayerController", "A", "PlayerBrain") == "APlayerBrain");
+        Check("unreal: class -> file", RenameSync.StemForNewClass("APlayerBrain", "A", "PlayerController") == "PlayerBrain");
+        Check("mfc: CPlayer in player.h", RenameSync.Corresponds("CPlayer", "player", out pre) && pre == "C");
+        Check("mfc: class -> snake file", RenameSync.StemForNewClass("CEnemyUnit", "C", "player") == "enemyunit");
+        Check("Cat is not C + at", !RenameSync.Corresponds("Cat", "at", out pre));
+        Check("kebab file", RenameSync.StemForNewClass("GameEntity", "", "game-object") == "game-entity");
+        Check("camel class", RenameSync.ClassForNewStem("gameObject", "", "game_entity") == "gameEntity");
+        Check("pick class by prefix", RenameSync.PickClass(new List<string> { "Helper", "UHealthComponent" }, "HealthComponent") == "UHealthComponent");
+
         Console.WriteLine("rename: pass=" + pass + " fail=" + fail);
         Environment.Exit(fail == 0 ? 0 : 1);
     }

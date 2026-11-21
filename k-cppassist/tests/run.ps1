@@ -25,7 +25,7 @@ if ($LASTEXITCODE -ne 0) { $code = 1 }
 
 # 3. File rename sync (RenameSync only; no VS dependency)
 $outRen = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-rename-tests.exe'
-& $csc -nologo "-out:$outRen" -langversion:latest (Join-Path $PSScriptRoot 'RenameTests.cs') (Join-Path $src 'RenameSync.cs') (Join-Path $src 'StdHeaders.cs')
+& $csc -nologo "-out:$outRen" -langversion:latest (Join-Path $PSScriptRoot 'RenameTests.cs') (Join-Path $src 'RenameSync.cs') (Join-Path $src 'StdHeaders.cs') (Join-Path $src 'NewFileGen.cs') (Join-Path $src 'CppText.cs')
 if ($LASTEXITCODE -ne 0) { throw 'rename compile failed' }
 & $outRen | Select-Object -Last 3
 if ($LASTEXITCODE -ne 0) { $code = 1 }

@@ -109,10 +109,13 @@ namespace KCppAssist
         private async Task OfferFileRenameAsync(string header, string oldName, string newName, IComponentModel model)
         {
             string dir = Path.GetDirectoryName(header), ext = Path.GetExtension(header), oldStem = Path.GetFileNameWithoutExtension(header);
-            if (string.Equals(oldStem, newName, StringComparison.Ordinal)) return;
-            bool matched = RenameSync.SameName(oldName, oldStem);
-            string newPath = Path.Combine(dir, newName + ext);
-            if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || File.Exists(newPath)) return;
+            // ファイル名は、古いファイル名の書き方に合わせる(Google の game_object.h なら、GameEntity → game_entity.h)。接頭辞(APawn の A)は外す
+            string prefix;
+            bool matched = RenameSync.Corresponds(oldName, oldStem, out prefix);
+            string newStem = RenameSync.StemForNewClass(newName, prefix, oldStem);
+            if (string.Equals(oldStem, newStem, StringComparison.Ordinal)) return;
+            string newPath = Path.Combine(dir, newStem + ext);
+            if (newStem.Length == 0 || newStem.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || File.Exists(newPath)) return;
             var move = new RenameSync.Move { Old = header, New = newPath };
             var pair = RenameSync.PairOf(header, newPath, File.Exists);
             string detail = Path.GetFileName(header) + " → " + Path.GetFileName(newPath);
