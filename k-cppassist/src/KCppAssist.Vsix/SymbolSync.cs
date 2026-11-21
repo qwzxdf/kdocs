@@ -887,9 +887,10 @@ namespace KCppAssist
                 if (link.Buffer == except) continue;
                 ITextSnapshot snap = link.Buffer.CurrentSnapshot;
                 var edits = new List<Tuple<int, int, string>>();
-                foreach (ITrackingSpan ts in link.Spans)
+                var editIdx = new List<int>();          // edits[k] が、link.Spans の何番目か
+                for (int si = 0; si < link.Spans.Count; si++)
                 {
-                    SnapshotSpan sp = ts.GetSpan(snap);
+                    SnapshotSpan sp = link.Spans[si].GetSpan(snap);
                     string cur = sp.GetText();
                     if (cur == name) continue;
                     // 追いかけている場所の文字は、変える前の名前か、最後に書いた名前のはず。それ以外(空に縮んだ、別の文字になった)は、
@@ -900,11 +901,42 @@ namespace KCppAssist
                         continue;
                     }
                     edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
+                    editIdx.Add(si);
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える", link.Buffer == buffer)) n += edits.Count;
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える", link.Buffer == buffer))
+                {
+                    n += edits.Count;
+                    RetrackAfterReplace(link, snap, edits, editIdx, name);
+                }
             }
             r.Applied = name;
             return n;
+        }
+
+        /// <summary>
+        /// 範囲の文字を全部置き換えると、追いかけている範囲が長さ 0 に縮む(EdgeExclusive)。次の書き換えで、縮んだ所に名前を差し込んで
+        /// 文字が増える(m → me で mme)ので、書き換えたあとの文字の上に、範囲を作り直す。
+        /// </summary>
+        private static void RetrackAfterReplace(Link link, ITextSnapshot before, List<Tuple<int, int, string>> edits, List<int> idx, string name)
+        {
+            try
+            {
+                ITextSnapshot post = link.Buffer.CurrentSnapshot;
+                if (post.Version.VersionNumber != before.Version.VersionNumber + 1) return;     // ほかの書き換えが挟まった。位置が計算できない
+                int delta = 0;
+                foreach (int k in Enumerable.Range(0, edits.Count).OrderBy(i => edits[i].Item1))
+                {
+                    int start = edits[k].Item1 + delta;
+                    delta += name.Length - edits[k].Item2;
+                    if (start < 0 || start + name.Length > post.Length || post.GetText(start, name.Length) != name)
+                    {
+                        KCppAssistPackage.Log("symbol: could not re-track place at " + start);
+                        continue;
+                    }
+                    link.Spans[idx[k]] = post.CreateTrackingSpan(start, name.Length, SpanTrackingMode.EdgeExclusive);
+                }
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("symbol: re-track failed: " + ex.Message); }
         }
 
         /// <summary>宣言の名前の頭の、ビューの文字での位置。ビューが、追いかけている範囲より古ければ -1(キャレットの行に出す)。</summary>
