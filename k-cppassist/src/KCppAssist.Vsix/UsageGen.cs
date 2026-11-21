@@ -263,14 +263,13 @@ namespace KCppAssist
             return "const " + bare + "&";
         }
 
-        /// <summary>enclosing 関数の前に、引数のない関数 u の定義(中身は TODO)を足す編集。enclosingStart は、囲んでいる関数の頭の位置。</summary>
+        /// <summary>enclosing 関数の前に、引数のない関数 u の定義(中身は空。戻り値があれば return {};)を足す編集。enclosingStart は、囲んでいる関数の頭の位置。</summary>
         public static void PlanFreeDefinition(string text, int enclosingStart, Usage u, string eol, out int pos, out string outText)
         {
             pos = MemberScan.LineStart(text, enclosingStart);
             var sb = new StringBuilder();
             sb.Append(u.Signature()).Append(" {").Append(eol);
-            sb.Append("  // TODO: ").Append(u.Name).Append(" を実装する").Append(eol);
-            if (u.ReturnType != "void") sb.Append("  return {};").Append(eol);
+            if (u.ReturnType != "void") sb.Append(CppText.IndentUnit(text)).Append("return {};").Append(eol);
             sb.Append("}").Append(eol).Append(eol);
             outText = sb.ToString();
         }

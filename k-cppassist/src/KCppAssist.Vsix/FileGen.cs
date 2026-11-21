@@ -64,7 +64,7 @@ namespace KCppAssist
             string nsName = string.Join("::", ns);
             if (ns.Count > 0) sb.Append("namespace ").Append(nsName).Append(" {").Append(eol).Append(eol);
             sb.Append(body).Append(eol);
-            if (ns.Count > 0) sb.Append(eol).Append("}  // namespace ").Append(nsName).Append(eol);
+            if (ns.Count > 0) sb.Append(eol).Append("}").Append(eol);
 
             var x2 = new Extract { ClassName = cls.Name, NewHeader = sb.ToString() };
             // 消したあとに空行が 2 つ続かないよう、後ろの空行を 1 つ一緒に消す
@@ -122,7 +122,7 @@ namespace KCppAssist
             string nsName = string.Join("::", ns);
             if (ns.Count > 0) sb.Append("namespace ").Append(nsName).Append(" {").Append(eol).Append(eol);
             sb.Append(string.Join("", defs.Select(d => cppText.Substring(d.Item1, d.Item2 - d.Item1))).TrimEnd('\r', '\n')).Append(eol);
-            if (ns.Count > 0) sb.Append(eol).Append("}  // namespace ").Append(nsName).Append(eol);
+            if (ns.Count > 0) sb.Append(eol).Append("}").Append(eol);
             return sb.ToString();
         }
 

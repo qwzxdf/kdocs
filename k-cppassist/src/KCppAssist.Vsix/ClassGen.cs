@@ -175,7 +175,6 @@ namespace KCppAssist
             { why = "コピー・ムーブはすでに全部宣言してあります"; return null; }
             var ch = new Refactor.Change();
             if (!allDefault && cls.HasVirtual && !hasDtor) lines.Insert(0, "virtual ~" + cls.Name + "() = default;");
-            lines.Insert(0, allDefault ? "// コピーとムーブは、メンバーをそのまま写す" : "// コピーすると、持っている資源を 2 つで解放してしまうので禁止する。ムーブは許す");
             AddPublic(ch, text, cls, lines, eol);
             ch.Message = cls.Name + " に" + (allDefault ? "コピー・ムーブを = default で" : "コピー禁止・ムーブ可を") + "書きました";
             return ch;
@@ -191,7 +190,6 @@ namespace KCppAssist
             var ch = new Refactor.Change();
             AddPublic(ch, text, cls, new[]
             {
-                "// メンバーを宣言の順に比べる(C++20)。== から != が、<=> から < <= > >= が作られる",
                 "bool operator==(const " + cls.Name + "&) const = default;",
                 "auto operator<=>(const " + cls.Name + "&) const = default;",
             }, eol);
@@ -226,17 +224,16 @@ namespace KCppAssist
                 bool member = inClass != null && inClass.IsClass;
                 string q = member ? "static constexpr " : "constexpr ";
                 string indent = MemberScan.Indent(text, x.Index);
-                string i1 = indent + "  ", i2 = indent + "    ";
+                string unit = CppText.IndentUnit(text);
+                string i1 = indent + unit, i2 = indent + unit + unit;
                 var sb = new StringBuilder();
                 sb.Append(eol).Append(eol);
-                sb.Append(indent).Append("// ").Append(name).Append(" の値を、名前の文字にする。値を足したら、作り直す(switch に default がないので、足し忘れはコンパイラーの警告 C4062 で分かる)").Append(eol);
                 sb.Append(indent).Append(q).Append("std::string_view ToString(").Append(name).Append(" value) {").Append(eol);
                 sb.Append(i1).Append("switch (value) {").Append(eol);
                 foreach (string v in def.Values) sb.Append(i2).Append("case ").Append(name).Append("::").Append(v).Append(": return \"").Append(v).Append("\";").Append(eol);
                 sb.Append(i1).Append("}").Append(eol);
-                sb.Append(i1).Append("return \"?\";  // 範囲外の値(static_cast で作った数など)").Append(eol);
+                sb.Append(i1).Append("return \"?\";").Append(eol);
                 sb.Append(indent).Append("}").Append(eol).Append(eol);
-                sb.Append(indent).Append("// 名前の文字から ").Append(name).Append(" にする。知らない文字なら std::nullopt").Append(eol);
                 sb.Append(indent).Append(q).Append("std::optional<").Append(name).Append("> ").Append(name).Append("FromString(std::string_view text) {").Append(eol);
                 foreach (string v in def.Values) sb.Append(i1).Append("if (text == \"").Append(v).Append("\") return ").Append(name).Append("::").Append(v).Append(";").Append(eol);
                 sb.Append(i1).Append("return std::nullopt;").Append(eol);
@@ -285,16 +282,16 @@ namespace KCppAssist
             foreach (var mem in pub) FormatArgs(mem, fields, args);
             string fmt = "{{" + string.Join(", ", fields) + "}}";
             string full = cls.FullName;
+            string u1 = CppText.IndentUnit(text), u2 = u1 + u1;
             var sb = new StringBuilder();
             sb.Append(eol).Append(eol);
-            sb.Append("// ").Append(cls.Name).Append(" を std::format / std::println で書けるようにする。書式の指定({:>8} など)は受け付けない").Append(eol);
             sb.Append("template <>").Append(eol);
             sb.Append("struct std::formatter<").Append(full).Append("> {").Append(eol);
-            sb.Append("  constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }").Append(eol).Append(eol);
-            sb.Append("  auto format(const ").Append(full).Append("& v, std::format_context& ctx) const {").Append(eol);
-            sb.Append("    return std::format_to(ctx.out(), \"").Append(fmt).Append("\",").Append(eol);
-            sb.Append("                          ").Append(string.Join(", ", args)).Append(");").Append(eol);
-            sb.Append("  }").Append(eol);
+            sb.Append(u1).Append("constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }").Append(eol).Append(eol);
+            sb.Append(u1).Append("auto format(const ").Append(full).Append("& v, std::format_context& ctx) const {").Append(eol);
+            sb.Append(u2).Append("return std::format_to(ctx.out(), \"").Append(fmt).Append("\",").Append(eol);
+            sb.Append(u2).Append(u2).Append(string.Join(", ", args)).Append(");").Append(eol);
+            sb.Append(u1).Append("}").Append(eol);
             sb.Append("};");
             var ch = new Refactor.Change().Add(AfterOutermost(text, cls), 0, sb.ToString());
             Refactor.AddInclude(ch, text, "<format>", eol);
@@ -312,19 +309,18 @@ namespace KCppAssist
             var pub = cls.Members.Where(x => x.Access == "public" && x.Array.Length == 0).ToList();
             if (pub.Count == 0) { why = "public のデータ メンバー(配列以外)がありません"; return null; }
             string full = cls.FullName;
+            string u1 = CppText.IndentUnit(text), u2 = u1 + u1;
             var sb = new StringBuilder();
             sb.Append(eol).Append(eol);
-            sb.Append("// ").Append(cls.Name).Append(" を std::unordered_map / unordered_set のキーにできるようにする。== も要る").Append(eol);
             sb.Append("template <>").Append(eol);
             sb.Append("struct std::hash<").Append(full).Append("> {").Append(eol);
-            sb.Append("  size_t operator()(const ").Append(full).Append("& v) const noexcept {").Append(eol);
-            sb.Append("    size_t h = 0;").Append(eol);
-            sb.Append("    // boost::hash_combine と同じ混ぜ方。0x9e3779b9 は黄金比から作った定数で、ビットを散らす").Append(eol);
-            sb.Append("    auto mix = [&h](size_t x) { h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2); };").Append(eol);
+            sb.Append(u1).Append("size_t operator()(const ").Append(full).Append("& v) const noexcept {").Append(eol);
+            sb.Append(u2).Append("size_t h = 0;").Append(eol);
+            sb.Append(u2).Append("auto mix = [&h](size_t x) { h ^= x + 0x9e3779b9 + (h << 6) + (h >> 2); };").Append(eol);
             foreach (var mem in pub)
-                sb.Append("    mix(std::hash<std::remove_cvref_t<decltype(v.").Append(mem.Name).Append(")>>{}(v.").Append(mem.Name).Append("));").Append(eol);
-            sb.Append("    return h;").Append(eol);
-            sb.Append("  }").Append(eol);
+                sb.Append(u2).Append("mix(std::hash<std::remove_cvref_t<decltype(v.").Append(mem.Name).Append(")>>{}(v.").Append(mem.Name).Append("));").Append(eol);
+            sb.Append(u2).Append("return h;").Append(eol);
+            sb.Append(u1).Append("}").Append(eol);
             sb.Append("};");
             var ch = new Refactor.Change().Add(AfterOutermost(text, cls), 0, sb.ToString());
             Refactor.AddInclude(ch, text, "<functional>", eol);
@@ -344,8 +340,6 @@ namespace KCppAssist
             var ch = new Refactor.Change();
             var lines = new List<string>
             {
-                "// to_json / from_json を作る。JSON のキーはメンバーの名前。キーが足りない JSON を読むと例外になる",
-                "// (足りないキーを既定値で埋めたいときは NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT にする)",
                 "NLOHMANN_DEFINE_TYPE_INTRUSIVE(" + cls.Name + ", " + string.Join(", ", ms.Select(x => x.Name)) + ")",
             };
             AddPublic(ch, text, cls, lines, eol);
@@ -364,10 +358,9 @@ namespace KCppAssist
             var ch = new Refactor.Change();
             var lines = new List<string>
             {
-                "// cereal が保存と読み込みの両方で呼ぶ。CEREAL_NVP は、JSON・XML のときの名前を付ける",
                 "template <class Archive>",
                 "void serialize(Archive& ar) {",
-                "  ar(" + string.Join(", ", ms.Select(x => "CEREAL_NVP(" + x.Name + ")")) + ");",
+                CppText.IndentUnit(text) + "ar(" + string.Join(", ", ms.Select(x => "CEREAL_NVP(" + x.Name + ")")) + ");",
                 "}",
             };
             AddPublic(ch, text, cls, lines, eol);
@@ -446,14 +439,8 @@ namespace KCppAssist
             string cls12 = d12 ? "D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA" : "D3D11_INPUT_PER_VERTEX_DATA";
             var sb = new StringBuilder();
             sb.Append(eol).Append(eol);
-            sb.Append("// ").Append(cls.Name).Append(" の入力レイアウト。意味名(POSITION など)と順番を、頂点シェーダーの入力にそろえる。").Append(eol);
-            sb.Append("// 意味名はメンバーの名前から決めた(違っていたら直す)。シェーダー側は、次の形になる").Append(eol);
-            sb.Append("//   struct VSInput {").Append(eol);
-            foreach (string h in hlsl) sb.Append("//     ").Append(h).Append(eol);
-            sb.Append("//   };").Append(eol);
             sb.Append(header ? "inline constexpr " : "constexpr ").Append(api).Append("_INPUT_ELEMENT_DESC ").Append(arrName).Append("[] = {").Append(eol);
-            sb.Append("    // 意味名, 番号, 形式, スロット, 先頭からのバイト数, 頂点ごと, インスタンスの段").Append(eol);
-            foreach (string r in rows) sb.Append("    ").Append(r.Replace("{CLASS}", cls12)).Append(eol);
+            foreach (string r in rows) sb.Append(CppText.IndentUnit(text)).Append(r.Replace("{CLASS}", cls12)).Append(eol);
             sb.Append("};");
             // 構造体のすぐ後ろ(同じ namespace の中)。入れ子の構造体なら、一番外のクラスの後ろ
             var top = cls.Scope;
@@ -521,7 +508,7 @@ namespace KCppAssist
                 {
                     int floats = (start - cppStart) / 4;
                     string pn; do { pn = "pad" + padNo++; } while (names.Contains(pn));
-                    string decl = "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";  // HLSL の 16 バイト境界に合わせる";
+                    string decl = "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";";
                     inserted.Add(mem.Name + " の前に " + (floats * 4) + " バイト");
                     ch.Add(MemberScan.LineStart(text, mem.Start), 0, MemberScan.Indent(text, mem.Start) + decl + eol);
                     cppStart = start;
@@ -539,7 +526,7 @@ namespace KCppAssist
                 int floats = (total - cpp) / 4;
                 string pn; do { pn = "pad" + padNo++; } while (names.Contains(pn));
                 inserted.Add("末尾に " + (floats * 4) + " バイト");
-                ch.Add(MemberScan.LineEnd(text, last.End), 0, eol + MemberScan.Indent(text, last.Start) + "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";  // 定数バッファの大きさは 16 の倍数");
+                ch.Add(MemberScan.LineEnd(text, last.End), 0, eol + MemberScan.Indent(text, last.Start) + "float " + pn + (floats > 1 ? "[" + floats + "]" : "") + ";");
             }
             string assert = "static_assert(sizeof(" + cls.Name + ") % 16 == 0, \"定数バッファの大きさは 16 の倍数にする\");";
             if (!text.Contains("sizeof(" + cls.Name + ") % 16"))

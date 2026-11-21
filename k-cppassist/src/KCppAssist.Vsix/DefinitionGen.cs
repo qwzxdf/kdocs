@@ -234,7 +234,7 @@ namespace KCppAssist
             while (lineStart > 0 && text[lineStart - 1] != '\n') lineStart--;
             bool braceFirst = text.Substring(lineStart, close - lineStart).Trim().Length == 0;
             string closeIndent = braceFirst ? text.Substring(lineStart, close - lineStart) : "";
-            string memberIndent = closeIndent + "  ";
+            string memberIndent = closeIndent + CppText.IndentUnit(text);
 
             int regionStart = -1, regionEnd = close;
             int last = specs.FindLastIndex(s => s.Value == "public");
@@ -253,7 +253,7 @@ namespace KCppAssist
             {
                 // public: がない。末尾に作る
                 var sb = new StringBuilder();
-                sb.Append(eol).Append(closeIndent).Append(" public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
+                sb.Append(eol).Append(closeIndent).Append(CppText.LabelOffset(text)).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
                 return new Edit { Position = braceFirst ? lineStart : close, Text = braceFirst ? sb.ToString() : eol + sb.ToString() };
             }
 

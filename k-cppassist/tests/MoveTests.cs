@@ -54,7 +54,7 @@ static class MoveTests
         string h3 = "class B {\n public:\n  B(int a, int b) : a_(a), b_(b) {}\n private:\n  int a_, b_;\n};\n";
         Check("コンストラクターの初期化子リスト",
             ToCpp(h3, "", "B"),
-            "class B {\n public:\n  B(int a, int b);\n private:\n  int a_, b_;\n};\n=====\nB::B(int a, int b)\n    : a_(a), b_(b) {\n}\n");
+            "class B {\n public:\n  B(int a, int b);\n private:\n  int a_, b_;\n};\n=====\nB::B(int a, int b)\n	: a_(a), b_(b) {\n}\n");
 
         string h4 = "class C {\n public:\n  template <typename T> void F(T t) { use(t); }\n};\n";
         Check("template は移さない", ToCpp(h4, "", "F").StartsWith("!") ? "refused" : "moved", "refused");

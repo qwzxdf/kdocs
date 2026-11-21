@@ -103,7 +103,7 @@ static class RefactorTests
 
         // ---- 特殊メンバー関数・比較 ----
         Check("nocopy", R("nocopy", "class Tex|ture {\n public:\n  Texture(int w);\n};\n"),
-            "class Texture {\n public:\n  Texture(int w);\n  // コピーすると、持っている資源を 2 つで解放してしまうので禁止する。ムーブは許す\n  Texture(const Texture&) = delete;\n  Texture& operator=(const Texture&) = delete;\n  Texture(Texture&&) noexcept = default;\n  Texture& operator=(Texture&&) noexcept = default;\n};\n");
+            "class Texture {\n public:\n  Texture(int w);\n  Texture(const Texture&) = delete;\n  Texture& operator=(const Texture&) = delete;\n  Texture(Texture&&) noexcept = default;\n  Texture& operator=(Texture&&) noexcept = default;\n};\n");
         Has("nocopy default ctor", R("nocopy", "struct B|uf {\n  int n;\n};\n"), "  Buf() = default;\n");
         Has("rule5 virtual", R("rule5", "class Ba|se {\n public:\n  virtual void F();\n};\n"), "virtual ~Base() = default;", "Base(const Base&) = default;");
         Check("rule5 all", R("rule5", "class A| {\n public:\n  A();\n  ~A();\n  A(const A&);\n  A& operator=(const A&);\n  A(A&&);\n  A& operator=(A&&);\n};\n"), "!コピー・ムーブはすでに全部宣言してあります");
@@ -118,30 +118,30 @@ static class RefactorTests
 
         // ---- formatter / hash ----
         string fm = R("formatter", "namespace game {\nstruct Hi|t {\n  XMFLOAT3 pos;\n  float damage;\n  Enemy* who;\n};\n}  // namespace game\n");
-        Has("formatter", fm, "}  // namespace game\n\n// Hit を", "struct std::formatter<game::Hit> {", "\"{{pos=({}, {}, {}), damage={}, who={}}}\"", "v.pos.x, v.pos.y, v.pos.z, v.damage, static_cast<const void*>(v.who)");
+        Has("formatter", fm, "}  // namespace game\n\ntemplate <>", "struct std::formatter<game::Hit> {", "\"{{pos=({}, {}, {}), damage={}, who={}}}\"", "v.pos.x, v.pos.y, v.pos.z, v.damage, static_cast<const void*>(v.who)");
         Check("formatter private", R("formatter", "class A| {\n  int x_;\n};\n"), "!public のデータ メンバーがありません (formatter からは private を読めません)");
         Has("hash", R("hash", "struct Ke|y {\n  int x;\n  int y;\n};\n"), "struct std::hash<Key> {", "mix(std::hash<std::remove_cvref_t<decltype(v.y)>>{}(v.y));");
 
         // ---- JSON / cereal ----
         Has("json", R("json", "struct Sa|ve {\n  int level;\n  std::string name;\n  Foo* cache;\n};\n"), "NLOHMANN_DEFINE_TYPE_INTRUSIVE(Save, level, name)", "#include <nlohmann/json.hpp>");
-        Has("cereal", R("cereal", "class Sa|ve {\n public:\n  int GetLevel() const;\n private:\n  int level_;\n};\n"), "  ar(CEREAL_NVP(level_));\n", " public:\n  int GetLevel() const;\n  // cereal");
+        Has("cereal", R("cereal", "class Sa|ve {\n public:\n  int GetLevel() const;\n private:\n  int level_;\n};\n"), "  ar(CEREAL_NVP(level_));\n", " public:\n  int GetLevel() const;\n  template <class Archive>");
 
         // ---- 入力レイアウト ----
         string il = R("inputlayout", "#include <d3d12.h>\nstruct Ver|tex {\n  XMFLOAT3 position;\n  XMFLOAT3 normal;\n  XMFLOAT2 uv;\n  XMFLOAT2 uv2;\n};\n", true);
         Has("inputlayout", il, "inline constexpr D3D12_INPUT_ELEMENT_DESC kVertexInputLayout[] = {",
             "{\"POSITION\", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(Vertex, position), D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},",
-            "{\"TEXCOORD\", 1, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(Vertex, uv2),", "//     float2 uv : TEXCOORD0;", "//     float3 normal : NORMAL;");
+            "{\"TEXCOORD\", 1, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(Vertex, uv2),");
         Has("inputlayout d3d11", R("inputlayout", "struct V| {\n  Vector3 pos;\n  Color color;\n};\n"), "constexpr D3D11_INPUT_ELEMENT_DESC kVInputLayout[] = {", "{\"COLOR\", 0, DXGI_FORMAT_R32G32B32A32_FLOAT");
         Check("inputlayout bad", R("inputlayout", "struct V| {\n  std::string s;\n};\n"), "!std::string s は、頂点の要素にできる型ではありません (float、XMFLOAT2〜4、Vector2〜4、uint32_t などにしてください)");
 
         // ---- 定数バッファ ----
         Check("cbuffer pad", R("cbuffer", "struct Cb| {\n  XMFLOAT4X4 world;\n  XMFLOAT3 light;\n  XMFLOAT3 color;\n  float power;\n};\n"),
-            "struct Cb {\n  XMFLOAT4X4 world;\n  XMFLOAT3 light;\n  float pad0;  // HLSL の 16 バイト境界に合わせる\n  XMFLOAT3 color;\n  float power;\n};\nstatic_assert(sizeof(Cb) % 16 == 0, \"定数バッファの大きさは 16 の倍数にする\");\n");
-        Has("cbuffer tail", R("cbuffer", "struct Cb| {\n  float time;\n};\n"), "  float time;\n  float pad0[3];  // 定数バッファの大きさは 16 の倍数\n");
+            "struct Cb {\n  XMFLOAT4X4 world;\n  XMFLOAT3 light;\n  float pad0;\n  XMFLOAT3 color;\n  float power;\n};\nstatic_assert(sizeof(Cb) % 16 == 0, \"定数バッファの大きさは 16 の倍数にする\");\n");
+        Has("cbuffer tail", R("cbuffer", "struct Cb| {\n  float time;\n};\n"), "  float time;\n  float pad0[3];\n");
         Check("cbuffer bool", R("cbuffer", "struct Cb| {\n  bool on;\n};\n"), "!on: bool は C++ で 1 バイト、HLSL で 4 バイトです。uint32_t か BOOL にしてください");
         Check("cbuffer arr", R("cbuffer", "struct Cb| {\n  float w[4];\n};\n"), "!w[4]: HLSL の配列は要素ごとに 16 バイトに広がるので、float の配列は並びが合いません。XMFLOAT4 の配列にしてください");
         Check("cbuffer ok", R("cbuffer", "struct Cb| {\n  XMFLOAT4 a;\n};\nstatic_assert(sizeof(Cb) % 16 == 0, \"\");\n"), "!Cb の並びは、HLSL と同じです (16 バイト)");
-        Has("cbuffer float2 split", R("cbuffer", "struct Cb| {\n  XMFLOAT3 a;\n  XMFLOAT2 b;\n};\n"), "  XMFLOAT3 a;\n  float pad0;  // HLSL の 16 バイト境界に合わせる\n  XMFLOAT2 b;\n  float pad1[2];");
+        Has("cbuffer float2 split", R("cbuffer", "struct Cb| {\n  XMFLOAT3 a;\n  XMFLOAT2 b;\n};\n"), "  XMFLOAT3 a;\n  float pad0;\n  XMFLOAT2 b;\n  float pad1[2];");
 
         // ---- 初期化子リスト ----
         Check("initorder", R("initorder", "class A {\n  A(int x) : c_(1), a_(x)|, b_(2) {}\n  int a_, b_, c_;\n};\n"), "class A {\n  A(int x) : a_(x), b_(2), c_(1) {}\n  int a_, b_, c_;\n};\n");
@@ -156,12 +156,12 @@ static class RefactorTests
         string hsrc = "#pragma once\n#include <vector>\n\nnamespace g {\n\n// 弾\nstruct Bul|let {\n  int x;\n};\n\nclass Gun {};\n\n}  // namespace g\n";
         int hc = hsrc.IndexOf('|'); string ht = hsrc.Remove(hc, 1);
         var ex = FileGen.ExtractClass(ht, hc, "Weapon.h", "\n", out why);
-        Check("extract new", ex == null ? "!" + why : ex.NewHeader, "#pragma once\n\n#include <vector>\n\nnamespace g {\n\n// 弾\nstruct Bullet {\n  int x;\n};\n\n}  // namespace g\n");
+        Check("extract new", ex == null ? "!" + why : ex.NewHeader, "#pragma once\n\n#include <vector>\n\nnamespace g {\n\n// 弾\nstruct Bullet {\n  int x;\n};\n\n}\n");
         Check("extract old", ex == null ? "!" : ex.OldHeader.Apply(ht), "#pragma once\n#include <vector>\n#include \"Bullet.h\"\n\nnamespace g {\n\nclass Gun {};\n\n}  // namespace g\n");
         string cpp = "#include \"pch.h\"\n#include \"Weapon.h\"\n\nnamespace g {\n\n// 撃つ\nvoid Bullet::Fly() {\n  x++;\n}\n\nvoid Gun::Fire() {}\n\n}  // namespace g\n";
         var defs = FileGen.DefinitionsOf(cpp, "Bullet");
         Check("defs count", defs.Count.ToString(), "1");
-        Check("new source", FileGen.NewSource(cpp, "Bullet", defs, "\n"), "#include \"pch.h\"\n#include \"Bullet.h\"\n\n#include \"Weapon.h\"\n\nnamespace g {\n\n// 撃つ\nvoid Bullet::Fly() {\n  x++;\n}\n\n}  // namespace g\n");
+        Check("new source", FileGen.NewSource(cpp, "Bullet", defs, "\n"), "#include \"pch.h\"\n#include \"Bullet.h\"\n\n#include \"Weapon.h\"\n\nnamespace g {\n\n// 撃つ\nvoid Bullet::Fly() {\n  x++;\n}\n\n}\n");
         string dh = "class A {\n public:\n  void F();\n  virtual void G() = 0;\n  A() = default;\n  int H() const;\n  void I() {}\n  friend void J();\n};\n";
         Check("declarations", string.Join(",", FileGen.Declarations(dh, Scopes.Parse(dh)[0]).Select(d => d.Name)), "F,H");
 

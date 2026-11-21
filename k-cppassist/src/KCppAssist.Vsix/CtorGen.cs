@@ -157,9 +157,10 @@ namespace KCppAssist
                 int prev = MemberScan.LineStart(text, cls.Open) - 1;
                 if (prev > 0) classIndent = LeadingSpace(text, prev - 1 < 0 ? 0 : prev - 1);
             }
-            string indent = firstStmt >= 0 ? LeadingSpace(text, firstStmt) : classIndent + "  ";
-            if (indent.Length <= classIndent.Length) indent = classIndent + "  ";
-            string labelIndent = firstLabelStart >= 0 ? LeadingSpace(text, firstLabelStart) : classIndent + " ";
+            string unit = CppText.IndentUnit(text);
+            string indent = firstStmt >= 0 ? LeadingSpace(text, firstStmt) : classIndent + unit;
+            if (indent.Length <= classIndent.Length) indent = classIndent + unit;
+            string labelIndent = firstLabelStart >= 0 ? LeadingSpace(text, firstLabelStart) : classIndent + CppText.LabelOffset(text);
 
             string ctor = Build(cls.Name, members, indent, eol);
 

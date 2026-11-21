@@ -105,7 +105,9 @@ namespace KCppAssist
             braced = Expand(braced, eol);
             if (hasInit)
             {
-                sb.Append(eol).Append("    ").Append(Regex.Replace(init, @"\s*\r?\n\s*", eol + "    "));
+                string u = CppText.IndentUnit(braced + eol + head);
+                u = u == "\t" ? "\t" : u + u;     // 初期化子リストの続きは 2 段(Google は空白 4)。タブなら 1 段
+                sb.Append(eol).Append(u).Append(Regex.Replace(init, @"\s*\r?\n\s*", eol + u));
                 sb.Append(' ').Append(braced);
             }
             else if (allman) sb.Append(eol).Append(braced);

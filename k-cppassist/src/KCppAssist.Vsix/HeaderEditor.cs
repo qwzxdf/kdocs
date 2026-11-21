@@ -50,8 +50,9 @@ namespace KCppAssist
             bool braceFirst = text.Substring(lineStart, close - lineStart).Trim().Length == 0;
             string closeIndent = braceFirst ? text.Substring(lineStart, close - lineStart) : "";
 
-            // メンバーの字下げは、閉じ括弧の直前にある行(アクセス指定子以外)に合わせる。なければ 2 字下げ
-            string memberIndent = closeIndent + "  ";
+            // メンバーの字下げは、閉じ括弧の直前にある行(アクセス指定子以外)に合わせる。なければ、ファイルの字下げ 1 段
+            string unit = CppText.IndentUnit(text);
+            string memberIndent = closeIndent + unit;
             int prevEnd = lineStart - 1;
             while (braceFirst && prevEnd > open)
             {
@@ -74,9 +75,9 @@ namespace KCppAssist
             bool needSpec = lastSpec != "private" && !(isStruct && lastSpec == null);
             if (needSpec)
             {
-                // Google style: private: は 1 字下げ、メンバーは 2 字下げ
-                memberIndent = closeIndent + "  ";
-                sb.Append(eol).Append(closeIndent).Append(" private:").Append(eol);
+                // 指定子の位置とメンバーの字下げは、ファイルの書き方に合わせる(Google なら「 private:」と 2 字、VS の既定なら「private:」とタブ)
+                memberIndent = closeIndent + unit;
+                sb.Append(eol).Append(closeIndent).Append(CppText.LabelOffset(text)).Append("private:").Append(eol);
             }
             sb.Append(memberIndent).Append(declaration).Append(eol);
             return new Edit

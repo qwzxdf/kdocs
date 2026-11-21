@@ -132,6 +132,53 @@ namespace KCppAssist
         /// <summary>文字の改行の種類。CRLF が 1 つでもあれば「\r\n」、なければ「\n」。足す文字の改行を、元のファイルにそろえるために使う。</summary>
         public static string Eol(string text) { return text.Contains("\r\n") ? "\r\n" : "\n"; }
 
+        /// <summary>
+        /// ファイルの字下げ 1 段の文字(タブ、空白 2 つ、空白 4 つ)。行頭がタブの行と空白の行を数えて、多いほう。
+        /// 空白なら、4 の倍数でない字下げ(2・6・10…)が 2 割以上あれば 2、なければ 4。字下げのある行が 1 行もないときは、タブ(VS の C++ の既定)。
+        /// </summary>
+        public static string IndentUnit(string text)
+        {
+            int tab = 0, sp2 = 0, sp4 = 0;
+            if (text != null)
+                foreach (string line in text.Split('\n'))
+                {
+                    if (line.Length == 0) continue;
+                    if (line[0] == '\t') { tab++; continue; }
+                    int n = 0;
+                    while (n < line.Length && line[n] == ' ') n++;
+                    if (n == 0 || n == line.Length || line[n] == '\r') continue;
+                    if (n % 2 != 0) continue;           // 「 public:」(Google の 1 字)や、行の続きのそろえは数えない
+                    if (n % 4 == 0) sp4++; else sp2++;
+                }
+            if (tab + sp2 + sp4 == 0) return "\t";
+            if (tab >= sp2 + sp4) return "\t";
+            return sp2 * 5 >= sp2 + sp4 ? "  " : "    ";
+        }
+
+        /// <summary>
+        /// public: などのアクセス指定子を、クラスの行からどれだけ下げて書くか。ファイルの中の最初の指定子と、その上の class / struct の行を見比べる。
+        /// 見つからなければ ""(クラスと同じ位置。VS の既定)。Google スタイルなら " "。
+        /// </summary>
+        public static string LabelOffset(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            var lines = text.Split('\n');
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var lm = System.Text.RegularExpressions.Regex.Match(lines[i], @"^([ \t]*)(?:public|protected|private)\s*:(?!:)");
+                if (!lm.Success) continue;
+                for (int j = i - 1; j >= 0 && j >= i - 200; j--)
+                {
+                    var cm = System.Text.RegularExpressions.Regex.Match(lines[j], @"^([ \t]*)(?:template\s*<.*>\s*)?(?:class|struct)\s+\w");
+                    if (!cm.Success || lines[j].TrimEnd().EndsWith(";")) continue;
+                    string label = lm.Groups[1].Value, head = cm.Groups[1].Value;
+                    return label.StartsWith(head, StringComparison.Ordinal) ? label.Substring(head.Length) : "";
+                }
+                return "";
+            }
+            return "";
+        }
+
         /// <summary>Eol と同じ。ただし、改行が 1 つもない(新しい・1 行の)ファイルなら、fallback(相手のファイルの改行)を使う。</summary>
         public static string Eol(string text, string fallback) { return text.Contains("\r\n") ? "\r\n" : text.Contains("\n") ? "\n" : fallback; }
 

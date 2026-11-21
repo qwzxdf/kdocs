@@ -232,8 +232,8 @@ namespace KCppAssist
             {
                 int eolAt = text.IndexOf('\n', c.Open);
                 int pos = eolAt < 0 ? c.Open + 1 : eolAt + 1;
-                string indent = closeIndent + "  ";
-                sb.Append(closeIndent).Append(" public:").Append(eol);
+                string indent = closeIndent + CppText.IndentUnit(text);
+                sb.Append(closeIndent).Append(CppText.LabelOffset(text)).Append("public:").Append(eol);
                 foreach (string l in lines) { if (l.Length > 0) sb.Append(indent).Append(l); sb.Append(eol); }
                 sb.Append(eol);
                 return new HeaderEditor.Edit { Position = pos, Text = sb.ToString() };
@@ -262,7 +262,7 @@ namespace KCppAssist
                 }
                 break;
             }
-            if (memberIndent == null) memberIndent = specIndent.Length == 0 ? "    " : specIndent + " ";
+            if (memberIndent == null) memberIndent = closeIndent + CppText.IndentUnit(text);
             if (blankBefore && prevIsMember) sb.Append(eol);
             foreach (string l in lines) { if (l.Length > 0) sb.Append(memberIndent).Append(l); sb.Append(eol); }
             if (blankBefore)

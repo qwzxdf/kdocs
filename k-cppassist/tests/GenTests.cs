@@ -197,12 +197,13 @@ static class GenTests
             "class Counter {\n" +
             "  int count_;\n" +
             "};\n";
+        // 指定子が 1 つもないファイルは、VS の既定(クラスと同じ位置の public: / private:)
         Check("class with only private: explicit + restores private", Ctor(k3, "count_"),
             "class Counter {\n" +
-            " public:\n" +
+            "public:\n" +
             "  explicit Counter(int count) : count_(count) {}\n" +
             "\n" +
-            " private:\n" +
+            "private:\n" +
             "  int count_;\n" +
             "};\n");
 
@@ -348,7 +349,7 @@ static class GenTests
             string src = "void A() {}\n\nvoid B() {\n  Foo(1);\n}\n";
             string why2; var u = UsageGen.Find(src, src.IndexOf("Foo"), out why2);
             UsageGen.PlanFreeDefinition(src, src.IndexOf("void B"), u, "\n", out fpos, out fd);
-            Check("usage: free definition", src.Insert(fpos, fd), "void A() {}\n\nvoid Foo(int arg1) {\n  // TODO: Foo を実装する\n}\n\nvoid B() {\n  Foo(1);\n}\n");
+            Check("usage: free definition", src.Insert(fpos, fd), "void A() {}\n\nvoid Foo(int arg1) {\n}\n\nvoid B() {\n  Foo(1);\n}\n");
         }
 
         // ---- #include の自動追加: 空行がないのに、グループが分かれていると見て空行を足さない ----
@@ -385,7 +386,7 @@ static class GenTests
         // コンストラクター: std::function のメンバーを落とさない
         Check("ctor: std::function member",
             Ctor("class Button {\n  std::string label_;\n  std::function<void()> on_click_;\n};\n", "label_"),
-            "class Button {\n public:\n  Button(const std::string& label, const std::function<void()>& on_click)\n      : label_(label), on_click_(on_click) {}\n\n private:\n  std::string label_;\n  std::function<void()> on_click_;\n};\n");
+            "class Button {\npublic:\n  Button(const std::string& label, const std::function<void()>& on_click)\n      : label_(label), on_click_(on_click) {}\n\nprivate:\n  std::string label_;\n  std::function<void()> on_click_;\n};\n");
         Check("ctor: paren outside angles", CtorGen.ParenOutsideAngles("void Run(int a)").ToString(), "True");
         Check("ctor: paren inside angles", CtorGen.ParenOutsideAngles("std::function<void(int)> cb_").ToString(), "False");
 

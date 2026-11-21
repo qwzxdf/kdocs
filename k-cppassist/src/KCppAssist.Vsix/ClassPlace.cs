@@ -45,7 +45,7 @@ namespace KCppAssist
                 if (x.Groups[1].Value == "public" && firstPublicEnd < 0) firstPublicEnd = off + x.Index + x.Length;
             }
             string classIndent = ClassIndent(text, cls);
-            string labelIndent = firstLabelStart >= 0 ? LeadingSpace(text, firstLabelStart) : classIndent + " ";
+            string labelIndent = firstLabelStart >= 0 ? LeadingSpace(text, firstLabelStart) : classIndent + CppText.LabelOffset(text);
 
             if (firstPublicEnd >= 0)
             {
@@ -91,7 +91,7 @@ namespace KCppAssist
                 }
                 p = e + 1;
             }
-            return classIndent + "  ";
+            return classIndent + CppText.IndentUnit(text);
         }
 
         public static string ClassIndent(string text, Scopes.Scope cls)
