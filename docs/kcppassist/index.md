@@ -15,7 +15,7 @@ K-CppAssist はこの往復をキー 1 つにする Visual Studio 用の拡張�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.26.1.vsix" download>K-CppAssist 0.26.1 をダウンロード（.vsix、約 318 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.26.2.vsix" download>K-CppAssist 0.26.2 をダウンロード（.vsix、約 318 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -724,6 +724,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 
 | 版 | 内容 |
 | --- | --- |
+| 0.26.2 | ファイル名を変えたとき（F2 など）と、クラス名を変えたとき（Ctrl+R, R）に、確認のダイアログが出なかったのを直した。0.13 のころの既定（「直す前に確認する」が False、「#include を足すしかた」が ManualOnly）のまま設定が保存されていると、0.26.0 で変えた既定が効かなかった。起動したときに 1 回だけ、この 2 つを新しい既定（True と Auto）に移す |
 | 0.26.1 | 電球（Alt+Enter）の一覧を軽くした。カーソルが動くたびに、同じ文字を何度も読み直していたのをやめ、関数を探す処理と `#include` を探す処理を速くした（111 KB のヘッダーで 69 ms → 9 ms）。使っていないコードと、同じ処理の重複を整理した。文字コードをそろえる画面で、例外が VS を落とさないようにした |
 | 0.26.0 | ゲッター・セッターを Alt+G に、宣言と定義の引数を合わせるのを Alt+S に変えた。キーの名前・コマンド名に、覚えやすい英語（Getter・Sync・Override など）を全部書いた。`#include` を足すしかたの初期値を `Auto` にした。ファイル名を変えたとき、何を何に直すかを見せるダイアログを出す（相手・`#include`・CMake と、クラス名を、項目ごとに選べる）。クラス名を変えたときも、ファイル名・`#include` を直すか聞く。VS のひな形（`#pragma once` だけ）の新しい `.h` にも、ひな形を書く |
 | 0.25.0 | switch (enum の値) { と打って改行すると、本体が空なら、値ごとの case（break つき）と default: を自動で入れるようにした（整数の switch では入れない。Ctrl+Z で消せる。一度入れた switch には、消されても 2 度と入れない。設定でオフにできる）。字下げは、switch の行がタブならタブにそろえる |

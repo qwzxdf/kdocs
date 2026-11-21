@@ -572,5 +572,26 @@ namespace KCppAssist
 
         [Browsable(false)]
         public bool KeyScopeMigrated { get; set; } = false;
+
+        /// <summary>
+        /// 既定を変えた設定を、新しい既定に移した版(0 は未移行)。
+        /// VS は設定画面で OK を押すと全部の値を保存するので、既定を変えても、古い既定のまま保存された値が勝ってしまう。
+        /// </summary>
+        [Browsable(false)]
+        public int DefaultsVersion { get; set; } = 0;
+
+        /// <summary>
+        /// 0.26.0 で既定を変えた「直す前に確認する」(False → True)と「#include を足すしかた」(ManualOnly → Auto)を、
+        /// 起動したときに 1 回だけ、新しい既定にする。古い既定のまま保存されていると、確認のダイアログが出ないため。
+        /// </summary>
+        internal void MigrateDefaults()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (DefaultsVersion >= 26) return;
+            if (!RenameConfirm) { RenameConfirm = true; KCppAssistPackage.Log("migrate: RenameConfirm False -> True"); }
+            if (IncludeMode == IncludeMode.ManualOnly) { IncludeMode = IncludeMode.Auto; KCppAssistPackage.Log("migrate: IncludeMode ManualOnly -> Auto"); }
+            DefaultsVersion = 26;
+            SaveSettingsToStorage();
+        }
     }
 }
