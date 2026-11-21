@@ -191,10 +191,10 @@ namespace KCppAssist
             why = null;
             string m = CppText.Mask(text);
             var cls = Innermost(text, caret);
-            if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
-            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
+            if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
+            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = L.T("クラスが 1 行に書かれています。複数行に広げてください"); return null; }
             var bases = BaseNames(m, cls);
-            if (bases.Count == 0) { why = "基底クラスがありません。class " + cls.Name + " : public Base の形にしてください"; return null; }
+            if (bases.Count == 0) { why = L.F("基底クラスがありません。class {0} : public Base の形にしてください", cls.Name); return null; }
 
             var docs = new List<Doc> { new Doc { Text = text, Mask = m, Scopes = Scopes.Parse(text) } };
             foreach (string t in otherTexts)
@@ -220,7 +220,7 @@ namespace KCppAssist
             var own = new HashSet<string>(Funcs(text, m, cls).Select(f => f.Key));
             // final の関数は、それより下では override できない(近い基底が先に見つかるので、final の版が残っている)
             var todo = found.Values.Where(f => !own.Contains(f.Key) && !f.Final).ToList();
-            if (todo.Count == 0) { why = "足りない仮想関数はありません"; return null; }
+            if (todo.Count == 0) { why = L.T("足りない仮想関数はありません"); return null; }
 
             // 純粋仮想関数が残っていれば、それだけを足す(派生クラスを作るのに必須)。なければ、残りの仮想関数を全部足す
             var pure = todo.Where(f => f.Pure).ToList();

@@ -80,7 +80,7 @@ namespace KCppAssist
                 if (caret >= c.NameStart && caret <= c.Close + 1 && (best == null || c.NameStart > best.NameStart)) best = c;
             }
             var call = best ?? first;
-            if (call == null) { why = "カーソルの行に、関数の呼び出しが見つかりません"; return null; }
+            if (call == null) { why = L.T("カーソルの行に、関数の呼び出しが見つかりません"); return null; }
             // ここから先の宣言探し(DeclType)は、いまの関数と、クラス・namespace の直下だけを見る。ほかの関数の同じ名前の変数は、別の物
             m = Scoped(m, text, call.NameStart);
 

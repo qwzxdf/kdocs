@@ -42,9 +42,9 @@ namespace KCppAssist
             var used = IncludeTidy.Used(text);
 
             var usedTypes = types.Where(t => used.Contains(t.Name)).GroupBy(t => t.Name).Select(g => g.First()).ToList();
-            if (usedTypes.Count == 0) { why = "このヘッダーの型を、使っていません"; return null; }
+            if (usedTypes.Count == 0) { why = L.T("このヘッダーの型を、使っていません"); return null; }
             var typeNames = new HashSet<string>(types.Select(t => t.Name));
-            foreach (string o in otherNames) if (!typeNames.Contains(o) && used.Contains(o)) { why = "型以外の名前 " + o + " を使っているので、前方宣言にできません"; return null; }
+            foreach (string o in otherNames) if (!typeNames.Contains(o) && used.Contains(o)) { why = L.F("型以外の名前 {0} を使っているので、前方宣言にできません", o); return null; }
 
             // 本体({ ... })の範囲(関数の中の使い方は、完全な型が要るかもしれない)
             var bodies = FunctionScan.Scan(text).Where(s => s.HasBody).Select(s => new[] { s.BodyOpen, s.End }).ToList();
@@ -61,7 +61,7 @@ namespace KCppAssist
                     string beforeAll = noInc.Substring(0, o.Index);
                     // 「class Foo;」の前方宣言そのもの
                     if (Regex.IsMatch(beforeAll, @"\b(?:class|struct)\s+$") && Regex.IsMatch(noInc.Substring(o.Index + o.Length, Math.Min(20, noInc.Length - o.Index - o.Length)), @"^\s*;")) continue;
-                    if (bodies.Any(b => o.Index > b[0] && o.Index < b[1])) { why = t.Name + " を、関数の本体の中で使っています (" + line + " 行目)"; return null; }
+                    if (bodies.Any(b => o.Index > b[0] && o.Index < b[1])) { why = L.F("{0} を、関数の本体の中で使っています ({1} 行目)", t.Name, line); return null; }
                     int after = o.Index + o.Length;
                     if (Ptr.IsMatch(noInc, after))
                     {
@@ -81,7 +81,7 @@ namespace KCppAssist
                             continue;
                         }
                     }
-                    why = t.Name + " を、ポインター・参照以外で使っています (" + line + " 行目)";
+                    why = L.F("{0} を、ポインター・参照以外で使っています ({1} 行目)", t.Name, line);
                     return null;
                 }
             }
@@ -94,7 +94,7 @@ namespace KCppAssist
                     Match use = Regex.Match(body, @"(?<![\w.>])" + Regex.Escape(h.Key) + @"\s*(?:->|\.(?!\.))|\*\s*" + Regex.Escape(h.Key) + @"\b");
                     if (!use.Success) continue;
                     int line = text.Take(b[0] + use.Index).Count(c => c == '\n') + 1;
-                    why = h.Key + " (" + h.Value + ") の中身を、関数の本体で使っています (" + line + " 行目)。前方宣言では型の中身が見えません";
+                    why = L.F("{0} ({1}) の中身を、関数の本体で使っています ({2} 行目)。前方宣言では型の中身が見えません", h.Key, h.Value, line);
                     return null;
                 }
 

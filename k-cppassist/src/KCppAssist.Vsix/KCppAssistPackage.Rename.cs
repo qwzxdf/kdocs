@@ -91,7 +91,7 @@ namespace KCppAssist
                     var picked = taken.Where(t => !t.Value || opt.RenameWatchFiles).Where(t => File.Exists(t.Key.New) && !File.Exists(t.Key.Old)).ToList();
                     if (picked.Count == 0) return;
                     // 一括の操作(git のブランチ切り替えなど)とみなすのは、全部がフォルダーの監視から来たときだけ
-                    if (picked.All(t => t.Value) && RenameHub.IsBulk) { IncludeService.Status("多数のファイル名の変更を検出したので、自動では直しません"); return; }
+                    if (picked.All(t => t.Value) && RenameHub.IsBulk) { IncludeService.Status(L.T("多数のファイル名の変更を検出したので、自動では直しません")); return; }
                     if (picked.Count > 1) { await FollowManyAsync(picked.Select(t => t.Key).ToList(), opt); return; }
                     var move = picked[0].Key;
                     var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
@@ -195,7 +195,7 @@ namespace KCppAssist
                 var oldDirs = moves.Select(m => Path.GetDirectoryName(m.Old)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
                 var newDirs = moves.Select(m => Path.GetDirectoryName(m.New)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
                 bool moved = moves.Any(m => !string.Equals(Path.GetDirectoryName(m.Old), Path.GetDirectoryName(m.New), StringComparison.OrdinalIgnoreCase));
-                string title = moved ? L.F("{0} 個のファイルを移しました", moves.Count) : L.F("{0} 個のファイルの名前が変わりました", moves.Count);
+                string title = moved ? L.F("{0} 個のファイルを移しました", moves.Count) : L.F(L.T("{0} 個のファイルの名前が変わりました"), moves.Count);
                 string sub = moved && oldDirs.Count == 1 && newDirs.Count == 1 ? RenameService.FolderLabel(oldDirs[0], newDirs[0]) : null;
                 System.Func<RenameSync.Move, string> line = m => moved
                     ? Path.GetFileName(m.Old) + " → " + Path.GetFileName(Path.GetDirectoryName(m.New)) + "/" + Path.GetFileName(m.New)
@@ -284,7 +284,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunRenameAsync(); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -295,7 +295,7 @@ namespace KCppAssist
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var opt = RenameService.Options;
-            if (opt.RenameMode == RenameMode.Off) { await ReportAsync("ファイル名の同期は、設定で Off になっています", true); return; }
+            if (opt.RenameMode == RenameMode.Off) { await ReportAsync(L.T("ファイル名の同期は、設定で Off になっています"), true); return; }
 
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
@@ -303,18 +303,18 @@ namespace KCppAssist
             var dte = (DTE)await GetServiceAsync(typeof(DTE));
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
             if (path == null || !(RenameSync.IsHeader(path) || RenameSync.IsSource(path)))
-            { await ReportAsync("ヘッダーか cpp を開いて、押してください", true); return; }
+            { await ReportAsync(L.T("ヘッダーか cpp を開いて、押してください"), true); return; }
 
             string dir = Path.GetDirectoryName(path);
             string ext = Path.GetExtension(path);
             string oldStem = Path.GetFileNameWithoutExtension(path);
             string input = Ask("新しいファイル名を入力してください (拡張子なし)。\n相手のファイル、#include、CMake も、同じ名前に直します。", oldStem);
-            if (string.IsNullOrWhiteSpace(input)) { await ReportAsync("やめました", true); return; }
+            if (string.IsNullOrWhiteSpace(input)) { await ReportAsync(L.T("やめました"), true); return; }
             string newStem = input.Trim();
-            if (newStem.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || newStem.EndsWith(".")) { await ReportAsync("ファイル名に使えない文字があります", true); return; }
-            if (string.Equals(newStem, oldStem, StringComparison.Ordinal)) { await ReportAsync("名前が変わっていません", true); return; }
+            if (newStem.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || newStem.EndsWith(".")) { await ReportAsync(L.T("ファイル名に使えない文字があります"), true); return; }
+            if (string.Equals(newStem, oldStem, StringComparison.Ordinal)) { await ReportAsync(L.T("名前が変わっていません"), true); return; }
             string newPath = Path.Combine(dir, newStem + ext);
-            if (File.Exists(newPath)) { await ReportAsync(Path.GetFileName(newPath) + " はすでにあります", true); return; }
+            if (File.Exists(newPath)) { await ReportAsync(L.F("{0} はすでにあります", Path.GetFileName(newPath)), true); return; }
 
             // 開いている文書を保存して、名前を変える(プロジェクトに入っていれば、プロジェクトごと)
             try { dte.ActiveDocument.Save(); } catch (Exception) { }
@@ -326,7 +326,7 @@ namespace KCppAssist
             try
             {
                 string err = RenameService.RenameFile(path, newPath);
-                if (err != null) { await ReportAsync("名前を変えられませんでした: " + err, true); return; }
+                if (err != null) { await ReportAsync(L.F("名前を変えられませんでした: {0}", err), true); return; }
                 msg = await RenameService.FollowAsync(this, first, adapters, undo);
             }
             finally { RenameService.Busy = false; }

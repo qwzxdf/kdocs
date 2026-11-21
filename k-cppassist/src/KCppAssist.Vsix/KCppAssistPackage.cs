@@ -167,7 +167,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunAsync(member); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -191,7 +191,7 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
 
             ITextSnapshot snap = view.TextSnapshot;
             SnapshotPoint caret = view.Caret.Position.BufferPosition;
@@ -200,16 +200,16 @@ namespace KCppAssist
             // カーソルのある文が「名前 = 右辺;」の形なら対象にする。右辺が複数行でも、ラムダの中の 1 文でもよい
             var assign = AssignScan.Find(allText, caret.Position);
             if (assign == null)
-            { await ReportAsync("この文は「名前 = 右辺;」の形ではありません", true); return; }
+            { await ReportAsync(L.T("この文は「名前 = 右辺;」の形ではありません"), true); return; }
             string name = assign.Name;
             string rhs = assign.Rhs;
-            if (!member && assign.HasThis) { await ReportAsync("this-> の付いた代入は、ローカル変数にできません", true); return; }
+            if (!member && assign.HasThis) { await ReportAsync(L.T("this-> の付いた代入は、ローカル変数にできません"), true); return; }
 
             ClassRef classRef = null;
             if (member)
             {
                 classRef = CppScan.EnclosingClassRef(allText, caret.Position);
-                if (classRef == null) { await ReportAsync("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)", true); return; }
+                if (classRef == null) { await ReportAsync(L.T("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)"), true); return; }
             }
 
             // 型を決める。式 → Quick Info → 式の組み合わせ → 聞く の順
@@ -235,7 +235,7 @@ namespace KCppAssist
                 // Quick Info を待つ間に、文字が変わっていることがある。snap の位置を、今の位置へ写してから入れる
                 int at = snap.CreateTrackingPoint(assign.NameStart, PointTrackingMode.Positive).GetPosition(view.TextBuffer.CurrentSnapshot);
                 view.TextBuffer.Insert(at, type + " ");
-                await ReportAsync(type + " " + name + " にしました (" + how + ")", false);
+                await ReportAsync(L.F("{0} {1} にしました ({2})", type, name, how), false);
                 return;
             }
 
@@ -313,15 +313,15 @@ namespace KCppAssist
             string all = loc.Text;
             string body = all.Substring(loc.Scope.Open, loc.Scope.Close - loc.Scope.Open);
             if (Regex.IsMatch(body, @"[\w>*&]\s+\*?&?" + Regex.Escape(name) + @"\s*(;|=|\{)"))
-            { await ReportAsync(name + " は " + Path.GetFileName(loc.File) + " の " + classRef.Name + " にすでにあります", true); return; }
+            { await ReportAsync(L.F("{0} は {1} の {2} にすでにあります", name, Path.GetFileName(loc.File), classRef.Name), true); return; }
 
             string eol = CppText.Eol(all);
             var edit = HeaderEditor.PlanAt(all, loc.Scope.Open, declaration, eol);
-            if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + classRef.Name + " の本体を読めませんでした", true); return; }
+            if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), classRef.Name), true); return; }
 
             loc.View.TextBuffer.Insert(edit.Position, edit.Text);
             ReturnTo(cppPath, loc.File);
-            await ReportAsync(declaration + " を " + Path.GetFileName(loc.File) + " に追加しました (" + how + ")", false);
+            await ReportAsync(L.F("{0} を {1} に追加しました ({2})", declaration, Path.GetFileName(loc.File), how), false);
         }
 
         /// <summary>開いたファイルから、作業中のファイルへ戻る(同じファイルなら何もしない)。</summary>
@@ -370,7 +370,7 @@ namespace KCppAssist
                 string root = SolutionDir(dte, cppPath);
                 var sites = await System.Threading.Tasks.Task.Run(() => FindClassSites(root, cppPath, curText, r));
                 await JoinableTaskFactory.SwitchToMainThreadAsync();
-                if (sites.Count == 0) { await ReportAsync("クラス " + r.Qualified + " の宣言 (.h) が見つかりません", true); return null; }
+                if (sites.Count == 0) { await ReportAsync(L.F("クラス {0} の宣言 (.h) が見つかりません", r.Qualified), true); return null; }
                 int top = sites.Max(s => s.Score);
                 var best = sites.Where(s => s.Score == top).ToList();
                 ClassSite pick = best[0];
@@ -379,7 +379,7 @@ namespace KCppAssist
                     var names = new Dictionary<string, ClassSite>();
                     foreach (var s in best) names[s.Chain + "  —  " + s.File] = s;
                     string choice = Choose(r.Name + " の宣言が複数あります。足し先のクラスを選んでください。", names.Keys.ToList());
-                    if (choice == null) { await ReportAsync("やめました", true); return null; }
+                    if (choice == null) { await ReportAsync(L.T("やめました"), true); return null; }
                     pick = names[choice];
                 }
                 file = pick.File;
@@ -393,7 +393,7 @@ namespace KCppAssist
                 Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, file, Guid.Empty, out hier, out itemId, out frame);
                 IVsTextView hv = frame == null ? null : Microsoft.VisualStudio.Shell.VsShellUtilities.GetTextView(frame);
                 view = hv == null ? null : adapters.GetWpfTextView(hv);
-                if (view == null) { await ReportAsync(Path.GetFileName(file) + " を開けませんでした", true); return null; }
+                if (view == null) { await ReportAsync(L.F("{0} を開けませんでした", Path.GetFileName(file)), true); return null; }
             }
 
             // 開いたあとの文字(保存前の編集を含む)で、クラスの範囲を取り直す
@@ -402,7 +402,7 @@ namespace KCppAssist
             Scopes.Scope scope = r.InFileOpen >= 0
                 ? scopes.FirstOrDefault(s => s.Open == r.InFileOpen)
                 : scopes.FirstOrDefault(s => string.Join("::", s.Chain()) == chain);
-            if (scope == null) { await ReportAsync("クラス " + r.Qualified + " の本体を読めませんでした", true); return null; }
+            if (scope == null) { await ReportAsync(L.F("クラス {0} の本体を読めませんでした", r.Qualified), true); return null; }
             return new Located { View = view, Scope = scope, Text = live, File = file };
         }
 
@@ -413,7 +413,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunIncludeAsync(); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -422,7 +422,7 @@ namespace KCppAssist
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var opt = IncludeService.Options;
-            if (opt.IncludeMode == IncludeMode.Off) { await ReportAsync("#include の機能は、設定で Off になっています", true); return; }
+            if (opt.IncludeMode == IncludeMode.Off) { await ReportAsync(L.T("#include の機能は、設定で Off になっています"), true); return; }
 
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
@@ -433,9 +433,9 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null) { await ReportAsync("ファイルを開いていません", true); return; }
+            if (path == null) { await ReportAsync(L.T("ファイルを開いていません"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             string masked = CppText.Mask(text);
@@ -443,11 +443,11 @@ namespace KCppAssist
             int a = pos, b = pos;
             while (a > 0 && CppText.IsId(masked[a - 1])) a--;
             while (b < masked.Length && CppText.IsId(masked[b])) b++;
-            if (b <= a) { await ReportAsync("カーソルの位置に識別子がありません (コメントや文字列の中かもしれません)", true); return; }
+            if (b <= a) { await ReportAsync(L.T("カーソルの位置に識別子がありません (コメントや文字列の中かもしれません)"), true); return; }
 
             int chainStart;
             string chain = CppText.Chain(masked, a, b, out chainStart);
-            if (chain == null) { await ReportAsync("名前を読めませんでした", true); return; }
+            if (chain == null) { await ReportAsync(L.T("名前を読めませんでした"), true); return; }
 
             string root = IncludeService.RootFor(path);
             var skip = IncludeService.SkipDirs(opt);
@@ -455,7 +455,7 @@ namespace KCppAssist
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var res = IncludeService.Resolve(chain, path, root, opt, true);
-            if (res == null) { await ReportAsync(chain + " を宣言したヘッダーが見つかりません", true); return; }
+            if (res == null) { await ReportAsync(L.F("{0} を宣言したヘッダーが見つかりません", chain), true); return; }
 
             string token = res.Token;
             string file = res.File;
@@ -463,18 +463,18 @@ namespace KCppAssist
             {
                 var items = res.Choices.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase).ToList();
                 token = Choose(chain + " の宣言が複数あります。足すヘッダーを選んでください。", items);
-                if (token == null) { await ReportAsync("やめました", true); return; }
+                if (token == null) { await ReportAsync(L.T("やめました"), true); return; }
                 res.Choices.TryGetValue(token, out file);
             }
-            if (IncludeService.WouldCycle(file, path)) { await ReportAsync(token + " は、このヘッダーを #include しているので、足すと循環します", true); return; }
+            if (IncludeService.WouldCycle(file, path)) { await ReportAsync(L.F("{0} は、このヘッダーを #include しているので、足すと循環します", token), true); return; }
 
             string eol = CppText.Eol(text);
             string stem = IncludeService.IsHeader(path) ? null : Path.GetFileNameWithoutExtension(path);
             var edit = IncludeEditor.Plan(text, token, stem, eol);
-            if (edit == null) { await ReportAsync(token + " はすでに #include されています", true); return; }
+            if (edit == null) { await ReportAsync(L.F("{0} はすでに #include されています", token), true); return; }
 
             IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: #include を追加");
-            await ReportAsync(chain + " のために " + token + " を追加しました (" + res.Source + ")", false);
+            await ReportAsync(L.F("{0} のために {1} を追加しました ({2})", chain, token, res.Source), false);
         }
 
         // ---- 宣言と定義の引数を合わせる ----
@@ -484,7 +484,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunSyncAsync(); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -496,7 +496,7 @@ namespace KCppAssist
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var opt = SyncService.Options;
-            if (opt.SyncMode == SyncMode.Off) { await ReportAsync("引数の同期は、設定で Off になっています", true); return; }
+            if (opt.SyncMode == SyncMode.Off) { await ReportAsync(L.T("引数の同期は、設定で Off になっています"), true); return; }
 
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
@@ -507,19 +507,19 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null) { await ReportAsync("ファイルを開いていません", true); return; }
+            if (path == null) { await ReportAsync(L.T("ファイルを開いていません"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             int caret = view.Caret.Position.BufferPosition.Position;
             ITextSnapshotLine line = view.Caret.Position.BufferPosition.GetContainingLine();
             var sig = FunctionScan.Scan(text).FirstOrDefault(s => (caret >= s.Open && caret <= s.Close + 1) || (s.Open >= line.Start.Position && s.Open <= line.End.Position));
-            if (sig == null) { await ReportAsync("カーソルの行に、関数の宣言か定義が見つかりません", true); return; }
-            if (sig.HasBody && sig.InClass) { await ReportAsync("クラスの中に本体のある関数には、相手がありません", true); return; }
+            if (sig == null) { await ReportAsync(L.T("カーソルの行に、関数の宣言か定義が見つかりません"), true); return; }
+            if (sig.HasBody && sig.InClass) { await ReportAsync(L.T("クラスの中に本体のある関数には、相手がありません"), true); return; }
 
             var thisVariants = SignatureSync.KeyVariants(sig.Inner(text));
-            if (thisVariants.Count == 0) { await ReportAsync("引数を読めませんでした (書きかけかもしれません)", true); return; }
+            if (thisVariants.Count == 0) { await ReportAsync(L.T("引数を読めませんでした (書きかけかもしれません)"), true); return; }
             bool thisHasIf = SignatureSync.HasDirectives(sig.Inner(text));
             var thisList = thisHasIf ? null : SignatureSync.SplitParams(sig.Inner(text));
             bool wantDef = !sig.HasBody;
@@ -538,29 +538,29 @@ namespace KCppAssist
                 .Where(t => !(string.Equals(t.File, path, StringComparison.OrdinalIgnoreCase) && t.Sig.Open == sig.Open))
                 .ToList();
             if (targets.Count > 0) { int top = targets.Max(t => t.Score); targets = targets.Where(t => t.Score == top).ToList(); }
-            if (targets.Count == 0) { await ReportAsync(label + " の" + (wantDef ? "定義" : "宣言") + "が見つかりません", true); return; }
+            if (targets.Count == 0) { await ReportAsync(L.F("{0} の{1}が見つかりません", label, (wantDef ? L.T("定義") : L.T("宣言"))), true); return; }
 
             Func<SyncService.Target, List<List<string>>> keysOf = t => SignatureSync.KeyVariants(t.Inner);
-            if (targets.Any(t => SyncPlan.SameKeysAny(keysOf(t), thisVariants))) { await ReportAsync(label + " の引数は、すでに合っています", false); return; }
+            if (targets.Any(t => SyncPlan.SameKeysAny(keysOf(t), thisVariants))) { await ReportAsync(L.F("{0} の引数は、すでに合っています", label), false); return; }
 
             SyncService.Target target = targets[0];
             if (targets.Count > 1)
             {
                 var names = targets.ToDictionary(t => Path.GetFileName(t.File) + ": " + label + "(" + SignatureSync.Norm(t.Inner) + ")" + " #" + t.Sig.Open, t => t);
                 string pick = Choose(label + " の" + (wantDef ? "定義" : "宣言") + "が複数あります。引数を写す先を選んでください。", names.Keys.ToList());
-                if (pick == null) { await ReportAsync("やめました", true); return; }
+                if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                 target = names[pick];
             }
 
             if (thisHasIf || SignatureSync.HasDirectives(target.Inner))
-            { await ReportAsync("引数の途中に #if があるので、自動では書き換えません。" + Path.GetFileName(target.File) + " は手で合わせてください", true); return; }
+            { await ReportAsync(L.F("引数の途中に #if があるので、自動では書き換えません。{0} は手で合わせてください", Path.GetFileName(target.File)), true); return; }
             var cpList = SignatureSync.SplitParams(target.Inner);
-            if (cpList == null) { await ReportAsync("相手の引数を読めませんでした", true); return; }
+            if (cpList == null) { await ReportAsync(L.T("相手の引数を読めませんでした"), true); return; }
             string newInner = SignatureSync.Rebuild(cpList, thisList, cpList, !wantDef, target.Inner);
 
             ITextBuffer buf = target.Buffer ?? SyncService.OpenForEdit(target.File, adapters);
-            if (buf == null) { await ReportAsync(Path.GetFileName(target.File) + " を開けませんでした", true); return; }
-            if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(Path.GetFileName(target.File) + " が読み込み中に変わりました。もう一度押してください", true); return; }
+            if (buf == null) { await ReportAsync(L.F("{0} を開けませんでした", Path.GetFileName(target.File)), true); return; }
+            if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(L.F("{0} が読み込み中に変わりました。もう一度押してください", Path.GetFileName(target.File)), true); return; }
             SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-Cpp: 引数を合わせる");
             SyncPreview.Show(view, SyncPreview.NameStart(view.TextSnapshot, sig.Open), Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
 
@@ -572,7 +572,7 @@ namespace KCppAssist
             }
             var writtenList = SignatureSync.SplitParams(newInner);
             string warnText = !wantDef && writtenList != null && SignatureSync.DefaultsOutOfOrder(writtenList) ? "(注意: 既定値のある引数のあとに、既定値のない引数があります)" : "";
-            await ReportAsync(label + " の引数を " + Path.GetFileName(target.File) + " に写しました" + warnText, false);
+            await ReportAsync(L.F("{0} の引数を {1} に写しました{2}", label, Path.GetFileName(target.File), warnText), false);
         }
 
         // ---- 定義・宣言を作る ----
@@ -582,7 +582,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunCreateAsync(); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -602,15 +602,15 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null) { await ReportAsync("ファイルを開いていません", true); return; }
+            if (path == null) { await ReportAsync(L.T("ファイルを開いていません"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             int caret = view.Caret.Position.BufferPosition.Position;
             ITextSnapshotLine line = view.Caret.Position.BufferPosition.GetContainingLine();
             var sig = FunctionScan.Scan(text).FirstOrDefault(s => (caret >= s.NameStart && caret <= s.Close + 1) || (s.Open >= line.Start.Position && s.Open <= line.End.Position));
-            if (sig == null) { await ReportAsync("カーソルの行に、関数の宣言か定義が見つかりません", true); return; }
+            if (sig == null) { await ReportAsync(L.T("カーソルの行に、関数の宣言か定義が見つかりません"), true); return; }
             string label = (sig.Class == null ? "" : sig.Class + "::") + sig.Name;
 
             if (!sig.HasBody) await CreateDefinitionAsync(view, path, text, sig, label, adapters, undo, dte);
@@ -620,7 +620,7 @@ namespace KCppAssist
         private async Task CreateDefinitionAsync(IWpfTextView view, string path, string text, FunctionScan.Sig sig, string label,
             IVsEditorAdaptersFactoryService adapters, Microsoft.VisualStudio.Text.Operations.ITextUndoHistoryRegistry undo, DTE dte)
         {
-            if (!IncludeService.IsHeader(path)) { await ReportAsync("宣言から定義を作るのは、ヘッダーで押してください", true); return; }
+            if (!IncludeService.IsHeader(path)) { await ReportAsync(L.T("宣言から定義を作るのは、ヘッダーで押してください"), true); return; }
             var opt = SyncService.Options;
             string root = IncludeService.RootFor(path);
             List<string> files = await Task.Run(() => SyncService.Candidates(path, sig.Class, root, true, opt));
@@ -628,21 +628,21 @@ namespace KCppAssist
 
             var keys = SignatureSync.KeyVariants(sig.Inner(text));
             var existing = SyncService.FindTargets(files, true, sig, adapters).Where(t => SyncPlan.SameKeysAny(SignatureSync.KeyVariants(t.Inner), keys)).ToList();
-            if (existing.Count > 0) { await ReportAsync(label + " の定義は、すでに " + Path.GetFileName(existing[0].File) + " にあります", true); return; }
+            if (existing.Count > 0) { await ReportAsync(L.F("{0} の定義は、すでに {1} にあります", label, Path.GetFileName(existing[0].File)), true); return; }
 
             var sources = files.Where(f => !IncludeService.IsHeader(f)).ToList();
-            if (sources.Count == 0) { await ReportAsync(label + " の定義を足す .cpp が見つかりません (" + Path.GetFileNameWithoutExtension(path) + ".cpp を作ってください)", true); return; }
+            if (sources.Count == 0) { await ReportAsync(L.F("{0} の定義を足す .cpp が見つかりません ({1}.cpp を作ってください)", label, Path.GetFileNameWithoutExtension(path)), true); return; }
             string cppFile = sources[0];
             if (sources.Count > 1)
             {
                 var names = sources.ToDictionary(f => f, f => f);
                 string pick = Choose(label + " の定義を足す .cpp を選んでください。", names.Keys.ToList());
-                if (pick == null) { await ReportAsync("やめました", true); return; }
+                if (pick == null) { await ReportAsync(L.T("やめました"), true); return; }
                 cppFile = names[pick];
             }
 
             ITextBuffer buf = SyncService.OpenForEdit(cppFile, adapters);
-            if (buf == null) { await ReportAsync(Path.GetFileName(cppFile) + " を開けませんでした", true); return; }
+            if (buf == null) { await ReportAsync(L.F("{0} を開けませんでした", Path.GetFileName(cppFile)), true); return; }
             string cppText = buf.CurrentSnapshot.GetText();
             string eol = CppText.Eol(cppText, CppText.Eol(text));
 
@@ -664,7 +664,7 @@ namespace KCppAssist
                 }
             }
             catch (Exception ex) { Log("move caret failed: " + ex.Message); }
-            await ReportAsync(label + " の定義を " + Path.GetFileName(cppFile) + " に足しました", false);
+            await ReportAsync(L.F("{0} の定義を {1} に足しました", label, Path.GetFileName(cppFile)), false);
         }
 
         private void manager_GetActive(out IVsTextView view)
@@ -682,7 +682,7 @@ namespace KCppAssist
 
             // どのクラスの宣言か。Class::Func の修飾と、cpp を囲む namespace から探す
             var cref = CppScan.EnclosingClassRef(text, sig.End);
-            if (cref == null) { await ReportAsync(label + ": どのクラスのメンバーか読めませんでした", true); return; }
+            if (cref == null) { await ReportAsync(L.F("{0}: どのクラスのメンバーか読めませんでした", label), true); return; }
             var loc = await LocateClassAsync(dte, path, view, cref);
             if (loc == null) return;
 
@@ -690,14 +690,14 @@ namespace KCppAssist
             var keys = SignatureSync.KeyVariants(sig.Inner(text));
             var inClass = FunctionScan.Scan(loc.Text).Where(s => !s.HasBody && s.Open > loc.Scope.Open && s.Close < loc.Scope.Close && s.Name == sig.Name && s.IsConst == sig.IsConst
                 && SyncPlan.SameKeysAny(SignatureSync.KeyVariants(s.Inner(loc.Text)), keys)).ToList();
-            if (inClass.Count > 0) { await ReportAsync(label + " の宣言は、すでに " + Path.GetFileName(loc.File) + " にあります", true); return; }
+            if (inClass.Count > 0) { await ReportAsync(L.F("{0} の宣言は、すでに {1} にあります", label, Path.GetFileName(loc.File)), true); return; }
 
             string eol = CppText.Eol(loc.Text);
             var edit = DefinitionGen.PlanPublicMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, declaration, eol);
-            if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
+            if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), cref.Name), true); return; }
             SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: 宣言を作る");
             ReturnTo(path, loc.File);
-            await ReportAsync(declaration + " を " + Path.GetFileName(loc.File) + " の " + cref.Name + " に足しました (public)", false);
+            await ReportAsync(L.F("{0} を {1} の {2} に足しました (public)", declaration, Path.GetFileName(loc.File), cref.Name), false);
         }
 
         // ---- Getter・Setter ----
@@ -708,7 +708,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunAccessorAsync(getter, setter); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -727,7 +727,7 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
 
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
             string ext = path == null ? "" : Path.GetExtension(path).ToLowerInvariant();
@@ -749,7 +749,7 @@ namespace KCppAssist
                 if (member != null)
                 {
                     cls = AccessorEditor.ClassAt(curText, caret.Position);
-                    if (cls == null) { await ReportAsync("この行は、クラスの中ではありません", true); return; }
+                    if (cls == null) { await ReportAsync(L.T("この行は、クラスの中ではありません"), true); return; }
                     loc = new Located { View = view, Text = curText, File = path };
                 }
             }
@@ -760,7 +760,7 @@ namespace KCppAssist
                 if (assign == null) { await ReportAsync(inHeader ? "この行は、メンバー変数の宣言でも「名前 = 右辺;」の文でもありません" : "この文は「名前 = 右辺;」の形ではありません", true); return; }
                 member = assign.Name;
                 var cref = CppScan.EnclosingClassRef(curText, caret.Position);
-                if (cref == null) { await ReportAsync("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)", true); return; }
+                if (cref == null) { await ReportAsync(L.T("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)"), true); return; }
                 loc = await LocateClassAsync(dte, path, view, cref);
                 if (loc == null) return;
                 cls = AccessorEditor.All(loc.Text).FirstOrDefault(c => c.Open == loc.Scope.Open) ?? AccessorEditor.Find(loc.Text, cref.Name);
@@ -769,17 +769,17 @@ namespace KCppAssist
             string className = cls == null ? "" : cls.Name;
 
             string all = loc.Text;
-            if (cls == null) { await ReportAsync("クラスの本体を読めませんでした", true); return; }
+            if (cls == null) { await ReportAsync(L.T("クラスの本体を読めませんでした"), true); return; }
             bool readOnly;
             string type = AccessorEditor.FindMemberType(all, cls, member, out readOnly);
-            if (type == null) { await ReportAsync(className + " の中に、" + member + " の宣言が見つかりません (配列と static は未対応)", true); return; }
+            if (type == null) { await ReportAsync(L.F("{0} の中に、{1} の宣言が見つかりません (配列と static は未対応)", className, member), true); return; }
 
             var skipped = new List<string>();
             var page = (OptionsPage)GetDialogPage(typeof(OptionsPage));
             string refused;
             var lines = AccessorEditor.MakeLines(all, cls, member, type, readOnly, page.BlankLineBetweenAccessors, skipped, out refused, wantGetter, wantSetter);
             if (lines == null) { await ReportAsync(refused, true); return; }
-            if (lines.Count == 0) { await ReportAsync(string.Join("、", skipped) + " はすでにあります", true); return; }
+            if (lines.Count == 0) { await ReportAsync(L.F("{0} はすでにあります", string.Join("、", skipped)), true); return; }
             string eol = CppText.Eol(all);
             var edit = AccessorEditor.PlanPublic(all, cls, lines, eol, page.BlankLineBetweenAccessors);
             target.TextBuffer.Insert(edit.Position, edit.Text);
@@ -790,7 +790,7 @@ namespace KCppAssist
                 try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out h2, out i2, out f2); }
                 catch (Exception) { }
             }
-            await ReportAsync(string.Join(" / ", lines.Where(l => l.Length > 0).Select(l => l.Substring(0, l.IndexOf('{')).Trim())) + " を追加しました", false);
+            await ReportAsync(L.F("{0} を追加しました", string.Join(" / ", lines.Where(l => l.Length > 0).Select(l => l.Substring(0, l.IndexOf('{')).Trim()))), false);
         }
 
         /// <summary>

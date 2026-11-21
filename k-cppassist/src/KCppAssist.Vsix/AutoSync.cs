@@ -215,15 +215,15 @@ namespace KCppAssist
             if (matches.Count == 0)
             {
                 if (targets.Any(t => SyncPlan.SameKeysAny(keysOf(t), newKeys))) return;       // もう合っている
-                IncludeService.Status(label + " の" + (wantDef ? "定義" : "宣言") + "が見つからないので、引数を写せませんでした");
+                IncludeService.Status(L.F("{0} の{1}が見つからないので、引数を写せませんでした", label, (wantDef ? L.T("定義") : L.T("宣言"))));
                 return;
             }
-            if (matches.Count > 1) { IncludeService.Status(label + " の" + (wantDef ? "定義" : "宣言") + "が複数あるので、引数を写せませんでした (Alt+G で選べます)"); return; }
+            if (matches.Count > 1) { IncludeService.Status(L.F("{0} の{1}が複数あるので、引数を写せませんでした (Alt+S で選べます)", label, (wantDef ? L.T("定義") : L.T("宣言")))); return; }
 
             var t0 = matches[0];
             if (editedHasIf || SignatureSync.HasDirectives(t0.Inner))
             {
-                IncludeService.Status(label + " の引数の途中に #if があるので、自動では書き換えません。" + Path.GetFileName(t0.File) + " は手で合わせてください");
+                IncludeService.Status(L.F("{0} の引数の途中に #if があるので、自動では書き換えません。{1} は手で合わせてください", label, Path.GetFileName(t0.File)));
                 return;
             }
             var oldList = SignatureSync.SplitParams(b.Text);
@@ -235,7 +235,7 @@ namespace KCppAssist
                 // 相手が開いていなければ、開いて書き換える(開くと相手がアクティブになるので、あとで作業中のファイルへ戻す)
                 buf = SyncService.OpenForEdit(t0.File, owner.Adapters);
                 opened = true;
-                if (buf == null) { IncludeService.Status(Path.GetFileName(t0.File) + " を開けませんでした。Alt+G で " + label + " の引数を写せます"); return; }
+                if (buf == null) { IncludeService.Status(L.F("{0} を開けませんでした。Alt+S で {1} の引数を写せます", Path.GetFileName(t0.File), label)); return; }
             }
             var cpList = SignatureSync.SplitParams(t0.Inner);
             if (cpList == null || buf.CurrentSnapshot.Length != t0.Text.Length)
@@ -252,7 +252,7 @@ namespace KCppAssist
                 else
                 {
                     if (opened) ReturnToWork();
-                    IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写せませんでした。Alt+G で合わせられます");
+                    IncludeService.Status(L.F("{0} の引数を {1} に写せませんでした。Alt+S で合わせられます", label, Path.GetFileName(t0.File)));
                     KCppAssistPackage.Log("sync: target text mismatch " + t0.File);
                     return;
                 }
@@ -265,7 +265,7 @@ namespace KCppAssist
             string warn = "";
             var written = SignatureSync.SplitParams(newInner);
             if (!wantDef && written != null && SignatureSync.DefaultsOutOfOrder(written)) warn = "(注意: 既定値のある引数のあとに、既定値のない引数があります)";
-            IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写しました" + warn);
+            IncludeService.Status(L.F("{0} の引数を {1} に写しました{2}", label, Path.GetFileName(t0.File), warn));
         }
     }
 }

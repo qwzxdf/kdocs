@@ -215,6 +215,15 @@ static class RefactorTests
             Check("pimpl: rewrite keeps obj.member", PimplGen.RewriteUses("a.hp_ + hp_ + p->hp_ + this->hp_", "a.hp_ + hp_ + p->hp_ + this->hp_", new[] { "hp_" }), "a.hp_ + impl_->hp_ + p->hp_ + impl_->hp_");
         }
 
+        // ---- 英語にしたときの知らせ ----
+        {
+            var before = L.Current;
+            L.Current = UiLanguage.English;
+            Check("en: formatter refused", R("formatter", "class A| {\n  int x_;\n};\n"), "!There are no public data members (formatter cannot read private ones)");
+            Check("en: nocopy message", Refactor.Make("nocopymove", "class Tex {\n public:\n  int a;\n};\n", 7, "\n", true, out string w1).Message, "Disabled copy and move of Tex (4)");
+            L.Current = before;
+        }
+
         Console.WriteLine("Refactor: " + pass + " passed, " + fail + " failed");
         return fail;
     }

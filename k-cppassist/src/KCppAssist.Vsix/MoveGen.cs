@@ -36,13 +36,13 @@ namespace KCppAssist
         public static Plan ToCpp(string headerText, FunctionScan.Sig sig, string cppText, string eol, out string why)
         {
             why = null;
-            if (!sig.HasBody || sig.BodyOpen < 0) { why = "本体のない関数です"; return null; }
-            if (sig.Class != null && !sig.InClass) { why = "ヘッダーに書いた Class::Func の定義は、cpp へ移せません (クラスの中に書いた関数が対象です)"; return null; }
-            if (sig.InTemplate) { why = "template のクラスの関数は、移しません (cpp に書けません)"; return null; }
+            if (!sig.HasBody || sig.BodyOpen < 0) { why = L.T("本体のない関数です"); return null; }
+            if (sig.Class != null && !sig.InClass) { why = L.T("ヘッダーに書いた Class::Func の定義は、cpp へ移せません (クラスの中に書いた関数が対象です)"); return null; }
+            if (sig.InTemplate) { why = L.T("template のクラスの関数は、移しません (cpp に書けません)"); return null; }
             string m = CppText.Mask(headerText);
             string before = m.Substring(sig.PrefixStart, Math.Max(0, sig.NameStart - sig.PrefixStart));
-            if (Blocked.IsMatch(before)) { why = "template・constexpr・friend の関数は、移しません (cpp に書けません)"; return null; }
-            if (SignatureSync.HasDirectives(sig.Inner(headerText))) { why = "引数の途中に #if があるので、移せません"; return null; }
+            if (Blocked.IsMatch(before)) { why = L.T("template・constexpr・friend の関数は、移しません (cpp に書けません)"); return null; }
+            if (SignatureSync.HasDirectives(sig.Inner(headerText))) { why = L.T("引数の途中に #if があるので、移せません"); return null; }
 
             int bodyFirst = sig.InitStart >= 0 ? sig.InitStart : sig.BodyOpen;
             int tailEnd = bodyFirst;
@@ -69,7 +69,7 @@ namespace KCppAssist
             int expected = sig.Open - removed;
             var decl = FunctionScan.Scan(h2).Where(s => !s.HasBody && s.Name == sig.Name && s.Chain.SequenceEqual(sig.Chain))
                 .OrderBy(s => Math.Abs(s.Open - expected)).FirstOrDefault();
-            if (decl == null) { why = "宣言に縮めたあとの関数を読み直せませんでした"; return null; }
+            if (decl == null) { why = L.T("宣言に縮めたあとの関数を読み直せませんでした"); return null; }
             var edit = DefinitionGen.PlanDefinition(h2, decl, cppText, eol, out why);
             if (edit == null) return null;
 
@@ -80,7 +80,7 @@ namespace KCppAssist
             while (z > a && (edit.Text[z - 1] == '\r' || edit.Text[z - 1] == '\n')) z--;
             string pre = edit.Text.Substring(0, a), stub = edit.Text.Substring(a, z - a), suf = edit.Text.Substring(z);
             int brace = stub.LastIndexOf(eol + "{" + eol, StringComparison.Ordinal);
-            if (brace < 0) { why = "定義の雛形を読めませんでした"; return null; }
+            if (brace < 0) { why = L.T("定義の雛形を読めませんでした"); return null; }
             string head = stub.Substring(0, brace);
 
             string indent = IndentOf(headerText, FirstCode(m, sig.PrefixStart));
@@ -146,22 +146,22 @@ namespace KCppAssist
         public static Plan ToHeader(string cppText, FunctionScan.Sig def, string headerText, FunctionScan.Sig decl, string eol, out string why)
         {
             why = null;
-            if (!def.HasBody || def.BodyOpen < 0) { why = "本体のない関数です"; return null; }
-            if (def.InClass) { why = "クラスの中に書いた関数です"; return null; }
-            if (decl.HasBody) { why = "ヘッダーの関数に、すでに本体があります"; return null; }
+            if (!def.HasBody || def.BodyOpen < 0) { why = L.T("本体のない関数です"); return null; }
+            if (def.InClass) { why = L.T("クラスの中に書いた関数です"); return null; }
+            if (decl.HasBody) { why = L.T("ヘッダーの関数に、すでに本体があります"); return null; }
             string mc = CppText.Mask(cppText);
             string mh = CppText.Mask(headerText);
             string beforeDef = mc.Substring(def.PrefixStart, Math.Max(0, def.NameStart - def.PrefixStart));
             string beforeDecl = mh.Substring(decl.PrefixStart, Math.Max(0, decl.NameStart - decl.PrefixStart));
-            if (Blocked.IsMatch(beforeDef) || Blocked.IsMatch(beforeDecl)) { why = "template・constexpr・friend の関数は、移しません"; return null; }
+            if (Blocked.IsMatch(beforeDef) || Blocked.IsMatch(beforeDecl)) { why = L.T("template・constexpr・friend の関数は、移しません"); return null; }
             string declTail = Regex.Replace(mh.Substring(decl.Close + 1, Math.Max(0, decl.End - decl.Close - 1)), @"\s+", " ");
-            if (Regex.IsMatch(declTail, @"=\s*(?:0|default|delete)\b")) { why = "純粋仮想・= default・= delete の宣言には、本体を移せません"; return null; }
-            if (SignatureSync.HasDirectives(def.Inner(cppText)) || SignatureSync.HasDirectives(decl.Inner(headerText))) { why = "引数の途中に #if があるので、移せません"; return null; }
+            if (Regex.IsMatch(declTail, @"=\s*(?:0|default|delete)\b")) { why = L.T("純粋仮想・= default・= delete の宣言には、本体を移せません"); return null; }
+            if (SignatureSync.HasDirectives(def.Inner(cppText)) || SignatureSync.HasDirectives(decl.Inner(headerText))) { why = L.T("引数の途中に #if があるので、移せません"); return null; }
 
             var defParams = SignatureSync.SplitParams(def.Inner(cppText));
             var declParams = SignatureSync.SplitParams(decl.Inner(headerText));
-            if (defParams == null || declParams == null) { why = "引数を読めませんでした (書きかけかもしれません)"; return null; }
-            if (defParams.Count != declParams.Count) { why = "宣言と定義で、引数の個数が違います"; return null; }
+            if (defParams == null || declParams == null) { why = L.T("引数を読めませんでした (書きかけかもしれません)"); return null; }
+            if (defParams.Count != declParams.Count) { why = L.T("宣言と定義で、引数の個数が違います"); return null; }
 
             var plan = new Plan();
             string indent = IndentOf(headerText, FirstCode(mh, decl.PrefixStart));

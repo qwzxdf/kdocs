@@ -24,15 +24,15 @@ namespace KCppAssist
         {
             why = null;
             var cls = MemberScan.At(header, caret);
-            if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
+            if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
             string c = cls.Name;
             string hm = CppText.Mask(header);
             string body0 = hm.Substring(cls.Scope.Open, cls.Scope.Close - cls.Scope.Open);
-            if (Regex.IsMatch(body0, @"\bstruct\s+Impl\s*;") || Regex.IsMatch(body0, @"\bimpl_\b")) { why = c + " は、すでに pimpl です"; return null; }
+            if (Regex.IsMatch(body0, @"\bstruct\s+Impl\s*;") || Regex.IsMatch(body0, @"\bimpl_\b")) { why = L.F("{0} は、すでに pimpl です", c); return null; }
 
             // 移すのは private のデータ メンバー(protected は派生クラスが使うかもしれないので残す)
             var moved = cls.Members.Where(m => m.Access == "private").ToList();
-            if (moved.Count == 0) { why = c + " に、private のデータ メンバーがありません"; return null; }
+            if (moved.Count == 0) { why = L.F("{0} に、private のデータ メンバーがありません", c); return null; }
             var names = moved.Select(m => m.Name).ToList();
             var nameRx = new Regex(@"(?<![\w.]|->|::)\b(?:" + string.Join("|", names.Select(Regex.Escape)) + @")\b");
 
@@ -46,12 +46,12 @@ namespace KCppAssist
             }
             if (bad.Count > 0)
             {
-                why = "ヘッダーに本体のある関数 (" + string.Join(", ", bad.Distinct()) + ") が、移すメンバーを使っています。先に「関数の本体を cpp に移す」で cpp に移してください";
+                why = L.F("ヘッダーに本体のある関数 ({0}) が、移すメンバーを使っています。先に「関数の本体を cpp に移す」で cpp に移してください", string.Join(", ", bad.Distinct()));
                 return null;
             }
             foreach (var m in moved)
                 if (m.Type.EndsWith("&") || Regex.IsMatch(m.Type, @"^const\b") && cpp != null && Regex.IsMatch(CppText.Mask(cpp), @"\b" + Regex.Escape(c) + @"\s*::\s*" + Regex.Escape(c) + @"\s*\([^)]*\)\s*:[^{]*\b" + Regex.Escape(m.Name) + @"\s*[({]"))
-                { why = m.Name + " は参照か const で、コンストラクターの初期化子リストで決めています。pimpl にすると Impl の中で決める必要があるので、手で移してください"; return null; }
+                { why = L.F("{0} は参照か const で、コンストラクターの初期化子リストで決めています。pimpl にすると Impl の中で決める必要があるので、手で移してください", m.Name); return null; }
 
             // ---- ヘッダー ----
             // 移すメンバーの文(1 行に 1 つ)を消し、最初の行の場所に、struct Impl; と impl_ を置く
@@ -80,7 +80,7 @@ namespace KCppAssist
 
             // 引数のないコンストラクターがなく、ほかのコンストラクターもないときは、宣言を足す(暗黙のコンストラクターでは impl_ が空のまま)
             var cls2 = Scopes.Parse(h).Where(s => s.IsClass && s.Name == c).OrderBy(s => Math.Abs(s.Open - cls.Scope.Open)).FirstOrDefault();
-            if (cls2 == null) { why = "書き換えたあとのクラスを読み直せませんでした"; return null; }
+            if (cls2 == null) { why = L.T("書き換えたあとのクラスを読み直せませんでした"); return null; }
             var info2 = MemberScan.Of(h, cls2);
             bool hasDefaultCtor = MemberScan.HasFunction(info2, @"(?<![~\w])" + Regex.Escape(c) + @"\s*\(\s*(?:void\s*)?\)");
             if (!hasDefaultCtor && !info2.HasUserCtor)

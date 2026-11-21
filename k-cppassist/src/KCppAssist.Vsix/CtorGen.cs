@@ -42,8 +42,8 @@ namespace KCppAssist
             string m = CppText.Mask(text);
             var scopes = Scopes.Parse(text);
             var cls = scopes.Where(s => s.IsClass && s.Open < caret && caret <= s.Close).OrderByDescending(s => s.Open).FirstOrDefault();
-            if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
-            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = "クラスが 1 行に書かれています。複数行に広げてください"; return null; }
+            if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
+            if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = L.T("クラスが 1 行に書かれています。複数行に広げてください"); return null; }
 
             var members = new List<Member>();
             var ctorCounts = new List<int>();
@@ -126,7 +126,7 @@ namespace KCppAssist
                 members.Add(new Member { Type = type, Name = name });
             }
             if (refused) { why = refuseReason; return null; }
-            if (members.Count == 0) { why = "データ メンバーが見つかりません"; return null; }
+            if (members.Count == 0) { why = L.T("データ メンバーが見つかりません"); return null; }
 
             // ---- 引数の名前と型 ----
             var used = new HashSet<string>(StringComparer.Ordinal);
@@ -145,7 +145,7 @@ namespace KCppAssist
 
             if (ctorCounts.Contains(members.Count) && !(members.Count == 1 && !ctorCounts.Contains(1)))
             {
-                why = "引数が " + members.Count + " 個のコンストラクターが、すでにあります";
+                why = L.F("引数が {0} 個のコンストラクターが、すでにあります", members.Count);
                 return null;
             }
 

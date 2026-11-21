@@ -1026,7 +1026,7 @@ namespace KCppAssist
                     // 調べている間に打ち終えていた。メンバーの衝突は、調べ終わって初めて分かる
                     if (Conflicts(r, r.FinalName))
                     {
-                        IncludeService.Status(r.FinalName + " は同じクラスにすでにあるので、" + r.OldName + " を使っている場所は変えていません");
+                        IncludeService.Status(L.F("{0} は同じクラスにすでにあるので、{1} を使っている場所は変えていません", r.FinalName, r.OldName));
                         r.Conflict = true;
                         r.FinalName = r.DiskName;
                     }
@@ -1067,7 +1067,7 @@ namespace KCppAssist
                 else
                 {
                     r.Conflict = true;
-                    IncludeService.Status(name + " は同じ名前がすでにあるので、" + r.OldName + " を使っている場所は変えていません");
+                    IncludeService.Status(L.F("{0} は同じ名前がすでにあるので、{1} を使っている場所は変えていません", name, r.OldName));
                 }
             }
             MarkName(r);
@@ -1124,7 +1124,7 @@ namespace KCppAssist
             // 作業中のバッファーは、元に戻す操作の途中なので触らない(Visual Studio が戻している)
             int n = ApplyName(r, name, buffer);
             Finish(r);
-            if (n > 0 || r.Closed.Count > 0) IncludeService.Status(was + " を " + name + " に戻したので、ほかのファイルも合わせました");
+            if (n > 0 || r.Closed.Count > 0) IncludeService.Status(L.F("{0} を {1} に戻したので、ほかのファイルも合わせました", was, name));
         }
 
         private static SymbolScan.Decl Renamed(SymbolScan.Decl d, string name)
@@ -1201,9 +1201,7 @@ namespace KCppAssist
                 }
                 if (places == 0 && written.Count == 0 && r.AmbiguousLines.Count == 0 && failed.Count == 0) return;
                 if (!view.IsClosed && closed.Count > 0) ShowNote(r, name, true, written.Count);
-                IncludeService.Status(was.Name + " を " + name + " に変えました(" + (places + written.Count) + " か所"
-                    + (failed.Count > 0 ? "。書き換えられなかったファイルが " + failed.Count + " 個あります(出力ウィンドウの K-Cpp)" : "")
-                    + (r.AmbiguousLines.Count > 0 ? "。決められない " + r.AmbiguousLines.Count + " か所は、出力ウィンドウの K-Cpp に出しました" : "") + ")");
+                IncludeService.Status(L.F("{0} を {1} に変えました({2} か所{3}{4})", was.Name, name, (places + written.Count), (failed.Count > 0 ? L.T("。書き換えられなかったファイルが ") + failed.Count + L.T(" 個あります(出力ウィンドウの K-Cpp)") : ""), (r.AmbiguousLines.Count > 0 ? L.T("。決められない ") + r.AmbiguousLines.Count + L.T(" か所は、出力ウィンドウの K-Cpp に出しました") : "")));
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol finish failed: " + ex); }
         }
@@ -1264,7 +1262,7 @@ namespace KCppAssist
             int[] map = SymbolScan.ParamMap(oldPs, newPs);
             if (map == null)
             {
-                IncludeService.Status("同じ型の引数のどれを消したか決められないので、呼び出しは直していません(引数の名前を残して消すと、直せます)");
+                IncludeService.Status(L.T("同じ型の引数のどれを消したか決められないので、呼び出しは直していません(引数の名前を残して消すと、直せます)"));
                 return;
             }
             if (SymbolScan.IsIdentity(map, oldPs.Count)) return;        // 名前や型を変えただけ
@@ -1422,8 +1420,7 @@ namespace KCppAssist
                     int anchor = d.Start >= 0 ? snapNow.CreateTrackingPoint(Math.Min(d.Start, snapNow.Length), PointTrackingMode.Negative).GetPosition(view.TextSnapshot) : -1;
                     SyncPreview.ShowNote(view, anchor, label + " の呼び出し", null, null, lines);
                 }
-                IncludeService.Status(label + " の呼び出し " + done + " か所の引数を直しました"
-                    + (skipped + failed.Count > 0 ? "(直していない所があります。出力ウィンドウの K-Cpp)" : ""));
+                IncludeService.Status(L.F("{0} の呼び出し {1} か所の引数を直しました{2}", label, done, (skipped + failed.Count > 0 ? L.T("(直していない所があります。出力ウィンドウの K-Cpp)") : "")));
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol call sync failed: " + ex); }
         }
@@ -1474,8 +1471,7 @@ namespace KCppAssist
                 }
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 if (n == 0 && ok == 0 && bad == 0) return;
-                IncludeService.Status(cu.Label + " の引数を" + (revert ? "元に戻した" : "やり直した") + "ので、呼び出しも合わせました(" + n + " か所、閉じているファイル " + ok + " 個"
-                    + (bad > 0 ? "。あとで書き換わっていた " + bad + " 個は、触っていません" : "") + ")");
+                IncludeService.Status(L.F("{0} の引数を{1}ので、呼び出しも合わせました({2} か所、閉じているファイル {3} 個{4})", cu.Label, (revert ? L.T("元に戻した") : L.T("やり直した")), n, ok, (bad > 0 ? L.T("。あとで書き換わっていた ") + bad + L.T(" 個は、触っていません") : "")));
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol follow args failed: " + ex); }
         }

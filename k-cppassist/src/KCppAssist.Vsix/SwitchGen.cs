@@ -132,7 +132,7 @@ namespace KCppAssist
 
             // ---- caret を含む switch ----
             Sw sw = FindSwitch(text, m, caret);
-            if (sw == null) { why = "カーソルが、switch の中にありません"; return null; }
+            if (sw == null) { why = L.T("カーソルが、switch の中にありません"); return null; }
 
             // ---- いまある case と default(switch 直下だけ。入れ子の switch は見ない) ----
             var labels = new List<string>();
@@ -202,7 +202,7 @@ namespace KCppAssist
                     }
                 }
             }
-            if (best == null) { why = "enum の型を決められません。case を 1 つ書くか、変数の宣言が見える場所で試してください"; return null; }
+            if (best == null) { why = L.T("enum の型を決められません。case を 1 つ書くか、変数の宣言が見える場所で試してください"); return null; }
 
             // ---- 足りない enumerator ----
             foreach (string l in labelNames.ToList())
@@ -214,7 +214,7 @@ namespace KCppAssist
             if (values.Count > 1 && Sentinel.IsMatch(values[values.Count - 1])) values.RemoveAt(values.Count - 1);
             var missing = values.Where(v => !labelNames.Contains(v)).ToList();
             bool needDefault = addDefault && defaultPos < 0;
-            if (missing.Count == 0 && !needDefault) { why = "足りない case はありません (" + best.Name + ")"; return null; }
+            if (missing.Count == 0 && !needDefault) { why = L.F("足りない case はありません ({0})", best.Name); return null; }
 
             // ---- 書き方(字下げと、名前の前の修飾)を、いまの case にそろえる ----
             // 1 段の字下げは、switch の行の字下げがタブならタブ、そうでなければ、ファイルで多いほう(判断できなければ空白 2 つ)

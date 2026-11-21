@@ -40,25 +40,25 @@ namespace KCppAssist
         public static Edit PlanDefinition(string headerText, FunctionScan.Sig decl, string cppText, string eol, out string why)
         {
             why = null;
-            if (decl.HasBody) { why = "本体のある関数です"; return null; }
+            if (decl.HasBody) { why = L.T("本体のある関数です"); return null; }
             string inner = decl.Inner(headerText);
-            if (SignatureSync.HasDirectives(inner)) { why = "引数の途中に #if があるので、雛形を作れません"; return null; }
+            if (SignatureSync.HasDirectives(inner)) { why = L.T("引数の途中に #if があるので、雛形を作れません"); return null; }
             var ps = SignatureSync.SplitParams(inner);
-            if (ps == null) { why = "引数を読めませんでした (書きかけかもしれません)"; return null; }
+            if (ps == null) { why = L.T("引数を読めませんでした (書きかけかもしれません)"); return null; }
 
             // 戻り値の型
             // コメントは、Mask で空白にした文字から読む(長い /** ... */ の途中から切り出しても、中身が残らない)
             string before = CppText.Mask(headerText).Substring(decl.PrefixStart, Math.Max(0, decl.NameStart - decl.PrefixStart));
             while (AccessRx.IsMatch(before)) before = AccessRx.Replace(before, "", 1);
-            if (Refuse.IsMatch(before)) { why = "friend・constexpr・template の関数は、雛形を作りません"; return null; }
+            if (Refuse.IsMatch(before)) { why = L.T("friend・constexpr・template の関数は、雛形を作りません"); return null; }
             // クラスに属さない static の関数は、そのファイルの中だけの関数。cpp に定義を置くと、ヘッダーを include したほかの cpp から見えない
-            if (decl.Class == null && Regex.IsMatch(before, @"\bstatic\b")) { why = "static の関数 (クラスに属さないもの) は、cpp に定義を作りません。static を外すか、inline にしてヘッダーに置いてください"; return null; }
+            if (decl.Class == null && Regex.IsMatch(before, @"\bstatic\b")) { why = L.T("static の関数 (クラスに属さないもの) は、cpp に定義を作りません。static を外すか、inline にしてヘッダーに置いてください"); return null; }
             before = AttrRx.Replace(before, " ");
             before = ExportRx.Replace(before, " ");
             before = DeclOnlyWords.Replace(before, " ");
             string ret = Regex.Replace(before, @"\s+", " ").Trim();
             bool ctor = decl.Class != null && decl.Name == decl.Class;
-            if (ret.Length == 0 && !ctor) { why = "戻り値の型を読めませんでした"; return null; }
+            if (ret.Length == 0 && !ctor) { why = L.T("戻り値の型を読めませんでした"); return null; }
 
             // 引数(既定値と SAL 注釈は除く)
             var cleaned = new List<string>();
@@ -71,7 +71,7 @@ namespace KCppAssist
 
             // ')' のあと(const・noexcept・-> T)。override・final は定義に書かない
             string tail = Clean(headerText.Substring(decl.Close + 1, Math.Max(0, decl.End - decl.Close - 1)));
-            if (Regex.IsMatch(tail, @"=\s*(?:0|default|delete)\b")) { why = "純粋仮想・= default・= delete の関数は、定義を作りません"; return null; }
+            if (Regex.IsMatch(tail, @"=\s*(?:0|default|delete)\b")) { why = L.T("純粋仮想・= default・= delete の関数は、定義を作りません"); return null; }
             tail = Regex.Replace(tail, @"\b(?:override|final)\b", " ");
             tail = Regex.Replace(tail, @"\s+", " ").Trim();
 
@@ -197,21 +197,21 @@ namespace KCppAssist
         public static string DeclarationFor(string cppText, FunctionScan.Sig def, out string why)
         {
             why = null;
-            if (!def.HasBody) { why = "本体のない関数です"; return null; }
-            if (def.InClass) { why = "クラスの中に書いた関数です"; return null; }
-            if (def.Class == null || def.Chain.Count <= def.Enclosing) { why = "Class::Func の形の定義ではありません"; return null; }
+            if (!def.HasBody) { why = L.T("本体のない関数です"); return null; }
+            if (def.InClass) { why = L.T("クラスの中に書いた関数です"); return null; }
+            if (def.Class == null || def.Chain.Count <= def.Enclosing) { why = L.T("Class::Func の形の定義ではありません"); return null; }
             string inner = def.Inner(cppText);
-            if (SignatureSync.HasDirectives(inner)) { why = "引数の途中に #if があるので、宣言を作れません"; return null; }
+            if (SignatureSync.HasDirectives(inner)) { why = L.T("引数の途中に #if があるので、宣言を作れません"); return null; }
             var ps = SignatureSync.SplitParams(inner);
-            if (ps == null) { why = "引数を読めませんでした (書きかけかもしれません)"; return null; }
+            if (ps == null) { why = L.T("引数を読めませんでした (書きかけかもしれません)"); return null; }
 
             string before = CppText.Mask(cppText).Substring(def.PrefixStart, Math.Max(0, def.NameStart - def.PrefixStart));
-            if (Refuse.IsMatch(before)) { why = "template・constexpr などの関数は、宣言を作りません"; return null; }
+            if (Refuse.IsMatch(before)) { why = L.T("template・constexpr などの関数は、宣言を作りません"); return null; }
             before = AttrRx.Replace(before, " ");
             before = Regex.Replace(before, @"\b(?:static|inline|virtual|_Use_decl_annotations_)\b", " ");
             string ret = Regex.Replace(before, @"\s+", " ").Trim();
             bool ctor = def.Name == def.Class;
-            if (ret.Length == 0 && !ctor) { why = "戻り値の型を読めませんでした"; return null; }
+            if (ret.Length == 0 && !ctor) { why = L.T("戻り値の型を読めませんでした"); return null; }
 
             // ')' のあと、本体の「{」か初期化子リストの「:」の手前まで
             int j = def.Close + 1;

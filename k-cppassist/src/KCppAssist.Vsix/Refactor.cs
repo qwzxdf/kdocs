@@ -86,8 +86,8 @@ namespace KCppAssist
             var ch = new Change();
             foreach (Match x in Regex.Matches(m.Substring(from, to - from), @"\bNULL\b"))
                 ch.Add(from + x.Index, 4, "nullptr");
-            if (ch.Edits.Count == 0) { why = "NULL がありません"; return null; }
-            ch.Message = "NULL を nullptr にしました (" + ch.Edits.Count + " か所)";
+            if (ch.Edits.Count == 0) { why = L.T("NULL がありません"); return null; }
+            ch.Message = L.F("NULL を nullptr にしました ({0} か所)", ch.Edits.Count);
             return ch;
         }
 
@@ -115,12 +115,12 @@ namespace KCppAssist
             else
             {
                 Match p = TypedefPlain.Match(code);
-                if (!p.Success || Regex.IsMatch(p.Groups[2].Value, @"\b(?:struct|enum|union)\s*\{")) { why = "この行は 1 行の typedef ではありません"; return null; }
+                if (!p.Success || Regex.IsMatch(p.Groups[2].Value, @"\b(?:struct|enum|union)\s*\{")) { why = L.T("この行は 1 行の typedef ではありません"); return null; }
                 string type = Regex.Replace(p.Groups[2].Value.Trim(), @"\s+", " ");
                 res = p.Groups[1].Value + "using " + p.Groups[3].Value + " = " + type + p.Groups[4].Value + ";";
             }
             var ch = new Change().Add(ls, code.Length, res);
-            ch.Message = "typedef を using にしました";
+            ch.Message = L.T("typedef を using にしました");
             return ch;
         }
 
@@ -153,8 +153,8 @@ namespace KCppAssist
                 string type = Regex.Replace(x.Groups[1].Value, @"\s+", " ");
                 ch.Add(start, opEnd - start, "static_cast<" + type + ">(" + operand + ")");
             }
-            if (ch.Edits.Count == 0) { why = "この行に、数の型への C のキャストがありません"; return null; }
-            ch.Message = "C のキャストを static_cast にしました (" + ch.Edits.Count + " か所)";
+            if (ch.Edits.Count == 0) { why = L.T("この行に、数の型への C のキャストがありません"); return null; }
+            ch.Message = L.F("C のキャストを static_cast にしました ({0} か所)", ch.Edits.Count);
             return ch;
         }
 
@@ -214,12 +214,12 @@ namespace KCppAssist
             string m = CppText.Mask(text);
             int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
             Match x = IndexFor.Match(m, ls);
-            if (!x.Success || x.Index > le) { why = "この行は「for (size_t i = 0; i < v.size(); ++i) {」の形ではありません"; return null; }
+            if (!x.Success || x.Index > le) { why = L.T("この行は「for (size_t i = 0; i < v.size(); ++i) {」の形ではありません"); return null; }
             string idx = x.Groups[1].Value;
             string cont = x.Groups[2].Success ? x.Groups[2].Value : x.Groups[3].Value;
             int open = x.Index + x.Length - 1;
             int close = Scopes.MatchBrace(m, open);
-            if (close < 0) { why = "for の本体の「}」が見つかりません"; return null; }
+            if (close < 0) { why = L.T("for の本体の「}」が見つかりません"); return null; }
 
             // 本体で i を使っているのが、すべて「cont[i]」なら変えられる
             var uses = new List<int>();
@@ -228,12 +228,12 @@ namespace KCppAssist
             foreach (Match u in Regex.Matches(m.Substring(open, close - open), @"(?<![\w.])" + Regex.Escape(idx) + @"\b"))
             {
                 int p = open + u.Index;
-                if (!accesses.Any(a => a.Item1 < p && p < a.Item1 + a.Item2)) { why = "本体で " + idx + " を、" + cont + "[" + idx + "] 以外にも使っています (番号が要るので、範囲 for にできません)"; return null; }
+                if (!accesses.Any(a => a.Item1 < p && p < a.Item1 + a.Item2)) { why = L.F("本体で {0} を、{1}[{2}] 以外にも使っています (番号が要るので、範囲 for にできません)", idx, cont, idx); return null; }
             }
-            if (accesses.Count == 0) { why = "本体で " + cont + "[" + idx + "] を使っていません"; return null; }
+            if (accesses.Count == 0) { why = L.F("本体で {0}[{1}] を使っていません", cont, idx); return null; }
             // 本体で入れ物の大きさを変えると、範囲 for では、反復子が無効になる
             if (Regex.IsMatch(m.Substring(open, close - open), Regex.Escape(cont) + @"\s*\.\s*(?:push_back|emplace_back|erase|insert|clear|resize|pop_back)\b"))
-            { why = "本体で " + cont + " の要素を足し引きしています。範囲 for にすると、反復子が無効になります"; return null; }
+            { why = L.F("本体で {0} の要素を足し引きしています。範囲 for にすると、反復子が無効になります", cont); return null; }
 
             string elem = Singular(cont);
             var bodyIds = new HashSet<string>(Regex.Matches(m.Substring(open, close - open), @"\b[A-Za-z_]\w*\b").Cast<Match>().Select(t => t.Value));
@@ -243,7 +243,7 @@ namespace KCppAssist
             int forStart = x.Index;
             ch.Add(forStart, open - forStart, "for (auto& " + elem + " : " + cont + ") ");
             foreach (var a in accesses) ch.Add(a.Item1, a.Item2, elem);
-            ch.Message = "範囲 for にしました (要素の名前は " + elem + "。const にしたいときは const auto& に)";
+            ch.Message = L.F("範囲 for にしました (要素の名前は {0}。const にしたいときは const auto& に)", elem);
             return ch;
         }
 
@@ -363,8 +363,8 @@ namespace KCppAssist
             why = null;
             string m = CppText.Mask(text);
             var s = FindIf(m, text, caret);
-            if (s == null || s.IfStart < 0) { why = "この行は「if (…) { … } else { … }」(波括弧つき)の if ではありません"; return null; }
-            if (s.ElseStart < 0) { why = "else がない if です (早期 return のほうを使ってください)"; return null; }
+            if (s == null || s.IfStart < 0) { why = L.T("この行は「if (…) { … } else { … }」(波括弧つき)の if ではありません"); return null; }
+            if (s.ElseStart < 0) { why = L.T("else がない if です (早期 return のほうを使ってください)"); return null; }
             string cond = text.Substring(s.CondOpen + 1, s.CondClose - s.CondOpen - 1);
             string thenBody = text.Substring(s.ThenOpen, s.ThenClose - s.ThenOpen + 1);
             string elseBody = text.Substring(s.ElseOpen, s.ElseClose - s.ElseOpen + 1);
@@ -372,7 +372,7 @@ namespace KCppAssist
             ch.Add(s.ElseOpen, elseBody.Length, thenBody);
             ch.Add(s.ThenOpen, thenBody.Length, elseBody);
             ch.Add(s.CondOpen + 1, cond.Length, Negate(cond));
-            ch.Message = "if を反転しました";
+            ch.Message = L.T("if を反転しました");
             return ch;
         }
 
@@ -383,12 +383,12 @@ namespace KCppAssist
             why = null;
             string m = CppText.Mask(text);
             var s = FindIf(m, text, caret);
-            if (s == null || s.IfStart < 0) { why = "この行は波括弧つきの if ではありません"; return null; }
-            if (s.ElseStart >= 0) { why = "else のある if は、早期 return にできません"; return null; }
+            if (s == null || s.IfStart < 0) { why = L.T("この行は波括弧つきの if ではありません"); return null; }
+            if (s.ElseStart >= 0) { why = L.T("else のある if は、早期 return にできません"); return null; }
             // if が、囲んでいるブロックの最後の文か
             int k = s.ThenClose + 1;
             while (k < m.Length && char.IsWhiteSpace(m[k])) k++;
-            if (k >= m.Length || m[k] != '}') { why = "if の後ろに文が続いています。最後の文の if だけ早期 return にできます"; return null; }
+            if (k >= m.Length || m[k] != '}') { why = L.T("if の後ろに文が続いています。最後の文の if だけ早期 return にできます"); return null; }
             int outerClose = k;
             int outerOpen = OpenOf(m, outerClose);
             if (outerOpen < 0) return null;
@@ -398,11 +398,11 @@ namespace KCppAssist
             else
             {
                 var fn = FunctionScan.Scan(text).FirstOrDefault(f => f.HasBody && f.BodyOpen == outerOpen);
-                if (fn == null) { why = "if を囲んでいるのが、関数かループの本体ではありません"; return null; }
+                if (fn == null) { why = L.T("if を囲んでいるのが、関数かループの本体ではありません"); return null; }
                 string ret = text.Substring(fn.PrefixStart, fn.NameStart - fn.PrefixStart);
                 bool isVoid = Regex.IsMatch(CppText.Mask(ret), @"\bvoid\s*$") || CppText.Mask(ret).Trim().Length == 0
                     || Regex.IsMatch(CppText.Mask(ret), @"^\s*(?:(?:inline|static|virtual|explicit|constexpr)\s+)*$");
-                if (!isVoid) { why = "戻り値のある関数です。何を返すか決められないので、早期 return にできません"; return null; }
+                if (!isVoid) { why = L.T("戻り値のある関数です。何を返すか決められないので、早期 return にできません"); return null; }
                 exit = "return;";
             }
             string ifIndent = MemberScan.Indent(text, s.IfStart);
@@ -413,13 +413,13 @@ namespace KCppAssist
             var lines = body.Split('\n').Select(l => l.TrimEnd('\r')).ToList();
             while (lines.Count > 0 && lines[0].Trim().Length == 0) lines.RemoveAt(0);
             while (lines.Count > 0 && lines[lines.Count - 1].Trim().Length == 0) lines.RemoveAt(lines.Count - 1);
-            if (lines.Count == 0) { why = "if の本体が空です"; return null; }
+            if (lines.Count == 0) { why = L.T("if の本体が空です"); return null; }
             string bodyIndent = Regex.Match(lines[0], @"^[ \t]*").Value;
             var outLines = lines.Select(l => l.StartsWith(bodyIndent) && bodyIndent.Length > ifIndent.Length ? ifIndent + l.Substring(bodyIndent.Length) : l).ToList();
             if (!outLines[0].StartsWith(ifIndent)) outLines[0] = ifIndent + outLines[0].TrimStart();
             string res = "if (" + Negate(cond) + ") " + exit + eol + eol + string.Join(eol, outLines);
             var ch = new Change().Add(s.IfStart, s.ThenClose + 1 - s.IfStart, res);
-            ch.Message = "早期 " + exit.TrimEnd(';') + " にしました";
+            ch.Message = L.F("早期 {0} にしました", exit.TrimEnd(';'));
             return ch;
         }
 
@@ -444,7 +444,7 @@ namespace KCppAssist
             int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
             string line = m.Substring(ls, le - ls);
             Match d = Regex.Match(line, @"^(\s*)((?:const\s+)?[A-Za-z_][\w:]*(?:\s*<.*>)?(?:\s*::\s*\w+)*)\s*([*&]?)\s*([A-Za-z_]\w*)\s*=\s*(.+);\s*$");
-            if (!d.Success || Regex.IsMatch(d.Groups[2].Value, @"^(?:const\s+)?auto$|^(?:return|using|typedef|static_assert)\b")) { why = "この行は「型 名前 = 式;」の宣言ではありません"; return null; }
+            if (!d.Success || Regex.IsMatch(d.Groups[2].Value, @"^(?:const\s+)?auto$|^(?:return|using|typedef|static_assert)\b")) { why = L.T("この行は「型 名前 = 式;」の宣言ではありません"); return null; }
             string type = Regex.Replace(d.Groups[2].Value, @"\s+", " ").Trim();
             string bare = Regex.Replace(type, @"^const\s+", "");
             string rhs = d.Groups[5].Value.Trim();
@@ -458,12 +458,12 @@ namespace KCppAssist
             if (star == "*" && Regex.IsMatch(rhs, @"^(?:static_cast|reinterpret_cast|const_cast|dynamic_cast)\s*<\s*" + Regex.Escape(bare) + @"\s*\*\s*>")) same = true;
             if (star == "" && Regex.IsMatch(rhs, "^" + Regex.Escape(bare) + @"\s*[({]")) same = true;
             if (star == "" && Regex.IsMatch(bare, @"(?:^|::)(?:const_)?(?:reverse_)?iterator$") && Regex.IsMatch(rhs, @"\.\s*(?:c?r?begin|c?r?end|find|lower_bound|upper_bound)\s*\(")) same = true;
-            if (!same) { why = "右辺の型が " + type + star + " と同じだと言い切れません (auto にすると型が変わることがあります)"; return null; }
+            if (!same) { why = L.F("右辺の型が {0}{1} と同じだと言い切れません (auto にすると型が変わることがあります)", type, star); return null; }
             string isConst = type.StartsWith("const ") ? "const " : "";
             int typeStart = ls + d.Groups[2].Index;
             int nameStart = ls + d.Groups[4].Index;
             var ch = new Change().Add(typeStart, nameStart - typeStart, isConst + "auto" + (star == "*" ? "*" : "") + " ");
-            ch.Message = "auto にしました";
+            ch.Message = L.T("auto にしました");
             return ch;
         }
 
@@ -474,14 +474,14 @@ namespace KCppAssist
         private static Change DebugPrint(string text, int caret, string eol, bool header, out string why)
         {
             why = null;
-            if (header) { why = "ヘッダーでは使えません"; return null; }
+            if (header) { why = L.T("ヘッダーでは使えません"); return null; }
             string m = CppText.Mask(text);
             int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
             string line = m.Substring(ls, le - ls);
-            if (!line.TrimEnd().EndsWith(";")) { why = "「;」で終わる文の行で押してください"; return null; }
+            if (!line.TrimEnd().EndsWith(";")) { why = L.T("「;」で終わる文の行で押してください"); return null; }
             // 関数の本体の中か
             var fn = FunctionScan.Scan(text).FirstOrDefault(f => f.HasBody && f.BodyOpen < ls && le <= f.End);
-            if (fn == null) { why = "関数の本体の中で押してください"; return null; }
+            if (fn == null) { why = L.T("関数の本体の中で押してください"); return null; }
             // 代入・宣言の左辺。なければ、カーソルの識別子
             string name = null;
             Match a = Regex.Match(line, @"^\s*(?:(?:const\s+)?[A-Za-z_][\w:<>,\s*&]*?\s+)?((?:this->)?[A-Za-z_][\w.\->\[\]]*)\s*(?:[+\-*/%|&^]?=|\{|\()(?!=)");
@@ -493,14 +493,14 @@ namespace KCppAssist
                 while (e < le && CppText.IsId(m[e])) e++;
                 name = e > s ? m.Substring(s, e - s).Trim('.') : null;
             }
-            if (string.IsNullOrEmpty(name) || Regex.IsMatch(name, @"^(?:return|auto|const|int|float)$")) { why = "出力する変数が見つかりません。変数の上で押してください"; return null; }
+            if (string.IsNullOrEmpty(name) || Regex.IsMatch(name, @"^(?:return|auto|const|int|float)$")) { why = L.T("出力する変数が見つかりません。変数の上で押してください"); return null; }
             string indent = MemberScan.Indent(text, ls);
             // 「ファイル(行): 文」の形で出すと、出力ウィンドウでダブルクリックしたとき、その行へ飛べる
             string stmt = "OutputDebugStringA(std::format(\"{}({}): " + name.Replace("\"", "\\\"") + " = {}\\n\", __FILE__, __LINE__, " + name + ").c_str());  " + DbgMark;
             var ch = new Change().Add(MemberScan.LineEnd(text, ls), 0, eol + indent + stmt);
             AddInclude(ch, text, "<format>", eol);
             if (!Regex.IsMatch(text, @"#\s*include\s*[<""](?:Windows|windows|pch|stdafx)\.h[>""]")) AddInclude(ch, text, "<Windows.h>", eol);
-            ch.Message = name + " をデバッグ出力する行を足しました (出力ウィンドウに出ます。値が std::format で書けない型ならビルドエラーになります)";
+            ch.Message = L.F("{0} をデバッグ出力する行を足しました (出力ウィンドウに出ます。値が std::format で書けない型ならビルドエラーになります)", name);
             return ch;
         }
 
@@ -517,8 +517,8 @@ namespace KCppAssist
                 if (line.TrimEnd().EndsWith(DbgMark)) ch.Add(i, next - i, "");
                 i = next;
             }
-            if (ch.Edits.Count == 0) { why = "// KDBG の行がありません"; return null; }
-            ch.Message = "デバッグ出力の行を " + ch.Edits.Count + " 行消しました";
+            if (ch.Edits.Count == 0) { why = L.T("// KDBG の行がありません"); return null; }
+            ch.Message = L.F("デバッグ出力の行を {0} 行消しました", ch.Edits.Count);
             return ch;
         }
 

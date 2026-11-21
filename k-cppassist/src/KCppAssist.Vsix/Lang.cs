@@ -22,7 +22,7 @@ namespace KCppAssist
         {
             if (string.IsNullOrEmpty(ja) || Current == UiLanguage.Japanese) return ja;
             string[] row;
-            if (!Table.TryGetValue(ja, out row) && !LangDescriptions.Rows.TryGetValue(ja, out row)) return ja;
+            if (!Table.TryGetValue(ja, out row) && !LangDescriptions.Rows.TryGetValue(ja, out row) && !LangMessages.Rows.TryGetValue(ja, out row)) return ja;
             int i = Current == UiLanguage.English ? 0 : Current == UiLanguage.ChineseSimplified ? 1 : 2;
             if (i < row.Length && !string.IsNullOrEmpty(row[i])) return row[i];
             return string.IsNullOrEmpty(row[0]) ? ja : row[0];

@@ -39,7 +39,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunGenAsync(kind); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -55,9 +55,9 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null) { await ReportAsync("ファイルが保存されていません", true); return; }
+            if (path == null) { await ReportAsync(L.T("ファイルが保存されていません"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             string eol = CppText.Eol(text);
@@ -104,7 +104,7 @@ namespace KCppAssist
             {
                 // 基底クラスの定義は、このファイルと、#include をたどった先(2 段まで)、型の索引から探す
                 var names = OverrideGen.BaseNamesAt(text, caret);
-                if (names == null) { await ReportAsync("カーソルが、class / struct の中にありません", true); return; }
+                if (names == null) { await ReportAsync(L.T("カーソルが、class / struct の中にありません"), true); return; }
                 string root = IncludeService.RootFor(path);
                 var texts = await Task.Run(() =>
                 {
@@ -179,7 +179,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunUsageAsync(); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -199,9 +199,9 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null) { await ReportAsync("ファイルが保存されていません", true); return; }
+            if (path == null) { await ReportAsync(L.T("ファイルが保存されていません"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             string eol = CppText.Eol(text);
@@ -218,7 +218,7 @@ namespace KCppAssist
             bool own;
             if (u.Receiver != null && u.Receiver != "this")
             {
-                if (u.ReceiverType == null) { await ReportAsync(u.Receiver.TrimEnd('.', '-', '>') + " の型を決められません。宣言が見える場所で試してください", true); return; }
+                if (u.ReceiverType == null) { await ReportAsync(L.F("{0} の型を決められません。宣言が見える場所で試してください", u.Receiver.TrimEnd('.', '-', '>')), true); return; }
                 cref = new ClassRef { Name = u.ReceiverType };
                 own = false;
             }
@@ -231,13 +231,13 @@ namespace KCppAssist
             if (cref == null)
             {
                 // クラスの外: いまの関数の前に自由関数を作る
-                if (IncludeService.IsHeader(path)) { await ReportAsync("ヘッダーの自由関数は作りません。メンバー関数の中か、cpp で押してください", true); return; }
+                if (IncludeService.IsHeader(path)) { await ReportAsync(L.T("ヘッダーの自由関数は作りません。メンバー関数の中か、cpp で押してください"), true); return; }
                 var encl = FunctionScan.Scan(text).Where(s => s.HasBody && s.BodyOpen >= 0 && s.BodyOpen < caret && caret < s.End).OrderByDescending(s => s.BodyOpen).FirstOrDefault();
-                if (encl == null) { await ReportAsync("関数の中で押してください", true); return; }
+                if (encl == null) { await ReportAsync(L.T("関数の中で押してください"), true); return; }
                 int pos0; string def0;
                 UsageGen.PlanFreeDefinition(text, encl.PrefixStart, u, eol, out pos0, out def0);
                 SyncService.ApplyEdits(view.TextBuffer, new List<Tuple<int, int, string>> { Tuple.Create(pos0, 0, def0) }, undo, "K-Cpp: 関数を作る");
-                await ReportAsync(u.Signature() + " を作りました (いまの関数の前)" + note, false);
+                await ReportAsync(L.F("{0} を作りました (いまの関数の前){1}", u.Signature(), note), false);
                 return;
             }
 
@@ -246,7 +246,7 @@ namespace KCppAssist
 
             // すでに同じ名前の関数があれば、作らない
             var existing = FunctionScan.Scan(loc.Text).FirstOrDefault(s => s.Name == u.Name && s.Open > loc.Scope.Open && s.Close < loc.Scope.Close);
-            if (existing != null) { await ReportAsync(cref.Name + "::" + u.Name + " は " + Path.GetFileName(loc.File) + " にすでにあります", true); return; }
+            if (existing != null) { await ReportAsync(L.F("{0}::{1} は {2} にすでにあります", cref.Name, u.Name, Path.GetFileName(loc.File)), true); return; }
 
             string hEol = CppText.Eol(loc.Text);
             string root = IncludeService.RootFor(loc.File);
@@ -260,16 +260,16 @@ namespace KCppAssist
                 // cpp がない(ヘッダーだけのクラス): 宣言と一緒に、中身が空の本体を書く
                 string inline = u.Signature() + (u.ReturnType == "void" ? " {}" : " { return {}; }");
                 var ed0 = PlanMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, own, inline, hEol);
-                if (ed0 == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
+                if (ed0 == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), cref.Name), true); return; }
                 SyncService.Insert(loc.View.TextBuffer, ed0.Item1, ed0.Item2, undo, "K-Cpp: 関数を作る");
                 ReturnTo(path, loc.File);
-                await ReportAsync(cref.Name + "::" + u.Name + " を " + Path.GetFileName(loc.File) + " に作りました (cpp がないので、本体つき)" + note, false);
+                await ReportAsync(L.F("{0}::{1} を {2} に作りました (cpp がないので、本体つき){3}", cref.Name, u.Name, Path.GetFileName(loc.File), note), false);
                 return;
             }
 
             // 宣言をクラスに足す(自分のクラスなら末尾、ほかのクラスなら public)
             var ed = PlanMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, own, u.Declaration(), hEol);
-            if (ed == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
+            if (ed == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), cref.Name), true); return; }
             SyncService.Insert(loc.View.TextBuffer, ed.Item1, ed.Item2, undo, "K-Cpp: 宣言を作る");
 
             // cpp に定義の雛形(足した宣言を、足したあとのヘッダーから読み直す)
@@ -297,7 +297,7 @@ namespace KCppAssist
                 }
             }
             ReturnTo(path, loc.File);
-            await ReportAsync(cref.Name + "::" + u.Name + " の宣言を " + Path.GetFileName(loc.File) + " に作りました" + defMsg + note, false);
+            await ReportAsync(L.F("{0}::{1} の宣言を {2} に作りました{3}{4}", cref.Name, u.Name, Path.GetFileName(loc.File), defMsg, note), false);
         }
     }
 }

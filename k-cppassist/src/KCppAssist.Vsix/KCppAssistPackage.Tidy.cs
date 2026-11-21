@@ -143,7 +143,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunTidyAsync(unused, currentFileOnly); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -160,11 +160,11 @@ namespace KCppAssist
             if (currentFileOnly)
             {
                 string cur = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-                if (cur == null || !CodeExt.Contains(Path.GetExtension(cur).ToLowerInvariant())) { await ReportAsync("C++ のファイルを開いてから実行してください", true); return; }
+                if (cur == null || !CodeExt.Contains(Path.GetExtension(cur).ToLowerInvariant())) { await ReportAsync(L.T("C++ のファイルを開いてから実行してください"), true); return; }
                 files = new List<string> { cur };
             }
             else files = ProjectFiles(dte, false).ToList();
-            if (files.Count == 0) { await ReportAsync("対象のファイルが見つかりません (プロジェクトを右クリックして実行してください)", true); return; }
+            if (files.Count == 0) { await ReportAsync(L.T("対象のファイルが見つかりません (プロジェクトを右クリックして実行してください)"), true); return; }
 
             bool headersToo = opt != null && opt.RemoveUnusedInHeaders;
             var provider = new ProvidedCache(opt);
@@ -200,7 +200,7 @@ namespace KCppAssist
 
             if (changes.Count == 0)
             {
-                await ReportAsync((unused ? "使っていない #include は、見つかりませんでした" : "#include は、すでに整っています") + " (" + files.Count + " ファイル" + (skipped > 0 ? "、読めなかったもの " + skipped : "") + ")", false);
+                await ReportAsync(L.F("{0} ({1} ファイル{2})", (unused ? L.T("使っていない #include は、見つかりませんでした") : L.T("#include は、すでに整っています")), files.Count, (skipped > 0 ? L.T("、読めなかったもの ") + skipped : "")), false);
                 return;
             }
 
@@ -209,21 +209,21 @@ namespace KCppAssist
                 // プロジェクト全体の整理は、閉じているファイルも保存するので、Ctrl+Z で戻せない。先に聞く
                 string names = string.Join("\n", changes.Take(20).Select(c => c.Item3)) + (changes.Count > 20 ? "\n… ほか " + (changes.Count - 20) + " 個" : "");
                 if (!KDialog.Confirm("#include を整理する", "次の " + changes.Count + " 個のファイルの #include を並べ替えます。開いていないファイルは、そのまま保存します (Ctrl+Z では戻せません)。", names, "並べ替える"))
-                { await ReportAsync("やめました", false); return; }
+                { await ReportAsync(L.T("やめました"), false); return; }
             }
 
             if (unused)
             {
                 string preview = string.Join("\n", details.Take(25)) + (details.Count > 25 ? "\n… ほか " + (details.Count - 25) + " 件" : "");
                 if (!KDialog.Confirm("使っていない #include を消す", "次の " + details.Count + " 件の #include を消します。名前の使われ方から調べているので、マクロや、他のヘッダー経由の使い方は見ていません。消したあと、ビルドして確かめてください。", preview, "消す"))
-                { await ReportAsync("やめました", false); return; }
+                { await ReportAsync(L.T("やめました"), false); return; }
             }
 
             int written = 0;
             foreach (var c in changes)
                 if (WriteSource(c.Item1, c.Item2, undo, unused ? "K-Cpp: 使っていない #include を消す" : "K-Cpp: #include を整理")) written++;
             Log("tidy: " + (unused ? "unused" : "organize") + " files=" + files.Count + " changed=" + written + " skipped=" + skipped);
-            await ReportAsync((unused ? "使っていない #include を " + details.Count + " 件消しました" : "#include を整理しました") + " (" + written + " / " + files.Count + " ファイル" + (skipped > 0 ? "、読めなかったもの " + skipped : "") + ")。エディターで開いていないファイルは、保存済みです", false);
+            await ReportAsync(L.F("{0} ({1} / {2} ファイル{3})。エディターで開いていないファイルは、保存済みです", (unused ? L.T("使っていない #include を ") + details.Count + L.T(" 件消しました") : L.T("#include を整理しました")), written, files.Count, (skipped > 0 ? L.T("、読めなかったもの ") + skipped : "")), false);
         }
 
         /// <summary>#include 先のヘッダーが(間接に include するものも含めて)定義している名前。結果は、1 回の実行の間だけ覚える。</summary>
@@ -302,7 +302,7 @@ namespace KCppAssist
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
                 try { await RunForwardAsync(typeName); }
-                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+                catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
 
@@ -319,16 +319,16 @@ namespace KCppAssist
             IVsTextView vsView;
             manager.GetActiveView(1, null, out vsView);
             IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
-            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+            if (view == null) { await ReportAsync(L.T("アクティブなエディターがありません"), true); return; }
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            if (path == null || !IncludeService.IsHeader(path)) { await ReportAsync("前方宣言にするのは、ヘッダーで押してください", true); return; }
+            if (path == null || !IncludeService.IsHeader(path)) { await ReportAsync(L.T("前方宣言にするのは、ヘッダーで押してください"), true); return; }
 
             string text = view.TextSnapshot.GetText();
             string eol = CppText.Eol(text);
             int caret = view.Caret.Position.BufferPosition.Position;
             // 型の名前から探すときは、<Prest/...> のような <> の書き方のプロジェクトのヘッダーも対象にする
             var includes = IncludeTidy.Parse(text).Where(i => i.Depth == 0 && (!i.Angle || typeName != null)).ToList();
-            if (includes.Count == 0) { await ReportAsync("このヘッダーに、\"...\" の #include がありません", true); return; }
+            if (includes.Count == 0) { await ReportAsync(L.T("このヘッダーに、\"...\" の #include がありません"), true); return; }
             var onLine = typeName != null ? null : includes.FirstOrDefault(i => caret >= i.Start && caret < i.End);
             var targets = onLine != null ? new List<IncludeTidy.Item> { onLine } : includes;
 
@@ -345,12 +345,12 @@ namespace KCppAssist
                 var inc = IncludeTidy.Parse(current).FirstOrDefault(i => i.Depth == 0 && !i.Angle && i.Path == inc0.Path);
                 if (inc == null) continue;
                 string file = ProvidedCache.Resolve(inc, path, root);
-                if (file == null) { why.Add(inc.Path + ": ファイルを探せません"); continue; }
+                if (file == null) { why.Add(L.F("{0}: ファイルを探せません", inc.Path)); continue; }
                 string incText;
-                try { incText = File.ReadAllText(file); } catch (Exception) { why.Add(inc.Path + ": 読めません"); continue; }
+                try { incText = File.ReadAllText(file); } catch (Exception) { why.Add(L.F("{0}: 読めません", inc.Path)); continue; }
                 var types = ForwardDecl.Types(incText);
                 if (typeName != null && !types.Any(t => t.Name == typeName)) continue;     // その型を定義しているヘッダーではない
-                if (types.Count == 0) { why.Add(inc.Path + ": 前方宣言できる class / struct がありません"); continue; }
+                if (types.Count == 0) { why.Add(L.F("{0}: 前方宣言できる class / struct がありません", inc.Path)); continue; }
                 var transitive = new HashSet<string>(StringComparer.Ordinal);
                 var provided = cache.For(inc, path, root);
                 if (provided != null) transitive.UnionWith(provided);
@@ -437,8 +437,7 @@ namespace KCppAssist
             }
             SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, "K-Cpp: #include を前方宣言にする");
             Log("forward: " + string.Join(" / ", done));
-            await ReportAsync(string.Join("、", done) + " を前方宣言にしました" + (addedTo.Count > 0 ? "。#include は " + string.Join("・", addedTo) + " に足しました" : "。cpp が見つからないので、#include は移していません")
-                + (movedSpecials.Count > 0 ? "。unique_ptr のため、" + string.Join("・", movedSpecials.Select(x => x.Substring(x.IndexOf("::") + 2))) + " を cpp に = default で定義しました" : ""), false);
+            await ReportAsync(L.F("{0} を前方宣言にしました{1}{2}", string.Join("、", done), (addedTo.Count > 0 ? L.T("。#include は ") + string.Join(L.T("・"), addedTo) + L.T(" に足しました") : L.T("。cpp が見つからないので、#include は移していません")), (movedSpecials.Count > 0 ? L.T("。unique_ptr のため、") + string.Join(L.T("・"), movedSpecials.Select(x => x.Substring(x.IndexOf("::") + 2))) + L.T(" を cpp に = default で定義しました") : "")), false);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace KCppAssist
                 case "initorder": return InitOrder(text, caret, null, out why);
             }
             var cls = MemberScan.At(text, caret);
-            if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
+            if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
             switch (id)
             {
                 case "ctordtor": return CtorDtor(text, cls, eol, CtorStyle.Declare, out why);
@@ -69,7 +69,7 @@ namespace KCppAssist
                 case "inputlayout": return InputLayout(text, cls, eol, header, out why);
                 case "cbuffer": return CBuffer(text, cls, eol, out why);
             }
-            why = "知らない書き換えです: " + id;
+            why = L.F("知らない書き換えです: {0}", id);
             return null;
         }
 
@@ -148,7 +148,7 @@ namespace KCppAssist
             var lines = new List<string>();
             if (!hasDefault) lines.Add(cls.Name + tail);
             if (!hasDtor) lines.Add((cls.HasVirtual ? "virtual " : "") + "~" + cls.Name + tail);
-            if (lines.Count == 0) { why = "コンストラクターとデストラクターは、もう宣言してあります"; return null; }
+            if (lines.Count == 0) { why = L.T("コンストラクターとデストラクターは、もう宣言してあります"); return null; }
             var ch = new Refactor.Change();
             // コピー・ムーブの宣言があれば、その上に置く(コンストラクター → デストラクター → コピー → ムーブ の並びにする)
             int at = FirstCopyMoveLine(text, cls);
@@ -159,7 +159,7 @@ namespace KCppAssist
             }
             else AddPublic(ch, text, cls, lines, eol);
             string what = string.Join(" と ", lines.Select(l => "~" + cls.Name == l.Replace("virtual ", "").Split('(')[0] ? "~" + cls.Name + "()" : cls.Name + "()"));
-            ch.Message = cls.Name + " に " + what + (style == CtorStyle.Default ? " を = default で作りました" : style == CtorStyle.Inline ? " を {} で作りました" : " を宣言しました");
+            ch.Message = L.F("{0} に {1}{2}", cls.Name, what, (style == CtorStyle.Default ? L.T(" を = default で作りました") : style == CtorStyle.Inline ? L.T(" を {} で作りました") : L.T(" を宣言しました")));
             return ch;
         }
 
@@ -194,10 +194,10 @@ namespace KCppAssist
             if (!MemberScan.HasFunction(cls, @"operator\s*=\s*\(\s*const\s+" + n + @"\s*&")) lines.Add(c + "& operator=(const " + c + "&) = delete;");
             if (!MemberScan.HasFunction(cls, @"" + n + @"\s*\(\s*" + n + @"\s*&&")) lines.Add(c + "(" + c + "&&) = delete;");
             if (!MemberScan.HasFunction(cls, @"operator\s*=\s*\(\s*" + n + @"\s*&&")) lines.Add(c + "& operator=(" + c + "&&) = delete;");
-            if (lines.Count == 0) { why = "コピーとムーブは、もう全部宣言してあります"; return null; }
+            if (lines.Count == 0) { why = L.T("コピーとムーブは、もう全部宣言してあります"); return null; }
             var ch = new Refactor.Change();
             AddPublic(ch, text, cls, lines, eol);
-            ch.Message = c + " のコピーとムーブを禁止しました (" + lines.Count + " 個)";
+            ch.Message = L.F("{0} のコピーとムーブを禁止しました ({1} 個)", c, lines.Count);
             return ch;
         }
 
@@ -222,11 +222,11 @@ namespace KCppAssist
             if (!hasMoveCtor) lines.Add(cls.Name + "(" + cls.Name + "&&) noexcept = default;");
             if (!hasMoveAssign) lines.Add(cls.Name + "& operator=(" + cls.Name + "&&) noexcept = default;");
             if (!lines.Any(l => l.Contains("(const " + cls.Name) || l.Contains("&&)") || l.StartsWith("~") || l.StartsWith("virtual")))
-            { why = "コピー・ムーブはすでに全部宣言してあります"; return null; }
+            { why = L.T("コピー・ムーブはすでに全部宣言してあります"); return null; }
             var ch = new Refactor.Change();
             if (!allDefault && cls.HasVirtual && !hasDtor) lines.Insert(0, "virtual ~" + cls.Name + "() = default;");
             AddPublic(ch, text, cls, lines, eol);
-            ch.Message = cls.Name + " に" + (allDefault ? "コピー・ムーブを = default で" : "コピー禁止・ムーブ可を") + "書きました";
+            ch.Message = L.F("{0} に{1}書きました", cls.Name, (allDefault ? L.T("コピー・ムーブを = default で") : L.T("コピー禁止・ムーブ可を")));
             return ch;
         }
 
@@ -235,8 +235,8 @@ namespace KCppAssist
         private static Refactor.Change Compare(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (MemberScan.HasFunction(cls, @"operator\s*(?:==|<=>)")) { why = "== か <=> が、すでにあります"; return null; }
-            if (cls.Members.Count == 0) { why = "データ メンバーがありません"; return null; }
+            if (MemberScan.HasFunction(cls, @"operator\s*(?:==|<=>)")) { why = L.T("== か <=> が、すでにあります"); return null; }
+            if (cls.Members.Count == 0) { why = L.T("データ メンバーがありません"); return null; }
             var ch = new Refactor.Change();
             AddPublic(ch, text, cls, new[]
             {
@@ -244,7 +244,7 @@ namespace KCppAssist
                 "auto operator<=>(const " + cls.Name + "&) const = default;",
             }, eol);
             Refactor.AddInclude(ch, text, "<compare>", eol);
-            ch.Message = cls.Name + " に == と <=> を足しました (メンバーの型に比較がないと、= default は削除扱いになります)";
+            ch.Message = L.F("{0} に == と <=> を足しました (メンバーの型に比較がないと、= default は削除扱いになります)", cls.Name);
             return ch;
         }
 
@@ -263,12 +263,12 @@ namespace KCppAssist
                 if (close < 0) continue;
                 if (caret < MemberScan.LineStart(text, x.Index) || caret > close + 2) continue;
                 int semi = m.IndexOf(';', close);
-                if (semi < 0) { why = "enum の「;」が見つかりません"; return null; }
+                if (semi < 0) { why = L.T("enum の「;」が見つかりません"); return null; }
                 var defs = SwitchGen.ParseEnums(text.Substring(x.Index, semi + 1 - x.Index));
-                if (defs.Count == 0 || defs[0].Values.Count == 0) { why = "enum の値を読めません"; return null; }
+                if (defs.Count == 0 || defs[0].Values.Count == 0) { why = L.T("enum の値を読めません"); return null; }
                 var def = defs[0];
                 string name = def.Name;
-                if (Regex.IsMatch(m, @"\bToString\s*\(\s*" + Regex.Escape(name) + @"\b")) { why = "ToString(" + name + ") はすでにあります"; return null; }
+                if (Regex.IsMatch(m, @"\bToString\s*\(\s*" + Regex.Escape(name) + @"\b")) { why = L.F("ToString({0}) はすでにあります", name); return null; }
                 var scopes = Scopes.Parse(text);
                 var inClass = scopes.Where(s => s.Open < x.Index && x.Index < s.Close).OrderByDescending(s => s.Open).FirstOrDefault();
                 bool member = inClass != null && inClass.IsClass;
@@ -291,10 +291,10 @@ namespace KCppAssist
                 var ch = new Refactor.Change().Add(semi + 1, 0, sb.ToString());
                 Refactor.AddInclude(ch, text, "<optional>", eol);
                 Refactor.AddInclude(ch, text, "<string_view>", eol);
-                ch.Message = name + " の ToString と " + name + "FromString を作りました (" + def.Values.Count + " 値)";
+                ch.Message = L.F("{0} の ToString と {1}FromString を作りました ({2} 値)", name, name, def.Values.Count);
                 return ch;
             }
-            why = "カーソルが enum の上にありません";
+            why = L.T("カーソルが enum の上にありません");
             return null;
         }
 
@@ -325,9 +325,9 @@ namespace KCppAssist
         private static Refactor.Change Formatter(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (Regex.IsMatch(text, @"formatter\s*<\s*(?:[\w:]*::)?" + Regex.Escape(cls.Name) + @"\s*>")) { why = "std::formatter<" + cls.Name + "> はすでにあります"; return null; }
+            if (Regex.IsMatch(text, @"formatter\s*<\s*(?:[\w:]*::)?" + Regex.Escape(cls.Name) + @"\s*>")) { why = L.F("std::formatter<{0}> はすでにあります", cls.Name); return null; }
             var pub = cls.Members.Where(x => x.Access == "public").ToList();
-            if (pub.Count == 0) { why = "public のデータ メンバーがありません (formatter からは private を読めません)"; return null; }
+            if (pub.Count == 0) { why = L.T("public のデータ メンバーがありません (formatter からは private を読めません)"); return null; }
             var fields = new List<string>(); var args = new List<string>();
             foreach (var mem in pub) FormatArgs(mem, fields, args);
             string fmt = "{{" + string.Join(", ", fields) + "}}";
@@ -346,7 +346,7 @@ namespace KCppAssist
             var ch = new Refactor.Change().Add(AfterOutermost(text, cls), 0, sb.ToString());
             Refactor.AddInclude(ch, text, "<format>", eol);
             if (pub.Any(x => x.Array.Length > 0)) Refactor.AddInclude(ch, text, "<span>", eol);
-            ch.Message = "std::formatter<" + cls.Name + "> を作りました (public のメンバー " + pub.Count + " 個。配列の表示は C++23 の範囲の書式を使います)";
+            ch.Message = L.F("std::formatter<{0}> を作りました (public のメンバー {1} 個。配列の表示は C++23 の範囲の書式を使います)", cls.Name, pub.Count);
             return ch;
         }
 
@@ -355,9 +355,9 @@ namespace KCppAssist
         private static Refactor.Change Hash(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (Regex.IsMatch(text, @"hash\s*<\s*(?:[\w:]*::)?" + Regex.Escape(cls.Name) + @"\s*>")) { why = "std::hash<" + cls.Name + "> はすでにあります"; return null; }
+            if (Regex.IsMatch(text, @"hash\s*<\s*(?:[\w:]*::)?" + Regex.Escape(cls.Name) + @"\s*>")) { why = L.F("std::hash<{0}> はすでにあります", cls.Name); return null; }
             var pub = cls.Members.Where(x => x.Access == "public" && x.Array.Length == 0).ToList();
-            if (pub.Count == 0) { why = "public のデータ メンバー(配列以外)がありません"; return null; }
+            if (pub.Count == 0) { why = L.T("public のデータ メンバー(配列以外)がありません"); return null; }
             string full = cls.FullName;
             string u1 = CppText.IndentUnit(text), u2 = u1 + u1;
             var sb = new StringBuilder();
@@ -375,7 +375,7 @@ namespace KCppAssist
             var ch = new Refactor.Change().Add(AfterOutermost(text, cls), 0, sb.ToString());
             Refactor.AddInclude(ch, text, "<functional>", eol);
             Refactor.AddInclude(ch, text, "<type_traits>", eol);
-            ch.Message = "std::hash<" + cls.Name + "> を作りました (メンバー " + pub.Count + " 個。== がなければ、== と <=> も作ってください)";
+            ch.Message = L.F("std::hash<{0}> を作りました (メンバー {1} 個。== がなければ、== と <=> も作ってください)", cls.Name, pub.Count);
             return ch;
         }
 
@@ -384,9 +384,9 @@ namespace KCppAssist
         private static Refactor.Change Json(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (Regex.IsMatch(text, @"NLOHMANN_DEFINE_TYPE_\w+\s*\(\s*" + Regex.Escape(cls.Name) + @"\b")) { why = "NLOHMANN_DEFINE_TYPE はすでにあります"; return null; }
+            if (Regex.IsMatch(text, @"NLOHMANN_DEFINE_TYPE_\w+\s*\(\s*" + Regex.Escape(cls.Name) + @"\b")) { why = L.T("NLOHMANN_DEFINE_TYPE はすでにあります"); return null; }
             var ms = cls.Members.Where(x => !x.Type.EndsWith("*") && !x.Type.EndsWith("&")).ToList();
-            if (ms.Count == 0) { why = "保存できるデータ メンバーがありません"; return null; }
+            if (ms.Count == 0) { why = L.T("保存できるデータ メンバーがありません"); return null; }
             var ch = new Refactor.Change();
             var lines = new List<string>
             {
@@ -395,16 +395,16 @@ namespace KCppAssist
             AddPublic(ch, text, cls, lines, eol);
             Refactor.AddInclude(ch, text, "<nlohmann/json.hpp>", eol);
             string skipped = cls.Members.Count > ms.Count ? "。ポインターと参照のメンバーは入れていません" : "";
-            ch.Message = cls.Name + " を JSON に読み書きできるようにしました (メンバー " + ms.Count + " 個" + skipped + ")";
+            ch.Message = L.F("{0} を JSON に読み書きできるようにしました (メンバー {1} 個{2})", cls.Name, ms.Count, skipped);
             return ch;
         }
 
         private static Refactor.Change Cereal(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (MemberScan.HasFunction(cls, @"\bserialize\s*\(")) { why = "serialize はすでにあります"; return null; }
+            if (MemberScan.HasFunction(cls, @"\bserialize\s*\(")) { why = L.T("serialize はすでにあります"); return null; }
             var ms = cls.Members.Where(x => !x.Type.EndsWith("*") && !x.Type.EndsWith("&")).ToList();
-            if (ms.Count == 0) { why = "保存できるデータ メンバーがありません"; return null; }
+            if (ms.Count == 0) { why = L.T("保存できるデータ メンバーがありません"); return null; }
             var ch = new Refactor.Change();
             var lines = new List<string>
             {
@@ -415,7 +415,7 @@ namespace KCppAssist
             };
             AddPublic(ch, text, cls, lines, eol);
             Refactor.AddInclude(ch, text, "<cereal/cereal.hpp>", eol);
-            ch.Message = cls.Name + " に serialize を作りました (メンバー " + ms.Count + " 個。std::vector などは cereal/types/vector.hpp の #include も要ります)";
+            ch.Message = L.F("{0} に serialize を作りました (メンバー {1} 個。std::vector などは cereal/types/vector.hpp の #include も要ります)", cls.Name, ms.Count);
             return ch;
         }
 
@@ -464,16 +464,16 @@ namespace KCppAssist
         private static Refactor.Change InputLayout(string text, MemberScan.ClassInfo cls, string eol, bool header, out string why)
         {
             why = null;
-            if (cls.Members.Count == 0) { why = "データ メンバーがありません"; return null; }
+            if (cls.Members.Count == 0) { why = L.T("データ メンバーがありません"); return null; }
             string arrName = "k" + cls.Name + "InputLayout";
-            if (text.Contains(arrName)) { why = arrName + " はすでにあります"; return null; }
+            if (text.Contains(arrName)) { why = L.F("{0} はすでにあります", arrName); return null; }
             var rows = new List<string>();
             var hlsl = new List<string>();
             var count = new Dictionary<string, int>();
             foreach (var mem in cls.Members)
             {
                 var vt = VertexType(mem.Type);
-                if (vt == null || mem.Array.Length > 0) { why = mem.Type + " " + mem.Name + mem.Array + " は、頂点の要素にできる型ではありません (float、XMFLOAT2〜4、Vector2〜4、uint32_t などにしてください)"; return null; }
+                if (vt == null || mem.Array.Length > 0) { why = L.F("{0} {1}{2} は、頂点の要素にできる型ではありません (float、XMFLOAT2〜4、Vector2〜4、uint32_t などにしてください)", mem.Type, mem.Name, mem.Array); return null; }
                 string sem = Semantic(mem.Name);
                 int idx;
                 count.TryGetValue(sem, out idx);
@@ -498,7 +498,7 @@ namespace KCppAssist
             int after = AfterClass(text, new MemberScan.ClassInfo { Scope = top });
             var ch = new Refactor.Change().Add(after, 0, sb.ToString().Replace(eol, eol + MemberScan.Indent(text, top.Close)).Replace(eol + MemberScan.Indent(text, top.Close) + eol, eol + eol));
             Refactor.AddInclude(ch, text, "<cstddef>", eol);
-            ch.Message = arrName + " を作りました (" + api + "、要素 " + rows.Count + " 個)";
+            ch.Message = L.F("{0} を作りました ({1}、要素 {2} 個)", arrName, api, rows.Count);
             return ch;
         }
 
@@ -529,7 +529,7 @@ namespace KCppAssist
         private static Refactor.Change CBuffer(string text, MemberScan.ClassInfo cls, string eol, out string why)
         {
             why = null;
-            if (cls.Members.Count == 0) { why = "データ メンバーがありません"; return null; }
+            if (cls.Members.Count == 0) { why = L.T("データ メンバーがありません"); return null; }
             // HLSL の規則: 1 つのメンバーは 16 バイトの境界をまたがない。配列と行列は 16 バイトの境界から始まり、
             // 配列の要素はどれも 16 バイトの境界から始まる(最後の要素の後ろは詰める)。
             int cpp = 0, hlsl = 0, padNo = 0;
@@ -539,7 +539,7 @@ namespace KCppAssist
             foreach (var mem in cls.Members)
             {
                 var t = CbTypeOf(mem.Type);
-                if (t == null) { why = mem.Type + " " + mem.Name + " の大きさが分かりません (float、XMFLOAT2〜4、XMFLOAT4X4、uint32_t などにしてください)"; return null; }
+                if (t == null) { why = L.F("{0} {1} の大きさが分かりません (float、XMFLOAT2〜4、XMFLOAT4X4、uint32_t などにしてください)", mem.Type, mem.Name); return null; }
                 if (t.Error != null) { why = mem.Name + ": " + t.Error; return null; }
                 int n = 1;
                 if (mem.Array.Length > 0)
@@ -553,7 +553,7 @@ namespace KCppAssist
                 if (mem.Array.Length > 0 || t.Matrix) start = Up16(hlsl);
                 else start = (hlsl % 16) + t.Size > 16 ? Up16(hlsl) : hlsl;
                 int cppStart = (cpp + t.Align - 1) / t.Align * t.Align;
-                if (cppStart > start) { why = mem.Name + " の C++ の位置 (" + cppStart + ") が HLSL の位置 (" + start + ") より後ろです。XMVECTOR・XMMATRIX の前を 16 バイトにそろえてください"; return null; }
+                if (cppStart > start) { why = L.F("{0} の C++ の位置 ({1}) が HLSL の位置 ({2}) より後ろです。XMVECTOR・XMMATRIX の前を 16 バイトにそろえてください", mem.Name, cppStart, start); return null; }
                 if (start > cppStart)
                 {
                     int floats = (start - cppStart) / 4;
@@ -567,7 +567,7 @@ namespace KCppAssist
                 hlsl = start + (n > 1 ? 16 * (n - 1) + t.Size : t.Size);
                 // 同じ行の「float x, y;」は、行の前に詰め物を入れられない
                 if (cls.Members.Count(o => o.Start == mem.Start) > 1 && ch.Edits.Any(e => e.Item1 == MemberScan.LineStart(text, mem.Start)))
-                { why = "1 行に複数のメンバーがある所に詰め物が要ります。1 行 1 メンバーにしてください"; return null; }
+                { why = L.T("1 行に複数のメンバーがある所に詰め物が要ります。1 行 1 メンバーにしてください"); return null; }
             }
             int total = Up16(Math.Max(hlsl, cpp));
             var last = cls.Members[cls.Members.Count - 1];
@@ -584,7 +584,7 @@ namespace KCppAssist
                 int after = AfterClass(text, cls);
                 ch.Add(after, 0, eol + MemberScan.Indent(text, cls.Scope.Close) + assert);
             }
-            if (ch.Edits.Count == 0) { why = cls.Name + " の並びは、HLSL と同じです (" + total + " バイト)"; return null; }
+            if (ch.Edits.Count == 0) { why = L.F("{0} の並びは、HLSL と同じです ({1} バイト)", cls.Name, total); return null; }
             ch.Message = inserted.Count == 0 ? cls.Name + " の並びは HLSL と同じです。static_assert だけ足しました (" + total + " バイト)"
                 : cls.Name + " に詰め物を足しました (" + string.Join("、", inserted) + "。全体 " + total + " バイト)";
             return ch;
@@ -609,11 +609,11 @@ namespace KCppAssist
         {
             why = null;
             var sig = FunctionScan.Scan(text).FirstOrDefault(s => s.InitStart >= 0 && s.HasBody && s.PrefixStart <= caret && caret <= s.BodyOpen);
-            if (sig == null) { why = "カーソルが、初期化子リストのあるコンストラクターの上にありません"; return null; }
+            if (sig == null) { why = L.T("カーソルが、初期化子リストのあるコンストラクターの上にありません"); return null; }
             string ct = classText ?? text;
             string cname = sig.Class ?? sig.Name;
             var scope = Scopes.Parse(ct).Where(s => s.IsClass && s.Name == cname).OrderBy(s => sig.InClass ? Math.Abs(s.Open - sig.Open) : 0).FirstOrDefault();
-            if (scope == null) { why = "クラス " + cname + " の宣言が見つかりません"; return null; }
+            if (scope == null) { why = L.F("クラス {0} の宣言が見つかりません", cname); return null; }
             var order = MemberScan.Of(ct, scope).Members.Select(x => x.Name).ToList();
             string m = CppText.Mask(text);
             int from = sig.InitStart + 1, to = sig.BodyOpen;
@@ -634,10 +634,10 @@ namespace KCppAssist
                 Match nm = Regex.Match(CppText.Mask(raw), @"^([A-Za-z_][\w:<>]*)\s*[({]");
                 return new { Raw = raw, Name = nm.Success ? nm.Groups[1].Value : null };
             }).ToList();
-            if (parsed.Any(p => p.Name == null)) { why = "初期化子リストを読めません"; return null; }
+            if (parsed.Any(p => p.Name == null)) { why = L.T("初期化子リストを読めません"); return null; }
             var sorted = parsed.Select((p, i) => new { p.Raw, p.Name, I = i, Key = order.IndexOf(p.Name) })
                 .OrderBy(p => p.Key < 0 ? -1 : 1).ThenBy(p => p.Key < 0 ? p.I : p.Key).ToList();
-            if (sorted.Select(p => p.I).SequenceEqual(Enumerable.Range(0, parsed.Count))) { why = "初期化子リストは、すでに宣言の順です"; return null; }
+            if (sorted.Select(p => p.I).SequenceEqual(Enumerable.Range(0, parsed.Count))) { why = L.T("初期化子リストは、すでに宣言の順です"); return null; }
             // 2 つ目の初期化子が行の頭にあれば(1 行に 1 つずつ書いてあれば)、その字下げで並べ直す
             int second = items[1].Item1;
             while (second < to && char.IsWhiteSpace(text[second]) && text[second] != '\n') second++;
@@ -652,7 +652,7 @@ namespace KCppAssist
             string trail = region.Substring(region.TrimEnd().Length);
             string res = lead + string.Join(sep, sorted.Select(p => p.Raw)) + trail;
             var ch = new Refactor.Change().Add(from, to - from, res);
-            ch.Message = "初期化子リストを、メンバーの宣言の順に並べ替えました (初期化は、書いた順ではなく宣言の順に行われます)";
+            ch.Message = L.T("初期化子リストを、メンバーの宣言の順に並べ替えました (初期化は、書いた順ではなく宣言の順に行われます)");
             return ch;
         }
 

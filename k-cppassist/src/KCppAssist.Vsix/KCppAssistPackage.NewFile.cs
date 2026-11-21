@@ -338,15 +338,15 @@ namespace KCppAssist
         private async Task MakeCppAsync(Active a)
         {
             var cls = MemberScan.At(a.Text, a.Caret);
-            if (cls == null) { await ReportAsync("クラスの上で押してください", true); return; }
+            if (cls == null) { await ReportAsync(L.T("クラスの上で押してください"), true); return; }
             string before = Path.Combine(Path.GetDirectoryName(a.Path), Path.GetFileNameWithoutExtension(a.Path) + ".cpp");
             bool existed = File.Exists(before);
             string cpp = await EnsureCppAsync(a, cls);
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             if (existed || !string.Equals(cpp, before, StringComparison.OrdinalIgnoreCase))
-            { await ReportAsync(Path.GetFileName(cpp) + " はすでにあります", true); return; }
+            { await ReportAsync(L.F("{0} はすでにあります", Path.GetFileName(cpp)), true); return; }
             try { a.Dte.ItemOperations.OpenFile(cpp); } catch (Exception ex) { Log("make cpp: open failed: " + ex.Message); }
-            await ReportAsync(Path.GetFileName(cpp) + " を作り、プロジェクトに足しました", false);
+            await ReportAsync(L.F("{0} を作り、プロジェクトに足しました", Path.GetFileName(cpp)), false);
         }
 
         /// <summary>コンストラクター・デストラクターを .h に宣言して、.cpp に定義を作る。cpp がなければ作る。</summary>

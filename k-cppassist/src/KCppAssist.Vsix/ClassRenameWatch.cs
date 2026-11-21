@@ -149,7 +149,7 @@ namespace KCppAssist
             try
             {
                 string err = RenameService.RenameFile(header, newPath);
-                if (err != null) { await ReportAsync("ファイル名を変えられませんでした: " + err, true); return; }
+                if (err != null) { await ReportAsync(L.F("ファイル名を変えられませんでした: {0}", err), true); return; }
                 msg = await RenameService.FollowAsync(this, move, adapters, undo);
             }
             finally { RenameService.Busy = false; }

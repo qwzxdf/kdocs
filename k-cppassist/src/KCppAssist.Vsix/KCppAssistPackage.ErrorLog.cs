@@ -220,16 +220,16 @@ namespace KCppAssist
             var adapters = model.GetService<Microsoft.VisualStudio.Editor.IVsEditorAdaptersFactoryService>();
             var undo = model.GetService<Microsoft.VisualStudio.Text.Operations.ITextUndoHistoryRegistry>();
             var buf = SyncService.OpenForEdit(run.File, adapters);
-            if (buf == null) { _ = ReportAsync("ファイルを開けませんでした: " + run.File, true); return; }
+            if (buf == null) { _ = ReportAsync(L.F("ファイルを開けませんでした: {0}", run.File), true); return; }
             var snap = buf.CurrentSnapshot;
-            if (run.Line < 1 || run.Line > snap.LineCount) { _ = ReportAsync("行が見つかりません。ビルドし直してください。", true); return; }
+            if (run.Line < 1 || run.Line > snap.LineCount) { _ = ReportAsync(L.T("行が見つかりません。ビルドし直してください。"), true); return; }
             var line = snap.GetLineFromLineNumber(run.Line - 1);
             string text = line.GetText();
-            if (text.Trim() != run.FixLine) { _ = ReportAsync("ファイルがビルドのあとで変わっています。ビルドし直してください。", true); return; }
+            if (text.Trim() != run.FixLine) { _ = ReportAsync(L.T("ファイルがビルドのあとで変わっています。ビルドし直してください。"), true); return; }
             var plan = NarrowFix.Make(text, run.Fix);
-            if (plan == null) { _ = ReportAsync("この行は、自動では直せません。", true); return; }
+            if (plan == null) { _ = ReportAsync(L.T("この行は、自動では直せません。"), true); return; }
             SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-Cpp: static_cast を付ける");
-            _ = ReportAsync("static_cast<" + run.Fix + ">(…) を付けました(" + run.Line + " 行目)。ビルドし直すと、ログが更新されます。", false);
+            _ = ReportAsync(L.F("static_cast<{0}>(…) を付けました({1} 行目)。ビルドし直すと、ログが更新されます。", run.Fix, run.Line), false);
         }
 
         /// <summary>
@@ -272,9 +272,7 @@ namespace KCppAssist
                     SyncService.ApplyEdits(buf, edits, undo, "K-Cpp: static_cast をまとめて付ける");
                     done += edits.Count;
                 }
-                _ = ReportAsync("static_cast を " + done + " か所に付けました"
-                    + (skipped > 0 ? "(" + skipped + " か所は、ビルドのあとで行が変わっているか、自動で直せないので飛ばしました)" : "")
-                    + "。ビルドし直すと、ログが更新されます。", done == 0);
+                _ = ReportAsync(L.F("static_cast を {0} か所に付けました{1}。ビルドし直すと、ログが更新されます。", done, (skipped > 0 ? "(" + skipped + L.T(" か所は、ビルドのあとで行が変わっているか、自動で直せないので飛ばしました)") : "")), done == 0);
             }
             catch (Exception ex) { Log("fix all failed: " + ex); }
         }

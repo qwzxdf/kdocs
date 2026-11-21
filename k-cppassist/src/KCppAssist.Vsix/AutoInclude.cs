@@ -243,7 +243,7 @@ namespace KCppAssist
                     IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, owner.Undo, "K-Cpp: #include を追加");
                     if (opt.IncludeRevertSeconds > 0)
                         added.Add(new Added { Ident = tracker, Name = id.Value, Text = edit.Text, Until = DateTime.UtcNow.AddSeconds(opt.IncludeRevertSeconds) });
-                    IncludeService.Status(id.Value + " のために " + res.Token + " を追加しました (" + res.Source + ")");
+                    IncludeService.Status(L.F("{0} のために {1} を追加しました ({2})", id.Value, res.Token, res.Source));
                     done++;
                     applied = true;
                     break;
@@ -274,7 +274,7 @@ namespace KCppAssist
                 int idx = text.IndexOf(a.Text, StringComparison.Ordinal);
                 if (idx < 0) continue;
                 IncludeService.Remove(view.TextBuffer, idx, a.Text.Length, owner.Undo, "K-Cpp: 自動で足した #include を戻す");
-                IncludeService.Status(a.Name + " を消したので、足した #include も戻しました");
+                IncludeService.Status(L.F("{0} を消したので、足した #include も戻しました", a.Name));
             }
         }
     }

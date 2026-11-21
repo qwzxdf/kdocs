@@ -29,17 +29,17 @@ namespace KCppAssist
         {
             why = null;
             var cls = MemberScan.At(text, caret);
-            if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
-            if (cls.Scope.Parent != null && cls.Scope.Parent.IsClass) { why = "入れ子のクラスは移せません"; return null; }
+            if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
+            if (cls.Scope.Parent != null && cls.Scope.Parent.IsClass) { why = L.T("入れ子のクラスは移せません"); return null; }
             string newName = cls.Name + ".h";
-            if (string.Equals(headerFileName, newName, StringComparison.OrdinalIgnoreCase)) { why = "このファイルが、すでに " + newName + " です"; return null; }
+            if (string.Equals(headerFileName, newName, StringComparison.OrdinalIgnoreCase)) { why = L.F("このファイルが、すでに {0} です", newName); return null; }
             string m = CppText.Mask(text);
             // クラスの頭(「class」の位置)。直前の template<…> があれば断る
             int head = m.LastIndexOf(cls.IsStruct ? "struct" : "class", cls.Scope.Open, StringComparison.Ordinal);
             while (head > 0 && Regex.IsMatch(m.Substring(Math.Max(0, head - 1), 1), @"\w")) head = m.LastIndexOf(cls.IsStruct ? "struct" : "class", head - 1, StringComparison.Ordinal);
-            if (head < 0) { why = "クラスの頭が読めません"; return null; }
+            if (head < 0) { why = L.T("クラスの頭が読めません"); return null; }
             int ls = MemberScan.LineStart(text, head);
-            if (Regex.IsMatch(m.Substring(Math.Max(0, ls - 200), ls - Math.Max(0, ls - 200)), @"template\s*<[^;{}]*>\s*$")) { why = "template のクラスは移せません"; return null; }
+            if (Regex.IsMatch(m.Substring(Math.Max(0, ls - 200), ls - Math.Max(0, ls - 200)), @"template\s*<[^;{}]*>\s*$")) { why = L.T("template のクラスは移せません"); return null; }
             // 真上のコメント行も一緒に移す
             int start = ls;
             while (start > 0)
@@ -49,7 +49,7 @@ namespace KCppAssist
                 if (pl.StartsWith("//") || pl.StartsWith("/*") || pl.StartsWith("*")) start = prev; else break;
             }
             int semi = m.IndexOf(';', cls.Scope.Close);
-            if (semi < 0) { why = "クラスの「;」が見つかりません"; return null; }
+            if (semi < 0) { why = L.T("クラスの「;」が見つかりません"); return null; }
             int end = semi + 1;
             int lineEnd = text.IndexOf('\n', end);
             end = lineEnd < 0 ? text.Length : lineEnd + 1;
