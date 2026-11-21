@@ -42,7 +42,7 @@ namespace KCppAssist
 
         [LocCategory("Getter・Setter")]
         [LocDisplayName("Getter と Setter の間に空行を入れる")]
-        [LocDescription("True のとき、Alt+E で作る Getter と Setter の間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
+        [LocDescription("True のとき、Alt+G で作る Getter と Setter の間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
         public bool BlankLineBetweenAccessors { get; set; } = true;
 
         [LocCategory("#include")]
@@ -67,7 +67,7 @@ namespace KCppAssist
 
         [LocCategory("引数の同期")]
         [LocDisplayName("宣言と定義の引数を合わせるしかた")]
-        [LocDescription("Off: 何もしない。ManualOnly: Alt+G を押したときだけ合わせる。Auto: Alt+G に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手の引数を自動で書き換える(相手が開いていなければ開く)。")]
+        [LocDescription("Off: 何もしない。ManualOnly: Alt+S を押したときだけ合わせる。Auto: Alt+S に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手の引数を自動で書き換える(相手が開いていなければ開く)。")]
         public SyncMode SyncMode { get; set; } = SyncMode.Auto;
 
         [LocCategory("引数の同期")]

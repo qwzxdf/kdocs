@@ -46,6 +46,9 @@ static class Tests
             Eq("lang: missing key stays ja", L.T("訳のない文"), "訳のない文");
             L.Current = UiLanguage.Korean;
             Eq("lang: ko", L.T("やめる"), "취소");
+            L.Current = UiLanguage.English;
+            Eq("lang: option description", L.T("True のとき、std::vector → <vector> のような、組み込みの対応表で、ヘッダーを決めます。"), "When True, decides the header from a built-in table such as std::vector → <vector>.");
+            Eq("lang: description with path", L.T("True のとき、動作の記録を %LOCALAPPDATA%\\K-CppAssist\\vsix.log に書きます。不具合のとき、これを見ると原因が分かります。").StartsWith("When True, writes an activity log to %LOCALAPPDATA%\\K-CppAssist") ? "ok" : "ng", "ok");
             L.Current = UiLanguage.Japanese;
             Eq("lang: ja", L.T("やめる"), "やめる");
             Eq("lang: culture ja", L.FromCulture(new System.Globalization.CultureInfo("ja-JP")).ToString(), "Japanese");
