@@ -563,7 +563,7 @@ static class GenTests
             Check("nocopymove: four deletes", res.Contains("Foo(const Foo&) = delete;") && res.Contains("Foo& operator=(const Foo&) = delete;") && res.Contains("Foo(Foo&&) = delete;") && res.Contains("Foo& operator=(Foo&&) = delete;") ? "ok" : res, "ok");
             Check("onhead: class line", ClassGen.OnHead(code, 3) ? "y" : "n", "y");
             Check("onhead: member line", ClassGen.OnHead(code, code.IndexOf("int a")) ? "y" : "n", "n");
-            Check("offers: head shows ctordtor", Refactor.Offers(code, 3, "\n", true).Any(x => x.Id == "ctordtor") ? "y" : "n", "y");
+            Check("offers: head shows ctordtor", Refactor.Offers(code, 3, "\n", true).Any(x => x.Id == "ctordtor-default") ? "y" : "n", "y");
             Check("offers: body hides ctordtor", Refactor.Offers(code, code.IndexOf("int a"), "\n", true).Any(x => x.Id == "ctordtor") ? "y" : "n", "n");
         }
 

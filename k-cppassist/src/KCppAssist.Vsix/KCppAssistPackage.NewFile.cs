@@ -15,7 +15,7 @@ namespace KCppAssist
 {
     /// <summary>
     /// 新しい空のファイルにひな形を書く(NewFileGen の呼び出し側)と、クラス名の上の電球から
-    /// 「cpp を作る」「コンストラクター・デストラクターを宣言して cpp に定義する」を行う。
+    /// 「cpp を作る」「コンストラクター・デストラクターを作る (.h に宣言、.cpp に定義)」を行う。
     /// </summary>
     internal static class NewFileService
     {
@@ -348,14 +348,14 @@ namespace KCppAssist
             await ReportAsync(Path.GetFileName(cpp) + " を作り、プロジェクトに足しました", false);
         }
 
-        /// <summary>コンストラクター・デストラクターを宣言して、cpp に定義を作る。cpp がなければ作る。</summary>
+        /// <summary>コンストラクター・デストラクターを .h に宣言して、.cpp に定義を作る。cpp がなければ作る。</summary>
         private async Task CtorDtorCppAsync(Active a)
         {
             string why;
             var ch = Refactor.Make("ctordtor", a.Text, a.Caret, a.Eol, true, out why);
             if (ch == null) { await ReportAsync(why, true); return; }
             var cls = MemberScan.At(a.Text, a.Caret);
-            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, "K-Cpp: コンストラクター・デストラクターを宣言する");
+            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, "K-Cpp: コンストラクター・デストラクターを作る");
             string cpp = await EnsureCppAsync(a, cls);
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var a2 = await ActiveAsync();

@@ -124,7 +124,7 @@ namespace KCppAssist
                 }
 
                 // class / struct の行: override・コンストラクターを作る
-                // 「メンバーからコンストラクターを作る」は、「コンストラクター・デストラクターを宣言する」のすぐ下に出す(下の書き換えの一覧で入れる)
+                // 「メンバーからコンストラクターを作る」は、「コンストラクター・デストラクターを作る」の 3 つのすぐ下に出す(下の書き換えの一覧で入れる)
                 string lineText = line.GetText();
                 ISuggestedAction ctorAction = null;
                 int ctorAt = -1;
@@ -174,9 +174,14 @@ namespace KCppAssist
                 {
                     string id = o.Id;
                     list.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
-                    if (id == "ctordtor" && ctorAction != null) { list.Add(ctorAction); ctorAction = null; }
+                    if (id == "ctordtor-cpp" && ctorAction != null) { list.Add(ctorAction); ctorAction = null; }
                 }
-                if (ctorAction != null) list.Insert(Math.Min(ctorAt, list.Count), ctorAction);
+                if (ctorAction != null)
+                {
+                    // .cpp の項目がない(cpp のファイルなど)ときは、コンストラクターの 2 通りのすぐ後ろ
+                    int k = list.FindLastIndex(x => x.DisplayText.StartsWith("コンストラクター・デストラクターを作る", StringComparison.Ordinal));
+                    list.Insert(k >= 0 ? k + 1 : Math.Min(ctorAt, list.Count), ctorAction);
+                }
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
             return list;

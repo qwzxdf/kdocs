@@ -155,7 +155,12 @@ namespace KCppAssist
                     string stem0 = Path.GetFileNameWithoutExtension(path);
                     bool hasCpp = new[] { ".cpp", ".cc", ".cxx" }.Any(e => File.Exists(Path.Combine(Path.GetDirectoryName(path), stem0 + e)));
                     if (!hasCpp) list.Add(new Refactor.Offer { Id = "makecpp", Title = stem0 + ".cpp を作る" });
-                    if (list.Any(o => o.Id == "ctordtor")) list.Add(new Refactor.Offer { Id = "ctordtor-cpp", Title = "コンストラクター・デストラクターを宣言して、cpp に定義を作る" });
+                }
+                if (header && ClassGen.AtClassLevel(text, caret))
+                {
+                    // 「.h に宣言、.cpp に定義」は、ほかの 2 通りのすぐ後ろに並べる
+                    int k = list.FindLastIndex(o => o.Id == "ctordtor-default" || o.Id == "ctordtor-inline");
+                    if (k >= 0) list.Insert(k + 1, new Refactor.Offer { Id = "ctordtor-cpp", Title = "コンストラクター・デストラクターを作る (.h に宣言、.cpp に定義)" });
                 }
                 // クラス全体の項目は、クラスそのものを指している行でだけ(メンバーの行では出さない)
                 bool classLevel = ClassGen.AtClassLevel(text, caret);

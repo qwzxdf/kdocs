@@ -174,9 +174,14 @@ static class RefactorTests
 
         // ---- 電球に出る項目 ----
         Check("offers class", string.Join(",", Offers("struct V| {\n  XMFLOAT3 pos;\n  float t;\n};\n", true)),
-            "ctordtor,nocopymove,nocopy,rule5,compare,formatter,hash,json,cereal,inputlayout,cbuffer");
+            "ctordtor-default,ctordtor-inline,nocopymove,nocopy,rule5,compare,formatter,hash,json,cereal,inputlayout,cbuffer");
         Check("offers on member line: no class items", string.Join(",", Offers("struct V {\n  XMFLOAT3 p|os;\n  float t;\n};\n", true)), "");
-        Check("offers on empty line in class", string.Join(",", Offers("class V\n{\n|\n  std::unique_ptr<T> s_;\n};\n", true)), "nocopymove,nocopy,rule5,compare,json,cereal");
+        Check("offers on empty line in class", string.Join(",", Offers("class V\n{\n|\n  std::unique_ptr<T> s_;\n};\n", true)), "ctordtor-default,ctordtor-inline,nocopymove,nocopy,rule5,compare,json,cereal");
+        // コンストラクター・デストラクター: コピー・ムーブの宣言の上に置く。コピー・ムーブがあっても Foo() を作る
+        string cm = "class E|\n{\npublic:\n\tE(const E&) = delete;\n\tE& operator=(const E&) = delete;\n\n\tint x_;\n};\n";
+        Check("ctor default above copy", R("ctordtor-default", cm), "class E\n{\npublic:\n\tE() = default;\n\t~E() = default;\n\tE(const E&) = delete;\n\tE& operator=(const E&) = delete;\n\n\tint x_;\n};\n");
+        Check("ctor inline", R("ctordtor-inline", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  void F();\n  A() {}\n  ~A() {}\n};\n");
+        Check("ctor declare (for cpp)", R("ctordtor", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  void F();\n  A();\n  ~A();\n};\n");
         Check("offers if",string.Join(",", Offers("void F() {\n  if (a) {|\n    G();\n  }\n}\n")), "guard");
 
         Console.WriteLine("Refactor: " + pass + " passed, " + fail + " failed");

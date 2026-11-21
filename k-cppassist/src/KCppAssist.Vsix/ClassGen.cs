@@ -24,14 +24,12 @@ namespace KCppAssist
             if (near.Contains(":")) Try("initorder", "初期化子リストを、メンバーの宣言の順に並べ替える");
             var cls = MemberScan.At(text, caret);
             if (cls == null) return list;
-            if (OnHead(text, caret))
-            {
-                // クラス名の上で押したときだけ出す(本体の中に何度も出ると邪魔になるので)
-                Try("ctordtor", "コンストラクター・デストラクターを宣言する");
-            }
             // クラス全体を作り変える項目は、クラスそのものを指している行(クラス名・{・};・空の行・public: など)でだけ出す。
             // メンバー変数や関数の行で押したときに、クラス全体の項目が並ぶと、その行への操作と紛れる
             if (!AtClassLevel(text, caret)) return list;
+            // コンストラクター・デストラクターは 3 通り。3 つ目(.h に宣言、.cpp に定義)は、ファイルをまたぐので、パッケージの側で、この 2 つのすぐ後ろに足す
+            Try("ctordtor-default", "コンストラクター・デストラクターを作る (= default)");
+            Try("ctordtor-inline", "コンストラクター・デストラクターを作る (.h に {} で書く)");
             Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
             Try("nocopy", "コピー禁止・ムーブ可にする (= delete / = default)");
             Try("rule5", "コピー・ムーブ・デストラクターを = default で書く");
@@ -57,7 +55,9 @@ namespace KCppAssist
             if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
             switch (id)
             {
-                case "ctordtor": return CtorDtor(text, cls, eol, out why);
+                case "ctordtor": return CtorDtor(text, cls, eol, CtorStyle.Declare, out why);
+                case "ctordtor-default": return CtorDtor(text, cls, eol, CtorStyle.Default, out why);
+                case "ctordtor-inline": return CtorDtor(text, cls, eol, CtorStyle.Inline, out why);
                 case "nocopymove": return NoCopyMove(text, cls, eol, out why);
                 case "nocopy": return Special(text, cls, eol, false, out why);
                 case "rule5": return Special(text, cls, eol, true, out why);
@@ -134,20 +134,55 @@ namespace KCppAssist
 
         // ---- コンストラクター・デストラクター / コピー・ムーブ禁止 ----
 
-        private static Refactor.Change CtorDtor(string text, MemberScan.ClassInfo cls, string eol, out string why)
+        /// <summary>Declare: 「Foo();」(cpp に定義を作る前の宣言)。Default: 「Foo() = default;」。Inline: 「Foo() {}」(ヘッダーに本体)。</summary>
+        internal enum CtorStyle { Declare, Default, Inline }
+
+        private static Refactor.Change CtorDtor(string text, MemberScan.ClassInfo cls, string eol, CtorStyle style, out string why)
         {
             why = null;
             string n = Regex.Escape(cls.Name);
+            // 引数のないコンストラクターがなければ作る。コピー・ムーブのコンストラクターがあっても作る(それらがあると、暗黙の Foo() は作られないため、むしろ要る)
             bool hasDefault = MemberScan.HasFunction(cls, @"(?<![~\w])" + n + @"\s*\(\s*(?:void\s*)?\)");
             bool hasDtor = MemberScan.HasFunction(cls, "~" + n + @"\s*\(");
+            string tail = style == CtorStyle.Default ? "() = default;" : style == CtorStyle.Inline ? "() {}" : "();";
             var lines = new List<string>();
-            if (!hasDefault && !cls.HasUserCtor) lines.Add(cls.Name + "();");
-            if (!hasDtor) lines.Add((cls.HasVirtual ? "virtual " : "") + "~" + cls.Name + "();");
+            if (!hasDefault) lines.Add(cls.Name + tail);
+            if (!hasDtor) lines.Add((cls.HasVirtual ? "virtual " : "") + "~" + cls.Name + tail);
             if (lines.Count == 0) { why = "コンストラクターとデストラクターは、もう宣言してあります"; return null; }
             var ch = new Refactor.Change();
-            AddPublic(ch, text, cls, lines, eol);
-            ch.Message = cls.Name + " に " + string.Join(" と ", lines.Select(l => l.Replace("virtual ", "").TrimEnd(';'))) + " を宣言しました";
+            // コピー・ムーブの宣言があれば、その上に置く(コンストラクター → デストラクター → コピー → ムーブ の並びにする)
+            int at = FirstCopyMoveLine(text, cls);
+            if (at >= 0)
+            {
+                string ind = MemberScan.Indent(text, at);
+                ch.Add(at, 0, string.Concat(lines.Select(l => ind + l + eol)));
+            }
+            else AddPublic(ch, text, cls, lines, eol);
+            string what = string.Join(" と ", lines.Select(l => "~" + cls.Name == l.Replace("virtual ", "").Split('(')[0] ? "~" + cls.Name + "()" : cls.Name + "()"));
+            ch.Message = cls.Name + " に " + what + (style == CtorStyle.Default ? " を = default で作りました" : style == CtorStyle.Inline ? " を {} で作りました" : " を宣言しました");
             return ch;
+        }
+
+        /// <summary>クラスの本体の直下で、コピー・ムーブのコンストラクターか代入演算子を宣言している最初の行の頭。なければ -1。</summary>
+        private static int FirstCopyMoveLine(string text, MemberScan.ClassInfo cls)
+        {
+            string m = CppText.Mask(text);
+            string n = Regex.Escape(cls.Name);
+            var rx = new Regex(@"^\s*(?:" + n + @"\s*\(\s*(?:const\s+)?" + n + @"\s*&|" + n + @"\s*&\s*operator\s*=)");
+            int depth = 0;
+            int p = MemberScan.LineStart(text, cls.Scope.Open);
+            for (int i = cls.Scope.Open; i < cls.Scope.Close; i++)
+            {
+                char c = m[i];
+                if (c == '{') depth++;
+                else if (c == '}') depth--;
+                else if (c == '\n' && depth == 1)
+                {
+                    int ls = i + 1, le = MemberScan.LineEnd(text, ls);
+                    if (le > ls && rx.IsMatch(m.Substring(ls, le - ls))) return ls;
+                }
+            }
+            return -1;
         }
 
         private static Refactor.Change NoCopyMove(string text, MemberScan.ClassInfo cls, string eol, out string why)
