@@ -12,7 +12,7 @@ tags:
     - 個々の使い方は、各リンク先のページを先に読んでください。ここは引くためのページです
 
 !!! note "画面でできることは、画面で"
-    このサイトは、SourceTree の画面で操作することを前提にしています。この表のコマンドは、画面で届かないとき、または画面の操作の意味を確かめたいときのためのものです。コマンドは、ツールバーの「ターミナル」で開く画面に入力します（開き方と使い方は、[SourceTree の画面](sourcetree.md#terminal)にあります）。
+    このサイトは、SourceTree の画面で操作することを前提にしています。この表のコマンドは、画面で届かないとき、または画面の操作の意味を確かめたいときのためのものです。コマンドは、ツールバーの「ターミナル」で開く画面に入力します。
 
 ## 設定と準備 {#setup}
 
@@ -103,7 +103,6 @@ tags:
 | 追跡だけ外す | `git rm --cached <ファイル>` | [.gitignore](gitignore.md#untrack) |
 | 無視ルールを調べる | `git check-ignore -v <ファイル>` | [.gitignore](gitignore.md#check) |
 | ファイルを移動・改名 | `git mv <旧> <新>` | — |
-| サブモジュールを取る | `git submodule update --init --recursive` | [サブモジュール](submodule.md#clone) |
 | 衝突の目印の残りを探す | `git diff --check` | [コンフリクト](conflict.md#leftover) |
 
 ## 迷ったときの確認 {#check}

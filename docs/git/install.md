@@ -32,7 +32,7 @@ SourceTree の公式サイト（sourcetreeapp.com）からインストーラー�
 
 ## 画面の見方 {#screen}
 
-初めて開くとまだリポジトリが無いので、空の画面が出ます。リポジトリを開くと次のような画面になります（画面の全体像は [SourceTree の画面](sourcetree.md) で、部品ごとに詳しく説明します）。
+初めて開くとまだリポジトリが無いので、空の画面が出ます。リポジトリを開くと次のような画面になります。
 
 ![SourceTree の履歴画面。上にツールバー、左にサイドバー、中央にコミットの一覧、下に変更の詳細](img/st-history.png)
 
@@ -106,6 +106,5 @@ GitHub のリポジトリを使うときは、サインインが要ります。�
 
 ## 関連ページ {#related}
 
-- [SourceTree の画面](sourcetree.md)
 - [記録する（ステージ・コミット）](commit.md)
 - [GitHub を使う](github.md)

@@ -131,7 +131,7 @@ void Delete(Allocator& allocator, T* object) {
 ## よくあるミス
 
 ??? failure "測らずにアロケータを自作する"
-    **`new` が本当に遅いか**を先にプロファイラーで確かめます（[プロファイラー](../../vs/profiler.md)）。
+    **`new` が本当に遅いか**を先にプロファイラーで確かめます。
 
 ??? failure "アライメントを無視して、確保する"
     SIMD や `double` で、クラッシュしたり遅くなったりします。`alignof` を守ります。

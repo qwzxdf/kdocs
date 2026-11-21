@@ -193,7 +193,7 @@ float4 ExperimentPS(PsIn i) : SV_Target {
 - PIX on Windows: DX のフレームをキャプチャして、各描画命令の GPU 時間と状態を見ます。
 - RenderDoc: フレームのキャプチャ。描画命令、テクスチャ、シェーダーを確認します。
 - GPU ベンダーのツール（NVIDIA Nsight、AMD Radeon GPU Profiler、Intel GPA）: 帯域、占有率、キャッシュなど GPU 内部のカウンターを見ます。
-- Visual Studio のプロファイラー: CPU 側の時間を見ます（[プロファイラー](../../vs/profiler.md)）。
+- Visual Studio のプロファイラー: CPU 側の時間を見ます。
 
 自分のコードに区間の GPU 時間を出したいときは、タイムスタンプのクエリを使います。次のクラスは `D3D11_QUERY_TIMESTAMP_DISJOINT` で周波数を取り開始と終了のタイムスタンプの差を ms に直します。構文は確かめましたが実行はしていません。ここからコードを数行ずつ見ます。
 

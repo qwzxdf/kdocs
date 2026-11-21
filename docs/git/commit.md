@@ -18,7 +18,6 @@ Git の毎日の作業は「直す → 確かめる → 記録する」の繰り
 
 !!! info "このページを読む前に"
     - [SourceTree のインストールと最初の設定](install.md)（名前とメールアドレス）
-    - [SourceTree の画面](sourcetree.md)
     - [最初の一歩](first-steps.md)（最初のコミットまでの通し）
 
 ## リポジトリを作る {#init}

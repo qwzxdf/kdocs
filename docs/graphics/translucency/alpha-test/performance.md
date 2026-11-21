@@ -180,7 +180,7 @@ float4 OverdrawPS(VsOut i) : SV_Target {
 !!! note "確かめた範囲"
     HLSL は `fxc` で、`FoliageVS`（`vs_5_0`）、`DepthPrepassPS`・`FoliageMainPS`・`ShadowAlphaPS`・`OverdrawPS`（`ps_5_0`）をコンパイルして、エラーが出ないことを確かめました。コストの比は例示の数字で実測ではありません。GPU での計測は行っていません。
 
-草原や森の場面ではオーバードローが 10 倍を超えることもあります。測らずに最適化しないことが大切です（[パフォーマンス プロファイラー](../../../vs/profiler.md)）。
+草原や森の場面ではオーバードローが 10 倍を超えることもあります。測らずに最適化しないことが大切です。
 
 ## よくあるミス {#mistakes}
 

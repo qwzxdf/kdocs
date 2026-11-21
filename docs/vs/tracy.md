@@ -17,7 +17,6 @@ Tracy は <strong>フレームごとにどの処理がいつ始まりどれだ�
     - 計測は Release 構成。計測用のマクロは `TRACY_ENABLE` を定義したときだけ有効になる
 
 !!! info "このページを読む前に"
-    - [パフォーマンス プロファイラー](profiler.md)（Visual Studio の標準機能）
     - [計測（プロファイリング）](../optimize/measure.md)（測ってから直す）
 
 ## 導入 {#setup}
@@ -108,6 +107,5 @@ Debug 構成の結果は最適化がないので、実際のゲームとは別�
 
 ## 関連ページ
 
-- [パフォーマンス プロファイラー](profiler.md)
 - [フレーム予算](../optimize/frame-budget.md)
 - [GPU デバッグの流れ](gpu-debug.md)

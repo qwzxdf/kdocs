@@ -117,7 +117,7 @@ if (after != before) {
 
 ### プロファイラーで見る
 
-Visual Studio のメモリ使用量ツール（スナップショット）や、パフォーマンス プロファイラーで、`operator new` / `malloc` を呼んでいる場所を調べます（[プロファイラー](../vs/profiler.md)）。Tracy などは確保の記録に対応しています。
+Visual Studio のメモリ使用量ツール（スナップショット）や、パフォーマンス プロファイラーで、`operator new` / `malloc` を呼んでいる場所を調べます。Tracy などは確保の記録に対応しています。
 
 !!! warning "ライブラリの中の確保"
     自分のコードに `new` がなくても、ライブラリ（ImGui、JSON、物理エンジン）の中で確保しているかもしれません。上のカウンターはライブラリの確保も数えるので、見つけられます。
@@ -299,6 +299,5 @@ ImGui::TextUnformatted(buffer);
 - [フレーム時間の設計](frame-budget.md)
 - [std::pmr](../stl/memory/pmr.md)
 - [オブジェクトプール](../design/patterns/object-pool.md)
-- [プロファイラー（Visual Studio）](../vs/profiler.md)
 - [フレームアロケータ](allocators/frame.md)
 - [リニアアロケータ](allocators/linear.md)

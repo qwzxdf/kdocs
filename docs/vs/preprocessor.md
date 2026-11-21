@@ -198,7 +198,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 - ログのレベル: `LOG_LEVEL=2`
 - プラットフォームの切り替え: `PLATFORM_WINDOWS`、`PLATFORM_SWITCH`
 
-ビルド構成を 3 つ（Debug / Profile / Release）にして、Profile には最適化 + プロファイラーだけを有効にする、という使い方がよくあります（[プロファイラー](profiler.md)）。
+ビルド構成を 3 つ（Debug / Profile / Release）にして、Profile には最適化 + プロファイラーだけを有効にする、という使い方がよくあります。
 
 ### 注意
 

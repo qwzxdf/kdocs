@@ -227,4 +227,3 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 - [毎フレームのヒープ確保を避ける](frame-allocation.md)
 - [ロード時間・起動時間](loading.md)
 - [ゲームループ](../engine/game-loop.md)
-- [プロファイラー（Visual Studio）](../vs/profiler.md)

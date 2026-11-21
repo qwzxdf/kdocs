@@ -95,5 +95,4 @@ PIX は Microsoft Store か公式サイトから入れます。DX12 のゲーム
 ## 関連ページ
 
 - [GPU デバッグの流れ](gpu-debug.md)
-- [パフォーマンス プロファイラー](profiler.md)
 - [デバッグ レイヤー（DX12）](../directx/dx12/debug-layer.md)

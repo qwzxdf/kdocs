@@ -98,8 +98,6 @@ tags:
 
 まず、通った場所の記録を見ます。
 
-（コマンドを打つ画面の開き方は、[SourceTree の画面](sourcetree.md#terminal)にあります。）
-
 ```bash
 git reflog
 ```

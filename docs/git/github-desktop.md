@@ -17,7 +17,7 @@ Git を初めて使う人が最初につまずくのは、コマンドの数と�
     - 履歴を整理する操作は少ない。必要になったら SourceTree などに移ればよい
 
 !!! note "このサイトの基本の道具は、SourceTree です"
-    このサイトの他のページは、SourceTree の画面で説明しています（[SourceTree の画面](sourcetree.md)）。このページは、GitHub Desktopで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
+    このサイトの他のページは、SourceTree の画面で説明しています。このページは、GitHub Desktopで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
 
 !!! info "このページを読む前に"
     - [Git の考え方](concepts.md)
@@ -117,7 +117,7 @@ History タブではコミットを選ぶとそのコミットの変更ファイ
 - 「Cherry-pick commit...」：別の枝のコミットを複製する（枝をドラッグでも可）
 - 「Squash and merge」など：コミットの合体の機能もある
 
-`reset --hard` のように履歴を切り捨てる操作や対話的な rebase は、機能として用意されている範囲が狭いです。そうした整理が必要になったら、[SourceTree](sourcetree.md) などに移ります。同じリポジトリを開けるので途中で乗り換えて構いません。
+`reset --hard` のように履歴を切り捨てる操作や対話的な rebase は、機能として用意されている範囲が狭いです。そうした整理が必要になったら、SourceTree などに移ります。同じリポジトリを開けるので途中で乗り換えて構いません。
 
 ## できないこと・向かない場面 {#limits}
 
@@ -150,7 +150,6 @@ GitHub Desktop は絞った機能を提供するツールです。
 
 ## 関連ページ {#related}
 
-- [SourceTree](sourcetree.md)
 - [Visual Studio から Git を使う](vs-git.md)
 - [事故の対処](accidents.md)
 

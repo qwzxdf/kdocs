@@ -13,43 +13,41 @@
 SourceTree を入れて、画面の部品の名前を覚え、最初のコミットまでを通しでやります。
 
 1. [SourceTree のインストールと最初の設定](install.md)
-2. [SourceTree の画面](sourcetree.md)
-3. [最初の一歩](first-steps.md)（リポジトリを作って、最初のコミットまで）
+2. [最初の一歩](first-steps.md)（リポジトリを作って、最初のコミットまで）
 
 ### 2. 一人で使う
 
-4. [記録する](commit.md)（ステージとコミットの詳しい使い方）
-5. [.gitignore](gitignore.md)（記録しないファイルを決める）
-6. [Git の考え方](concepts.md)（3 つの場所とブランチ。ここで、これまでの操作の意味がつながる）
-7. [履歴を読む](log.md)
-8. [取り消す・戻す](undo.md)
+3. [記録する](commit.md)（ステージとコミットの詳しい使い方）
+4. [.gitignore](gitignore.md)（記録しないファイルを決める）
+5. [Git の考え方](concepts.md)（3 つの場所とブランチ。ここで、これまでの操作の意味がつながる）
+6. [履歴を読む](log.md)
+7. [取り消す・戻す](undo.md)
 
 ### 3. 枝と共有
 
-9. [ブランチ](branch.md)
-10. [マージ](merge.md)
-11. [リモートとプッシュ・プル](remote.md)
-12. [GitHub を使う](github.md)
-13. [コンフリクトを直す](conflict.md)
-14. [スタッシュ](stash.md)
-15. [タグ](tag.md)
+8. [ブランチ](branch.md)
+9. [マージ](merge.md)
+10. [リモートとプッシュ・プル](remote.md)
+11. [GitHub を使う](github.md)
+12. [コンフリクトを直す](conflict.md)
+13. [スタッシュ](stash.md)
+14. [タグ](tag.md)
 
 ### 4. チームで使う・困ったとき
 
-16. [チーム開発の進め方](team.md)
-17. [事故の対処](accidents.md)と [コマンド早見表](commands.md)（コマンドを使う）
+15. [チーム開発の進め方](team.md)
+16. [事故の対処](accidents.md)と [コマンド早見表](commands.md)（コマンドを使う）
 
 ### 5. 発展と別の道具
 
-18. [リベース](rebase.md)、[Git LFS](git-lfs.md)、[サブモジュール](submodule.md)
-19. 別の道具: [Visual Studio](vs-git.md)、[GitHub Desktop](github-desktop.md)
+17. [リベース](rebase.md)、[Git LFS](git-lfs.md)
+18. 別の道具: [Visual Studio](vs-git.md)、[GitHub Desktop](github-desktop.md)
 
 ## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
 | [SourceTree のインストールと最初の設定](install.md) | SourceTree、名前とメール、改行の設定、GitHub との認証 |
-| [SourceTree の画面](sourcetree.md) | 画面の部品の名前、リポジトリの開き方、コマンドを打つ場所 |
 | [最初の一歩](first-steps.md) | リポジトリを作り、最初のコミットを作るまでの通し |
 | [記録する](commit.md) | 2 段階の記録、差分の見方、コミットメッセージとコミットの大きさ |
 | [.gitignore](gitignore.md) | 記録しないファイルの決め方、すでに記録したものを外す方法 |
@@ -68,7 +66,6 @@ SourceTree を入れて、画面の部品の名前を覚え、最初のコミッ
 | [コマンド早見表](commands.md) | トラブルのときに使うコマンドを、目的から引く |
 | [リベース](rebase.md) | 履歴を一直線にする、コミットを整える、チェリーピック |
 | [Git LFS とゲームのリポジトリ](git-lfs.md) | 大きなバイナリの預け方、容量、フォルダー構成 |
-| [サブモジュール](submodule.md) | 他のリポジトリを中に入れる |
 | [Visual Studio から Git を使う](vs-git.md) | 別の道具。「Git の変更」ウィンドウ |
 | [GitHub Desktop](github-desktop.md) | 別の道具。機能を絞った画面ツール |
 

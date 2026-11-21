@@ -18,7 +18,7 @@ C++ のゲームを作るときはほとんどの時間を Visual Studio の中�
     - 画面の表示が何を意味するか迷ったら、`git status` で状態を見ると読み取れる
 
 !!! note "このサイトの基本の道具は、SourceTree です"
-    このサイトの他のページは、SourceTree の画面で説明しています（[SourceTree の画面](sourcetree.md)）。このページは、Visual Studioで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
+    このサイトの他のページは、SourceTree の画面で説明しています。このページは、Visual Studioで同じことをしたい人のための、別の道具の説明です。用語は同じなので、他のページも読み替えられます。
 
 !!! info "このページを読む前に"
     - [Visual Studio の準備](../vs/setup.md)（Git は、インストール時に選ぶ項目の 1 つ）
@@ -109,7 +109,7 @@ Git の変更ウィンドウの上部に上向きの矢印と下向きの矢印�
 Visual Studio の Git 機能は、日常の「コミットする枝を切るプッシュする」には十分です。一方で、履歴の整理（`rebase -i` など）や複数のリポジトリを並べて見る使い方は、専用の画面ツールのほうが得意です。
 
 - 日常の作業は Visual Studio の中で済ませる
-- 履歴を整理する枝が多い場合は[SourceTree](sourcetree.md) を併用する
+- 履歴を整理する枝が多い場合はSourceTree を併用する
 - 一人で GitHub に載せるだけなら[GitHub Desktop](github-desktop.md) も選べる
 
 同じリポジトリを複数のツールで開いても問題ありません。中身は同じ Git だからです。
@@ -134,6 +134,5 @@ Visual Studio の Git 機能は、日常の「コミットする枝を切るプ�
 
 ## 関連ページ {#related}
 
-- [SourceTree](sourcetree.md)
 - [GitHub Desktop](github-desktop.md)
 - [コンフリクト](conflict.md)

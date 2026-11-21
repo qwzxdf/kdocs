@@ -133,7 +133,7 @@ VirtualAlloc(base, 64 * 1024, MEM_COMMIT, PAGE_READWRITE);
 - メモリの使用量: やや増える／減る（アプリによる）。測る
 
 !!! warning "効果はアプリ次第"
-    確保が少ないゲームではほとんど変わらないこともあります。プロファイラー（[プロファイラー](../../vs/profiler.md)）で、`new` / `malloc` が時間を占めていると分かってから、試します。必ず前後を測って比べます。
+    確保が少ないゲームではほとんど変わらないこともあります。プロファイラーで、`new` / `malloc` が時間を占めていると分かってから、試します。必ず前後を測って比べます。
 
 ## DLL をまたぐときの注意
 
@@ -188,4 +188,3 @@ VirtualAlloc(base, 64 * 1024, MEM_COMMIT, PAGE_READWRITE);
 - [デバッグ用アロケータ](debug.md)
 - [メモリ確保](../allocation.md)
 - [外部ライブラリの入れ方](../../vs/libraries.md)
-- [プロファイラー](../../vs/profiler.md)

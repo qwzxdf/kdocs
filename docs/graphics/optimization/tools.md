@@ -204,5 +204,4 @@ class FrameStats {
 - [Optimization](index.md)
 - [何が重いのか](bottlenecks.md)
 - [計測（プロファイリング）](../../optimize/measure.md)
-- [プロファイラー（Visual Studio）](../../vs/profiler.md)
 

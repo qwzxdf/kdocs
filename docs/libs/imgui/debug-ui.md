@@ -98,7 +98,7 @@ for (auto& [name, ms] : times) {
 }
 ```
 
-（本格的には[プロファイラー](../../vs/profiler.md)や Tracy を使います）
+（本格的には Visual Studio のプロファイラーや Tracy を使います）
 
 ## ログ ウィンドウ
 

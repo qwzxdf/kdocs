@@ -1,7 +1,6 @@
 nav:
   - index.md
   - install.md
-  - sourcetree.md
   - first-steps.md
   - commit.md
   - gitignore.md
@@ -20,7 +19,6 @@ nav:
   - commands.md
   - rebase.md
   - git-lfs.md
-  - submodule.md
   - vs-git.md
   - github-desktop.md
   - ...

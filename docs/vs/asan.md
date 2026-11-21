@@ -320,7 +320,6 @@ CMake に `SANITIZE` オプションを作って、切り替えられるよう�
 
 - [Visual Studio（目次）](index.md)
 - [デバッグのやり方](debugging.md)
-- [パフォーマンス プロファイラー](profiler.md)
 - [よくあるエラー](errors.md)
 - [ビルドと CMake の構成](../design/practice/build-cmake.md)
 - [未定義動作（基礎）](../basics/ub.md)
