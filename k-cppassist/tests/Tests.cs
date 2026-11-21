@@ -58,7 +58,9 @@ static class Tests
             Eq("lang: ja", L.T("やめる"), "やめる");
             Eq("lang: culture ja", L.FromCulture(new System.Globalization.CultureInfo("ja-JP")).ToString(), "Japanese");
             Eq("lang: culture zh", L.FromCulture(new System.Globalization.CultureInfo("zh-CN")).ToString(), "ChineseSimplified");
-            Eq("lang: culture de -> en", L.FromCulture(new System.Globalization.CultureInfo("de-DE")).ToString(), "English");
+            Eq("lang: culture it -> en", L.FromCulture(new System.Globalization.CultureInfo("it-IT")).ToString(), "English");
+            Eq("lang: culture de", L.FromCulture(new System.Globalization.CultureInfo("de-DE")).ToString(), "German");
+            Eq("lang: culture pt-BR", L.FromCulture(new System.Globalization.CultureInfo("pt-BR")).ToString(), "Portuguese");
             L.Current = before;
         }
 

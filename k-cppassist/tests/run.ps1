@@ -9,7 +9,7 @@ $csc = Join-Path $vs 'MSBuild\Current\Bin\Roslyn\csc.exe'
 
 # 1. K-CppAssist core
 $out = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-tests.exe'
-$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan', 'DefinitionGen', 'MoveGen', 'IncludeTidy', 'ForwardDecl', 'SwitchGen', 'CtorGen', 'OverrideGen', 'ClassPlace', 'UsageGen', 'IncludeEditor', 'CallCheck', 'SymbolScan', 'EncodingTool', 'MemberScan', 'Refactor', 'ClassGen', 'FileGen', 'NewFileGen', 'Lang', 'LangDescriptions', 'LangMessages', 'LangMore', 'PimplGen') | ForEach-Object { Join-Path $src "$_.cs" }
+$files = @('CppScan', 'CppText', 'AccessorEditor', 'HeaderEditor', 'TypeInference', 'AssignScan', 'ExprType', 'Scopes', 'FunctionScan', 'SignatureSync', 'SyncPlan', 'DefinitionGen', 'MoveGen', 'IncludeTidy', 'ForwardDecl', 'SwitchGen', 'CtorGen', 'OverrideGen', 'ClassPlace', 'UsageGen', 'IncludeEditor', 'CallCheck', 'SymbolScan', 'EncodingTool', 'MemberScan', 'Refactor', 'ClassGen', 'FileGen', 'NewFileGen', 'Lang', 'LangData', 'PimplGen') | ForEach-Object { Join-Path $src "$_.cs" }
 & $csc -nologo "-out:$out" -langversion:latest (Join-Path $PSScriptRoot 'Tests.cs') (Join-Path $PSScriptRoot 'SyncTests.cs') (Join-Path $PSScriptRoot 'DefTests.cs') (Join-Path $PSScriptRoot 'MoveTests.cs') (Join-Path $PSScriptRoot 'TidyTests.cs') (Join-Path $PSScriptRoot 'FwdTests.cs') (Join-Path $PSScriptRoot 'GenTests.cs') (Join-Path $PSScriptRoot 'SymbolTests.cs') (Join-Path $PSScriptRoot 'RefactorTests.cs') @files
 if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
 & $out
@@ -32,7 +32,7 @@ if ($LASTEXITCODE -ne 0) { $code = 1 }
 
 # 4. Argument-count check for make_unique / make_shared / new (CallCheck; no VS dependency)
 $outCall = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-callcheck-tests.exe'
-$callFiles = @('CallCheck', 'CppText', 'FunctionScan', 'Lang', 'LangDescriptions', 'LangMessages', 'LangMore') | ForEach-Object { Join-Path $src "$_.cs" }
+$callFiles = @('CallCheck', 'CppText', 'FunctionScan', 'Lang', 'LangData') | ForEach-Object { Join-Path $src "$_.cs" }
 & $csc -nologo "-out:$outCall" -langversion:latest (Join-Path $PSScriptRoot 'CallCheckTests.cs') @callFiles
 if ($LASTEXITCODE -ne 0) { throw 'callcheck compile failed' }
 & $outCall
