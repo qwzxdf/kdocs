@@ -85,7 +85,9 @@ static class DefTests
         Check("public の末尾", Member("class A {\n public:\n  void F();\n\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void F();\n  void G();\n\n private:\n  int x_;\n};\n");
         Check("public が最後", Member("class A {\n public:\n  void F();\n};\n", "A", "void G();"), "class A {\n public:\n  void F();\n  void G();\n};\n");
         Check("public が空", Member("class A {\n public:\n\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void G();\n\n private:\n  int x_;\n};\n");
-        Check("public がない class は末尾に作る", Member("class A {\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n private:\n  int x_;\n\n public:\n  void G();\n};\n");
+        Check("public がない class は先頭に作る", Member("class A {\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void G();\n\n private:\n  int x_;\n};\n");
+        Check("指定子のない class は public: と private: を作る", Member("namespace P {\n    class E\n    {\n\n        std::unique_ptr<T> s_;\n    };\n}\n", "E", "E() = default;"),
+            "namespace P {\n    class E\n    {\n    public:\n        E() = default;\n\n    private:\n\n        std::unique_ptr<T> s_;\n    };\n}\n");
         Check("struct は先頭から public", Member("struct P {\n  int x;\n};\n", "P", "void G();"), "struct P {\n  int x;\n  void G();\n};\n");
         Check("コメントの中の public: は無視", Member("class A {\n public:\n  void F();  // public: です\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void F();  // public: です\n  void G();\n private:\n  int x_;\n};\n");
 

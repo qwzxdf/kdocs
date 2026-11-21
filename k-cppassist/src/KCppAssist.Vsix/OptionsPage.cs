@@ -520,6 +520,21 @@ namespace KCppAssist
             SaveSettingsToStorage();
         }
 
+        [Category("書き換えと生成")]
+        [DisplayName("JSON (nlohmann) の項目を出す")]
+        [Description("True のとき、クラスの電球に「JSON に読み書きできるようにする (nlohmann)」を出します。初期値は False(nlohmann を使わないプロジェクトでは邪魔になるため)。")]
+        public bool OfferJson { get; set; } = false;
+
+        [Category("書き換えと生成")]
+        [DisplayName("cereal の項目を出す")]
+        [Description("True のとき、クラスの電球に「cereal で保存できるようにする (serialize)」を出します。初期値は False。")]
+        public bool OfferCereal { get; set; } = false;
+
+        [Category("書き換えと生成")]
+        [DisplayName("Natvis の項目を出す")]
+        [Description("True のとき、クラスの電球に「デバッガーの表示 (Natvis) を作る」を出します。初期値は False。")]
+        public bool OfferNatvis { get; set; } = false;
+
         [Category("switch")]
         [DisplayName("switch を打ったら、case と default を自動で入れる")]
         [Description("True のとき、enum / enum class の値を switch (値) { で受けて改行すると、本体が空なら、値ごとの「case 値: break;」と「default: break;」を自動で入れます。enum の型が決められない switch(整数など)では、何もしません。Ctrl+Z 1 回で消えます。")]

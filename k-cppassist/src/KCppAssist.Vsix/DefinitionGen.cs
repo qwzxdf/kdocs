@@ -284,7 +284,21 @@ namespace KCppAssist
 
             if (regionStart < 0)
             {
-                // public: がない。末尾に作る
+                // public: がない。クラスの先頭(「{」の次の行)に public: を作る。
+                // その下に、もともとあったメンバー(指定子なしの class では private)が続くなら、private: を足して、private のまま残す
+                string label = closeIndent + CppText.LabelOffset(text);
+                int nlOpen = text.IndexOf('\n', open);
+                if (braceFirst && nlOpen > open && nlOpen < close && m.Substring(open + 1, nlOpen - open - 1).Trim().Length == 0)
+                {
+                    int firstSpec = specs.Count > 0 ? specs[0].Key : close;
+                    bool implicitPrivate = m.Substring(open + 1, firstSpec - open - 1).Trim().Length > 0;
+                    var top = new StringBuilder();
+                    top.Append(label).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
+                    if (implicitPrivate) top.Append(eol).Append(label).Append("private:").Append(eol);
+                    else if (specs.Count > 0) top.Append(eol);
+                    return new Edit { Position = nlOpen + 1, Text = top.ToString() };
+                }
+                // 「class A { int x; };」のように 1 行で書いたクラスは、末尾に作る
                 var sb = new StringBuilder();
                 sb.Append(eol).Append(closeIndent).Append(CppText.LabelOffset(text)).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
                 return new Edit { Position = braceFirst ? lineStart : close, Text = braceFirst ? sb.ToString() : eol + sb.ToString() };

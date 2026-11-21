@@ -28,8 +28,9 @@ namespace KCppAssist
             {
                 // クラス名の上で押したときだけ出す(本体の中に何度も出ると邪魔になるので)
                 Try("ctordtor", "コンストラクター・デストラクターを宣言する");
-                Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
             }
+            // コピー・ムーブの 3 つは、クラスの中ならどこでも出す(クラス名の行だけだと、本体で押したときに見つからない)
+            Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
             Try("nocopy", "コピー禁止・ムーブ可にする (= delete / = default)");
             Try("rule5", "コピー・ムーブ・デストラクターを = default で書く");
             Try("compare", "== と <=> を = default で作る");

@@ -162,6 +162,10 @@ namespace KCppAssist
                 if (header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))
                     list.Add(new Refactor.Offer { Id = "extract", Title = "クラスを " + cls.Name + ".h / .cpp に移す" });
             }
+            // 使うライブラリ次第の項目は、設定で出したときだけ(初期値はどれも出さない)
+            var opt = IncludeService.Options;
+            if (opt != null)
+                list.RemoveAll(o => (o.Id == "json" && !opt.OfferJson) || (o.Id == "cereal" && !opt.OfferCereal) || (o.Id == "natvis" && !opt.OfferNatvis));
             return list;
         }
 
