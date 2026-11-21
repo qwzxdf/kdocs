@@ -537,6 +537,12 @@ static class GenTests
             o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", IndentInNamespace = true, Eol = "\n", ClassHead = head, Members = mems, Includes = incs };
             Check("wizard header: rewritten", NewFileGen.Header("RPCDispatcher", o, out caret),
                 "#pragma once\n\n#include \"Base.h\"\n\nnamespace Prest {\n\n\tclass RPCDispatcher : public Base {\n\tpublic:\n\t\tRPCDispatcher();\n\t\t~RPCDispatcher();\n\t};\n\n}\n");
+            o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", IndentInNamespace = true, Eol = "\n", CtorDefault = true };
+            Check("header: ctor/dtor = default", NewFileGen.Header("EditorConnectionModule", o, out caret),
+                "#pragma once\n\nnamespace Prest {\n\n\tclass EditorConnectionModule {\n\tpublic:\n\t\tEditorConnectionModule() = default;\n\t\t~EditorConnectionModule() = default;\n\t};\n\n}\n");
+            o = new NewFileGen.Options { Eol = "\n", Indent = "\t", CtorDefault = true, ClassHead = "class Foo : public Bar" };
+            Check("wizard empty class gets = default", NewFileGen.Header("Foo", o, out caret),
+                "#pragma once\n\nclass Foo : public Bar {\npublic:\n\tFoo() = default;\n\t~Foo() = default;\n};\n\n");
             Check("wizard header: empty class", NewFileGen.ParseWizardHeader("#pragma once\nclass Foo\n{\n};\n", out head, out mems, out incs) && head == "class Foo" && mems.Count == 0 ? "ok" : "ng", "ok");
             Check("wizard header: hand-written member is not touched", NewFileGen.ParseWizardHeader("#pragma once\nclass Foo\n{\npublic:\n\tint x;\n};\n", out head, out mems, out incs).ToString(), "False");
             string ws = "#include \"pch.h\"\r\n#include \"RPCDispatcher.h\"\r\n\r\nRPCDispatcher::RPCDispatcher()\r\n{\r\n}\r\n\r\nRPCDispatcher::~RPCDispatcher()\r\n{\r\n}\r\n";

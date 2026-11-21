@@ -551,6 +551,11 @@ namespace KCppAssist
         public bool NewFileClass { get; set; } = true;
 
         [Category("新規ファイル")]
+        [DisplayName("class にコンストラクター・デストラクターを = default で書く")]
+        [Description("True(初期値)のとき、新しいヘッダーのひな形と、VS の「クラスの追加」で作ったクラスの public: に、「Foo() = default;」と「~Foo() = default;」を書きます。VS がすでにコンストラクター・デストラクターを書いていれば、そちらを残します。")]
+        public bool NewFileCtorDefault { get; set; } = true;
+
+        [Category("新規ファイル")]
         [DisplayName("クラス名の決めかた")]
         [Description("SameAsFile: ファイル名と同じ(初期値)。PascalCase: game_object → GameObject。SnakeCase: GameObject → game_object。CamelCase: game_object → gameObject。")]
         public ClassNaming NewFileClassNaming { get; set; } = ClassNaming.SameAsFile;

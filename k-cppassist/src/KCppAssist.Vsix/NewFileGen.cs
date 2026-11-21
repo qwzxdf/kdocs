@@ -34,6 +34,7 @@ namespace KCppAssist
             public List<string> Members;                // public: の下に置く宣言(「Foo();」など)
             public List<string> Includes;               // #pragma once / cpp の先頭に置く #include の行
             public List<string> Bodies;                 // cpp の namespace の中に置く定義(「Foo::Foo()\n{\n}」など)
+            public bool CtorDefault;                    // class の public: に「Foo() = default;」「~Foo() = default;」を書く(Members が空のとき)
         }
 
         // ---- 名前 ----
@@ -141,9 +142,17 @@ namespace KCppAssist
                 bool isStruct = head.StartsWith("struct", StringComparison.Ordinal);
                 sb.Append(ind).Append(head).Append(" {").Append(eol);
                 if (!isStruct) sb.Append(ind).Append("public:").Append(eol);
-                if (o.Members != null && o.Members.Count > 0)
+                var members = o.Members;
+                if ((members == null || members.Count == 0) && o.CtorDefault && !isStruct)
                 {
-                    foreach (string mem in o.Members) sb.Append(ind).Append(o.Indent).Append(mem).Append(eol);
+                    // クラス名は、head の最後の識別子(「class Foo : public Bar」なら Foo)
+                    var hm = Regex.Match(head, @"(?:class|struct)\s+(?:[A-Za-z_]\w*\s+)*?([A-Za-z_]\w*)\s*(?:final\s*)?(?::|$)");
+                    string cn = hm.Success ? hm.Groups[1].Value : ClassName(stem, o.Naming);
+                    members = new List<string> { cn + "() = default;", "~" + cn + "() = default;" };
+                }
+                if (members != null && members.Count > 0)
+                {
+                    foreach (string mem in members) sb.Append(ind).Append(o.Indent).Append(mem).Append(eol);
                     caret = sb.Length - eol.Length;                  // 最後の宣言の行末
                 }
                 else

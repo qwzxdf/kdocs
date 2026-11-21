@@ -101,6 +101,7 @@ namespace KCppAssist
             var o = new NewFileGen.Options
             {
                 MakeClass = opt.NewFileClass,
+                CtorDefault = opt.NewFileCtorDefault,
                 IndentInNamespace = opt.NewFileIndentInNamespace,
                 NamespaceComment = opt.NewFileNamespaceComment,
                 Guard = opt.NewFileGuard == GuardKind.IncludeGuard ? NewFileGen.Guard.IncludeGuard : NewFileGen.Guard.PragmaOnce,

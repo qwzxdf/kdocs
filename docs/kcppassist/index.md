@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.27.2.vsix" download>K-CppUltimateAssist 0.27.2 をダウンロード（.vsix、約 334 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.27.3.vsix" download>K-CppUltimateAssist 0.27.3 をダウンロード（.vsix、約 335 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -428,7 +428,7 @@ switch (state) {
 
 プロジェクトに新しく足した<strong>空のファイル</strong>を開くと、ひな形を書きます（作ってから 2 分以内の、空のファイルだけ。昔からある空のファイルには触りません）。
 
-ヘッダーには、次の形を書きます。クラス名は、初期値ではファイル名と同じです。初期値では namespace の中を 1 段字下げし、閉じる `}` にはコメントを付けません。
+ヘッダーには、次の形を書きます。クラス名は、初期値ではファイル名と同じです。初期値では namespace の中を 1 段字下げし、閉じる `}` にはコメントを付けません。コンストラクターとデストラクターは `= default` で書いておきます。
 
 ```cpp
 #pragma once
@@ -437,7 +437,8 @@ namespace Prest {
 
     class GameObject {
     public:
-
+        GameObject() = default;
+        ~GameObject() = default;
     };
 
 }
@@ -454,6 +455,7 @@ namespace と字下げは、ソリューションの既存のヘッダー（新�
 設定（ツール → オプション → K-CppUltimateAssist → 新規ファイル）で、次を変えられます。
 
 - ひな形を書くかどうか。ヘッダーに `class` を書くかどうか。
+- class にコンストラクター・デストラクターを `= default` で書くかどうか（初期値は書く）。VS の「クラスの追加」で作ったクラスにも書きます。VS がすでにコンストラクター・デストラクターを書いていれば、そちらを残します。
 - クラス名の決めかた: ファイル名のまま（初期値）、PascalCase（`game_object` → `GameObject`）、SnakeCase（`GameObject` → `game_object`）、CamelCase（`game_object` → `gameObject`）。
 - namespace: 既存のヘッダーから決める（初期値）、固定の名前、書かない。
 - 字下げ（自動・タブ・空白 2・空白 4）と、namespace の中を字下げするかどうか（初期値は字下げする）。
@@ -755,6 +757,7 @@ C++ のビルドエラーを、**色つきの専用ログ窓**に整理して出
 
 | 版 | 内容 |
 | --- | --- |
+| 0.27.3 | 新しいヘッダーのひな形と、VS の「クラスの追加」で作ったクラスに、`Foo() = default;` と `~Foo() = default;` を書くようにした（設定で切り替え。初期値は書く） |
 | 0.27.2 | コンストラクター・デストラクターの項目を、「= default」「.h に {} で書く」「.h に宣言、.cpp に定義」の 3 つに分けて並べた。作ったコードは、コピー・ムーブの宣言の上に置くようにした。コピー・ムーブのコンストラクターがあるクラスでも、引数のない `Foo()` を作るようにした |
 | 0.27.1 | 範囲選択でまとめて動かした（名前を変えた）ファイルを、1 つのダイアログで聞いて、まとめて直すようにした（Solution Explorer からの操作は、件数で止めない）。ファイルを別のフォルダーへ移したとき、`<Prest/Network/TCPServer.h>` のような `<>` の `#include` も直すようにした（プロジェクトの「追加のインクルード ディレクトリ」を基準に使う）。ヘッダーで前方宣言（`class Foo;`）している名前には、`#include` を自動で足さないようにした |
 | 0.27.0 | 名前を K-CppUltimateAssist に変えた。メニュー・ステータスバー・ダイアログ・出力ウィンドウ・フォントと色の項目は、短く「K-Cpp:」にした。設定とログの場所は今までどおり（上書きで入れれば、設定を引き継ぐ） |
