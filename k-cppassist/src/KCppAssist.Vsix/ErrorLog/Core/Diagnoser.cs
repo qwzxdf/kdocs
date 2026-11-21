@@ -257,12 +257,12 @@ namespace KCppAssist.ErrorLog
                 string core = CoreName(s.Mangled);
                 return Get(groups, order, "entry", g =>
                 {
-                    g.Title = "起動関数 (" + core + ") が見つかりません";
-                    g.Explain.Add("リンカーが、プログラムの入口になる関数を探しましたが、定義がありません。");
-                    g.Remedies.Add("コンソール アプリ (/SUBSYSTEM:CONSOLE) には main、Windows アプリ (/SUBSYSTEM:WINDOWS) には WinMain / wWinMain が要ります。");
-                    g.Remedies.Add("リンカー > システム > サブシステム の設定が、書いた関数と合っているか確かめます。");
-                    g.Remedies.Add("main を書いたファイルが、プロジェクトに入っているか(ビルドから除外されていないか)確かめます。");
-                    g.Remedies.Add("DLL や静的ライブラリのプロジェクトなら、構成の種類が .exe になっていないか確かめます。");
+                    g.Title = L.F("起動関数 ({0}) が見つかりません", core);
+                    g.Explain.Add(L.T("リンカーが、プログラムの入口になる関数を探しましたが、定義がありません。"));
+                    g.Remedies.Add(L.T("コンソール アプリ (/SUBSYSTEM:CONSOLE) には main、Windows アプリ (/SUBSYSTEM:WINDOWS) には WinMain / wWinMain が要ります。"));
+                    g.Remedies.Add(L.T("リンカー > システム > サブシステム の設定が、書いた関数と合っているか確かめます。"));
+                    g.Remedies.Add(L.T("main を書いたファイルが、プロジェクトに入っているか(ビルドから除外されていないか)確かめます。"));
+                    g.Remedies.Add(L.T("DLL や静的ライブラリのプロジェクトなら、構成の種類が .exe になっていないか確かめます。"));
                 });
             }
 
@@ -277,20 +277,20 @@ namespace KCppAssist.ErrorLog
                     {
                         return Get(groups, order, "lib:" + exact.Path, g =>
                         {
-                            g.Title = exact.FileName + " に実体があります (リンクされていません)";
-                            g.Explain.Add("ビルド済みの " + Shorten(exact.Path, ctx.SolutionDir) + " (" + exact.MachineName + (exact.IsImportLib ? "、DLL の import lib" : "、静的ライブラリ") + ") に、このシンボルが入っています。このプロジェクトのリンカー入力に入っていないのが原因です。");
-                            g.Remedies.Add("リンカー > 入力 > 追加の依存ファイル に " + exact.FileName + " を追加します。");
-                            g.Remedies.Add("リンカー > 全般 > 追加のライブラリ ディレクトリ に " + Path.GetDirectoryName(exact.Path) + " を追加します(絶対パスでも可)。");
-                            g.Remedies.Add("同じソリューション内のプロジェクトなら、参照の追加(プロジェクト参照)で、リンクが自動で済みます。");
-                            g.Remedies.Add("コードで済ませるなら、#pragma comment(lib, \"" + exact.FileName + "\") でも同じ効果です。");
+                            g.Title = L.F("{0} に実体があります (リンクされていません)", exact.FileName);
+                            g.Explain.Add(L.F("ビルド済みの {0} ({1}{2}) に、このシンボルが入っています。このプロジェクトのリンカー入力に入っていないのが原因です。", Shorten(exact.Path, ctx.SolutionDir), exact.MachineName, (exact.IsImportLib ? L.T("、DLL の import lib") : L.T("、静的ライブラリ"))));
+                            g.Remedies.Add(L.F("リンカー > 入力 > 追加の依存ファイル に {0} を追加します。", exact.FileName));
+                            g.Remedies.Add(L.F("リンカー > 全般 > 追加のライブラリ ディレクトリ に {0} を追加します(絶対パスでも可)。", Path.GetDirectoryName(exact.Path)));
+                            g.Remedies.Add(L.T("同じソリューション内のプロジェクトなら、参照の追加(プロジェクト参照)で、リンクが自動で済みます。"));
+                            g.Remedies.Add(L.F("コードで済ませるなら、#pragma comment(lib, \"{0}\") でも同じ効果です。", exact.FileName));
                         });
                     }
                     return Get(groups, order, "machine:" + exact.Path, g =>
                     {
-                        g.Title = exact.FileName + " はビット数が違います (" + exact.MachineName + ")";
-                        g.Explain.Add(Shorten(exact.Path, ctx.SolutionDir) + " に実体はありますが、" + exact.MachineName + " 用です。いまのビルドは " + LibScanner.MachineName(want) + " です。");
-                        g.Remedies.Add("同じプラットフォーム (" + LibScanner.MachineName(want) + ") でビルドした .lib を使います。");
-                        g.Remedies.Add("ライブラリのプロジェクトも、アクティブなプラットフォームでビルドしたか確かめます。");
+                        g.Title = L.F("{0} はビット数が違います ({1})", exact.FileName, exact.MachineName);
+                        g.Explain.Add(L.F("{0} に実体はありますが、{1} 用です。いまのビルドは {2} です。", Shorten(exact.Path, ctx.SolutionDir), exact.MachineName, LibScanner.MachineName(want)));
+                        g.Remedies.Add(L.F("同じプラットフォーム ({0}) でビルドした .lib を使います。", LibScanner.MachineName(want)));
+                        g.Remedies.Add(L.T("ライブラリのプロジェクトも、アクティブなプラットフォームでビルドしたか確かめます。"));
                     });
                 }
 
@@ -302,20 +302,20 @@ namespace KCppAssist.ErrorLog
                     {
                         return Get(groups, order, "static-vs-import:" + variant.Path, g =>
                         {
-                            g.Title = variant.FileName + " は静的ライブラリですが、ヘッダーは dllimport で宣言しています";
-                            g.Explain.Add("シンボル名の頭の __imp_ は、ヘッダーが __declspec(dllimport) で宣言している印です。ところが " + Shorten(variant.Path, ctx.SolutionDir) + " には、__imp_ の付かない普通のシンボルしかありません (静的ライブラリ)。");
-                            g.Remedies.Add("ヘッダーの API マクロ (PREST_API など) が、静的ライブラリのときは何も展開されないようにします。多くは「XXX_STATIC」のようなマクロを定義します。");
-                            g.Remedies.Add("利用側のプロジェクトに、そのマクロが定義されているか確かめます (プリプロセッサの定義)。");
-                            g.Remedies.Add("DLL として使うつもりなら、提供元を DLL でビルドし直して、その import lib をリンクします。");
+                            g.Title = L.F("{0} は静的ライブラリですが、ヘッダーは dllimport で宣言しています", variant.FileName);
+                            g.Explain.Add(L.F("シンボル名の頭の __imp_ は、ヘッダーが __declspec(dllimport) で宣言している印です。ところが {0} には、__imp_ の付かない普通のシンボルしかありません (静的ライブラリ)。", Shorten(variant.Path, ctx.SolutionDir)));
+                            g.Remedies.Add(L.T("ヘッダーの API マクロ (PREST_API など) が、静的ライブラリのときは何も展開されないようにします。多くは「XXX_STATIC」のようなマクロを定義します。"));
+                            g.Remedies.Add(L.T("利用側のプロジェクトに、そのマクロが定義されているか確かめます (プリプロセッサの定義)。"));
+                            g.Remedies.Add(L.T("DLL として使うつもりなら、提供元を DLL でビルドし直して、その import lib をリンクします。"));
                         });
                     }
                     if (!info.Import && variant.IsImportLib)
                     {
                         return Get(groups, order, "data-noimport:" + variant.Path, g =>
                         {
-                            g.Title = variant.FileName + " の変数を、dllimport なしで参照しています";
-                            g.Explain.Add("DLL が持つ変数 (データ) は、__declspec(dllimport) 付きで宣言しないと参照できません。関数と違い、変数にはリンク用の代わりの入口がありません。");
-                            g.Remedies.Add("ヘッダーで、変数の宣言に API マクロ (dllimport を展開するもの) を付けます。");
+                            g.Title = L.F("{0} の変数を、dllimport なしで参照しています", variant.FileName);
+                            g.Explain.Add(L.T("DLL が持つ変数 (データ) は、__declspec(dllimport) 付きで宣言しないと参照できません。関数と違い、変数にはリンク用の代わりの入口がありません。"));
+                            g.Remedies.Add(L.T("ヘッダーで、変数の宣言に API マクロ (dllimport を展開するもの) を付けます。"));
                         });
                     }
                 }
@@ -326,12 +326,12 @@ namespace KCppAssist.ErrorLog
             {
                 return Get(groups, order, "crt", g =>
                 {
-                    g.Title = "C ランタイム(CRT)の内部の関数が見つかりません";
-                    g.Explain.Add("これらはコンパイラが自動で呼び出す関数で、ランタイム ライブラリ (vcruntime / ucrt) が提供します。ランタイムがリンクされていない構成で出ます。");
-                    g.Remedies.Add("リンカー > 入力 > 「すべての既定のライブラリを無視」が「はい (/NODEFAULTLIB)」になっていないか確かめます。");
-                    g.Remedies.Add("カーネル モードやスタートアップを自作する構成なら、_fltused や __security_cookie などを自分で定義します。");
-                    g.Remedies.Add("/GS (バッファー セキュリティ チェック) を切ると、__security_cookie の参照は消えます。");
-                    g.Remedies.Add("/MT と /MD の混在や、別のコンパイラで作った .lib のときも出ます。ランタイム ライブラリをそろえます。");
+                    g.Title = L.T("C ランタイム(CRT)の内部の関数が見つかりません");
+                    g.Explain.Add(L.T("これらはコンパイラが自動で呼び出す関数で、ランタイム ライブラリ (vcruntime / ucrt) が提供します。ランタイムがリンクされていない構成で出ます。"));
+                    g.Remedies.Add(L.T("リンカー > 入力 > 「すべての既定のライブラリを無視」が「はい (/NODEFAULTLIB)」になっていないか確かめます。"));
+                    g.Remedies.Add(L.T("カーネル モードやスタートアップを自作する構成なら、_fltused や __security_cookie などを自分で定義します。"));
+                    g.Remedies.Add(L.T("/GS (バッファー セキュリティ チェック) を切ると、__security_cookie の参照は消えます。"));
+                    g.Remedies.Add(L.T("/MT と /MD の混在や、別のコンパイラで作った .lib のときも出ます。ランタイム ライブラリをそろえます。"));
                 });
             }
 
@@ -341,10 +341,10 @@ namespace KCppAssist.ErrorLog
                 string lib = s.Win32Lib;
                 return Get(groups, order, "win32:" + lib, g =>
                 {
-                    g.Title = "Windows / SDK の関数です (" + lib + " が必要)";
-                    g.Explain.Add("これらは " + lib + " が提供する関数です。ヘッダーを include しただけでは、リンクされません。");
-                    g.Remedies.Add("リンカー > 入力 > 追加の依存ファイル に " + lib + " を追加します。");
-                    g.Remedies.Add("コードで済ませるなら、#pragma comment(lib, \"" + lib + "\") でも同じ効果です。");
+                    g.Title = L.F("Windows / SDK の関数です ({0} が必要)", lib);
+                    g.Explain.Add(L.F("これらは {0} が提供する関数です。ヘッダーを include しただけでは、リンクされません。", lib));
+                    g.Remedies.Add(L.F("リンカー > 入力 > 追加の依存ファイル に {0} を追加します。", lib));
+                    g.Remedies.Add(L.F("コードで済ませるなら、#pragma comment(lib, \"{0}\") でも同じ効果です。", lib));
                 });
             }
 
@@ -354,28 +354,26 @@ namespace KCppAssist.ErrorLog
                 string cls = info.Scope.Length > 0 ? info.Scope : info.Pretty;
                 return Get(groups, order, "vtable:" + cls, g =>
                 {
-                    g.Title = cls + " の vtable (仮想関数の表) が見つかりません";
-                    g.Explain.Add("vtable は、最初の非 inline の仮想関数 (キー関数) の定義と一緒に作られます。そのため、仮想関数の定義が 1 つ抜けていると、vtable ごと未解決になります。");
-                    g.Remedies.Add(cls + " の virtual 関数 (純粋仮想関数 = 0 を除く) の、すべてに定義があるか確かめます。");
-                    g.Remedies.Add("virtual デストラクターの定義 (または = default) を書き忘れていないか確かめます。");
-                    g.Remedies.Add("そのクラスの .cpp が、プロジェクトに入っているか確かめます。");
+                    g.Title = L.F("{0} の vtable (仮想関数の表) が見つかりません", cls);
+                    g.Explain.Add(L.T("vtable は、最初の非 inline の仮想関数 (キー関数) の定義と一緒に作られます。そのため、仮想関数の定義が 1 つ抜けていると、vtable ごと未解決になります。"));
+                    g.Remedies.Add(L.F("{0} の virtual 関数 (純粋仮想関数 = 0 を除く) の、すべてに定義があるか確かめます。", cls));
+                    g.Remedies.Add(L.T("virtual デストラクターの定義 (または = default) を書き忘れていないか確かめます。"));
+                    g.Remedies.Add(L.T("そのクラスの .cpp が、プロジェクトに入っているか確かめます。"));
                 });
             }
 
             // 5. static メンバー変数・グローバル変数
             if (!info.IsFunction && (info.Kind == SymKind.StaticVariable || info.Kind == SymKind.Variable))
             {
-                string cls = info.Class.Length > 0 ? info.Class : "(グローバル)";
+                string cls = info.Class.Length > 0 ? info.Class : L.T("(グローバル)");
                 bool hasDef = s.Defs != null && s.Defs.Count > 0;
                 return Get(groups, order, "var:" + cls + hasDef, g =>
                 {
-                    g.Title = info.Kind == SymKind.StaticVariable
-                        ? cls + " の static メンバー変数の定義がありません"
-                        : "グローバル変数の定義がありません";
-                    g.Explain.Add("static メンバーや extern の宣言だけでは、実体は作られません。.cpp に 1 つだけ、定義が要ります。");
-                    g.Remedies.Add("いずれかの .cpp に、型を付けて定義を書きます (例: int " + (info.Class.Length > 0 ? info.Class + "::" : "") + TemplateTailOf(info.Name) + " = 0;)。");
-                    g.Remedies.Add("C++17 以降なら、宣言を inline static (または inline constexpr) にすると、ヘッダーだけで済みます。");
-                    if (hasDef) g.Explain.Add("ソースに定義らしい行がありました。その .cpp が、プロジェクトに入っているか確かめます。");
+                    g.Title = info.Kind == SymKind.StaticVariable ? L.F("{0} の static メンバー変数の定義がありません", cls) : L.T("グローバル変数の定義がありません");
+                    g.Explain.Add(L.T("static メンバーや extern の宣言だけでは、実体は作られません。.cpp に 1 つだけ、定義が要ります。"));
+                    g.Remedies.Add(L.F("いずれかの .cpp に、型を付けて定義を書きます (例: int {0}{1} = 0;)。", (info.Class.Length > 0 ? info.Class + "::" : ""), TemplateTailOf(info.Name)));
+                    g.Remedies.Add(L.T("C++17 以降なら、宣言を inline static (または inline constexpr) にすると、ヘッダーだけで済みます。"));
+                    if (hasDef) g.Explain.Add(L.T("ソースに定義らしい行がありました。その .cpp が、プロジェクトに入っているか確かめます。"));
                 });
             }
 
@@ -384,14 +382,14 @@ namespace KCppAssist.ErrorLog
             {
                 return Get(groups, order, "def-found:" + (info.Import ? "imp:" : "") + (info.Class.Length > 0 ? info.Class : info.Namespace), g =>
                 {
-                    g.Title = "定義はソースにあるのに、リンクされていません";
-                    g.Explain.Add("ソースの中に、これらの関数の定義らしい行が見つかりました (各項目の下に示します)。それでも未解決になるのは、その定義が、このプロジェクトのリンクに入っていないからです。");
+                    g.Title = L.T("定義はソースにあるのに、リンクされていません");
+                    g.Explain.Add(L.T("ソースの中に、これらの関数の定義らしい行が見つかりました (各項目の下に示します)。それでも未解決になるのは、その定義が、このプロジェクトのリンクに入っていないからです。"));
                     if (info.Import)
-                        g.Explain.Add("シンボルに __imp_ が付いているので、定義は別の DLL プロジェクトにあり、その import lib (.lib) が必要です。");
-                    g.Remedies.Add("その .cpp が、プロジェクトに入っているか (ビルドから除外されていないか) 確かめます。");
-                    g.Remedies.Add("別のプロジェクト (lib / DLL) にあるなら、参照の追加か、追加の依存ファイルで、その .lib をリンクします。");
-                    g.Remedies.Add("#if や構成の違いで、その定義がコンパイルされていないか確かめます。");
-                    g.Remedies.Add("宣言と定義の引数の型・const・名前空間が、1 つでも違うと別の関数になります。見比べます。");
+                        g.Explain.Add(L.T("シンボルに __imp_ が付いているので、定義は別の DLL プロジェクトにあり、その import lib (.lib) が必要です。"));
+                    g.Remedies.Add(L.T("その .cpp が、プロジェクトに入っているか (ビルドから除外されていないか) 確かめます。"));
+                    g.Remedies.Add(L.T("別のプロジェクト (lib / DLL) にあるなら、参照の追加か、追加の依存ファイルで、その .lib をリンクします。"));
+                    g.Remedies.Add(L.T("#if や構成の違いで、その定義がコンパイルされていないか確かめます。"));
+                    g.Remedies.Add(L.T("宣言と定義の引数の型・const・名前空間が、1 つでも違うと別の関数になります。見比べます。"));
                 });
             }
 
@@ -401,12 +399,12 @@ namespace KCppAssist.ErrorLog
                 string ns = info.Namespace.Length > 0 ? FirstScope(info.Namespace) : "";
                 return Get(groups, order, "import:" + ns, g =>
                 {
-                    g.Title = "dllimport で参照している関数の実体が見つかりません" + (ns.Length > 0 ? " (" + ns + ")" : "");
-                    g.Explain.Add("シンボル名の頭の __imp_ は、ヘッダーが __declspec(dllimport) で宣言している印です。DLL が提供する関数を使うには、その DLL と一緒に作られる import library (.lib) を、リンクする必要があります。");
-                    g.Explain.Add("同じ名前空間のシンボルが並んでいる場合は、1 つの .lib が丸ごと足りない可能性が高いです。");
-                    g.Remedies.Add("提供元の DLL プロジェクトをビルドして、.lib ができているか確かめます。");
-                    g.Remedies.Add("その .lib を、リンカー > 入力 > 追加の依存ファイル に追加します (同じソリューションなら、参照の追加が早い)。");
-                    g.Remedies.Add("静的ライブラリとして使うつもりなら、API マクロ (EXPORT / IMPORT) が dllimport にならないようにします。");
+                    g.Title = L.F("dllimport で参照している関数の実体が見つかりません{0}", (ns.Length > 0 ? " (" + ns + ")" : ""));
+                    g.Explain.Add(L.T("シンボル名の頭の __imp_ は、ヘッダーが __declspec(dllimport) で宣言している印です。DLL が提供する関数を使うには、その DLL と一緒に作られる import library (.lib) を、リンクする必要があります。"));
+                    g.Explain.Add(L.T("同じ名前空間のシンボルが並んでいる場合は、1 つの .lib が丸ごと足りない可能性が高いです。"));
+                    g.Remedies.Add(L.T("提供元の DLL プロジェクトをビルドして、.lib ができているか確かめます。"));
+                    g.Remedies.Add(L.T("その .lib を、リンカー > 入力 > 追加の依存ファイル に追加します (同じソリューションなら、参照の追加が早い)。"));
+                    g.Remedies.Add(L.T("静的ライブラリとして使うつもりなら、API マクロ (EXPORT / IMPORT) が dllimport にならないようにします。"));
                 });
             }
 
@@ -415,10 +413,10 @@ namespace KCppAssist.ErrorLog
             {
                 return Get(groups, order, "template", g =>
                 {
-                    g.Title = "テンプレートのインスタンスが見つかりません";
-                    g.Explain.Add("テンプレートの定義を .cpp に書くと、使う側の翻訳単位ではインスタンス化できず、リンクで未解決になります。");
-                    g.Remedies.Add("テンプレートの定義を、ヘッダーに移します。");
-                    g.Remedies.Add("または、定義のある .cpp の末尾で、明示的にインスタンス化します (例: template void f<int>(int);)。");
+                    g.Title = L.T("テンプレートのインスタンスが見つかりません");
+                    g.Explain.Add(L.T("テンプレートの定義を .cpp に書くと、使う側の翻訳単位ではインスタンス化できず、リンクで未解決になります。"));
+                    g.Remedies.Add(L.T("テンプレートの定義を、ヘッダーに移します。"));
+                    g.Remedies.Add(L.T("または、定義のある .cpp の末尾で、明示的にインスタンス化します (例: template void f<int>(int);)。"));
                 });
             }
 
@@ -428,12 +426,12 @@ namespace KCppAssist.ErrorLog
                 string cls = info.Class;
                 return Get(groups, order, "member:" + cls, g =>
                 {
-                    g.Title = cls + " のメンバー関数の定義が見つかりません";
-                    g.Explain.Add("宣言はあるのに、定義がありません。または、宣言と定義が少しずれて、別の関数になっています。");
-                    g.Remedies.Add("該当の関数の定義 (" + cls + "::関数名) を、.cpp に書いたか確かめます。");
-                    g.Remedies.Add("宣言と定義の引数の型・const・参照・名前空間が、そろっているか確かめます。");
-                    g.Remedies.Add("その .cpp が、プロジェクトに入っているか確かめます。");
-                    g.Remedies.Add("呼ぶつもりのない関数なら、宣言を消します。");
+                    g.Title = L.F("{0} のメンバー関数の定義が見つかりません", cls);
+                    g.Explain.Add(L.T("宣言はあるのに、定義がありません。または、宣言と定義が少しずれて、別の関数になっています。"));
+                    g.Remedies.Add(L.F("該当の関数の定義 ({0}::関数名) を、.cpp に書いたか確かめます。", cls));
+                    g.Remedies.Add(L.T("宣言と定義の引数の型・const・参照・名前空間が、そろっているか確かめます。"));
+                    g.Remedies.Add(L.T("その .cpp が、プロジェクトに入っているか確かめます。"));
+                    g.Remedies.Add(L.T("呼ぶつもりのない関数なら、宣言を消します。"));
                 });
             }
 
@@ -441,13 +439,13 @@ namespace KCppAssist.ErrorLog
             string fnNs = info.Namespace.Length > 0 ? FirstScope(info.Namespace) : "";
             return Get(groups, order, "func:" + fnNs, g =>
             {
-                g.Title = "関数の定義が見つかりません" + (fnNs.Length > 0 ? " (" + fnNs + ")" : "");
-                g.Explain.Add("宣言はあるのに、定義がリンクされていません。");
+                g.Title = L.F("関数の定義が見つかりません{0}", (fnNs.Length > 0 ? " (" + fnNs + ")" : ""));
+                g.Explain.Add(L.T("宣言はあるのに、定義がリンクされていません。"));
                 if (info.Kind == SymKind.CSymbol)
-                    g.Explain.Add("装飾のない C の名前です。extern \"C\" の宣言と定義の、両方がそろっているか確かめます。");
-                g.Remedies.Add("関数の定義を書いたか、その .cpp / .lib がプロジェクトに入っているか確かめます。");
-                g.Remedies.Add("宣言と定義の引数の型・const・名前空間が、そろっているか確かめます。");
-                g.Remedies.Add("C++ の関数を C のコードから呼ぶ (またはその逆) なら、extern \"C\" の有無をそろえます。");
+                    g.Explain.Add(L.T("装飾のない C の名前です。extern \"C\" の宣言と定義の、両方がそろっているか確かめます。"));
+                g.Remedies.Add(L.T("関数の定義を書いたか、その .cpp / .lib がプロジェクトに入っているか確かめます。"));
+                g.Remedies.Add(L.T("宣言と定義の引数の型・const・名前空間が、そろっているか確かめます。"));
+                g.Remedies.Add(L.T("C++ の関数を C のコードから呼ぶ (またはその逆) なら、extern \"C\" の有無をそろえます。"));
             });
         }
 

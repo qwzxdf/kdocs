@@ -7,7 +7,7 @@ namespace KCppAssist.ErrorLog
         public static volatile int MaxLibs = 800;             // 読む .lib の数の上限
         public static volatile int SearchMilliseconds = 6000; // 探す時間の上限
         public static volatile bool ShortenTypes = true;      // 型名を短くする
-        public static volatile bool ShowHints = true;         // 日本語のヒントを出す
+        public static volatile bool ShowHints = true;         // ヒント(表示する言語で)を出す
         public static volatile bool ShowAdvice = true;        // 「まず一番上から」の案内
         public static volatile bool ShowCascade = true;       // 連鎖の可能性
         public static volatile bool ShowExamples = true;      // 直し方の例

@@ -67,7 +67,7 @@ namespace KCppAssist.ErrorLog
                     Diag u;
                     if (undefined.TryGetValue(name, out u) && u != e && errors.IndexOf(u) < i)
                     {
-                        note = "「" + name + "」が、上のエラー (" + u.Code + ") で、未定義と言われています。そちらを直すと、消える可能性があります。";
+                        note = L.F("「{0}」が、上のエラー ({1}) で、未定義と言われています。そちらを直すと、消える可能性があります。", name, u.Code);
                         break;
                     }
                 }
@@ -76,7 +76,7 @@ namespace KCppAssist.ErrorLog
                 if (note == null && syntaxRoot != null && i > syntaxIndex && e != syntaxRoot && !SyntaxCodes.Contains(e.Code)
                     && string.Equals(e.File, syntaxRoot.File, StringComparison.OrdinalIgnoreCase) && e.Line >= syntaxRoot.Line)
                 {
-                    note = "同じファイルの、上の構文エラー (" + syntaxRoot.Code + ") の影響で出ている可能性があります。そちらを先に直します。";
+                    note = L.F("同じファイルの、上の構文エラー ({0}) の影響で出ている可能性があります。そちらを先に直します。", syntaxRoot.Code);
                 }
 
                 if (note != null) res.Notes[e] = note;

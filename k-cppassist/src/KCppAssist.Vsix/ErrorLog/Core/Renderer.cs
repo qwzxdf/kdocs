@@ -90,7 +90,7 @@ namespace KCppAssist.ErrorLog
             BuildReport report = input.Report;
             if (report == null)
             {
-                new LineBuilder(doc).Add("ビルドの出力はまだありません。ビルドすると、ここにエラーが出ます。", Role.Dim).Done();
+                new LineBuilder(doc).Add(L.T("ビルドの出力はまだありません。ビルドすると、ここにエラーが出ます。"), Role.Dim).Done();
                 return doc;
             }
             _report = report;
@@ -120,25 +120,25 @@ namespace KCppAssist.ErrorLog
             var head = new LineBuilder(doc);
             if (errors > 0)
             {
-                head.Add("✖ ビルドに失敗しました", Role.Error, true);
-                head.Add("   エラー " + errors + " 件", Role.Error);
-                head.Add(" (リンカー " + linker + " / コンパイラ " + (errors - linker) + ")", Role.Dim);
+                head.Add(L.T("✖ ビルドに失敗しました"), Role.Error, true);
+                head.Add(L.F("   エラー {0} 件", errors), Role.Error);
+                head.Add(L.F(" (リンカー {0} / コンパイラ {1})", linker, (errors - linker)), Role.Dim);
             }
             else if (onlySummary)
             {
-                head.Add("✖ ビルドに失敗しました", Role.Error, true);
-                head.Add("   リンカーの集計行だけを読めました。「原文」表示で全文を確かめてください", Role.Dim);
+                head.Add(L.T("✖ ビルドに失敗しました"), Role.Error, true);
+                head.Add(L.T("   リンカーの集計行だけを読めました。「原文」表示で全文を確かめてください"), Role.Dim);
             }
             else
             {
-                head.Add("✔ エラーはありません", Role.Good, true);
+                head.Add(L.T("✔ エラーはありません"), Role.Good, true);
             }
-            head.Add("   警告 " + warnings + " 件", warnings > 0 ? Role.Warning : Role.Dim);
+            head.Add(L.F("   警告 {0} 件", warnings), warnings > 0 ? Role.Warning : Role.Dim);
             head.Done();
 
             var sub = new LineBuilder(doc);
-            if (report.Config.Length > 0) sub.Add("構成: " + report.Config + "   ", Role.Dim);
-            if (report.Projects.Count > 0) sub.Add("プロジェクト: " + string.Join(", ", report.Projects.Values.Distinct()) + "   ", Role.Dim);
+            if (report.Config.Length > 0) sub.Add(L.F("構成: {0}   ", report.Config), Role.Dim);
+            if (report.Projects.Count > 0) sub.Add(L.F("プロジェクト: {0}   ", string.Join(", ", report.Projects.Values.Distinct())), Role.Dim);
             if (report.Summary.Length > 0) sub.Add(report.Summary, Role.Dim);
             sub.Done();
             if (errors >= 2) AddOrderAdvice(doc, report, sol);
@@ -183,7 +183,7 @@ namespace KCppAssist.ErrorLog
                 }
                 if (++shown > ErrorLogSettings.MaxItems)
                 {
-                    new LineBuilder(doc).Space().Add("… 件数が多いので、ここから先は省略しました。「原文」表示で全部を読めます。", Role.Dim).Done();
+                    new LineBuilder(doc).Space().Add(L.T("… 件数が多いので、ここから先は省略しました。「原文」表示で全部を読めます。"), Role.Dim).Done();
                     break;
                 }
                 switch (d.Kind)
@@ -197,7 +197,7 @@ namespace KCppAssist.ErrorLog
             AddFileIndex(doc, report, sol, indexPos);
 
             if (shown == 0 && errors == 0 && report.Diags.Count == 0)
-                new LineBuilder(doc).Space().Add("出力にエラーも警告もありません。", Role.Dim).Done();
+                new LineBuilder(doc).Space().Add(L.T("出力にエラーも警告もありません。"), Role.Dim).Done();
         }
 
         /// <summary>エラーのあるファイルが 2 つ以上のとき、「ファイル別」の目次を出す。押すと、そのファイルの最初のエラーへ飛ぶ。</summary>
@@ -216,10 +216,10 @@ namespace KCppAssist.ErrorLog
 
             var tmp = new Doc();
             var lb = new LineBuilder(tmp).Space();
-            lb.Add("ファイル別  ", Role.Hint, true);
+            lb.Add(L.T("ファイル別  "), Role.Hint, true);
             foreach (var c in counts.Take(16))
                 lb.JumpLink(Paths.Display(c.Key, sol), FileAnchor(c.Key)).Add(" " + c.Value + "    ", Role.Dim);
-            if (counts.Count > 16) lb.Add("… ほか " + (counts.Count - 16) + " ファイル", Role.Dim);
+            if (counts.Count > 16) lb.Add(L.F("… ほか {0} ファイル", (counts.Count - 16)), Role.Dim);
             lb.Done();
             doc.Lines.Insert(pos, tmp.Lines[0]);
         }
@@ -229,12 +229,12 @@ namespace KCppAssist.ErrorLog
         {
             if (!ErrorLogSettings.ShowHints || !ErrorLogSettings.ShowAdvice) return;
             var lb = new LineBuilder(doc).Space();
-            lb.Add("まず: ", Role.Hint, true).Add("一番上のエラーから直して、ビルドし直します。1 つの原因から、あとのエラーが連鎖して出ることが多いからです。", Role.Normal);
+            lb.Add(L.T("まず: "), Role.Hint, true).Add(L.T("一番上のエラーから直して、ビルドし直します。1 つの原因から、あとのエラーが連鎖して出ることが多いからです。"), Role.Normal);
             lb.Done();
             if (_cascade.Count > 0)
-                Line(doc, 1, null).Add("この " + report.ErrorCount + " 件のうち " + _cascade.Count + " 件は、上のエラーの影響で出ている可能性があります (「連鎖の可能性」と書いた項目)。", Role.Dim).Done();
+                Line(doc, 1, null).Add(L.F("この {0} 件のうち {1} 件は、上のエラーの影響で出ている可能性があります (「連鎖の可能性」と書いた項目)。", report.ErrorCount, _cascade.Count), Role.Dim).Done();
             if (_cascadeRoot != null && _cascadeRoot.HasLocation)
-                Line(doc, 1, null).Add("原因の候補: ", Role.Dim).Add(_cascadeRoot.Code + "  ", Role.Code, true)
+                Line(doc, 1, null).Add(L.T("原因の候補: "), Role.Dim).Add(_cascadeRoot.Code + "  ", Role.Code, true)
                     .Link(Paths.Display(_cascadeRoot.File, sol) + "(" + _cascadeRoot.Line + ")", _cascadeRoot.File, _cascadeRoot.Line, _cascadeRoot.Col).Done();
         }
 
@@ -259,27 +259,27 @@ namespace KCppAssist.ErrorLog
             int total = syms.Count;
 
             new LineBuilder(doc).Rule().Space()
-                .Add("■ 未解決の外部シンボル", Role.Error, true)
+                .Add(L.T("■ 未解決の外部シンボル"), Role.Error, true)
                 .Add("  LNK2019 / LNK2001", Role.Code)
-                .Add("   " + total + " 件を、原因 " + groups.Count + " 個にまとめました", Role.Dim)
+                .Add(L.F("   {0} 件を、原因 {1} 個にまとめました", total, groups.Count), Role.Dim)
                 .Done();
 
             if (input.Report.LinkerUnresolvedTotal > 0)
-                new LineBuilder(doc).Add("リンカーの集計 (LNK1120): " + input.Report.LinkerUnresolvedTotal + " 件", Role.Dim).Done();
+                new LineBuilder(doc).Add(L.F("リンカーの集計 (LNK1120): {0} 件", input.Report.LinkerUnresolvedTotal), Role.Dim).Done();
 
             if (input.Pending)
-                new LineBuilder(doc).Add("ソリューションの .lib とソースを検索中です。終わると、原因の分類が更新されます…", Role.Hint, false, true).Done();
+                new LineBuilder(doc).Add(L.T("ソリューションの .lib とソースを検索中です。終わると、原因の分類が更新されます…"), Role.Hint, false, true).Done();
             else if (!string.IsNullOrEmpty(input.Ctx.SolutionDir))
-                new LineBuilder(doc).Add("検索範囲: " + input.Ctx.SolutionDir + " の下の .lib と、ソース " + SourceScanner.FilesScanned + " ファイル", Role.Dim).Done();
+                new LineBuilder(doc).Add(L.F("検索範囲: {0} の下の .lib と、ソース {1} ファイル", input.Ctx.SolutionDir, SourceScanner.FilesScanned), Role.Dim).Done();
 
             int gi = 0;
             foreach (CauseGroup g in groups)
             {
                 gi++;
                 Line(doc, 0, Role.Error).Space()
-                    .Add("原因 " + gi + " / " + groups.Count + "   ", Role.Dim)
+                    .Add(L.F("原因 {0} / {1}   ", gi, groups.Count), Role.Dim)
                     .Add(g.Title, Role.Error, true)
-                    .Add("   " + g.Items.Count + " 件", Role.Dim)
+                    .Add(L.F("   {0} 件", g.Items.Count), Role.Dim)
                     .Done();
 
                 foreach (string e in g.Explain)
@@ -287,13 +287,13 @@ namespace KCppAssist.ErrorLog
 
                 if (g.Remedies.Count > 0)
                 {
-                    Line(doc, 1, Role.Error).Add("対処", Role.Hint, true).Done();
+                    Line(doc, 1, Role.Error).Add(L.T("対処"), Role.Hint, true).Done();
                     int n = 0;
                     foreach (string r in g.Remedies)
                         Line(doc, 2, Role.Error).Add(++n + ". ", Role.Hint).Add(r, Role.Normal).Done();
                 }
 
-                Line(doc, 1, Role.Error).Add("該当するシンボル", Role.Hint, true).Done();
+                Line(doc, 1, Role.Error).Add(L.T("該当するシンボル"), Role.Hint, true).Done();
                 foreach (UnresolvedSym s in g.Items)
                     AddSymbol(doc, s, opt, input.Ctx, g);
             }
@@ -307,7 +307,7 @@ namespace KCppAssist.ErrorLog
             if (info.KindLabel.Length > 0) lb.Add("   " + info.KindLabel, Role.Dim);
             if (info.Import) lb.Add("  dllimport", Role.Dim);
             string term = SearchTerm(info);
-            if (term.Length > 0) lb.Add("   ", Role.Normal).SearchLink("[宣言を検索]", term);
+            if (term.Length > 0) lb.Add("   ", Role.Normal).SearchLink(L.T("[宣言を検索]"), term);
             lb.Done();
 
             if (info.Note.Length > 0)
@@ -324,18 +324,18 @@ namespace KCppAssist.ErrorLog
                 shown++;
                 var rb = Line(doc, 3, Role.Error).Add("← ", Role.Dim);
                 if (r.From != null) AddFuncRef(rb, r.From);
-                else rb.Add("(参照元の関数は不明)", Role.Dim);
+                else rb.Add(L.T("(参照元の関数は不明)"), Role.Dim);
                 if (r.Obj.Length > 0) rb.Add("   " + r.Obj, Role.Dim);
                 rb.Done();
             }
-            if (hidden > 0) Line(doc, 3, Role.Error).Add("   ほか " + hidden + " か所から参照されています", Role.Dim).Done();
+            if (hidden > 0) Line(doc, 3, Role.Error).Add(L.F("   ほか {0} か所から参照されています", hidden), Role.Dim).Done();
 
             // ソースから見つかった定義の候補
             if (s.Defs != null)
                 foreach (SrcHit h in s.Defs)
                 {
                     string text = h.Text.Length > 90 ? h.Text.Substring(0, 90) + "…" : h.Text;
-                    Line(doc, 3, Role.Error).Add("定義の候補: ", Role.Good)
+                    Line(doc, 3, Role.Error).Add(L.T("定義の候補: "), Role.Good)
                         .Link(Paths.Display(h.File, ctx.SolutionDir) + "(" + h.Line + ")", h.File, h.Line, 0)
                         .Add("   " + text, Role.Dim).Done();
                 }
@@ -353,7 +353,7 @@ namespace KCppAssist.ErrorLog
             {
                 int n;
                 bool numeric = int.TryParse(from.LambdaId, out n);
-                rb.Add("ラムダ" + (numeric ? " #" + from.LambdaId : "") + " in ", Role.Dim);
+                rb.Add(L.F("ラムダ{0} in ", (numeric ? " #" + from.LambdaId : "")), Role.Dim);
             }
             rb.Code(from.Pretty);
             if (from.Note.Length > 0) rb.Add("  (" + from.Note + ")", Role.Dim);
@@ -381,30 +381,30 @@ namespace KCppAssist.ErrorLog
         {
             MultiDefRef m = d.MultiDef;
             SymInfo info = SymbolPretty.Parse(m.SymbolDem, m.SymbolMangled);
-            Header(doc, d, "同じシンボルが二重に定義されています", sol);
-            Line(doc, 1, null).Add("シンボル: ", Role.Dim).Code(info.Pretty).Done();
-            Line(doc, 1, null).Add("定義の場所: ", Role.Dim).Add(m.InObj, Role.Type).Add("  と  ", Role.Dim).Add(m.OtherObj, Role.Type).Done();
+            Header(doc, d, L.T("同じシンボルが二重に定義されています"), sol);
+            Line(doc, 1, null).Add(L.T("シンボル: "), Role.Dim).Code(info.Pretty).Done();
+            Line(doc, 1, null).Add(L.T("定義の場所: "), Role.Dim).Add(m.InObj, Role.Type).Add(L.T("  と  "), Role.Dim).Add(m.OtherObj, Role.Type).Done();
             AddHintText(doc, Hints.For(d.Code), 1);
             bool isVar = info.Kind == SymKind.Variable || info.Kind == SymKind.StaticVariable;
             if (isVar)
-                Line(doc, 1, null).Add("多くは、ヘッダーに変数を書いた (extern が付いていない) ことが原因です。ヘッダーには extern を付けた宣言だけを書き、定義は 1 つの .cpp に書きます。C++17 なら、ヘッダーに inline 変数として書けます。", Role.Normal).Done();
+                Line(doc, 1, null).Add(L.T("多くは、ヘッダーに変数を書いた (extern が付いていない) ことが原因です。ヘッダーには extern を付けた宣言だけを書き、定義は 1 つの .cpp に書きます。C++17 なら、ヘッダーに inline 変数として書けます。"), Role.Normal).Done();
             else
-                Line(doc, 1, null).Add("多くは、ヘッダーに関数の本体を書いた (inline が付いていない) ことが原因です。inline を付けるか、本体を .cpp に移します。", Role.Normal).Done();
+                Line(doc, 1, null).Add(L.T("多くは、ヘッダーに関数の本体を書いた (inline が付いていない) ことが原因です。inline を付けるか、本体を .cpp に移します。"), Role.Normal).Done();
             if (opt.AttachRaw) AddRaw(doc, d, 1);
         }
 
         private static void RenderMismatch(Doc doc, Diag d, RenderOptions opt, string sol)
         {
             MismatchRef m = d.Mismatch;
-            Header(doc, d, "設定の不一致: " + m.Key, sol);
+            Header(doc, d, L.F("設定の不一致: {0}", m.Key), sol);
             Line(doc, 1, null).Add(m.InObj, Role.Type).Add("   → ", Role.Dim).Add(Hints.DescribeMismatch(m.Key, m.ValueHere), Role.Warning).Done();
-            Line(doc, 1, null).Add(m.OtherObj.Length > 0 ? m.OtherObj : "(もう一方)", Role.Type).Add("   → ", Role.Dim).Add(Hints.DescribeMismatch(m.Key, m.ValueOther), Role.Warning).Done();
+            Line(doc, 1, null).Add(m.OtherObj.Length > 0 ? m.OtherObj : L.T("(もう一方)"), Role.Type).Add("   → ", Role.Dim).Add(Hints.DescribeMismatch(m.Key, m.ValueOther), Role.Warning).Done();
             if (m.Key == "RuntimeLibrary")
-                Line(doc, 1, null).Add("対処: ", Role.Hint, true)
-                    .Add("すべてのプロジェクトと、リンクする .lib を、同じランタイム ライブラリにそろえます (C/C++ > コード生成 > ランタイム ライブラリ)。", Role.Normal).Done();
+                Line(doc, 1, null).Add(L.T("対処: "), Role.Hint, true)
+                    .Add(L.T("すべてのプロジェクトと、リンクする .lib を、同じランタイム ライブラリにそろえます (C/C++ > コード生成 > ランタイム ライブラリ)。"), Role.Normal).Done();
             else if (m.Key == "_ITERATOR_DEBUG_LEVEL")
-                Line(doc, 1, null).Add("対処: ", Role.Hint, true)
-                    .Add("Debug 用と Release 用のライブラリが混ざっています。構成に合った .lib を使います。", Role.Normal).Done();
+                Line(doc, 1, null).Add(L.T("対処: "), Role.Hint, true)
+                    .Add(L.T("Debug 用と Release 用のライブラリが混ざっています。構成に合った .lib を使います。"), Role.Normal).Done();
             else
                 AddHintText(doc, Hints.For(d.Code), 1);
             if (opt.AttachRaw) AddRaw(doc, d, 1);
@@ -458,7 +458,7 @@ namespace KCppAssist.ErrorLog
         private static void AddHintText(Doc doc, Hint h, int indent)
         {
             if (h == null || !ErrorLogSettings.ShowHints) return;
-            Line(doc, indent, null).Add("ヒント: ", Role.Hint, true).Add(h.Text, Role.Normal).Done();
+            Line(doc, indent, null).Add(L.T("ヒント: "), Role.Hint, true).Add(h.Text, Role.Normal).Done();
         }
 
         private static void AddRaw(Doc doc, Diag d, int indent)
@@ -473,13 +473,13 @@ namespace KCppAssist.ErrorLog
             bool known = hint != null;
             if (!known) hint = Hints.Fallback(d.Sev);
             if (d.Code == "C2220" && !known) hint = Hints.For("C2220");
-            string title = known || d.Code == "C2220" ? hint.Title : (d.Sev == Sev.Error ? "エラー" : "警告");
+            string title = known || d.Code == "C2220" ? hint.Title : (d.Sev == Sev.Error ? L.T("エラー") : L.T("警告"));
 
             // 連鎖している(上のエラーの影響で出ている)ものは、見出しの 1 行だけにして、中身は畳む
             string cascadeNote;
             bool cascaded = _cascade.TryGetValue(d, out cascadeNote);
             int g = doc.NewGroup();
-            DocLine head = Header(doc, d, title, sol, g, cascaded ? "連鎖の可能性" : null);
+            DocLine head = Header(doc, d, title, sol, g, cascaded ? L.T("連鎖の可能性") : null);
             // 自動で直せる縮小変換は、見出しの横に「クリックで修正」を出す(▸ を開かなくても押せる)
             Run fix = NarrowFixRun(d, sol);
             if (fix != null)
@@ -497,7 +497,7 @@ namespace KCppAssist.ErrorLog
             if (d.Message.Length > 0)
                 Line(doc, 1, null).Message(d.Message, baseRole).Done();
             if (cascaded)
-                Line(doc, 1, null).Add("連鎖の可能性: ", Role.Warning, true).Add(cascadeNote, Role.Dim).Done();
+                Line(doc, 1, null).Add(L.T("連鎖の可能性: "), Role.Warning, true).Add(cascadeNote, Role.Dim).Done();
 
             if (d.Code == "C2220") AddWarningsAsErrors(doc, d, sol);
             AddSnippet(doc, d, sol);
@@ -505,37 +505,35 @@ namespace KCppAssist.ErrorLog
             string specific = Hints.Specific(d);
             bool hasSpecific = specific != null && ErrorLogSettings.ShowHints;
             if (hasSpecific)
-                Line(doc, 1, null).Add("ヒント: ", Role.Hint, true).Add(specific, Role.Normal).Done();
+                Line(doc, 1, null).Add(L.T("ヒント: "), Role.Hint, true).Add(specific, Role.Normal).Done();
             else
                 AddHintText(doc, hint, 1);
 
             IncludeAdvisor.Suggestion sug = IncludeAdvisor.Suggest(d);
             if (sug != null)
-                Line(doc, 1, null).Add("足りない #include の候補: ", Role.Good, true)
-                    .Add(sug.Display, Role.Type, true).Add("   (" + sug.Name + " を使うには)", Role.Dim).Done();
+                Line(doc, 1, null).Add(L.T("足りない #include の候補: "), Role.Good, true)
+                    .Add(sug.Display, Role.Type, true).Add(L.F("   ({0} を使うには)", sug.Name), Role.Dim).Done();
             AddFound(doc, d, sol);
             AddConversion(doc, d);
             if (fix != null)
-                Line(doc, 1, null).Add("修正: ", Role.Good, true)
-                    .Add(NarrowFix.IsRangeFor(fix.FixLine)
-                        ? "見出しの「クリックで修正」で、ループ変数の型を " + fix.Fix + " にします (変数を使う側で、新しい警告が出ることがあります)"
-                        : "見出しの「クリックで修正」で、右辺を static_cast<" + fix.Fix + ">(…) にします", Role.Normal)
-                    .Add("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)", Role.Dim).Done();
+                Line(doc, 1, null).Add(L.T("修正: "), Role.Good, true)
+                    .Add(NarrowFix.IsRangeFor(fix.FixLine) ? L.F("見出しの「クリックで修正」で、ループ変数の型を {0} にします (変数を使う側で、新しい警告が出ることがあります)", fix.Fix) : L.F("見出しの「クリックで修正」で、右辺を static_cast<{0}>(…) にします", fix.Fix), Role.Normal)
+                    .Add(L.T("   (Ctrl+Z で戻せます。値が切り捨てられてよいか確かめてから押します)"), Role.Dim).Done();
 
             Frame userFrame = FindUserFrame(d, sol);
             bool insideLibrary = d.HasLocation && Paths.IsLibraryFile(d.File);
             if (insideLibrary && userFrame != null)
             {
-                Line(doc, 1, null).Add("原因の場所: ", Role.Good, true)
+                Line(doc, 1, null).Add(L.T("原因の場所: "), Role.Good, true)
                     .Link(Paths.Display(userFrame.File, sol) + "(" + userFrame.Line + ")", userFrame.File, userFrame.Line, userFrame.Col, true)
-                    .Add("   エラーはライブラリの中で出ていますが、呼び出している自分のコードの場所はここです。", Role.Dim).Done();
+                    .Add(L.T("   エラーはライブラリの中で出ていますが、呼び出している自分のコードの場所はここです。"), Role.Dim).Done();
             }
             if (opt.AttachRaw) AddRaw(doc, d, 1);
 
             // ---- ▸ を押すと開く: 経路、候補、補足、例、同じ内容の別の場所 ----
             if (!cascaded) doc.BeginDetail(g);
             if (insideLibrary && userFrame == null)
-                Line(doc, 1, null).Add("エラーはライブラリの中で出ています。下の「経路」をたどると、自分のコードの場所が分かります。", Role.Dim).Done();
+                Line(doc, 1, null).Add(L.T("エラーはライブラリの中で出ています。下の「経路」をたどると、自分のコードの場所が分かります。"), Role.Dim).Done();
             AddSameLocations(doc, d, same, sol);
             AddTemplateArgs(doc, d);
             AddTrace(doc, d, opt, sol);
@@ -563,7 +561,7 @@ namespace KCppAssist.ErrorLog
             string line = lines[d.Line - 1];
             if (NarrowFix.IsRangeFor(line)) { type = NarrowFix.SourceType(d.Message); if (type == null) return null; }   // 範囲 for は、変換元の型にそろえる
             if (NarrowFix.Make(line, type) == null) return null;
-            return new Run { Text = "[クリックで修正]", Role = Role.Good, Bold = true, File = d.File, Line = d.Line, Col = d.Col, Fix = type, FixLine = line.Trim() };
+            return new Run { Text = L.T("[クリックで修正]"), Role = Role.Good, Bold = true, File = d.File, Line = d.Line, Col = d.Col, Fix = type, FixLine = line.Trim() };
         }
 
         private static readonly HashSet<string> NoteCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -577,7 +575,7 @@ namespace KCppAssist.ErrorLog
             if (!NoteCodes.Contains(d.Code)) return;
             var notes = d.Frames.Where(f => f.Kind == FrameKind.Reason && f.Message.Length > 0).Take(6).ToList();
             if (notes.Count == 0) return;
-            Line(doc, 1, null).Add("補足", Role.Hint, true).Done();
+            Line(doc, 1, null).Add(L.T("補足"), Role.Hint, true).Done();
             foreach (Frame f in notes)
                 Line(doc, 2, null).Message(f.Message, Role.Dim).Done();
         }
@@ -585,7 +583,7 @@ namespace KCppAssist.ErrorLog
         private static void AddExample(Doc doc, Hint h)
         {
             if (h == null || string.IsNullOrEmpty(h.Example) || !ErrorLogSettings.ShowHints || !ErrorLogSettings.ShowExamples) return;
-            Line(doc, 1, null).Add("例", Role.Hint, true).Done();
+            Line(doc, 1, null).Add(L.T("例"), Role.Hint, true).Done();
             foreach (string line in h.Example.Split('\n'))
                 Line(doc, 2, null).Add(line, Role.Code).Done();
         }
@@ -596,10 +594,10 @@ namespace KCppAssist.ErrorLog
             if (_report == null) return;
             var causes = _report.Diags.Where(w => w.Sev == Sev.Warning && string.Equals(w.File, d.File, StringComparison.OrdinalIgnoreCase)
                                                     && (w.ProjectNo == d.ProjectNo)).Take(8).ToList();
-            Line(doc, 1, null).Add("原因の警告", Role.Hint, true).Done();
+            Line(doc, 1, null).Add(L.T("原因の警告"), Role.Hint, true).Done();
             if (causes.Count == 0)
             {
-                Line(doc, 2, null).Add("(この出力には、見つかりませんでした。上の警告を探します)", Role.Dim).Done();
+                Line(doc, 2, null).Add(L.T("(この出力には、見つかりませんでした。上の警告を探します)"), Role.Dim).Done();
                 return;
             }
             foreach (Diag w in causes)
@@ -660,7 +658,7 @@ namespace KCppAssist.ErrorLog
         private static void AddSameLocations(Doc doc, Diag d, List<Diag> same, string sol)
         {
             if (same == null || same.Count <= 1) return;
-            Line(doc, 1, null).Add("同じ内容が、ほか " + (same.Count - 1) + " か所でも出ています", Role.Warning).Done();
+            Line(doc, 1, null).Add(L.F("同じ内容が、ほか {0} か所でも出ています", (same.Count - 1)), Role.Warning).Done();
             int n = 0;
             foreach (Diag o in same)
             {
@@ -668,7 +666,7 @@ namespace KCppAssist.ErrorLog
                 if (++n > 8) break;
                 Line(doc, 2, null).Link(Paths.Display(o.File, sol) + "(" + o.Line + ")", o.File, o.Line, o.Col).Done();
             }
-            if (same.Count - 1 > 8) Line(doc, 2, null).Add("… ほか " + (same.Count - 1 - 8) + " か所", Role.Dim).Done();
+            if (same.Count - 1 > 8) Line(doc, 2, null).Add(L.F("… ほか {0} か所", (same.Count - 1 - 8)), Role.Dim).Done();
         }
 
         private static void AddFound(Doc doc, Diag d, string sol)
@@ -682,13 +680,13 @@ namespace KCppAssist.ErrorLog
             if (d.Found.Count == 0)
             {
                 if (_pending)
-                    Line(doc, 1, null).Add("ソリューションの下で、" + d.MissingName + " を探しています…", Role.Hint, false, true).Done();
+                    Line(doc, 1, null).Add(L.F("ソリューションの下で、{0} を探しています…", d.MissingName), Role.Hint, false, true).Done();
                 else if (!string.IsNullOrEmpty(sol))
-                    Line(doc, 1, null).Add(d.MissingName + " は、ソリューションの下には見つかりませんでした。導入(vcpkg など)の有無と、綴りを確かめます。", Role.Dim).Done();
+                    Line(doc, 1, null).Add(L.F("{0} は、ソリューションの下には見つかりませんでした。導入(vcpkg など)の有無と、綴りを確かめます。", d.MissingName), Role.Dim).Done();
                 return;
             }
 
-            Line(doc, 1, null).Add("見つかった場所", Role.Good, true).Done();
+            Line(doc, 1, null).Add(L.T("見つかった場所"), Role.Good, true).Done();
             foreach (string f in d.Found.Take(3))
                 Line(doc, 2, null).Link(Paths.Display(f, sol), f, 0, 0).Done();
 
@@ -702,9 +700,9 @@ namespace KCppAssist.ErrorLog
             }
             catch (Exception) { return; }
             if (string.IsNullOrEmpty(dir)) return;
-            Line(doc, 1, null).Add("対処: ", Role.Hint, true)
-                .Add(isLib ? "リンカー > 全般 > 追加のライブラリ ディレクトリ に " : "C/C++ > 全般 > 追加のインクルード ディレクトリ に ", Role.Normal)
-                .Add(dir, Role.Type).Add(" を追加します。", Role.Normal).Done();
+            Line(doc, 1, null).Add(L.T("対処: "), Role.Hint, true)
+                .Add(isLib ? L.T("リンカー > 全般 > 追加のライブラリ ディレクトリ に ") : L.T("C/C++ > 全般 > 追加のインクルード ディレクトリ に "), Role.Normal)
+                .Add(dir, Role.Type).Add(L.T(" を追加します。"), Role.Normal).Done();
         }
 
         private static Frame FindUserFrame(Diag d, string sol)
@@ -737,11 +735,11 @@ namespace KCppAssist.ErrorLog
 
                 string a = MessageFormat.PrettyAny(m.Groups["a"].Value);
                 string b = MessageFormat.PrettyAny(m.Groups["b"].Value);
-                string label = hasArg ? "引数 " + m.Groups["n"].Value : "変換";
-                Line(doc, 1, null).Add(label + "  ", Role.Hint, true).Add("渡した型    ", Role.Dim).Code(a).Done();
-                Line(doc, 1, null).Add(new string(' ', label.Length + 2), Role.Normal).Add("期待する型  ", Role.Dim).Code(b).Done();
+                string label = hasArg ? L.F("引数 {0}", m.Groups["n"].Value) : L.T("変換");
+                Line(doc, 1, null).Add(label + "  ", Role.Hint, true).Add(L.T("渡した型    "), Role.Dim).Code(a).Done();
+                Line(doc, 1, null).Add(new string(' ', label.Length + 2), Role.Normal).Add(L.T("期待する型  "), Role.Dim).Code(b).Done();
                 if (a == b)
-                    Line(doc, 1, null).Add(new string(' ', label.Length + 2), Role.Normal).Add("(型の名前は同じです。const・参照・名前空間・別のヘッダーの同名の型を疑います)", Role.Dim).Done();
+                    Line(doc, 1, null).Add(new string(' ', label.Length + 2), Role.Normal).Add(L.T("(型の名前は同じです。const・参照・名前空間・別のヘッダーの同名の型を疑います)"), Role.Dim).Done();
                 return;
             }
         }
@@ -762,7 +760,7 @@ namespace KCppAssist.ErrorLog
             }
             if (pairs.Count == 0) return;
 
-            Line(doc, 1, null).Add("テンプレート引数", Role.Hint, true).Done();
+            Line(doc, 1, null).Add(L.T("テンプレート引数"), Role.Hint, true).Done();
             foreach (var kv in pairs.Take(8))
                 Line(doc, 2, null).Add(kv.Key + " = ", Role.Dim).Code(TypePretty.Type(kv.Value)).Done();
         }
@@ -787,10 +785,10 @@ namespace KCppAssist.ErrorLog
             if (k.Success)
             {
                 string w = k.Value.ToLowerInvariant().Replace(" ", "");
-                if (w.Contains("function") && w.Contains("template") || w.StartsWith("関数")) label = "関数テンプレート";
-                else if (w.Contains("class") || w.StartsWith("クラス")) label = "クラステンプレート";
-                else if (w.Contains("variable") || w.StartsWith("変数")) label = "変数テンプレート";
-                else if (w.Contains("member") || w.StartsWith("メンバー")) label = "メンバー関数";
+                if (w.Contains("function") && w.Contains("template") || w.StartsWith("関数")) label = L.T("関数テンプレート");
+                else if (w.Contains("class") || w.StartsWith("クラス")) label = L.T("クラステンプレート");
+                else if (w.Contains("variable") || w.StartsWith("変数")) label = L.T("変数テンプレート");
+                else if (w.Contains("member") || w.StartsWith("メンバー")) label = L.T("メンバー関数");
                 else label = "";
             }
             return true;
@@ -801,8 +799,8 @@ namespace KCppAssist.ErrorLog
             var trace = d.Frames.Where(f => f.Kind == FrameKind.Trace).ToList();
             if (trace.Count == 0) return;
 
-            Line(doc, 1, null).Add("経路", Role.Hint, true)
-                .Add(" (エラーの現場 → 呼び出し元)  " + trace.Count + " 段", Role.Dim).Done();
+            Line(doc, 1, null).Add(L.T("経路"), Role.Hint, true)
+                .Add(L.F(" (エラーの現場 → 呼び出し元)  {0} 段", trace.Count), Role.Dim).Done();
 
             // ライブラリの連続した段は、まとめる
             int i = 0;
@@ -826,7 +824,7 @@ namespace KCppAssist.ErrorLog
                 else
                 {
                     AddTraceLine(doc, trace[i], false, sol);
-                    Line(doc, 2, null).Add("… ライブラリ内の " + (run - 2) + " 段を省略 (「経路を全部表示」で展開)", Role.Dim, false, true).Done();
+                    Line(doc, 2, null).Add(L.F("… ライブラリ内の {0} 段を省略 (「経路を全部表示」で展開)", (run - 2)), Role.Dim, false, true).Done();
                     AddTraceLine(doc, trace[j - 1], false, sol);
                 }
                 i = j;
@@ -861,7 +859,7 @@ namespace KCppAssist.ErrorLog
         private static void AddCandidates(Doc doc, Diag d, string sol)
         {
             if (!d.Frames.Any(f => f.Kind == FrameKind.Candidate)) return;
-            Line(doc, 1, null).Add("候補", Role.Hint, true).Add(" (どれにも合いませんでした。右は落ちた理由)", Role.Dim).Done();
+            Line(doc, 1, null).Add(L.T("候補"), Role.Hint, true).Add(L.T(" (どれにも合いませんでした。右は落ちた理由)"), Role.Dim).Done();
 
             Frame candidate = null;
             foreach (Frame f in d.Frames)
@@ -869,7 +867,7 @@ namespace KCppAssist.ErrorLog
                 if (f.Kind == FrameKind.Candidate)
                 {
                     candidate = f;
-                    var lb = Line(doc, 2, null).Add("・", Role.Dim);
+                    var lb = Line(doc, 2, null).Add(L.T("・"), Role.Dim);
                     string label, pretty;
                     if (ExtractQuoted(f.Message, out label, out pretty)) lb.Code(pretty, false);
                     else lb.Message(f.Message, Role.Normal);
@@ -890,7 +888,7 @@ namespace KCppAssist.ErrorLog
         {
             var decls = d.Frames.Where(f => f.Kind == FrameKind.Decl && f.HasLocation).ToList();
             if (decls.Count == 0) return;
-            Line(doc, 1, null).Add("関連する宣言", Role.Hint, true).Done();
+            Line(doc, 1, null).Add(L.T("関連する宣言"), Role.Hint, true).Done();
             foreach (Frame f in decls.Take(5))
             {
                 var lb = Line(doc, 2, null);
@@ -915,7 +913,7 @@ namespace KCppAssist.ErrorLog
                 if (l.Kind == RawKind.Warning && !opt.ShowWarnings) continue;
                 if (++n > 20000)
                 {
-                    new LineBuilder(doc).Add("… 20000 行を超えたので、ここで切りました。", Role.Dim).Done();
+                    new LineBuilder(doc).Add(L.T("… 20000 行を超えたので、ここで切りました。"), Role.Dim).Done();
                     break;
                 }
 

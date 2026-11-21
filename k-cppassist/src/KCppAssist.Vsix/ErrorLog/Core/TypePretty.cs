@@ -45,7 +45,8 @@ namespace KCppAssist.ErrorLog
             s = DeclSpec.Replace(s, "");
             s = CallConv.Replace(s, "");
             s = TagKeyword.Replace(s, "");
-            s = s.Replace("(anonymous namespace)", "{匿名}").Replace("`anonymous namespace'", "{匿名}");
+            string anon = L.T("{匿名}");
+            s = s.Replace("(anonymous namespace)", anon).Replace("`anonymous namespace'", anon);
             s = s.Replace("__cxx11::", "").Replace("__1::", "");
             return s;
         }

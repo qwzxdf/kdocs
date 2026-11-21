@@ -18,7 +18,7 @@ $code = $LASTEXITCODE
 # 2. Error log (all of ErrorLog\Core; the settings stub lives in ErrorLogTests.cs)
 $outLog = Join-Path ([System.IO.Path]::GetTempPath()) 'kcppassist-errorlog-tests.exe'
 $logFiles = Get-ChildItem (Join-Path $src 'ErrorLog\Core') -Filter *.cs | ForEach-Object FullName
-& $csc -nologo "-out:$outLog" -langversion:latest (Join-Path $PSScriptRoot 'ErrorLogTests.cs') @logFiles
+& $csc -nologo "-out:$outLog" -langversion:latest (Join-Path $PSScriptRoot 'ErrorLogTests.cs') @logFiles (Join-Path $src 'Lang.cs') (Join-Path $src 'LangData.cs')
 if ($LASTEXITCODE -ne 0) { throw 'errorlog compile failed' }
 & $outLog | Select-Object -Last 1
 if ($LASTEXITCODE -ne 0) { $code = 1 }

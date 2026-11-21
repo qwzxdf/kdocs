@@ -33,7 +33,7 @@ namespace KCppAssist
     {
         [LocCategory("言語")]
         [LocDisplayName("表示する言語")]
-        [LocDescription("メニュー・電球・ダイアログ・この設定の画面の言語。初期値は日本語で、初めて起動したときだけ、PC の表示言語に合わせます(日本語・中国語・韓国語以外は English)。設定の画面の文字は、Visual Studio を開き直すと変わります。")]
+        [LocDescription("メニュー・電球・ダイアログ・この設定の画面の言語。初期値は日本語で、初めて起動したときだけ、PC の表示言語に合わせます(対応していない言語のときは English)。設定の画面の文字は、Visual Studio を開き直すと変わります。")]
         public UiLanguage Language { get; set; } = UiLanguage.Japanese;
 
         /// <summary>初めて起動したときに、PC の言語から Language を決めたか。</summary>
@@ -256,7 +256,7 @@ namespace KCppAssist
         public bool ErrorLogShortenTypes { get; set; } = true;
 
         [LocCategory("エラーログ")]
-        [LocDisplayName("日本語のヒントを出す")]
+        [LocDisplayName("ヒントを出す")]
         [LocDescription("True のとき、エラー コードごとの見出しの下に、対処のヒントを出します。")]
         public bool ErrorLogShowHints { get; set; } = true;
 

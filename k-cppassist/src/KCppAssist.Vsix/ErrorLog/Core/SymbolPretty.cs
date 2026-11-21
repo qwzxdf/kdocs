@@ -48,19 +48,19 @@ namespace KCppAssist.ErrorLog
             {
                 switch (Kind)
                 {
-                    case SymKind.Ctor: return "コンストラクター";
-                    case SymKind.Dtor: return "デストラクター";
-                    case SymKind.Method: return "メンバー関数";
-                    case SymKind.StaticMethod: return "static メンバー関数";
-                    case SymKind.Operator: return "演算子";
-                    case SymKind.Function: return "関数";
-                    case SymKind.TemplateFunction: return "関数テンプレート";
-                    case SymKind.Variable: return "変数";
-                    case SymKind.StaticVariable: return "static メンバー変数";
+                    case SymKind.Ctor: return L.T("コンストラクター");
+                    case SymKind.Dtor: return L.T("デストラクター");
+                    case SymKind.Method: return L.T("メンバー関数");
+                    case SymKind.StaticMethod: return L.T("static メンバー関数");
+                    case SymKind.Operator: return L.T("演算子");
+                    case SymKind.Function: return L.T("関数");
+                    case SymKind.TemplateFunction: return L.T("関数テンプレート");
+                    case SymKind.Variable: return L.T("変数");
+                    case SymKind.StaticVariable: return L.T("static メンバー変数");
                     case SymKind.VTable: return "vtable";
-                    case SymKind.Lambda: return "ラムダ";
-                    case SymKind.Special: return "自動生成";
-                    case SymKind.CSymbol: return "C の名前";
+                    case SymKind.Lambda: return L.T("ラムダ");
+                    case SymKind.Special: return L.T("自動生成");
+                    case SymKind.CSymbol: return L.T("C の名前");
                 }
                 return "";
             }
@@ -197,13 +197,13 @@ namespace KCppAssist.ErrorLog
                 info.Kind = SymKind.Dtor;
                 info.Name = name = "~" + classBase;
                 nameBase = name;
-                info.Note = "delete 式から呼ばれる、コンパイラが作るデストラクターのラッパー";
+                info.Note = L.T("delete 式から呼ばれる、コンパイラが作るデストラクターのラッパー");
                 info.Return = "";
             }
             else if (nameBase == "`vftable'" || nameBase == "`vbtable'")
             {
                 info.Kind = SymKind.VTable;
-                info.Note = nameBase == "`vftable'" ? "仮想関数の表 (vtable)" : "仮想基底クラスの表 (vbtable)";
+                info.Note = nameBase == "`vftable'" ? L.T("仮想関数の表 (vtable)") : L.T("仮想基底クラスの表 (vbtable)");
                 info.Pretty = info.Scope.Length > 0 ? info.Scope : name;
                 info.Qualified = info.Pretty;
                 return;
@@ -211,7 +211,7 @@ namespace KCppAssist.ErrorLog
             else if (nameBase.StartsWith("`dynamic initializer for", StringComparison.Ordinal))
             {
                 info.Kind = SymKind.Special;
-                info.Note = "グローバル変数の初期化処理(コンパイラが作る)";
+                info.Note = L.T("グローバル変数の初期化処理(コンパイラが作る)");
             }
             else if (info.Params == null)
             {

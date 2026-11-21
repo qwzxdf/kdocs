@@ -109,6 +109,23 @@ static class P
         Check("C2248 has hint and example", priv.Contains("private / protected") && priv.Contains("例") && priv.Contains("GetX"));
         string mm = Render("1>C:\\src\\a.cpp(8,40): error C2589: '(': '::' の右側が不正なトークンです");
         Check("C2589 mentions NOMINMAX", mm.Contains("NOMINMAX"));
+        // ---- 表示する言語: ヒント・見出し・具体的な説明・例のコメントが、その言語で出る ----
+        KCppAssist.L.Current = KCppAssist.UiLanguage.English;
+        string en = Render(string.Join("\n", new[]
+        {
+            "1>C:\\src\\Main.cpp(9,5): error C2065: 'GraphicsModule': undeclared identifier",
+            "1>C:\\src\\Main.cpp(10,8): error C2039: 'Init': is not a member of 'GraphicsModule'",
+        }));
+        string enPriv = Render("1>C:\\src\\a.cpp(10,7): error C2248: 'Foo::x_': cannot access private member declared in class 'Foo'");
+        KCppAssist.L.Current = KCppAssist.UiLanguage.German;
+        string de = Render("1>C:\\src\\a.cpp(3,1): error C2512: 'Foo': no appropriate default constructor available");
+        KCppAssist.L.Current = KCppAssist.UiLanguage.Japanese;
+        Check("english title", en.Contains("Name not declared") && en.Contains("Build failed"));
+        Check("english specific", en.Contains("\"GraphicsModule\" is not visible from here"));
+        Check("english advice", en.Contains("Fix the topmost error"));
+        Check("english example comment", enPriv.Contains("Fix 1: make it public") && enPriv.Contains("GetX"));
+        Check("english has no japanese", !System.Text.RegularExpressions.Regex.IsMatch(en, "[぀-ヿ]"));
+        Check("german title", de.Contains("Kein Standardkonstruktor"));
 
         string unk = Render("1>C:\\src\\a.cpp(8,40): error C9999: なにかのエラー");
         Check("unknown code gets fallback", unk.Contains("公式のページ") && unk.Contains("エラー コード"));

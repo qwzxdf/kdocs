@@ -132,21 +132,21 @@ namespace KCppAssist.ErrorLog
                 case "C2065":
                 case "C3861":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」が、この場所から見えていません。まず綴りを確かめます。次に、" + q[0] + " を宣言しているヘッダーの #include(カーソルを名前に置いて Alt+F)と、std の名前なら std:: を確かめます。";
+                        return L.F("「{0}」が、この場所から見えていません。まず綴りを確かめます。次に、{1} を宣言しているヘッダーの #include(カーソルを名前に置いて Alt+F)と、std の名前なら std:: を確かめます。", q[0], q[0]);
                     break;
                 case "C2039":
                     if (q.Count >= 2 && (q[1] == "std" || q[1].StartsWith("std::", StringComparison.Ordinal)))
-                        return "「" + q[1] + "」に、「" + q[0] + "」という名前はありません。まず綴りを確かめます(vector を vectr と書く、など)。綴りが合っているなら、その名前を宣言している標準ヘッダーの #include が足りません。";
+                        return L.F("「{0}」に、「{1}」という名前はありません。まず綴りを確かめます(vector を vectr と書く、など)。綴りが合っているなら、その名前を宣言している標準ヘッダーの #include が足りません。", q[1], q[0]);
                     if (q.Count >= 2)
-                        return "「" + q[1] + "」に、「" + q[0] + "」という名前のメンバーがありません。綴り、基底クラス、const の違い、クラスの宣言(ヘッダー)を確かめます。";
+                        return L.F("「{0}」に、「{1}」という名前のメンバーがありません。綴り、基底クラス、const の違い、クラスの宣言(ヘッダー)を確かめます。", q[1], q[0]);
                     break;
                 case "C2248":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」は、private か protected で、この場所からは使えません。使う側を変えるか、クラスの公開範囲を変えます。";
+                        return L.F("「{0}」は、private か protected で、この場所からは使えません。使う側を変えるか、クラスの公開範囲を変えます。", q[0]);
                     break;
                 case "C2259":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」に、実装されていない純粋仮想関数があります。下の補足に、足りない関数が出ます。";
+                        return L.F("「{0}」に、実装されていない純粋仮想関数があります。下の補足に、足りない関数が出ます。", q[0]);
                     break;
                 case "C2440":
                 case "C2664":
@@ -154,7 +154,7 @@ namespace KCppAssist.ErrorLog
                     {
                         string a, b, arg;
                         if (ConvTypes(d.Message, out a, out b, out arg))
-                            return (arg.Length > 0 ? "引数 " + arg + " に渡した" : "") + "「" + a + "」は、「" + b + "」になりません。" + ConvReason(a, b);
+                            return L.F("{0}「{1}」は、「{2}」になりません。{3}", (arg.Length > 0 ? L.F("引数 {0} に渡した", arg) : ""), a, b, ConvReason(a, b));
                     }
                     break;
                 case "C2660":
@@ -162,30 +162,30 @@ namespace KCppAssist.ErrorLog
                     {
                         Match n = Regex.Match(d.Message, @"(\d+)\s*(?:個の引数|argument)");
                         if (q.Count > 0 && n.Success)
-                            return "「" + q[0] + "」は、" + n.Groups[1].Value + " 個の引数を受け取りません。宣言の引数の数(既定値つきの引数を含む)と、呼び出しの引数の数を数え直します。";
+                            return L.F("「{0}」は、{1} 個の引数を受け取りません。宣言の引数の数(既定値つきの引数を含む)と、呼び出しの引数の数を数え直します。", q[0], n.Groups[1].Value);
                     }
                     break;
                 case "C2672":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」のテンプレート引数が決まりません。同じ型 T に、別の型(int と double など)を渡していないか確かめます。型を Name<double>(…) のように書いて決めるか、concept などの制約を満たす型を渡します。";
+                        return L.F("「{0}」のテンプレート引数が決まりません。同じ型 T に、別の型(int と double など)を渡していないか確かめます。型を Name<double>(…) のように書いて決めるか、concept などの制約を満たす型を渡します。", q[0]);
                     break;
                 case "C2512":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」は、引数なしでは作れません(既定コンストラクターがありません)。作る場所で引数を渡すか、クラスに " + q[0] + "() = default; を足します。メンバーとして持つなら、初期化リストで引数を渡します。";
+                        return L.F("「{0}」は、引数なしでは作れません(既定コンストラクターがありません)。作る場所で引数を渡すか、クラスに {1}() = default; を足します。メンバーとして持つなら、初期化リストで引数を渡します。", q[0], q[0]);
                     break;
                 case "C2280":
                     if (q.Count > 0)
-                        return "「" + q[0] + "」は、delete されているので呼べません。コピーできない型(std::unique_ptr など)をコピーしていないか確かめます。std::move で渡すか、参照で受けます。";
+                        return L.F("「{0}」は、delete されているので呼べません。コピーできない型(std::unique_ptr など)をコピーしていないか確かめます。std::move で渡すか、参照で受けます。", q[0]);
                     break;
                 case "C2676":
                 case "C2678":
                 case "C2679":
                     if (q.Count >= 2)
-                        return "「" + q[1] + "」に、演算子「" + q[0] + "」が使えません。その型に演算子が定義されていないか、const の付いた値を書き換えようとしています(代入や += は、const の値には使えません)。";
+                        return L.F("「{0}」に、演算子「{1}」が使えません。その型に演算子が定義されていないか、const の付いた値を書き換えようとしています(代入や += は、const の値には使えません)。", q[1], q[0]);
                     break;
                 case "C1083":
                     if (d.MissingName.Length > 0)
-                        return "「" + d.MissingName + "」が見つかりません。ファイルの場所と、追加のインクルード ディレクトリを確かめます。Alt+F が書く #include は、プロジェクトが使っているフォルダーの基準に合わせたパスです。";
+                        return L.F("「{0}」が見つかりません。ファイルの場所と、追加のインクルード ディレクトリを確かめます。Alt+F が書く #include は、プロジェクトが使っているフォルダーの基準に合わせたパスです。", d.MissingName);
                     break;
             }
             return null;
@@ -226,22 +226,22 @@ namespace KCppAssist.ErrorLog
             if (bRef && !bConstRef)
             {
                 if (a.StartsWith("const ", StringComparison.Ordinal))
-                    return "const の付いた値は、const のない参照では受けられません。受ける側の参照に const を付けるか、コピーで受けます。";
-                return "数値や一時オブジェクトのような「名前のない値」は、const のない参照には結びつけられません。変数に入れてから渡すか、受ける側を const 参照にします。";
+                    return L.T("const の付いた値は、const のない参照では受けられません。受ける側の参照に const を付けるか、コピーで受けます。");
+                return L.T("数値や一時オブジェクトのような「名前のない値」は、const のない参照には結びつけられません。変数に入れてから渡すか、受ける側を const 参照にします。");
             }
             if (a == "initializer list")
-                return "{ } の中の要素の型が、受け取る側の要素の型に合っていません。1 つずつ型を見比べます。";
+                return L.T("{ } の中の要素の型が、受け取る側の要素の型に合っていません。1 つずつ型を見比べます。");
             if (IsCString(a) && IsArith(b))
-                return "文字列(\"…\")を、数値の変数に入れています。数値にしたいなら std::stoi などで変換します。";
+                return L.T("文字列(\"…\")を、数値の変数に入れています。数値にしたいなら std::stoi などで変換します。");
             if (IsArith(a) && b.IndexOf('*') >= 0)
-                return "数値を、ポインターには入れられません(0 と nullptr だけが例外です)。アドレスを入れたいなら、& を付けたか確かめます。";
+                return L.T("数値を、ポインターには入れられません(0 と nullptr だけが例外です)。アドレスを入れたいなら、& を付けたか確かめます。");
             if (IsArith(a) && !IsArith(b))
-                return "数値から「" + b + "」を作る変換が用意されていません。" + b + "(値) のように明示的に作るか、「" + b + "」のコンストラクターが受け取る型を確かめます(std::string なら std::to_string を使います)。";
+                return L.F("数値から「{0}」を作る変換が用意されていません。{1}(値) のように明示的に作るか、「{2}」のコンストラクターが受け取る型を確かめます(std::string なら std::to_string を使います)。", b, b, b);
             if (!IsArith(a) && IsArith(b))
-                return "「" + a + "」から数値への暗黙の変換はありません。enum class なら static_cast<" + b + ">(値) と書きます。クラスなら、変換演算子の有無を確かめます。";
+                return L.F("「{0}」から数値への暗黙の変換はありません。enum class なら static_cast<{1}>(値) と書きます。クラスなら、変換演算子の有無を確かめます。", a, b);
             if (a.IndexOf('*') >= 0 && b.IndexOf('*') >= 0)
-                return "指す型が違うポインター同士は、代入できません。const の有無、継承していない型、void* からの変換を確かめます。";
-            return "型の違いの原因を、上の「渡した型」と「期待する型」を見比べて確かめます。const・参照・名前空間の違いで、同じに見えて別の型になることがあります。";
+                return L.T("指す型が違うポインター同士は、代入できません。const の有無、継承していない型、void* からの変換を確かめます。");
+            return L.T("型の違いの原因を、上の「渡した型」と「期待する型」を見比べて確かめます。const・参照・名前空間の違いで、同じに見えて別の型になることがあります。");
         }
 
         /// <summary>表にないコードのときの、見出しとヒント。</summary>

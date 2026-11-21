@@ -5,11 +5,13 @@ namespace KCppAssist.ErrorLog
 {
     public sealed class Hint
     {
-        public string Title;
-        public string Text;
-        /// <summary>直し方の例(複数行のコード)。なければ null。</summary>
-        public string Example;
-        public Hint(string title, string text, string example = null) { Title = title; Text = text; Example = example; }
+        // 表には日本語の原文を持ち、読むときに、いまの言語へ訳す(言語を変えても、作り直さずに済むように)
+        private readonly string _title, _text, _example;
+        public string Title { get { return L.T(_title); } }
+        public string Text { get { return L.T(_text); } }
+        /// <summary>直し方の例(複数行のコード)。なければ null。訳すのはコメントだけ。</summary>
+        public string Example { get { return L.T(_example); } }
+        public Hint(string title, string text, string example = null) { _title = title; _text = text; _example = example; }
     }
 
     /// <summary>エラー コードごとの、日本語の見出しと対処のヒント。</summary>
@@ -370,23 +372,23 @@ namespace KCppAssist.ErrorLog
                 case "RuntimeLibrary":
                     switch (value)
                     {
-                        case "MT_StaticRelease": return "/MT (静的リンク・Release)";
-                        case "MTd_StaticDebug": return "/MTd (静的リンク・Debug)";
-                        case "MD_DynamicRelease": return "/MD (DLL・Release)";
-                        case "MDd_DynamicDebug": return "/MDd (DLL・Debug)";
+                        case "MT_StaticRelease": return L.T("/MT (静的リンク・Release)");
+                        case "MTd_StaticDebug": return L.T("/MTd (静的リンク・Debug)");
+                        case "MD_DynamicRelease": return L.T("/MD (DLL・Release)");
+                        case "MDd_DynamicDebug": return L.T("/MDd (DLL・Debug)");
                     }
                     break;
                 case "_ITERATOR_DEBUG_LEVEL":
                     switch (value)
                     {
-                        case "0": return "0 (反復子のデバッグなし。Release)";
-                        case "1": return "1 (反復子のデバッグ(検査つき))";
-                        case "2": return "2 (反復子のデバッグあり。Debug)";
+                        case "0": return L.T("0 (反復子のデバッグなし。Release)");
+                        case "1": return L.T("1 (反復子のデバッグ(検査つき))");
+                        case "2": return L.T("2 (反復子のデバッグあり。Debug)");
                     }
                     break;
                 case "annotate_string":
                 case "annotate_vector":
-                    return value == "0" ? "0 (ASan の注釈なし)" : value + " (ASan の注釈あり)";
+                    return value == "0" ? L.T("0 (ASan の注釈なし)") : L.F("{0} (ASan の注釈あり)", value);
             }
             return value;
         }
