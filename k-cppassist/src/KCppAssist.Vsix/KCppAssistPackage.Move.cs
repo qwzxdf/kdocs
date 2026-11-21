@@ -82,8 +82,8 @@ namespace KCppAssist
                 string why;
                 var plan = MoveGen.ToCpp(text, sig, cppText, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
-                SyncService.ApplyEdits(cppBuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数を cpp に移す");
-                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数を cpp に移す");
+                SyncService.ApplyEdits(cppBuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数を cpp に移す");
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数を cpp に移す");
                 await ReportAsync(label + " の本体を " + Path.GetFileName(cppFile) + " に移しました (必要な #include は足していません)", false);
                 return;
             }
@@ -118,8 +118,8 @@ namespace KCppAssist
                 string why;
                 var plan = MoveGen.ToHeader(text, sig, hText, decl, eol, out why);
                 if (plan == null) { await ReportAsync(label + ": " + why, true); return; }
-                SyncService.ApplyEdits(hbuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数をヘッダーに移す");
-                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-CppAssist: 関数をヘッダーに移す");
+                SyncService.ApplyEdits(hbuf, plan.Target.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数をヘッダーに移す");
+                SymbolService.ApplyEdits(snap0, plan.Source.Select(e => Tuple.Create(e.Position, e.Length, e.Text)).ToList(), undo, "K-Cpp: 関数をヘッダーに移す");
                 await ReportAsync(label + " の本体を " + Path.GetFileName(t0.File) + " に移しました (cpp の #include のうち、本体が使うものは、ヘッダーに足してください)", false);
             }
         }

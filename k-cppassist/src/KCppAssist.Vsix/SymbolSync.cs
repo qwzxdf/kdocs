@@ -448,7 +448,7 @@ namespace KCppAssist
 
         private static Guid paneGuid = new Guid("6E2B7C3A-91D4-4F0B-8E55-2C7A4D1B9F30");
 
-        /// <summary>出力ウィンドウの「K-CppAssist」に書く。「ファイル(行): …」の行は、ダブルクリックでその場所へ飛べる。</summary>
+        /// <summary>出力ウィンドウの「K-Cpp」に書く。「ファイル(行): …」の行は、ダブルクリックでその場所へ飛べる。</summary>
         public static void Output(IEnumerable<string> lines)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -459,7 +459,7 @@ namespace KCppAssist
                 IVsOutputWindowPane pane;
                 if (ow.GetPane(ref paneGuid, out pane) != 0 || pane == null)
                 {
-                    ow.CreatePane(ref paneGuid, "K-CppAssist", 1, 0);
+                    ow.CreatePane(ref paneGuid, "K-Cpp", 1, 0);
                     ow.GetPane(ref paneGuid, out pane);
                 }
                 if (pane == null) return;
@@ -903,7 +903,7 @@ namespace KCppAssist
                     edits.Add(Tuple.Create(sp.Start.Position, sp.Length, name));
                     editIdx.Add(si);
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える", link.Buffer == buffer))
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 名前を変える", link.Buffer == buffer))
                 {
                     n += edits.Count;
                     RetrackAfterReplace(link, snap, edits, editIdx, name);
@@ -1154,7 +1154,7 @@ namespace KCppAssist
                 ITextSnapshot snap = buf.CurrentSnapshot;
                 var edits = SymbolScan.MemberRefs(snap.GetText(), was, r.Ctx, -1).Where(x => x.Certain || amb)
                     .Select(x => Tuple.Create(x.Start, from.Length, to)).ToList();
-                if (!SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 名前を変える")) failed.Add(f + ": 書き換えられませんでした");
+                if (!SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 名前を変える")) failed.Add(f + ": 書き換えられませんでした");
             }
             failed.AddRange(r.Locked.Select(f => f + ": 開いていますが、文字を取り出せませんでした"));
             r.DiskTask = FinishAsync(r, was, to, closed, failed, amb, r.DiskTask);
@@ -1202,8 +1202,8 @@ namespace KCppAssist
                 if (places == 0 && written.Count == 0 && r.AmbiguousLines.Count == 0 && failed.Count == 0) return;
                 if (!view.IsClosed && closed.Count > 0) ShowNote(r, name, true, written.Count);
                 IncludeService.Status(was.Name + " を " + name + " に変えました(" + (places + written.Count) + " か所"
-                    + (failed.Count > 0 ? "。書き換えられなかったファイルが " + failed.Count + " 個あります(出力ウィンドウの K-CppAssist)" : "")
-                    + (r.AmbiguousLines.Count > 0 ? "。決められない " + r.AmbiguousLines.Count + " か所は、出力ウィンドウの K-CppAssist に出しました" : "") + ")");
+                    + (failed.Count > 0 ? "。書き換えられなかったファイルが " + failed.Count + " 個あります(出力ウィンドウの K-Cpp)" : "")
+                    + (r.AmbiguousLines.Count > 0 ? "。決められない " + r.AmbiguousLines.Count + " か所は、出力ウィンドウの K-Cpp に出しました" : "") + ")");
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol finish failed: " + ex); }
         }
@@ -1310,7 +1310,7 @@ namespace KCppAssist
         {
             var spans = edits.Select(x => Tuple.Create(cur.CreateTrackingSpan(x.Start, x.Length, SpanTrackingMode.EdgeInclusive), text.Substring(x.Start, x.Length), x.Text)).ToList();
             var list = edits.Select(x => Tuple.Create(x.Start, x.Length, x.Text)).ToList();
-            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, "K-CppAssist: 呼び出しの引数を合わせる", cur.TextBuffer == buffer)) return -1;
+            if (!SymbolService.ApplyEdits(cur, list, owner.Undo, "K-Cpp: 呼び出しの引数を合わせる", cur.TextBuffer == buffer)) return -1;
             cu.Open.AddRange(spans);
             return list.Count;
         }
@@ -1423,7 +1423,7 @@ namespace KCppAssist
                     SyncPreview.ShowNote(view, anchor, label + " の呼び出し", null, null, lines);
                 }
                 IncludeService.Status(label + " の呼び出し " + done + " か所の引数を直しました"
-                    + (skipped + failed.Count > 0 ? "(直していない所があります。出力ウィンドウの K-CppAssist)" : ""));
+                    + (skipped + failed.Count > 0 ? "(直していない所があります。出力ウィンドウの K-Cpp)" : ""));
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol call sync failed: " + ex); }
         }
@@ -1455,7 +1455,7 @@ namespace KCppAssist
                     string from = revert ? x.Item3 : x.Item2, to = revert ? x.Item2 : x.Item3;
                     if (sp.GetText() == from) edits.Add(Tuple.Create(sp.Start.Position, sp.Length, to));
                 }
-                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: 呼び出しの引数を合わせる")) n += edits.Count;
+                if (edits.Count > 0 && SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: 呼び出しの引数を合わせる")) n += edits.Count;
             }
             _ = FollowArgsAsync(cu, revert, n);
         }

@@ -154,7 +154,7 @@ namespace KCppAssist
             }
 
             SyncService.ApplyEdits(view.TextBuffer, new List<Tuple<int, int, string>> { Tuple.Create(pos, 0, ins) }, undo,
-                kind == 0 ? "K-CppAssist: switch の case を足す" : kind == 2 ? "K-CppAssist: override を足す" : "K-CppAssist: コンストラクターを作る");
+                kind == 0 ? "K-Cpp: switch の case を足す" : kind == 2 ? "K-Cpp: override を足す" : "K-Cpp: コンストラクターを作る");
             await ReportAsync(done, false);
         }
 
@@ -236,7 +236,7 @@ namespace KCppAssist
                 if (encl == null) { await ReportAsync("関数の中で押してください", true); return; }
                 int pos0; string def0;
                 UsageGen.PlanFreeDefinition(text, encl.PrefixStart, u, eol, out pos0, out def0);
-                SyncService.ApplyEdits(view.TextBuffer, new List<Tuple<int, int, string>> { Tuple.Create(pos0, 0, def0) }, undo, "K-CppAssist: 関数を作る");
+                SyncService.ApplyEdits(view.TextBuffer, new List<Tuple<int, int, string>> { Tuple.Create(pos0, 0, def0) }, undo, "K-Cpp: 関数を作る");
                 await ReportAsync(u.Signature() + " を作りました (いまの関数の前)" + note, false);
                 return;
             }
@@ -261,7 +261,7 @@ namespace KCppAssist
                 string inline = u.Signature() + (u.ReturnType == "void" ? " {}" : " { return {}; }");
                 var ed0 = PlanMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, own, inline, hEol);
                 if (ed0 == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
-                SyncService.Insert(loc.View.TextBuffer, ed0.Item1, ed0.Item2, undo, "K-CppAssist: 関数を作る");
+                SyncService.Insert(loc.View.TextBuffer, ed0.Item1, ed0.Item2, undo, "K-Cpp: 関数を作る");
                 ReturnTo(path, loc.File);
                 await ReportAsync(cref.Name + "::" + u.Name + " を " + Path.GetFileName(loc.File) + " に作りました (cpp がないので、本体つき)" + note, false);
                 return;
@@ -270,7 +270,7 @@ namespace KCppAssist
             // 宣言をクラスに足す(自分のクラスなら末尾、ほかのクラスなら public)
             var ed = PlanMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, own, u.Declaration(), hEol);
             if (ed == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
-            SyncService.Insert(loc.View.TextBuffer, ed.Item1, ed.Item2, undo, "K-CppAssist: 宣言を作る");
+            SyncService.Insert(loc.View.TextBuffer, ed.Item1, ed.Item2, undo, "K-Cpp: 宣言を作る");
 
             // cpp に定義の雛形(足した宣言を、足したあとのヘッダーから読み直す)
             string newHeader = loc.View.TextSnapshot.GetText();
@@ -291,7 +291,7 @@ namespace KCppAssist
                     if (def == null) defMsg = "。定義の雛形は作れませんでした (" + why2 + ")";
                     else
                     {
-                        SyncService.Insert(buf, def.Position, def.Text, undo, "K-CppAssist: 定義を作る");
+                        SyncService.Insert(buf, def.Position, def.Text, undo, "K-Cpp: 定義を作る");
                         defMsg = "。定義を " + Path.GetFileName(cppFile) + " に足しました";
                     }
                 }

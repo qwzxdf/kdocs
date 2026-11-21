@@ -112,7 +112,7 @@ namespace KCppAssist
             var plan = SwitchGen.Make(text, caret, enums, eol, out why, true);
             if (plan == null) return;
             var edits = new List<Tuple<int, int, string>> { Tuple.Create(plan.Position, plan.Length, plan.Text) };
-            if (SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-CppAssist: switch の case を入れる"))
+            if (SymbolService.ApplyEdits(snap, edits, owner.Undo, "K-Cpp: switch の case を入れる"))
             {
                 handled.Add(snap.CreateTrackingPoint(open, PointTrackingMode.Negative));
                 if (handled.Count > 100) handled.RemoveAt(0);

@@ -487,7 +487,7 @@ static class GenTests
             Check("editorconfig: header", EncodingTool.SectionHeader(new[] { ".h", ".cpp", "hpp" }), "[*.{h,cpp,hpp}]");
             Check("editorconfig: new file",
                 EncodingTool.UpdateEditorConfig("", "[*.{h,cpp}]", "utf-8-bom", "crlf", "\n"),
-                "# K-CppAssist が書きました。Visual Studio は、保存するときに、この文字コードと改行を使います\n[*.{h,cpp}]\ncharset = utf-8-bom\nend_of_line = crlf\n");
+                "# K-CppUltimateAssist が書きました。Visual Studio は、保存するときに、この文字コードと改行を使います\n[*.{h,cpp}]\ncharset = utf-8-bom\nend_of_line = crlf\n");
             Check("editorconfig: update existing section",
                 EncodingTool.UpdateEditorConfig("root = true\n\n[*.{h,cpp}]\nindent_style = space\ncharset = latin1\n\n[*.md]\ncharset = utf-8\n", "[*.{h,cpp}]", "utf-8-bom", null, "\n"),
                 "root = true\n\n[*.{h,cpp}]\nindent_style = space\ncharset = utf-8-bom\n\n[*.md]\ncharset = utf-8\n");

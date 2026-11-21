@@ -221,7 +221,7 @@ namespace KCppAssist
 
             int written = 0;
             foreach (var c in changes)
-                if (WriteSource(c.Item1, c.Item2, undo, unused ? "K-CppAssist: 使っていない #include を消す" : "K-CppAssist: #include を整理")) written++;
+                if (WriteSource(c.Item1, c.Item2, undo, unused ? "K-Cpp: 使っていない #include を消す" : "K-Cpp: #include を整理")) written++;
             Log("tidy: " + (unused ? "unused" : "organize") + " files=" + files.Count + " changed=" + written + " skipped=" + skipped);
             await ReportAsync((unused ? "使っていない #include を " + details.Count + " 件消しました" : "#include を整理しました") + " (" + written + " / " + files.Count + " ファイル" + (skipped > 0 ? "、読めなかったもの " + skipped : "") + ")。エディターで開いていないファイルは、保存済みです", false);
         }
@@ -386,10 +386,10 @@ namespace KCppAssist
                 }
                 if (edits.Count == 0) continue;
                 // Plan は、足すたびの文字列に対する位置なので、まとめて 1 回で置き換える
-                SyncService.ApplyEdits(buf, SyncService.Diff(cppText, work), undo, "K-CppAssist: #include を cpp に移す");
+                SyncService.ApplyEdits(buf, SyncService.Diff(cppText, work), undo, "K-Cpp: #include を cpp に移す");
                 addedTo.Add(Path.GetFileName(cpp));
             }
-            SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, "K-CppAssist: #include を前方宣言にする");
+            SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, "K-Cpp: #include を前方宣言にする");
             Log("forward: " + string.Join(" / ", done));
             await ReportAsync(string.Join("、", done) + " を前方宣言にしました" + (addedTo.Count > 0 ? "。#include は " + string.Join("・", addedTo) + " に足しました" : "。cpp が見つからないので、#include は移していません"), false);
         }

@@ -27,61 +27,61 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdHelp" priority="0x0102" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist の使い方...</ButtonText>
+          <ButtonText>K-Cpp: 使い方...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0110" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: #include を整理（プロジェクト全体）</ButtonText>
+          <ButtonText>K-Cpp: #include を整理（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0111" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: 使っていない #include を消す（プロジェクト全体）</ButtonText>
+          <ButtonText>K-Cpp: 使っていない #include を消す（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyFile" priority="0x0112" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: このファイルの #include を整理</ButtonText>
+          <ButtonText>K-Cpp: このファイルの #include を整理</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdForward" priority="0x0113" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: #include を前方宣言にする (Forward / Alt+F)</ButtonText>
+          <ButtonText>K-Cpp: #include を前方宣言にする (Forward / Alt+F)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: メンバーからコンストラクターを作る (Constructor / Alt+C)</ButtonText>
+          <ButtonText>K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdOverride" priority="0x0116" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: 基底クラスの仮想関数を override する (Override / Alt+O)</ButtonText>
+          <ButtonText>K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUsage" priority="0x0117" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: 呼び出しから関数を作る (Usage / Alt+U)</ButtonText>
+          <ButtonText>K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0118" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: ファイルの文字コードをそろえる...</ButtonText>
+          <ButtonText>K-Cpp: ファイルの文字コードをそろえる...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧... (eXplore / Alt+X)</ButtonText>
+          <ButtonText>K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)</ButtonText>
         </Strings>
       </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
@@ -135,7 +135,7 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist の設定...</ButtonText>
+          <ButtonText>K-Cpp: 設定...</ButtonText>
         </Strings>
       </Button>
     </Buttons>

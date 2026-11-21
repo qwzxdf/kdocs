@@ -30,9 +30,9 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.26.7")]
+    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.27.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
+    [ProvideOptionPage(typeof(OptionsPage), "K-CppUltimateAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -116,7 +116,7 @@ namespace KCppAssist
             Log((failed ? "FAIL " : "OK ") + message);
             if (!failed && !((OptionsPage)GetDialogPage(typeof(OptionsPage))).ShowStatusMessages) return;
             var bar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-            if (bar != null) bar.SetText("K-CppAssist: " + message);
+            if (bar != null) bar.SetText("K-Cpp: " + message);
         }
 
         private async Task RunAsync(bool member)
@@ -412,7 +412,7 @@ namespace KCppAssist
             var edit = IncludeEditor.Plan(text, token, stem, eol);
             if (edit == null) { await ReportAsync(token + " はすでに #include されています", true); return; }
 
-            IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, undo, "K-CppAssist: #include を追加");
+            IncludeService.Apply(view.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: #include を追加");
             await ReportAsync(chain + " のために " + token + " を追加しました (" + res.Source + ")", false);
         }
 
@@ -500,7 +500,7 @@ namespace KCppAssist
             ITextBuffer buf = target.Buffer ?? SyncService.OpenForEdit(target.File, adapters);
             if (buf == null) { await ReportAsync(Path.GetFileName(target.File) + " を開けませんでした", true); return; }
             if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(Path.GetFileName(target.File) + " が読み込み中に変わりました。もう一度押してください", true); return; }
-            SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-CppAssist: 引数を合わせる");
+            SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-Cpp: 引数を合わせる");
             SyncPreview.Show(view, SyncPreview.NameStart(view.TextSnapshot, sig.Open), Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
 
             if (target.Buffer == null)
@@ -588,7 +588,7 @@ namespace KCppAssist
             string why;
             var edit = DefinitionGen.PlanDefinition(text, sig, cppText, eol, out why);
             if (edit == null) { await ReportAsync(label + ": " + why, true); return; }
-            SyncService.Insert(buf, edit.Position, edit.Text, undo, "K-CppAssist: 定義を作る");
+            SyncService.Insert(buf, edit.Position, edit.Text, undo, "K-Cpp: 定義を作る");
 
             // 足した関数の本体へカーソルを置く(cpp がアクティブのまま)
             try
@@ -634,7 +634,7 @@ namespace KCppAssist
             string eol = CppText.Eol(loc.Text);
             var edit = DefinitionGen.PlanPublicMember(loc.Text, loc.Scope.Open, loc.Scope.IsStruct, declaration, eol);
             if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + cref.Name + " の本体を読めませんでした", true); return; }
-            SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, "K-CppAssist: 宣言を作る");
+            SyncService.Insert(loc.View.TextBuffer, edit.Position, edit.Text, undo, "K-Cpp: 宣言を作る");
             ReturnTo(path, loc.File);
             await ReportAsync(declaration + " を " + Path.GetFileName(loc.File) + " の " + cref.Name + " に足しました (public)", false);
         }

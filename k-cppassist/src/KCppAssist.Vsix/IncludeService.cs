@@ -207,7 +207,7 @@ namespace KCppAssist
             var o = Options;
             if (o != null && !o.ShowStatusMessages) return;
             var bar = Package.GetGlobalService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsStatusbar)) as Microsoft.VisualStudio.Shell.Interop.IVsStatusbar;
-            if (bar != null) bar.SetText("K-CppAssist: " + message);
+            if (bar != null) bar.SetText("K-Cpp: " + message);
         }
     }
 }

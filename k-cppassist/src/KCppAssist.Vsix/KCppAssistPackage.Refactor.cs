@@ -97,7 +97,7 @@ namespace KCppAssist
                 }
             }
             if (ch == null) { await ReportAsync(why, true); return; }
-            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, "K-CppAssist: " + id);
+            SyncService.ApplyEdits(a.View.TextBuffer, ch.Edits, a.Undo, "K-Cpp: " + id);
             await ReportAsync(ch.Message, false);
         }
 
@@ -219,7 +219,7 @@ namespace KCppAssist
                 string why;
                 var def = DefinitionGen.PlanDefinition(a.Text, decl, cppText, cEol, out why);
                 if (def == null) { failed.Add(decl.Name); continue; }
-                SyncService.Insert(buf, def.Position, def.Text, a.Undo, "K-CppAssist: 定義を作る");
+                SyncService.Insert(buf, def.Position, def.Text, a.Undo, "K-Cpp: 定義を作る");
                 made++;
             }
             ReturnTo(a.Path, cpps[0]);
@@ -262,10 +262,10 @@ namespace KCppAssist
             {
                 string cEol = CppText.Eol(cppText);
                 File.WriteAllText(newCpp, FileGen.NewSource(cppText, ex.ClassName, defs, cEol), enc);
-                SyncService.ApplyEdits(cppBuf, defs.Select(d => Tuple.Create(d.Item1, d.Item2 - d.Item1, "")).ToList(), a.Undo, "K-CppAssist: 定義を移す");
+                SyncService.ApplyEdits(cppBuf, defs.Select(d => Tuple.Create(d.Item1, d.Item2 - d.Item1, "")).ToList(), a.Undo, "K-Cpp: 定義を移す");
                 cppMsg = "。定義 " + defs.Count + " 個を " + Path.GetFileName(newCpp) + " に移しました";
             }
-            SyncService.ApplyEdits(a.View.TextBuffer, ex.OldHeader.Edits, a.Undo, "K-CppAssist: クラスを移す");
+            SyncService.ApplyEdits(a.View.TextBuffer, ex.OldHeader.Edits, a.Undo, "K-Cpp: クラスを移す");
 
             // プロジェクトに足す
             try

@@ -190,7 +190,7 @@ namespace KCppAssist
             if (start < 0)
             {
                 if (lines.Count > 0 && lines[lines.Count - 1].Trim().Length > 0) lines.Add("");
-                if (existing.Length == 0) { lines.Add("# K-CppAssist が書きました。Visual Studio は、保存するときに、この文字コードと改行を使います"); }
+                if (existing.Length == 0) { lines.Add("# K-CppUltimateAssist が書きました。Visual Studio は、保存するときに、この文字コードと改行を使います"); }
                 lines.Add(header);
                 foreach (var kv in want) lines.Add(kv.Key + " = " + kv.Value);
             }

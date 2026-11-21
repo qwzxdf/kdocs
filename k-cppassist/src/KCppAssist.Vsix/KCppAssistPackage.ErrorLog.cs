@@ -228,7 +228,7 @@ namespace KCppAssist
             if (text.Trim() != run.FixLine) { _ = ReportAsync("ファイルがビルドのあとで変わっています。ビルドし直してください。", true); return; }
             var plan = NarrowFix.Make(text, run.Fix);
             if (plan == null) { _ = ReportAsync("この行は、自動では直せません。", true); return; }
-            SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-CppAssist: static_cast を付ける");
+            SyncService.ApplyEdits(buf, new System.Collections.Generic.List<Tuple<int, int, string>> { Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text) }, undo, "K-Cpp: static_cast を付ける");
             _ = ReportAsync("static_cast<" + run.Fix + ">(…) を付けました(" + run.Line + " 行目)。ビルドし直すと、ログが更新されます。", false);
         }
 
@@ -269,7 +269,7 @@ namespace KCppAssist
                         edits.Add(Tuple.Create(line.Start.Position + plan.Start, plan.Length, plan.Text));
                     }
                     if (edits.Count == 0) continue;
-                    SyncService.ApplyEdits(buf, edits, undo, "K-CppAssist: static_cast をまとめて付ける");
+                    SyncService.ApplyEdits(buf, edits, undo, "K-Cpp: static_cast をまとめて付ける");
                     done += edits.Count;
                 }
                 _ = ReportAsync("static_cast を " + done + " か所に付けました"

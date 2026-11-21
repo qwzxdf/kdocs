@@ -28,7 +28,7 @@ namespace KCppAssist
 
     public enum GuardKind { PragmaOnce, IncludeGuard }
 
-    /// <summary>ツール → オプション → K-CppAssist → 全般</summary>
+    /// <summary>ツール → オプション → K-CppUltimateAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
         [Category("ゲッター・セッター")]
@@ -78,17 +78,17 @@ namespace KCppAssist
 
         [Category("名前の変更")]
         [DisplayName("型が分からない obj.name も変える")]
-        [Description("False(既定): obj.name や p->name のうち、obj の型を宣言から読めて、同じクラスだと分かるものだけ変える。分からないものは変えずに、出力ウィンドウの K-CppAssist に一覧を出す。True: 分からないものも、同じ名前なら変える(別のクラスの同じ名前のメンバーも変わることがあります)。")]
+        [Description("False(既定): obj.name や p->name のうち、obj の型を宣言から読めて、同じクラスだと分かるものだけ変える。分からないものは変えずに、出力ウィンドウの K-Cpp に一覧を出す。True: 分からないものも、同じ名前なら変える(別のクラスの同じ名前のメンバーも変わることがあります)。")]
         public bool SymbolAmbiguous { get; set; } = false;
 
         [Category("名前の変更")]
         [DisplayName("一緒に変わる場所を枠で囲む")]
-        [Description("True(既定): 宣言の名前を書き換えている間、一緒に変わる場所を点線の枠で囲む(書き換えている宣言は実線)。名前の変更が終わると消える。色は ツール → オプション → 環境 → フォントおよび色 の「K-CppAssist: 一緒に変わる場所」で変えられます。")]
+        [Description("True(既定): 宣言の名前を書き換えている間、一緒に変わる場所を点線の枠で囲む(書き換えている宣言は実線)。名前の変更が終わると消える。色は ツール → オプション → 環境 → フォントおよび色 の「K-Cpp: 一緒に変わる場所」で変えられます。")]
         public bool SymbolMarks { get; set; } = true;
 
         [Category("名前の変更")]
         [DisplayName("引数の並べ替え・削除を、呼び出しにも写す")]
-        [Description("True のとき、関数の引数を並べ替えるか消して、カーソルが括弧の外へ出ると、その関数の呼び出しの引数も同じ並びに直します。足した引数に渡す値は決められないので、その呼び出しは直さずに、出力ウィンドウの K-CppAssist に一覧を出します。")]
+        [Description("True のとき、関数の引数を並べ替えるか消して、カーソルが括弧の外へ出ると、その関数の呼び出しの引数も同じ並びに直します。足した引数に渡す値は決められないので、その呼び出しは直さずに、出力ウィンドウの K-Cpp に一覧を出します。")]
         public bool CallArgSync { get; set; } = true;
 
         [Category("ファイル名の同期")]
@@ -393,7 +393,7 @@ namespace KCppAssist
             catch (Exception ex)
             {
                 KCppAssistPackage.Log("assign keys failed: " + ex);
-                MessageBox.Show("キーを割り当てられませんでした。\n" + ex.Message, "K-CppAssist");
+                MessageBox.Show("キーを割り当てられませんでした。\n" + ex.Message, "K-Cpp");
             }
         }
 

@@ -32,4 +32,4 @@ C++ の入門書や cppreference のようなリファレンスは、「何が�
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)
 - [K-HLSL](khlsl/index.md)（Visual Studio 拡張機能）
-- [K-CppAssist](kcppassist/index.md)（Visual Studio 拡張機能）
+- [K-CppUltimateAssist](kcppassist/index.md)（Visual Studio 拡張機能）

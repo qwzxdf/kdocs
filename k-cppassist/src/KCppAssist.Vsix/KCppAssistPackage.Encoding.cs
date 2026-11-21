@@ -76,7 +76,7 @@ namespace KCppAssist
                 ThreadHelper.ThrowIfNotOnUIThread();
                 this.pkg = pkg;
                 dte = (DTE)Package.GetGlobalService(typeof(DTE));
-                Title = "K-CppAssist: ファイルの文字コードをそろえる";
+                Title = "K-Cpp: ファイルの文字コードをそろえる";
                 Width = 900;
                 SizeToContent = SizeToContent.Height;
                 WindowStartupLocation = WindowStartupLocation.CenterScreen;

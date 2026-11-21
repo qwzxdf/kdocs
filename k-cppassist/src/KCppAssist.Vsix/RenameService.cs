@@ -274,7 +274,7 @@ namespace KCppAssist
         {
             ITextUndoHistory history = null;
             if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
-            using (var tx = history == null ? null : history.CreateTransaction("K-CppAssist: ファイル名の変更を反映"))
+            using (var tx = history == null ? null : history.CreateTransaction("K-Cpp: ファイル名の変更を反映"))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
                 foreach (var e in edits.OrderBy(x => x.Start))

@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace KCppAssist
 {
     /// <summary>
-    /// K-CppAssist のダイアログの共通の見た目。枠のない角丸のウィンドウに影を付け、色は VS のテーマ(ダーク・ライト)から取る。
+    /// K-CppUltimateAssist のダイアログの共通の見た目。枠のない角丸のウィンドウに影を付け、色は VS のテーマ(ダーク・ライト)から取る。
     /// ボタン・チェックボックス・入力欄・一覧は、テーマに合わせて自前で描く(WPF の既定の見た目は、ダークで白く浮くため)。
     /// </summary>
     internal static class KDialog
@@ -273,7 +273,7 @@ namespace KCppAssist
 
             var root = new StackPanel { Margin = new Thickness(24, 18, 24, 20), Width = width };
 
-            // 見出しの行: 左に「K-CppAssist」と見出し、右に閉じるボタン
+            // 見出しの行: 左に「K-Cpp」と見出し、右に閉じるボタン
             var head = new DockPanel { LastChildFill = true };
             var close = new Button { Content = new TextBlock { Text = "✕", FontSize = 12 }, Style = (Style)f.Res["KClose"], VerticalAlignment = VerticalAlignment.Top };
             DockPanel.SetDock(close, Dock.Right);
@@ -281,7 +281,7 @@ namespace KCppAssist
             var titles = new StackPanel();
             var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
             brand.Children.Add(new Border { Width = 8, Height = 8, CornerRadius = new CornerRadius(4), Background = new SolidColorBrush(p.Accent), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) });
-            brand.Children.Add(new TextBlock { Text = "K-CppAssist", FontSize = 11, Foreground = new SolidColorBrush(p.Muted) });
+            brand.Children.Add(new TextBlock { Text = "K-Cpp", FontSize = 11, Foreground = new SolidColorBrush(p.Muted) });
             titles.Children.Add(brand);
             titles.Children.Add(new TextBlock { Text = title, FontSize = 17, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(p.Fg), TextWrapping = TextWrapping.Wrap });
             head.Children.Add(titles);
@@ -316,7 +316,7 @@ namespace KCppAssist
 
             var w = new Window
             {
-                Title = "K-CppAssist",
+                Title = "K-Cpp",
                 Content = card,
                 WindowStyle = WindowStyle.None,
                 AllowsTransparency = true,

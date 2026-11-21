@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace KCppAssist
 {
-    /// <summary>拡張機能 メニューの「K-CppAssist の使い方...」。機能とキーの早見表を、その場で見せる。</summary>
+    /// <summary>拡張機能 メニューの「K-Cpp: 使い方...」。機能とキーの早見表を、その場で見せる。</summary>
     public sealed partial class KCppAssistPackage
     {
         internal const int CmdHelp = 0x010E;
@@ -66,7 +66,7 @@ namespace KCppAssist
             new HelpSection("🛠", "ほか",
                 H("自動", "エラーログ (K-ErrorLog)", "ビルド後のエラーを読みやすく並べ、縮小変換は [クリックで修正] できる"),
                 H("自動", "引数の個数チェック", "make_unique / make_shared / new の引数の個数が合わないと、波線を引く"),
-                H("設定", "拡張機能 → K-CppAssist の設定", "キーの変更、各機能の ON/OFF")),
+                H("設定", "拡張機能 → K-Cpp: 設定", "キーの変更、各機能の ON/OFF")),
         };
 
         private static System.Windows.Media.Brush Themed(System.Windows.Media.Color fallback, Microsoft.VisualStudio.Shell.ThemeResourceKey key)
@@ -139,7 +139,7 @@ namespace KCppAssist
             };
 
             var heading = new StackPanel { Margin = new Thickness(0, 0, 0, 12) };
-            heading.Children.Add(new TextBlock { Text = "K-CppAssist", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = fg });
+            heading.Children.Add(new TextBlock { Text = "K-CppUltimateAssist", FontSize = 24, FontWeight = FontWeights.Bold, Foreground = fg });
             heading.Children.Add(new TextBlock { Text = "ほとんどの機能は Alt+Enter (電球) でも出ます。キーを覚えなくても、カーソルを置いて Alt+Enter を押してください。", Foreground = dim, FontSize = 13, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) });
 
             var scroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = cards };
@@ -164,7 +164,7 @@ namespace KCppAssist
             grid.Children.Add(buttons);
             var w = new Window
             {
-                Title = "K-CppAssist の使い方",
+                Title = "K-CppUltimateAssist の使い方",
                 Content = grid,
                 Width = 860,
                 Height = 720,

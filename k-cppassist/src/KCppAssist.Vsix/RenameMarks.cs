@@ -98,7 +98,7 @@ namespace KCppAssist
     {
         public RenameDeclFormat()
         {
-            DisplayName = "K-CppAssist: 名前を変えている宣言";
+            DisplayName = "K-Cpp: 名前を変えている宣言";
             var pen = new Pen(new SolidColorBrush(Color.FromRgb(0x4A, 0x9E, 0xE8)), 1.2);
             pen.Freeze();
             Border = pen;
@@ -115,7 +115,7 @@ namespace KCppAssist
     {
         public RenameRefFormat()
         {
-            DisplayName = "K-CppAssist: 一緒に変わる場所";
+            DisplayName = "K-Cpp: 一緒に変わる場所";
             // 点線。明るい背景でも暗い背景でも見える青
             var pen = new Pen(new SolidColorBrush(Color.FromRgb(0x4A, 0x9E, 0xE8)), 1.0) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
             pen.Freeze();

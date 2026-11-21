@@ -639,7 +639,7 @@ namespace KCppAssist
             entry = entry.Replace("\n", eol);
             if (string.IsNullOrEmpty(existing))
                 return "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + eol
-                    + "<!-- K-CppAssist が作った。デバッガーのウォッチ・ホバーで、型を 1 行で見せる -->" + eol
+                    + "<!-- K-CppUltimateAssist が作った。デバッガーのウォッチ・ホバーで、型を 1 行で見せる -->" + eol
                     + "<AutoVisualizer xmlns=\"http://schemas.microsoft.com/vstudio/debugger/natvis/2010\">" + eol
                     + entry + eol + "</AutoVisualizer>" + eol;
             var rx = new Regex(@"[ \t]*<Type\s+Name=""" + Regex.Escape(typeName) + @"""[\s\S]*?</Type>");

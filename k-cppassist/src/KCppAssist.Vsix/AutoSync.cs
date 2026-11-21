@@ -258,7 +258,7 @@ namespace KCppAssist
                 }
             }
             string newInner = SignatureSync.Rebuild(oldList, newList, cpList, !wantDef, t0.Inner);
-            SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
+            SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-Cpp: 引数を合わせる");
             if (opened) ReturnToWork();
             int anchor = SyncPreview.NameStart(view.TextSnapshot, b.Inner.GetStartPoint(view.TextSnapshot).Position - 1);
             SyncPreview.Show(view, anchor, Path.GetFileName(t0.File), buf.CurrentSnapshot, t0.Sig.Open, newInner.Length, t0.Inner);
