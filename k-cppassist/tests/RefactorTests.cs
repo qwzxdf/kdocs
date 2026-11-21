@@ -174,7 +174,7 @@ static class RefactorTests
 
         // ---- 電球に出る項目 ----
         Check("offers class", string.Join(",", Offers("struct V| {\n  XMFLOAT3 pos;\n  float t;\n};\n", true)),
-            "nocopy,rule5,compare,formatter,hash,json,cereal,inputlayout,cbuffer");
+            "ctordtor,nocopymove,nocopy,rule5,compare,formatter,hash,json,cereal,inputlayout,cbuffer");
         Check("offers if", string.Join(",", Offers("void F() {\n  if (a) {|\n    G();\n  }\n}\n")), "guard");
 
         Console.WriteLine("Refactor: " + pass + " passed, " + fail + " failed");

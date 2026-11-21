@@ -498,6 +498,53 @@ static class GenTests
                 "root = true\n\n[*.h]\ncharset = utf-8\n");
         }
 
+
+        // ---- 新しいファイルのひな形 ----
+        {
+            Check("name: same as file", NewFileGen.ClassName("game_object", NewFileGen.Naming.SameAsFile), "game_object");
+            Check("name: pascal from snake", NewFileGen.ClassName("game_object", NewFileGen.Naming.Pascal), "GameObject");
+            Check("name: snake from pascal", NewFileGen.ClassName("GameObject", NewFileGen.Naming.Snake), "game_object");
+            Check("name: camel", NewFileGen.ClassName("game-object", NewFileGen.Naming.Camel), "gameObject");
+            Check("name: acronym", NewFileGen.ClassName("HTTPServer", NewFileGen.Naming.Snake), "http_server");
+            Check("name: digit start", NewFileGen.ClassName("3dModel", NewFileGen.Naming.SameAsFile), "_3dModel");
+            Check("ns: most common", NewFileGen.DetectNamespace(new[] { "namespace Prest {\nint a;\n}\n", "namespace Prest {\n}\n", "namespace Other {\n}\n" }), "Prest");
+            Check("ns: none", NewFileGen.DetectNamespace(new[] { "int a;\n" }), "");
+            Check("ns: ignores std and nested", NewFileGen.DetectNamespace(new[] { "namespace std {\n}\nnamespace A::B {\n  namespace c {\n  }\n}\n" }), "A::B");
+            Check("indent: tab", NewFileGen.DetectIndent(new[] { "class A {\n\tint a;\n\tint b;\n\tint c;\n\tint d;\n\tint e;\n};\n" }), "\t");
+            Check("indent: 4 spaces", NewFileGen.DetectIndent(new[] { "class A {\n    int a;\n    int b;\n    int c;\n    int d;\n    int e;\n};\n" }), "    ");
+            var o = new NewFileGen.Options { Namespace = "Prest", Indent = "\t", Eol = "\n" };
+            int caret;
+            string h = NewFileGen.Header("game_object", o, out caret);
+            Check("header: pragma once class", h, "#pragma once\n\nnamespace Prest {\n\nclass game_object {\npublic:\n\t\n};\n\n}  // namespace Prest\n");
+            Check("header: caret on the empty line", h.Substring(caret - 1, 2), "\t\n");
+            o.Naming = NewFileGen.Naming.Pascal; o.Namespace = ""; o.Guard = NewFileGen.Guard.IncludeGuard;
+            Check("header: include guard, no namespace", NewFileGen.Header("game_object", o, out caret),
+                "#ifndef GAME_OBJECT_H_\n#define GAME_OBJECT_H_\n\nclass GameObject {\npublic:\n\t\n};\n\n\n#endif  // GAME_OBJECT_H_\n");
+            o = new NewFileGen.Options { Namespace = "A::B", MakeClass = false, Eol = "\n", NamespaceComment = false };
+            Check("header: no class", NewFileGen.Header("x", o, out caret), "#pragma once\n\nnamespace A::B {\n\n\n}\n");
+            o = new NewFileGen.Options { Namespace = "Prest", Eol = "\n" };
+            Check("source", NewFileGen.Source("Foo.h", o), "#include \"Foo.h\"\n\nnamespace Prest {\n\n\n}  // namespace Prest\n");
+            Check("source: no header, no namespace", NewFileGen.Source(null, new NewFileGen.Options { Eol = "\n" }), "");
+        }
+
+        // ---- クラス名の上の電球 ----
+        {
+            string code = "class Foo {\npublic:\n\tint a;\n};\n";
+            string why;
+            var ch = Refactor.Make("ctordtor", code, 3, "\n", true, out why);
+            string res = ch == null ? why : ch.Apply(code);
+            Check("ctordtor: declares both", res.Contains("Foo();") && res.Contains("~Foo();") ? "ok" : res, "ok");
+            string done = "class Foo {\npublic:\n\tFoo();\n\t~Foo();\n};\n";
+            Check("ctordtor: already there", Refactor.Make("ctordtor", done, 3, "\n", true, out why) == null ? "null" : "made", "null");
+            var nc = Refactor.Make("nocopymove", code, 3, "\n", true, out why);
+            res = nc == null ? why : nc.Apply(code);
+            Check("nocopymove: four deletes", res.Contains("Foo(const Foo&) = delete;") && res.Contains("Foo& operator=(const Foo&) = delete;") && res.Contains("Foo(Foo&&) = delete;") && res.Contains("Foo& operator=(Foo&&) = delete;") ? "ok" : res, "ok");
+            Check("onhead: class line", ClassGen.OnHead(code, 3) ? "y" : "n", "y");
+            Check("onhead: member line", ClassGen.OnHead(code, code.IndexOf("int a")) ? "y" : "n", "n");
+            Check("offers: head shows ctordtor", Refactor.Offers(code, 3, "\n", true).Any(x => x.Id == "ctordtor") ? "y" : "n", "y");
+            Check("offers: body hides ctordtor", Refactor.Offers(code, code.IndexOf("int a"), "\n", true).Any(x => x.Id == "ctordtor") ? "y" : "n", "n");
+        }
+
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

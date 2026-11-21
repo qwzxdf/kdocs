@@ -17,6 +17,10 @@
       <Group guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" priority="0x0710">
         <Parent guid="guidVsMainMenu" id="IDM_VS_CTXT_SOLNNODE" />
       </Group>
+      <!-- エディターを右クリックしたときのメニュー -->
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistEditGroup" priority="0x0600">
+        <Parent guid="guidVsMainMenu" id="IDM_VS_CTXT_CODEWIN" />
+      </Group>
     </Groups>
 
     <Buttons>
@@ -47,13 +51,7 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdForward" priority="0x0113" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: #include を前方宣言にする</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidKCppAssistCmdSet" id="CmdSwitch" priority="0x0114" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
-        <Strings>
-          <ButtonText>K-CppAssist: switch の足りない case を足す</ButtonText>
+          <ButtonText>K-CppAssist: #include を前方宣言にする (Forward / Alt+F)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
@@ -83,7 +81,7 @@
       <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
-          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧...</ButtonText>
+          <ButtonText>K-CppAssist: この位置の書き換え・生成の一覧... (Alt+X)</ButtonText>
         </Strings>
       </Button>
       <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
@@ -104,7 +102,7 @@
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdInclude" priority="0x0104" type="Button">
         <Strings>
-          <ButtonText>#include を足す</ButtonText>
+          <ButtonText>#include を足す (Include / Alt+I)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdSync" priority="0x0105" type="Button">
@@ -150,19 +148,19 @@
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0001"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistEditGroup" /></CommandPlacement>
   </CommandPlacements>
 
   <KeyBindings>
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidTextEditor" key1="Q" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidTextEditor" key1="W" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidTextEditor" key1="E" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidTextEditor" key1="F" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidTextEditor" key1="I" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdRename" editor="guidTextEditor" key1="N" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidTextEditor" key1="G" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCreate" editor="guidTextEditor" key1="R" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMove" editor="guidTextEditor" key1="M" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidTextEditor" key1="D" mod1="Alt" />
-    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSwitch" editor="guidTextEditor" key1="Z" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdForward" editor="guidTextEditor" key1="F" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdCtor" editor="guidTextEditor" key1="C" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdOverride" editor="guidTextEditor" key1="O" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdUsage" editor="guidTextEditor" key1="U" mod1="Alt" />
@@ -174,6 +172,7 @@
       <IDSymbol name="IDM_EXTENSIONS_MENU" value="0x0091" />
       <IDSymbol name="IDM_VS_CTXT_PROJNODE" value="0x0402" />
       <IDSymbol name="IDM_VS_CTXT_SOLNNODE" value="0x0403" />
+      <IDSymbol name="IDM_VS_CTXT_CODEWIN" value="0x040D" />
     </GuidSymbol>
 
     <GuidSymbol name="guidVSStd97" value="{5EFC7975-14BC-11CF-9B2B-00AA00573819}" />
@@ -196,6 +195,7 @@
       <IDSymbol name="CmdMove" value="0x0109" />
       <IDSymbol name="KCppAssistProjGroup" value="0x1001" />
       <IDSymbol name="KCppAssistSolnGroup" value="0x1002" />
+      <IDSymbol name="KCppAssistEditGroup" value="0x1003" />
       <IDSymbol name="CmdTidyProject" value="0x010A" />
       <IDSymbol name="CmdUnusedProject" value="0x010B" />
       <IDSymbol name="CmdForward" value="0x010C" />

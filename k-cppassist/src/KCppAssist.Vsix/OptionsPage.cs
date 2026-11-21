@@ -18,6 +18,16 @@ namespace KCppAssist
 
     public enum CallCheckSeverity { Error, Warning }
 
+    /// <summary>新しいファイルの namespace。Auto: 既存のヘッダーで一番多いもの。Fixed: 設定の名前。None: 書かない。</summary>
+    public enum NewFileNamespaceMode { Auto, Fixed, None }
+
+    /// <summary>ファイル名からクラス名を決める規則。SameAsFile: ファイル名のまま。</summary>
+    public enum ClassNaming { SameAsFile, PascalCase, SnakeCase, CamelCase }
+
+    public enum IndentKind { Auto, Tab, Spaces2, Spaces4 }
+
+    public enum GuardKind { PragmaOnce, IncludeGuard }
+
     /// <summary>ツール → オプション → K-CppAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
@@ -28,7 +38,7 @@ namespace KCppAssist
 
         [Category("#include")]
         [DisplayName("#include を足すしかた")]
-        [Description("Off: 何もしない。ManualOnly: Alt+F を押したときだけ足す。Auto: Alt+F に加えて、入力中に未定義の型を見つけると、自動で足す。")]
+        [Description("Off: 何もしない。ManualOnly: Alt+I (Include) を押したときだけ足す。Auto: Alt+I に加えて、入力中に未定義の型を見つけると、自動で足す。")]
         public IncludeMode IncludeMode { get; set; } = IncludeMode.ManualOnly;
 
         [Category("#include")]
@@ -38,7 +48,7 @@ namespace KCppAssist
 
         [Category("#include")]
         [DisplayName("自動で足さない名前")]
-        [Description("カンマ区切り。ソリューションのヘッダーから引くときだけ、この名前の型は自動で足しません(Alt+F では足せます)。標準ライブラリの名前には効きません。")]
+        [Description("カンマ区切り。ソリューションのヘッダーから引くときだけ、この名前の型は自動で足しません(Alt+I では足せます)。標準ライブラリの名前には効きません。")]
         public string IncludeDeny { get; set; } = "Instance,Get,Create,Data,Type,Result,Init,Value,Node,Item,State,Info,Name,Id,Key,Index,Context,Config,Manager,Handle,Callback,Function,Object,Base,Impl,Self";
 
         [Category("#include")]
@@ -279,9 +289,9 @@ namespace KCppAssist
         public string AccessorKey { get; set; } = "Alt+E";
 
         [Category("キー")]
-        [DisplayName("#include を足す")]
+        [DisplayName("#include を足す (Include)")]
         [Description(KeyHelp)]
-        public string IncludeKey { get; set; } = "Alt+F";
+        public string IncludeKey { get; set; } = "Alt+I";
 
         [Category("キー")]
         [DisplayName("宣言と定義の引数を合わせる")]
@@ -299,14 +309,9 @@ namespace KCppAssist
         public string MoveKey { get; set; } = "Alt+M";
 
         [Category("キー")]
-        [DisplayName("#include を前方宣言にする")]
+        [DisplayName("#include を前方宣言にする (Forward)")]
         [Description(KeyHelp)]
-        public string ForwardKey { get; set; } = "Alt+D";
-
-        [Category("キー")]
-        [DisplayName("switch の足りない case を足す")]
-        [Description(KeyHelp)]
-        public string SwitchKey { get; set; } = "Alt+Z";
+        public string ForwardKey { get; set; } = "Alt+F";
 
         [Category("キー")]
         [DisplayName("メンバーからコンストラクターを作る")]
@@ -354,7 +359,6 @@ namespace KCppAssist
                 CreateKey = Current(KCppAssistPackage.CmdCreate);
                 MoveKey = Current(KCppAssistPackage.CmdMove);
                 ForwardKey = Current(KCppAssistPackage.CmdForward);
-                SwitchKey = Current(KCppAssistPackage.CmdSwitch);
                 CtorKey = Current(KCppAssistPackage.CmdCtor);
                 OverrideKey = Current(KCppAssistPackage.CmdOverride);
                 UsageKey = Current(KCppAssistPackage.CmdUsage);
@@ -381,7 +385,6 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdCreate, CreateKey);
                 Assign(KCppAssistPackage.CmdMove, MoveKey);
                 Assign(KCppAssistPackage.CmdForward, ForwardKey);
-                Assign(KCppAssistPackage.CmdSwitch, SwitchKey);
                 Assign(KCppAssistPackage.CmdCtor, CtorKey);
                 Assign(KCppAssistPackage.CmdOverride, OverrideKey);
                 Assign(KCppAssistPackage.CmdUsage, UsageKey);
@@ -489,7 +492,7 @@ namespace KCppAssist
             {
                 KCppAssistPackage.CmdLocal, KCppAssistPackage.CmdMember, KCppAssistPackage.CmdAccessor, KCppAssistPackage.CmdInclude,
                 KCppAssistPackage.CmdSync, KCppAssistPackage.CmdRename, KCppAssistPackage.CmdCreate, KCppAssistPackage.CmdMove,
-                KCppAssistPackage.CmdForward, KCppAssistPackage.CmdSwitch, KCppAssistPackage.CmdCtor, KCppAssistPackage.CmdOverride,
+                KCppAssistPackage.CmdForward, KCppAssistPackage.CmdCtor, KCppAssistPackage.CmdOverride,
                 KCppAssistPackage.CmdUsage,
             };
             foreach (int id in ids)
@@ -516,6 +519,51 @@ namespace KCppAssist
             KeyScopeMigrated = true;
             SaveSettingsToStorage();
         }
+
+        [Category("新規ファイル")]
+        [DisplayName("新しい空のファイルに、ひな形を書く")]
+        [Description("True のとき、プロジェクトに新しく足した空のヘッダーに #pragma once・namespace・class を、空の cpp に #include と namespace を書きます(作ってから 2 分以内の、空のファイルだけ)。")]
+        public bool NewFileTemplate { get; set; } = true;
+
+        [Category("新規ファイル")]
+        [DisplayName("ヘッダーに class を書く")]
+        [Description("True のとき、ヘッダーに「class クラス名 {」から「};」までを書きます。False なら、namespace だけ。")]
+        public bool NewFileClass { get; set; } = true;
+
+        [Category("新規ファイル")]
+        [DisplayName("クラス名の決めかた")]
+        [Description("SameAsFile: ファイル名と同じ(初期値)。PascalCase: game_object → GameObject。SnakeCase: GameObject → game_object。CamelCase: game_object → gameObject。")]
+        public ClassNaming NewFileClassNaming { get; set; } = ClassNaming.SameAsFile;
+
+        [Category("新規ファイル")]
+        [DisplayName("namespace の決めかた")]
+        [Description("Auto: ソリューションの既存のヘッダーで、行頭の namespace が一番多いもの(初期値)。Fixed: 下の名前を使う。None: 書かない。")]
+        public NewFileNamespaceMode NewFileNamespaceMode { get; set; } = NewFileNamespaceMode.Auto;
+
+        [Category("新規ファイル")]
+        [DisplayName("固定の namespace")]
+        [Description("namespace の決めかたが Fixed のときに使う名前。「Game::Core」のように :: でつなげます。")]
+        public string NewFileNamespace { get; set; } = "";
+
+        [Category("新規ファイル")]
+        [DisplayName("字下げ")]
+        [Description("Auto: 既存のヘッダーで多いほう(タブか、空白 2 / 4)。判断できなければタブ。")]
+        public IndentKind NewFileIndent { get; set; } = IndentKind.Auto;
+
+        [Category("新規ファイル")]
+        [DisplayName("namespace の中を字下げする")]
+        [Description("True のとき、namespace の中の class を 1 段字下げします。")]
+        public bool NewFileIndentInNamespace { get; set; } = false;
+
+        [Category("新規ファイル")]
+        [DisplayName("インクルード ガード")]
+        [Description("PragmaOnce: #pragma once(初期値)。IncludeGuard: #ifndef / #define / #endif。")]
+        public GuardKind NewFileGuard { get; set; } = GuardKind.PragmaOnce;
+
+        [Category("新規ファイル")]
+        [DisplayName("namespace を閉じる行にコメントを付ける")]
+        [Description("True のとき、「}  // namespace 名前」と書きます。")]
+        public bool NewFileNamespaceComment { get; set; } = true;
 
         [Browsable(false)]
         public bool KeyScopeMigrated { get; set; } = false;

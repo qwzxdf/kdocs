@@ -81,6 +81,8 @@ namespace KCppAssist
                 case "natvis": await NatvisAsync(a); return;
                 case "defs-all": await AllDefinitionsAsync(a); return;
                 case "extract": await ExtractAsync(a); return;
+                case "makecpp": await MakeCppAsync(a); return;
+                case "ctordtor-cpp": await CtorDtorCppAsync(a); return;
             }
             string why;
             var ch = Refactor.Make(id, a.Text, a.Caret, a.Eol, IncludeService.IsHeader(a.Path), out why);
@@ -148,6 +150,13 @@ namespace KCppAssist
             var cls = MemberScan.At(text, caret);
             if (cls != null)
             {
+                if (header && ClassGen.OnHead(text, caret))
+                {
+                    string stem0 = Path.GetFileNameWithoutExtension(path);
+                    bool hasCpp = new[] { ".cpp", ".cc", ".cxx" }.Any(e => File.Exists(Path.Combine(Path.GetDirectoryName(path), stem0 + e)));
+                    if (!hasCpp) list.Add(new Refactor.Offer { Id = "makecpp", Title = stem0 + ".cpp を作る" });
+                    if (list.Any(o => o.Id == "ctordtor")) list.Add(new Refactor.Offer { Id = "ctordtor-cpp", Title = "コンストラクター・デストラクターを宣言して、cpp に定義を作る" });
+                }
                 if (cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = "デバッガーの表示 (Natvis) を作る" });
                 if (header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = "定義のない関数を、cpp にまとめて作る" });
                 if (header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))

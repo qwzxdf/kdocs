@@ -24,6 +24,12 @@ namespace KCppAssist
             if (near.Contains(":")) Try("initorder", "初期化子リストを、メンバーの宣言の順に並べ替える");
             var cls = MemberScan.At(text, caret);
             if (cls == null) return list;
+            if (OnHead(text, caret))
+            {
+                // クラス名の上で押したときだけ出す(本体の中に何度も出ると邪魔になるので)
+                Try("ctordtor", "コンストラクター・デストラクターを宣言する");
+                Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
+            }
             Try("nocopy", "コピー禁止・ムーブ可にする (= delete / = default)");
             Try("rule5", "コピー・ムーブ・デストラクターを = default で書く");
             Try("compare", "== と <=> を = default で作る");
@@ -48,6 +54,8 @@ namespace KCppAssist
             if (cls == null) { why = "カーソルが、class / struct の中にありません"; return null; }
             switch (id)
             {
+                case "ctordtor": return CtorDtor(text, cls, eol, out why);
+                case "nocopymove": return NoCopyMove(text, cls, eol, out why);
                 case "nocopy": return Special(text, cls, eol, false, out why);
                 case "rule5": return Special(text, cls, eol, true, out why);
                 case "compare": return Compare(text, cls, eol, out why);
@@ -100,6 +108,47 @@ namespace KCppAssist
         private static string Ref(string type)
         {
             return Regex.IsMatch(type, @"^(?:(?:const\s+)?(?:bool|char|int|float|double|unsigned|long|short|size_t|u?int\d+_t|UINT|DWORD|BOOL)\b)") ? type : "const " + type + "&";
+        }
+
+        /// <summary>caret が「class X」「struct X」を書いた行の上か。</summary>
+        public static bool OnHead(string text, int caret)
+        {
+            int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
+            return Regex.IsMatch(CppText.Mask(text).Substring(ls, le - ls), @"^\s*(?:template\s*<[^>]*>\s*)?(?:class|struct)\s+(?:\w+\s+)*\w+\s*(?:final\s*)?(?::[^;{]*)?\{?\s*$");
+        }
+
+        // ---- コンストラクター・デストラクター / コピー・ムーブ禁止 ----
+
+        private static Refactor.Change CtorDtor(string text, MemberScan.ClassInfo cls, string eol, out string why)
+        {
+            why = null;
+            string n = Regex.Escape(cls.Name);
+            bool hasDefault = MemberScan.HasFunction(cls, @"(?<![~\w])" + n + @"\s*\(\s*(?:void\s*)?\)");
+            bool hasDtor = MemberScan.HasFunction(cls, "~" + n + @"\s*\(");
+            var lines = new List<string>();
+            if (!hasDefault && !cls.HasUserCtor) lines.Add(cls.Name + "();");
+            if (!hasDtor) lines.Add((cls.HasVirtual ? "virtual " : "") + "~" + cls.Name + "();");
+            if (lines.Count == 0) { why = "コンストラクターとデストラクターは、もう宣言してあります"; return null; }
+            var ch = new Refactor.Change();
+            AddPublic(ch, text, cls, lines, eol);
+            ch.Message = cls.Name + " に " + string.Join(" と ", lines.Select(l => l.Replace("virtual ", "").TrimEnd(';'))) + " を宣言しました";
+            return ch;
+        }
+
+        private static Refactor.Change NoCopyMove(string text, MemberScan.ClassInfo cls, string eol, out string why)
+        {
+            why = null;
+            string c = cls.Name, n = Regex.Escape(cls.Name);
+            var lines = new List<string>();
+            if (!MemberScan.HasFunction(cls, @"" + n + @"\s*\(\s*const\s+" + n + @"\s*&")) lines.Add(c + "(const " + c + "&) = delete;");
+            if (!MemberScan.HasFunction(cls, @"operator\s*=\s*\(\s*const\s+" + n + @"\s*&")) lines.Add(c + "& operator=(const " + c + "&) = delete;");
+            if (!MemberScan.HasFunction(cls, @"" + n + @"\s*\(\s*" + n + @"\s*&&")) lines.Add(c + "(" + c + "&&) = delete;");
+            if (!MemberScan.HasFunction(cls, @"operator\s*=\s*\(\s*" + n + @"\s*&&")) lines.Add(c + "& operator=(" + c + "&&) = delete;");
+            if (lines.Count == 0) { why = "コピーとムーブは、もう全部宣言してあります"; return null; }
+            var ch = new Refactor.Change();
+            AddPublic(ch, text, cls, lines, eol);
+            ch.Message = c + " のコピーとムーブを禁止しました (" + lines.Count + " 個)";
+            return ch;
         }
 
         // ---- 特殊メンバー関数 ----

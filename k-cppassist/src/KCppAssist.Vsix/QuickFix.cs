@@ -123,10 +123,9 @@ namespace KCppAssist
                     else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("関数の本体をヘッダーに移す", () => Invoke(p => p.RunMove())));
                 }
 
-                // switch の行: 足りない case を足す。class / struct の行: コンストラクターを作る
+                // class / struct の行: override・コンストラクターを作る
                 string lineText = line.GetText();
-                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"\bswitch\s*\(")) list.Add(Action("switch の足りない case を足す", () => Invoke(p => p.RunSwitch())));
-                else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()))); }
+                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()))); }
                 else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())));
 
                 // 宣言していない変数への代入: 型を付ける。メンバー関数の中なら、メンバー変数にもできる
@@ -135,6 +134,34 @@ namespace KCppAssist
                 {
                     if (!assign.HasThis) list.Add(Action("ローカル変数として型を付ける (" + assign.Name + ")", () => Invoke(p => p.Run(false))));
                     if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action("メンバー変数としてヘッダーに宣言する (" + assign.Name + ")", () => Invoke(p => p.Run(true))));
+                }
+
+                // メンバー変数の宣言の行: ゲッター・セッターを作る(Alt+E)
+                if (header && !lineText.Contains("(") && MemberScan.At(text, caret) != null
+                    && System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:(?:static|mutable|const|inline)\s+)*[A-Za-z_][\w:<>,\s\*&]*?\s+[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;\s*(?://.*)?$")
+                    && !System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:return|using|typedef|friend|delete|goto)"))
+                    list.Add(Action("ゲッター・セッターを作る", () => Invoke(p => p.RunAccessor())));
+
+                // 足りない #include: カーソルの名前のヘッダーを足す(Alt+F)
+                var incWord = IncludeWordAt(text, caret);
+                if (incWord != null && opt.IncludeMode != IncludeMode.Off)
+                {
+                    string stdh = StdHeaders.Lookup(incWord);
+                    bool missing = false;
+                    if (stdh != null) missing = !text.Contains("#include " + stdh) && !System.Text.RegularExpressions.Regex.IsMatch(text, @"#\s*include\s*" + System.Text.RegularExpressions.Regex.Escape(stdh));
+                    else
+                    {
+                        var files = IncludeService.Index.Lookup(incWord.Substring(incWord.LastIndexOf(':') + 1)).Where(f => !string.Equals(f, path, StringComparison.OrdinalIgnoreCase)).ToList();
+                        missing = files.Count > 0 && !files.Any(f => text.Contains(Path.GetFileName(f)));
+                    }
+                    if (missing) list.Add(Action("#include を足す (" + incWord + ")", () => Invoke(p => p.RunInclude())));
+                }
+
+                // #include の行: このファイルの #include を整理する・使っていないものを消す
+                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*#\s*include"))
+                {
+                    list.Add(Action("このファイルの #include を整理する", () => Invoke(p => p.RunTidy(false, true))));
+                    list.Add(Action("このファイルの使っていない #include を消す", () => Invoke(p => p.RunTidy(true, true))));
                 }
 
                 // 書き換え・生成(NULL → nullptr、if の反転、formatter、入力レイアウト…)
@@ -147,6 +174,23 @@ namespace KCppAssist
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
             return list;
+        }
+
+        /// <summary>カーソルの位置の識別子(std::vector のような修飾つき)。コメント・文字列・#include の行・予約語は除く。なければ null。</summary>
+        private static string IncludeWordAt(string text, int caret)
+        {
+            if (caret < 0 || caret > text.Length) return null;
+            int s = caret, e = caret;
+            Func<int, bool> id = i => i >= 0 && i < text.Length && (char.IsLetterOrDigit(text[i]) || text[i] == '_' || text[i] == ':');
+            while (s > 0 && id(s - 1)) s--;
+            while (e < text.Length && id(e)) e++;
+            if (e <= s) return null;
+            string w = text.Substring(s, e - s).Trim(':');
+            if (w.Length < 2 || char.IsDigit(w[0])) return null;
+            int ls = text.LastIndexOf('\n', Math.Max(0, s - 1)) + 1;
+            string before = text.Substring(ls, s - ls);
+            if (before.TrimStart().StartsWith("#") || before.Contains("//") || before.Count(ch => ch == '"') % 2 == 1) return null;
+            return w;
         }
 
         private enum Counterpart { None, Same, Different }
