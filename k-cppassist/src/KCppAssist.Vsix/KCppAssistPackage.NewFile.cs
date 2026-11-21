@@ -144,11 +144,51 @@ namespace KCppAssist
             }
             List<string> incs, bodies;
             if (!NewFileGen.ParseWizardSource(text, out incs, out bodies)) return null;
+            // /FI で pch を読み込むプロジェクトなら、VS が書いた #include "pch.h" は要らない
+            if (opt.SkipForcedPch)
+            {
+                var forced = ForcedIncludes(path);
+                incs = incs.Where(l =>
+                {
+                    var im = System.Text.RegularExpressions.Regex.Match(l, @"#\s*include\s*[""<]([^"">]+)["">]");
+                    if (!im.Success || !IncludeTidy.IsPch(im.Groups[1].Value)) return true;
+                    return !forced.Contains(Path.GetFileName(im.Groups[1].Value));
+                }).ToList();
+            }
             o.Includes = incs; o.Bodies = bodies;
             string src = NewFileGen.Source(null, o);
             int k = src.IndexOf("namespace", StringComparison.Ordinal);
             caret = k >= 0 ? Math.Min(src.Length, src.IndexOf('\n', k) + 1) : src.Length;
             return src;
+        }
+
+        /// <summary>
+        /// path を含むプロジェクト(上のフォルダーへさかのぼって最初に見つかった .vcxproj)の、強制インクルード ファイル(/FI)のファイル名。
+        /// どの構成のものも集める(Debug だけ /FI、のような分け方は、ほとんどないため)。見つからなければ空。
+        /// </summary>
+        public static HashSet<string> ForcedIncludes(string path)
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                string dir = Path.GetDirectoryName(path);
+                for (int i = 0; i < 6 && !string.IsNullOrEmpty(dir); i++, dir = Path.GetDirectoryName(dir))
+                {
+                    string proj = Directory.GetFiles(dir, "*.vcxproj").FirstOrDefault();
+                    if (proj == null) continue;
+                    string xml = File.ReadAllText(proj);
+                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(xml, @"<ForcedIncludeFiles>([^<]*)</ForcedIncludeFiles>"))
+                        foreach (string f in m.Groups[1].Value.Split(';'))
+                        {
+                            string t = f.Trim();
+                            if (t.Length == 0 || t.StartsWith("%(")) continue;
+                            set.Add(Path.GetFileName(t));
+                        }
+                    break;
+                }
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("new file: read forced includes failed: " + ex.Message); }
+            return set;
         }
 
         /// <summary>新しい空のファイルの中身と、カーソルの位置(なければ -1)。書く必要がなければ null。</summary>

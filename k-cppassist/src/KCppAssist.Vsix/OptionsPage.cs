@@ -570,6 +570,11 @@ namespace KCppAssist
         [Description("True のとき、「}  // namespace 名前」と書きます。False(初期値)なら「}」だけです。")]
         public bool NewFileNamespaceComment { get; set; } = false;
 
+        [Category("新規ファイル")]
+        [DisplayName("強制インクルードにある pch の #include を書かない")]
+        [Description("True(初期値)のとき、プロジェクトの「強制インクルード ファイル」(/FI、ForcedIncludeFiles)に pch.h などがあれば、VS の「クラスの追加」が cpp に書いた #include \"pch.h\" を、書き直すときに消します。/FI で毎回読み込まれるので、書かなくてもビルドできます。")]
+        public bool SkipForcedPch { get; set; } = true;
+
         [Browsable(false)]
         public bool KeyScopeMigrated { get; set; } = false;
 
