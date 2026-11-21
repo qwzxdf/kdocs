@@ -29,7 +29,9 @@ namespace KCppAssist
                 // クラス名の上で押したときだけ出す(本体の中に何度も出ると邪魔になるので)
                 Try("ctordtor", "コンストラクター・デストラクターを宣言する");
             }
-            // コピー・ムーブの 3 つは、クラスの中ならどこでも出す(クラス名の行だけだと、本体で押したときに見つからない)
+            // クラス全体を作り変える項目は、クラスそのものを指している行(クラス名・{・};・空の行・public: など)でだけ出す。
+            // メンバー変数や関数の行で押したときに、クラス全体の項目が並ぶと、その行への操作と紛れる
+            if (!AtClassLevel(text, caret)) return list;
             Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
             Try("nocopy", "コピー禁止・ムーブ可にする (= delete / = default)");
             Try("rule5", "コピー・ムーブ・デストラクターを = default で書く");
@@ -109,6 +111,18 @@ namespace KCppAssist
         private static string Ref(string type)
         {
             return Regex.IsMatch(type, @"^(?:(?:const\s+)?(?:bool|char|int|float|double|unsigned|long|short|size_t|u?int\d+_t|UINT|DWORD|BOOL)\b)") ? type : "const " + type + "&";
+        }
+
+        /// <summary>
+        /// caret の行が、クラスそのものを指す行か。クラス名の行、「{」「}」「};」だけの行、空の行、アクセス指定子(public: など)の行。
+        /// メンバー変数・関数・コメントの行は false。
+        /// </summary>
+        public static bool AtClassLevel(string text, int caret)
+        {
+            if (OnHead(text, caret)) return true;
+            int ls = MemberScan.LineStart(text, caret), le = MemberScan.LineEnd(text, caret);
+            string t = text.Substring(ls, le - ls).Trim();
+            return t.Length == 0 || Regex.IsMatch(t, @"^(?:\{|\}\s*;?|(?:public|protected|private)\s*:)$");
         }
 
         /// <summary>caret が「class X」「struct X」を書いた行の上か。</summary>

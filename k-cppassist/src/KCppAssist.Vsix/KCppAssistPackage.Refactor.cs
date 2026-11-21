@@ -157,9 +157,11 @@ namespace KCppAssist
                     if (!hasCpp) list.Add(new Refactor.Offer { Id = "makecpp", Title = stem0 + ".cpp を作る" });
                     if (list.Any(o => o.Id == "ctordtor")) list.Add(new Refactor.Offer { Id = "ctordtor-cpp", Title = "コンストラクター・デストラクターを宣言して、cpp に定義を作る" });
                 }
-                if (cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = "デバッガーの表示 (Natvis) を作る" });
-                if (header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = "定義のない関数を、cpp にまとめて作る" });
-                if (header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))
+                // クラス全体の項目は、クラスそのものを指している行でだけ(メンバーの行では出さない)
+                bool classLevel = ClassGen.AtClassLevel(text, caret);
+                if (classLevel && cls.Members.Count > 0) list.Add(new Refactor.Offer { Id = "natvis", Title = "デバッガーの表示 (Natvis) を作る" });
+                if (classLevel && header && FileGen.Declarations(text, cls.Scope).Count > 0) list.Add(new Refactor.Offer { Id = "defs-all", Title = "定義のない関数を、cpp にまとめて作る" });
+                if (classLevel && header && (cls.Scope.Parent == null || !cls.Scope.Parent.IsClass) && !string.Equals(Path.GetFileName(path), cls.Name + ".h", StringComparison.OrdinalIgnoreCase))
                     list.Add(new Refactor.Offer { Id = "extract", Title = "クラスを " + cls.Name + ".h / .cpp に移す" });
             }
             // 使うライブラリ次第の項目は、設定で出したときだけ(初期値はどれも出さない)
