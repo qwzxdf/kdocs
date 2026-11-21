@@ -193,7 +193,7 @@ namespace KCppAssist
 
         [Category("ファイル名の同期")]
         [DisplayName("直す前に確認する")]
-        [Description("True(既定)のとき、自動で直す前に、何を何に直すかを見せるダイアログを出します(相手・#include・CMake と、クラス名を直すかを、項目ごとに選べます)。False なら、確認せずに、相手・#include・CMake を直します。")]
+        [Description("True(既定)のとき、自動で直す前に、何を何に直すかを見せるダイアログを出します(相手・#include・CMake と、クラス名を直すかを、項目ごとに選べます)。False なら、確認せずに、ダイアログの初期値どおりに直します(相手・#include・CMake と、ファイル名と同じだったクラス名)。ダイアログの「次から確認しない」に印を付けて反映すると、False になります。")]
         public bool RenameConfirm { get; set; } = true;
 
         [Category("エラーログ")]

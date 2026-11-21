@@ -58,7 +58,7 @@ namespace KCppAssist
             {
                 try
                 {
-                    await Task.Delay(400);   // 名前変更の処理が終わるのを待つ
+                    await Task.Delay(120);   // 名前変更の処理が終わるのを待つ(長いと、ダイアログが遅れて見える)
                     await JoinableTaskFactory.SwitchToMainThreadAsync();
                     if (RenameService.Busy) return;
                     var opt = RenameService.Options;
@@ -72,13 +72,12 @@ namespace KCppAssist
                     var undo = model.GetService<ITextUndoHistoryRegistry>();
                     bool follow = true, renameClass = false;
                     string clsOld = null, clsNew = null;
-                    if (opt.RenameConfirm)
+                    bool matched = false;
+                    var pairMove = RenameSync.PairOf(move.Old, move.New, File.Exists);
                     {
-                        // クラス名の候補(ヘッダーにあるクラス)を探す
+                        // クラス名の候補(ヘッダーにあるクラス)を探す。確認しないときも、ダイアログの初期値(クラス名がファイル名と同じなら直す)で動く
                         string oldStem = Path.GetFileNameWithoutExtension(move.Old), newStem = Path.GetFileNameWithoutExtension(move.New);
-                        var pairMove = RenameSync.PairOf(move.Old, move.New, File.Exists);
                         string hdr = RenameSync.IsHeader(move.New) ? move.New : (pairMove != null && RenameSync.IsHeader(pairMove.Old) ? pairMove.Old : null);
-                        bool matched = false;
                         if (hdr != null && !string.Equals(oldStem, newStem, StringComparison.Ordinal))
                         {
                             string htext = RenameService.ReadAny(hdr, adapters);
@@ -90,6 +89,10 @@ namespace KCppAssist
                                 else matched = RenameSync.SameName(clsOld, oldStem);
                             }
                         }
+                        renameClass = clsOld != null && matched;
+                    }
+                    if (opt.RenameConfirm)
+                    {
                         var items = new System.Collections.Generic.List<RenamePrompt.Item>();
                         items.Add(new RenamePrompt.Item
                         {
@@ -104,13 +107,16 @@ namespace KCppAssist
                                 Detail = "class " + clsOld + " → " + clsNew + "  (コード全体の同じ名前の単語が変わります)",
                                 Checked = matched,
                             });
-                        var res = RenamePrompt.Show(Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), "ファイル名が変わりました。ほかも直しますか?", items);
+                        bool dontAsk;
+                        var res = RenamePrompt.Show(Path.GetFileName(move.Old) + " → " + Path.GetFileName(move.New), "ファイル名が変わりました。ほかも直しますか?", items, out dontAsk);
                         if (res == null) return;
+                        if (dontAsk) RenamePrompt.TurnOffConfirm();
                         follow = res[0];
                         renameClass = clsOld != null && res[1];
                         if (!follow && !renameClass) return;
                     }
                     RenameService.Busy = true;
+                    _classWatchRun++;       // Ctrl+R, R のあとの監視が残っていても、ここで書き換えたクラス名を、もう一度拾わせない
                     string msg = "";
                     try
                     {
@@ -169,6 +175,8 @@ namespace KCppAssist
             // 開いている文書を保存して、名前を変える(プロジェクトに入っていれば、プロジェクトごと)
             try { dte.ActiveDocument.Save(); } catch (Exception) { }
             var first = new RenameSync.Move { Old = path, New = newPath };
+            // 名前を変える前に、自分の変更だと覚える(フォルダーの監視の通知が先に届くと、もう一度「名前が変わった」と見つけてしまう)
+            RenameHub.Remember(first);
             string msg;
             RenameService.Busy = true;
             try

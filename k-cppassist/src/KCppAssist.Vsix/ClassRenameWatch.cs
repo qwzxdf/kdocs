@@ -55,7 +55,7 @@ namespace KCppAssist
             ThreadHelper.ThrowIfNotOnUIThread();
             _classesBefore = null;
             var opt = RenameService.Options;
-            if (opt == null || opt.RenameMode == RenameMode.Off || !opt.RenameConfirm) return;
+            if (opt == null || opt.RenameMode == RenameMode.Off) return;
             string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
             if (path == null || !(RenameSync.IsHeader(path) || RenameSync.IsSource(path))) return;
             var model = (IComponentModel)GetGlobalService(typeof(SComponentModel));
@@ -81,9 +81,10 @@ namespace KCppAssist
         {
             try
             {
-                for (int i = 0; i < 40 && run == _classWatchRun; i++)
+                // 最初は短い間隔で見る(名前の変更は、ダイアログを閉じた直後に終わることが多い)。60 秒ほどで、あきらめる
+                for (int i = 0; i < 130 && run == _classWatchRun; i++)
                 {
-                    await Task.Delay(1500);
+                    await Task.Delay(i < 20 ? 250 : 500);
                     await JoinableTaskFactory.SwitchToMainThreadAsync();
                     if (run != _classWatchRun || RenameService.Busy) return;
                     var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
@@ -117,16 +118,28 @@ namespace KCppAssist
             string detail = Path.GetFileName(header) + " → " + Path.GetFileName(newPath);
             if (pair != null) detail += "\n" + Path.GetFileName(pair.Old) + " → " + Path.GetFileName(pair.New);
             detail += "\n#include \"" + Path.GetFileName(header) + "\" → #include \"" + Path.GetFileName(newPath) + "\"";
-            var res = RenamePrompt.Show("クラス名が " + oldName + " → " + newName + " に変わりました",
-                matched ? "ファイル名がクラス名と同じでした。ファイル名と #include も直しますか?" : "ファイル名 (" + Path.GetFileName(header) + ") はクラス名と違っていました。ファイル名と #include も直しますか?",
-                new List<RenamePrompt.Item> { new RenamePrompt.Item { Text = "ファイル名・相手のファイル・#include・CMake も直す", Detail = detail, Checked = matched } });
-            if (res == null || !res[0]) return;
+            var opt = RenameService.Options;
+            if (opt != null && opt.RenameConfirm)
+            {
+                bool dontAsk;
+                var res = RenamePrompt.Show("クラス名が " + oldName + " → " + newName + " に変わりました",
+                    matched ? "ファイル名がクラス名と同じでした。ファイル名と #include も直しますか?" : "ファイル名 (" + Path.GetFileName(header) + ") はクラス名と違っていました。ファイル名と #include も直しますか?",
+                    new List<RenamePrompt.Item> { new RenamePrompt.Item { Text = "ファイル名・相手のファイル・#include・CMake も直す", Detail = detail, Checked = matched } },
+                    out dontAsk);
+                if (res == null) return;
+                if (dontAsk) RenamePrompt.TurnOffConfirm();
+                if (!res[0]) return;
+            }
+            // 確認しないときは、ダイアログの初期値と同じく、ファイル名がクラス名と同じだったときだけ直す
+            else if (!matched) return;
 
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
             var undo = model.GetService<ITextUndoHistoryRegistry>();
             var dte = (DTE)await GetServiceAsync(typeof(DTE));
             try { foreach (Document d in dte.Documents) { try { if (string.Equals(d.FullName, header, StringComparison.OrdinalIgnoreCase)) d.Save(); } catch (Exception) { } } } catch (Exception) { }
             string msg;
+            // 名前を変える前に、自分の変更だと覚える(フォルダーの監視の通知が先に届くと、ファイル名の変更のダイアログがもう一度出る)
+            RenameHub.Remember(move);
             RenameService.Busy = true;
             try
             {
