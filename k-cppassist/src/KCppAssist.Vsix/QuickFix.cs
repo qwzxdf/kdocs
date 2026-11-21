@@ -124,9 +124,12 @@ namespace KCppAssist
                 }
 
                 // class / struct の行: override・コンストラクターを作る
+                // 「メンバーからコンストラクターを作る」は、「コンストラクター・デストラクターを宣言する」のすぐ下に出す(下の書き換えの一覧で入れる)
                 string lineText = line.GetText();
-                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()))); }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) list.Add(Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())));
+                ISuggestedAction ctorAction = null;
+                int ctorAt = -1;
+                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
+                else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) { ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
 
                 // 宣言していない変数への代入: 型を付ける。メンバー関数の中なら、メンバー変数にもできる
                 var assign = AssignScan.Find(text, caret);
@@ -170,7 +173,9 @@ namespace KCppAssist
                 {
                     string id = o.Id;
                     list.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
+                    if (id == "ctordtor" && ctorAction != null) { list.Add(ctorAction); ctorAction = null; }
                 }
+                if (ctorAction != null) list.Insert(Math.Min(ctorAt, list.Count), ctorAction);
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
             return list;

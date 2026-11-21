@@ -89,6 +89,15 @@ static class DefTests
         Check("struct は先頭から public", Member("struct P {\n  int x;\n};\n", "P", "void G();"), "struct P {\n  int x;\n  void G();\n};\n");
         Check("コメントの中の public: は無視", Member("class A {\n public:\n  void F();  // public: です\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void F();  // public: です\n  void G();\n private:\n  int x_;\n};\n");
 
+        // 新しい cpp に namespace の枠だけあるとき: 枠の中に、namespace を付けない名前で置く
+        string nsh = "namespace Prest {\nclass RPCDispatcher {\npublic:\n\tRPCDispatcher();\n\tint Count() const;\n};\n}\n";
+        string nsc = "#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\n\n}\n";
+        string afterCtor = Def(nsh, nsc, "RPCDispatcher");
+        Check("空の namespace の枠の中に置く", afterCtor, "#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\n}\n");
+        Check("2 つ目は 1 つ目の後ろ", Def(nsh, afterCtor, "Count"), "#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\nint RPCDispatcher::Count() const\n{\n\treturn 0;\n}\n\n}\n");
+        Check("枠が {} だけ", Def(nsh, "namespace Prest {}\n", "RPCDispatcher"), "namespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\n}\n");
+        Check("別の namespace の枠には入れない", Def(nsh, "namespace Other {\n}\n", "RPCDispatcher"), "namespace Other {\n}\n\nPrest::RPCDispatcher::RPCDispatcher()\n{\n}\n");
+
         Console.WriteLine("def: pass=" + pass + " fail=" + fail);
         return fail;
     }

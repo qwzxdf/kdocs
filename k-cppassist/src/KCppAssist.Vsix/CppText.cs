@@ -136,6 +136,13 @@ namespace KCppAssist
         /// ファイルの字下げ 1 段の文字(タブ、空白 2 つ、空白 4 つ)。行頭がタブの行と空白の行を数えて、多いほう。
         /// 空白なら、4 の倍数でない字下げ(2・6・10…)が 2 割以上あれば 2、なければ 4。字下げのある行が 1 行もないときは、タブ(VS の C++ の既定)。
         /// </summary>
+        /// <summary>IndentUnit と同じ。ただし、text に字下げのある行がなければ(新しい cpp など)、fallback(相手のヘッダーなど)から決める。</summary>
+        public static string IndentUnit(string text, string fallback)
+        {
+            bool any = text != null && System.Text.RegularExpressions.Regex.IsMatch(text, @"(?m)^(?:\t|  )\S");
+            return IndentUnit(any ? text : fallback);
+        }
+
         public static string IndentUnit(string text)
         {
             int tab = 0, sp2 = 0, sp4 = 0;

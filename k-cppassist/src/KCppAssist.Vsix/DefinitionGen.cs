@@ -95,6 +95,21 @@ namespace KCppAssist
 
             // anchor が namespace の中にあれば、その分は修飾しない
             int skip = anchor != null && anchor.Enclosing > 0 && anchor.Enclosing <= decl.Chain.Count && anchor.Chain.Take(anchor.Enclosing).SequenceEqual(decl.Chain.Take(anchor.Enclosing)) ? anchor.Enclosing : 0;
+
+            // 置き場所の定義がない(新しい cpp で、namespace の枠だけある)ときは、同じ namespace の枠の中の末尾に置く。
+            // 枠の外の末尾に「Prest::Foo::Foo()」と書くより、枠の中に「Foo::Foo()」と書くほうが、ふつうの書き方
+            Scopes.Scope nsBox = null;
+            if (anchor == null)
+            {
+                int ownClasses = decl.Class != null ? 1 : 0;
+                int nsCount = decl.Chain.Count - ownClasses;
+                nsBox = Scopes.Parse(cppText)
+                    .Where(s => !s.IsClass && s.Name != null)
+                    .Where(s => { var c = s.Chain(); return c.Count > 0 && c.Count <= nsCount && c.SequenceEqual(decl.Chain.Take(c.Count)); })
+                    .OrderByDescending(s => s.Chain().Count).ThenByDescending(s => s.Open)
+                    .FirstOrDefault();
+                if (nsBox != null) skip = nsBox.Chain().Count;
+            }
             var quals = decl.Chain.Skip(skip).ToList();
             string name = (quals.Count > 0 ? string.Join("::", quals) + "::" : "") + decl.Name;
 
@@ -112,12 +127,30 @@ namespace KCppAssist
             sb.Append(name).Append('(').Append(string.Join(", ", cleaned)).Append(')');
             if (tail.Length > 0) sb.Append(' ').Append(tail);
             sb.Append(eol).Append('{').Append(eol);
-            if (!ctor) sb.Append(ReturnLine(ret, eol));
+            if (!ctor) sb.Append(ReturnLine(ret, eol, CppText.IndentUnit(cppText, headerText)));
             sb.Append('}');
             string stub = sb.ToString();
 
             if (anchor != null)
                 return new Edit { Position = anchor.End + 1, Text = eol + eol + stub };
+            if (nsBox != null)
+            {
+                // 枠の中の最後の中身(なければ「{」)の後ろ。空の枠なら「{」と「}」の間に、空行で挟んで置く
+                string cm = CppText.Mask(cppText);
+                int last = nsBox.Close - 1;
+                while (last > nsBox.Open && char.IsWhiteSpace(cm[last])) last--;
+                if (last == nsBox.Open)
+                {
+                    // 「{」と「}」の間の改行を数えて、前後に空行が 1 行ずつ残る位置に、挿入だけで入れる
+                    var nls = new List<int>();
+                    for (int i = nsBox.Open + 1; i < nsBox.Close; i++) if (cppText[i] == '\n') nls.Add(i);
+                    if (nls.Count >= 3) return new Edit { Position = nls[1] + 1, Text = stub + eol };
+                    if (nls.Count == 2) return new Edit { Position = nls[1] + 1, Text = stub + eol + eol };
+                    if (nls.Count == 1) return new Edit { Position = nls[0] + 1, Text = eol + stub + eol + eol };
+                    return new Edit { Position = nsBox.Open + 1, Text = eol + eol + stub + eol + eol };
+                }
+                return new Edit { Position = last + 1, Text = eol + eol + stub };
+            }
             bool endsWithNewline = cppText.EndsWith("\n");
             return new Edit { Position = cppText.Length, Text = (cppText.Length == 0 ? "" : (endsWithNewline ? eol : eol + eol)) + stub + eol };
         }
@@ -144,15 +177,15 @@ namespace KCppAssist
         }
 
         /// <summary>戻り値の型に合わせた、仮の return 文(void・参照・auto は何も書かない)。</summary>
-        private static string ReturnLine(string ret, string eol)
+        private static string ReturnLine(string ret, string eol, string unit = "  ")
         {
             string r = Regex.Replace(ret, @"\b(?:const|volatile|__cdecl|__stdcall|__fastcall|__vectorcall|XM_CALLCONV)\b", " ");
             r = Regex.Replace(r, @"\s+", " ").Trim();
             if (r == "void" || r.Length == 0 || r.Contains("&") || r == "auto" || r.StartsWith("decltype")) return "";
-            if (r.EndsWith("*") || Regex.IsMatch(r, @"\b(?:unique_ptr|shared_ptr|weak_ptr|optional|function)\b")) return "  return " + (r.EndsWith("*") ? "nullptr" : "{}") + ";" + eol;
-            if (r == "bool") return "  return false;" + eol;
-            if (Regex.IsMatch(r, @"^(?:unsigned |signed )?(?:int|long|short|char|long long|size_t|float|double|u?int(?:8|16|32|64)_t|[A-Z][A-Z0-9_]*)$")) return "  return 0;" + eol;
-            return "  return {};" + eol;
+            if (r.EndsWith("*") || Regex.IsMatch(r, @"\b(?:unique_ptr|shared_ptr|weak_ptr|optional|function)\b")) return unit + "return " + (r.EndsWith("*") ? "nullptr" : "{}") + ";" + eol;
+            if (r == "bool") return unit + "return false;" + eol;
+            if (Regex.IsMatch(r, @"^(?:unsigned |signed )?(?:int|long|short|char|long long|size_t|float|double|u?int(?:8|16|32|64)_t|[A-Z][A-Z0-9_]*)$")) return unit + "return 0;" + eol;
+            return unit + "return {};" + eol;
         }
 
         // ---- 定義 → 宣言 ----
