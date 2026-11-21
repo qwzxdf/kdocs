@@ -139,11 +139,30 @@ namespace KCppAssist
                     if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action("メンバー変数としてヘッダーに宣言する (" + assign.Name + ")", () => Invoke(p => p.Run(true))));
                 }
 
-                // メンバー変数の宣言の行: ゲッター・セッターを作る(Alt+E)
+                // メンバー変数の宣言の行: Getter・Setter を作る(Alt+E)
                 if (header && !lineText.Contains("(") && MemberScan.At(text, caret) != null
                     && System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:(?:static|mutable|const|inline)\s+)*[A-Za-z_][\w:<>,\s\*&]*?\s+[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;\s*(?://.*)?$")
                     && !System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:return|using|typedef|friend|delete|goto)"))
-                    list.Add(Action("ゲッター・セッターを作る", () => Invoke(p => p.RunAccessor())));
+                {
+                    list.Add(Action("Getter・Setter を作る", () => Invoke(p => p.RunAccessor(true, true))));
+                    list.Add(Action("Getter を作る", () => Invoke(p => p.RunAccessor(true, false))));
+                    list.Add(Action("Setter を作る", () => Invoke(p => p.RunAccessor(false, true))));
+                }
+
+                // メンバー変数の行で、型がポインター・参照・スマート ポインターの中身なら、その型の #include を前方宣言にする。
+                // その名前のヘッダーを #include していて、まだ前方宣言していないときだけ出す
+                if (header && !lineText.Contains("(") && MemberScan.At(text, caret) != null)
+                {
+                    var fm = System.Text.RegularExpressions.Regex.Match(lineText,
+                        @"(?:(?:unique_ptr|shared_ptr|weak_ptr|ComPtr|observer_ptr)\s*<\s*(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*>|(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*[*&])\s*[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;");
+                    string ft = fm.Success ? (fm.Groups[1].Success ? fm.Groups[1].Value : fm.Groups[2].Value) : null;
+                    if (ft != null && char.IsUpper(ft[0]) && !CppText.IsForwardDeclared(CppText.Mask(text), ft)
+                        && System.Text.RegularExpressions.Regex.IsMatch(text, @"#\s*include\s*[<""](?:[^"">]*/)?" + System.Text.RegularExpressions.Regex.Escape(ft) + @"\.(?:h|hpp|hh|hxx)["">]"))
+                    {
+                        string name = ft;
+                        list.Add(Action(name + " を前方宣言にする (#include を cpp に移す)", () => Invoke(p => p.RunForward(name))));
+                    }
+                }
 
                 // 足りない #include: カーソルの名前のヘッダーを足す(Alt+F)
                 var incWord = IncludeWordAt(text, caret);

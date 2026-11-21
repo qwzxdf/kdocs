@@ -46,8 +46,21 @@ static class FwdTests
             Make("#include <memory>\n#include \"scene.h\"\nclass G {\n  std::shared_ptr<game::Scene> s_;\n};\n", "scene.h", Scene),
             "#include <memory>\n\nnamespace game {\nclass Scene;\n}  // namespace game\n\nclass G {\n  std::shared_ptr<game::Scene> s_;\n};\n|\"scene.h\"|Scene");
 
-        Check("unique_ptr は、完全な型が要るので、前方宣言にしない",
-            Make("#include <memory>\n#include \"scene.h\"\nclass G {\n  std::unique_ptr<game::Scene> s_;\n};\n", "scene.h", Scene).StartsWith("!") ? "refused" : "made", "refused");
+        // unique_ptr も前方宣言にできる(コンストラクター・デストラクターは、呼び出し側が MoveSpecialsOut で cpp に移す)
+        Check("unique_ptr の中は、前方宣言にできる",
+            Make("#include <memory>\n#include \"scene.h\"\nclass G {\n  std::unique_ptr<game::Scene> s_;\n};\n", "scene.h", Scene).StartsWith("!") ? "refused" : "made", "made");
+
+        // ---- unique_ptr のクラスの、コンストラクター・デストラクター・ムーブを宣言だけにする ----
+        string ecm = "namespace Prest {\n\tclass TCPServer;\n\tclass E\n\t{\n\tpublic:\n\t\tE() = default;\n\t\t~E() = default;\n\t\tE(const E&) = delete;\n\t\tE& operator=(const E&) = delete;\n\t\tE(E&&) noexcept = default;\n\t\tE& operator=(E&&) noexcept = default;\n\n\t\tstd::unique_ptr<TCPServer> server_;\n\t};\n}\n";
+        List<string> mv;
+        Check("unique_ptr: specials become declarations", ForwardDecl.MoveSpecialsOut(ecm, new[] { "TCPServer" }, "\n", out mv),
+            "namespace Prest {\n\tclass TCPServer;\n\tclass E\n\t{\n\tpublic:\n\t\tE();\n\t\t~E();\n\t\tE(const E&) = delete;\n\t\tE& operator=(const E&) = delete;\n\t\tE(E&&) noexcept;\n\t\tE& operator=(E&&) noexcept;\n\n\t\tstd::unique_ptr<TCPServer> server_;\n\t};\n}\n");
+        Check("unique_ptr: moved list", string.Join(",", mv), "E::E,E::~E,E::E(&&),E::operator=(&&)");
+        string nodtor = "class G {\n public:\n  void F();\n private:\n  std::unique_ptr<Scene> s_;\n};\n";
+        Check("unique_ptr: adds ~G(); when missing", ForwardDecl.MoveSpecialsOut(nodtor, new[] { "game::Scene" }, "\n", out mv),
+            "class G {\n public:\n  void F();\n  ~G();\n private:\n  std::unique_ptr<Scene> s_;\n};\n");
+        Check("unique_ptr: other class untouched", ForwardDecl.MoveSpecialsOut("class G {\n public:\n  ~G() = default;\n  std::unique_ptr<Other> o_;\n};\n", new[] { "Scene" }, "\n", out mv), "class G {\n public:\n  ~G() = default;\n  std::unique_ptr<Other> o_;\n};\n");
+        Check("unique_ptr: = default body", ForwardDecl.AsDefaulted("E::~E()\n{\n}", "\n"), "E::~E() = default;");
 
         Check("型以外(定数・関数)も使っていれば、残す",
             Make("#include \"util.h\"\nclass G {\n  Widget* w_;\n  int n_ = kMax;\n};\n", "util.h", "class Widget {};\nconstexpr int kMax = 3;\n").StartsWith("!") ? "refused" : "made", "refused");

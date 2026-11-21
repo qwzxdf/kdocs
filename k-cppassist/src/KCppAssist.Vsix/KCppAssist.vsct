@@ -97,7 +97,7 @@
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdAccessor" priority="0x0102" type="Button">
         <Strings>
-          <ButtonText>ゲッター・セッターを作る (Getter / Alt+G)</ButtonText>
+          <ButtonText>Getter・Setter を作る (Getter / Alt+G)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdInclude" priority="0x0104" type="Button">

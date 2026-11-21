@@ -11,7 +11,7 @@ namespace KCppAssist.ErrorLog
         {
             // ---- アクセス・抽象・マクロの衝突 ----
             t["C2248"] = new Hint("private / protected のメンバーは、ここから使えません",
-                "メンバーの公開範囲(public / protected / private)が、使う場所に合っていません。public にするか、公開用の関数(ゲッターなど)を用意するか、friend にします。",
+                "メンバーの公開範囲(public / protected / private)が、使う場所に合っていません。public にするか、公開用の関数(Getter など)を用意するか、friend にします。",
                 "class Foo { int x_; };        // 何も書かないクラスは private\nfoo.x_ = 1;                   // C2248\n\nclass Foo { public: int x_; };   // 直し方 1: public にする\nclass Foo { int x_; public: int GetX() const { return x_; } };   // 直し方 2: 関数を用意する");
             t["C2259"] = new Hint("抽象クラスのオブジェクトは作れません",
                 "実装されていない純粋仮想関数(= 0)が残っているクラスは、オブジェクトを作れません。派生クラスで、すべて override して実装し、派生クラスのオブジェクトを作ります。override したつもりで、const や引数の違いで別の関数になっていることもあります。",

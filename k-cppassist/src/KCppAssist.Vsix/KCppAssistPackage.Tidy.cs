@@ -240,6 +240,7 @@ namespace KCppAssist
                 if (!it.Angle) dirs.Add(Path.GetDirectoryName(curPath));
                 if (!string.IsNullOrEmpty(root)) dirs.Add(root);
                 dirs.AddRange(IncludeService.Index.IncludeRoots());
+                dirs.AddRange(RenameService.ProjectIncludeDirs(curPath));      // .vcxproj の「追加のインクルード ディレクトリ」
                 foreach (string d in dirs)
                 {
                     try { string full = Path.GetFullPath(Path.Combine(d, rel)); if (File.Exists(full)) return full; } catch (Exception) { }
@@ -295,16 +296,17 @@ namespace KCppAssist
 
         // ---- #include を前方宣言にする ----
 
-        internal void RunForward()
+        /// <summary>typeName を渡すと、その型を定義している #include だけを前方宣言にする(メンバー変数の行の電球から)。</summary>
+        internal void RunForward(string typeName = null)
         {
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
-                try { await RunForwardAsync(); }
+                try { await RunForwardAsync(typeName); }
                 catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
             });
         }
 
-        private async Task RunForwardAsync()
+        private async Task RunForwardAsync(string typeName)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
@@ -324,14 +326,16 @@ namespace KCppAssist
             string text = view.TextSnapshot.GetText();
             string eol = CppText.Eol(text);
             int caret = view.Caret.Position.BufferPosition.Position;
-            var includes = IncludeTidy.Parse(text).Where(i => i.Depth == 0 && !i.Angle).ToList();
+            // 型の名前から探すときは、<Prest/...> のような <> の書き方のプロジェクトのヘッダーも対象にする
+            var includes = IncludeTidy.Parse(text).Where(i => i.Depth == 0 && (!i.Angle || typeName != null)).ToList();
             if (includes.Count == 0) { await ReportAsync("このヘッダーに、\"...\" の #include がありません", true); return; }
-            var onLine = includes.FirstOrDefault(i => caret >= i.Start && caret < i.End);
+            var onLine = typeName != null ? null : includes.FirstOrDefault(i => caret >= i.Start && caret < i.End);
             var targets = onLine != null ? new List<IncludeTidy.Item> { onLine } : includes;
 
             string root = IncludeService.RootFor(path);
             var cache = new ProvidedCache(opt);
             var cppTokens = new List<string>();
+            var fwdNames = new List<string>();       // 前方宣言にした型の名前
             var done = new List<string>();
             var why = new List<string>();
             string current = text;
@@ -345,6 +349,7 @@ namespace KCppAssist
                 string incText;
                 try { incText = File.ReadAllText(file); } catch (Exception) { why.Add(inc.Path + ": 読めません"); continue; }
                 var types = ForwardDecl.Types(incText);
+                if (typeName != null && !types.Any(t => t.Name == typeName)) continue;     // その型を定義しているヘッダーではない
                 if (types.Count == 0) { why.Add(inc.Path + ": 前方宣言できる class / struct がありません"); continue; }
                 var transitive = new HashSet<string>(StringComparer.Ordinal);
                 var provided = cache.For(inc, path, root);
@@ -355,11 +360,12 @@ namespace KCppAssist
                 current = r.NewText;
                 cppTokens.Add(r.CppToken);
                 done.Add(inc.Path + " → " + string.Join(", ", r.Names));
+                fwdNames.AddRange(r.Names);
             }
 
             if (done.Count == 0)
             {
-                await ReportAsync("前方宣言にできる #include がありません。" + (why.Count > 0 ? why[0] : ""), true);
+                await ReportAsync((typeName != null && why.Count == 0 ? typeName + " を定義している #include が見つかりません。" : "前方宣言にできる #include がありません。") + (why.Count > 0 ? why[0] : ""), true);
                 Log("forward: " + string.Join(" / ", why));
                 return;
             }
@@ -368,7 +374,19 @@ namespace KCppAssist
             string stem = Path.GetFileNameWithoutExtension(path);
             var cpps = await Task.Run(() => SyncService.Candidates(path, null, root, true, opt).Where(f => !IncludeService.IsHeader(f)).ToList());
             await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            // unique_ptr<前方宣言した型> を持つクラスは、コンストラクター・デストラクター・ムーブを cpp に移す(ヘッダーでは中身の型が不完全なため)。
+            // cpp がないと定義の置き場がない(リンクできなくなる)ので、そのときは移さない
+            List<string> movedSpecials = new List<string>();
+            if (cpps.Count > 0)
+            {
+                List<string> mv;
+                string moved = ForwardDecl.MoveSpecialsOut(current, fwdNames, eol, out mv);
+                if (mv.Count > 0) { current = moved; movedSpecials = mv; }
+            }
+
             var addedTo = new List<string>();
+            bool defsDone = movedSpecials.Count == 0;
             foreach (string cpp in cpps)
             {
                 ITextBuffer buf = SyncService.OpenForEdit(cpp, adapters);
@@ -384,6 +402,23 @@ namespace KCppAssist
                     edits.Add(Tuple.Create(e.Position, 0, e.Text));
                     work = work.Substring(0, e.Position) + e.Text + work.Substring(e.Position);
                 }
+                // 宣言だけにしたコンストラクター・デストラクター・ムーブの定義を、最初の cpp に「= default;」で作る
+                if (!defsDone)
+                {
+                    defsDone = true;
+                    foreach (var decl in FunctionScan.Scan(current).Where(d => !d.HasBody && d.Class != null && movedSpecials.Any(ms => ms.StartsWith(d.Class + "::", StringComparison.Ordinal)) && (d.Name == d.Class || d.Name == "~" + d.Class || d.Name.StartsWith("operator", StringComparison.Ordinal))).ToList())
+                    {
+                        if (decl.Name.StartsWith("operator", StringComparison.Ordinal) && !decl.Inner(current).Contains("&&")) continue;     // ムーブ代入だけ
+                        if (decl.Name == decl.Class && decl.Inner(current).Trim().Length > 0 && !decl.Inner(current).Contains("&&")) continue;   // 引数のあるコンストラクターは対象外
+                        if (FunctionScan.Scan(work).Any(d => d.HasBody && SyncPlan.Counterpart(d, decl, true) > 0)) continue;     // すでに定義がある
+                        string why2;
+                        var de = DefinitionGen.PlanDefinition(current, decl, work, cppEol, out why2);
+                        if (de == null) continue;
+                        string t = ForwardDecl.AsDefaulted(de.Text, cppEol);
+                        work = work.Substring(0, de.Position) + t + work.Substring(de.Position);
+                        edits.Add(Tuple.Create(de.Position, 0, t));
+                    }
+                }
                 if (edits.Count == 0) continue;
                 // Plan は、足すたびの文字列に対する位置なので、まとめて 1 回で置き換える
                 SyncService.ApplyEdits(buf, SyncService.Diff(cppText, work), undo, "K-Cpp: #include を cpp に移す");
@@ -391,7 +426,8 @@ namespace KCppAssist
             }
             SyncService.ApplyEdits(view.TextBuffer, SyncService.Diff(text, current), undo, "K-Cpp: #include を前方宣言にする");
             Log("forward: " + string.Join(" / ", done));
-            await ReportAsync(string.Join("、", done) + " を前方宣言にしました" + (addedTo.Count > 0 ? "。#include は " + string.Join("・", addedTo) + " に足しました" : "。cpp が見つからないので、#include は移していません"), false);
+            await ReportAsync(string.Join("、", done) + " を前方宣言にしました" + (addedTo.Count > 0 ? "。#include は " + string.Join("・", addedTo) + " に足しました" : "。cpp が見つからないので、#include は移していません")
+                + (movedSpecials.Count > 0 ? "。unique_ptr のため、" + string.Join("・", movedSpecials.Select(x => x.Substring(x.IndexOf("::") + 2))) + " を cpp に = default で定義しました" : ""), false);
         }
     }
 }

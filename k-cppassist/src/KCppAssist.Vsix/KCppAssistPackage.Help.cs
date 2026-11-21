@@ -38,7 +38,7 @@ namespace KCppAssist
             new HelpSection("🔤", "変数まわり",
                 H("Alt+Q", "ローカル変数に型を付ける (Qualify type)", "count = 0;  →  int count = 0;"),
                 H("Alt+W", "メンバー変数として宣言する (Write member)", "cpp の stride_ = 1; から、ヘッダーのクラスに UINT stride_; を足す"),
-                H("Alt+G", "ゲッター・セッターを作る (Getter)", "ヘッダーのメンバー変数の行で押すと、public: の末尾に GetXxx / SetXxx を足す")),
+                H("Alt+G", "Getter・Setter を作る (Getter)", "ヘッダーのメンバー変数の行で押すと、public: の末尾に GetXxx / SetXxx を足す")),
             new HelpSection("📎", "#include",
                 H("Alt+I", "#include を足す (Include)", "カーソルの型名 (std::vector、ComPtr、自作クラス) のヘッダーを、cpp / ヘッダーの先頭に足す"),
                 H("Alt+F", "#include を前方宣言にする (Forward)", "ヘッダーの #include \"x.h\" を class X; にして、#include を cpp に移す (ポインター・参照・shared_ptr だけで使っている型が対象)"),

@@ -8,7 +8,8 @@ namespace KCppAssist
 {
     /// <summary>
     /// ヘッダーの #include を、前方宣言に置き換える(cpp 側に #include を移す)。VS に依存しない。
-    /// ポインター・参照・shared_ptr / weak_ptr の中でしか使っていない型だけが対象で、少しでも怪しければ、作らない。
+    /// ポインター・参照・shared_ptr / weak_ptr / unique_ptr の中でしか使っていない型だけが対象で、少しでも怪しければ、作らない。
+    /// unique_ptr のときは、呼び出し側が MoveSpecialsOut でコンストラクター・デストラクターを cpp に移す。
     /// </summary>
     internal static class ForwardDecl
     {
@@ -30,7 +31,7 @@ namespace KCppAssist
         // 「Foo* name」「Foo& name」「shared_ptr<Foo> name」の name(ポインター・参照で持っている名前)
         private static readonly Regex PtrName = new Regex(@"\G\s*(?:const\s+)?[*&]+\s*(?:const\s+)?([A-Za-z_]\w*)", RegexOptions.Compiled);
         private static readonly Regex SmartName = new Regex(@"\G\s*>\s*&?\s*([A-Za-z_]\w*)", RegexOptions.Compiled);
-        private static readonly Regex SmartBefore = new Regex(@"(?:shared_ptr|weak_ptr)\s*<\s*(?:const\s+)?$", RegexOptions.Compiled);
+        private static readonly Regex SmartBefore = new Regex(@"(?:shared_ptr|weak_ptr|unique_ptr)\s*<\s*(?:const\s+)?$", RegexOptions.Compiled);
 
         /// <summary>#include foo.h を前方宣言にできるか。できなければ null で、理由を why に入れる。</summary>
         public static Result Make(string text, IncludeTidy.Item inc, List<TypeInfo> types, ISet<string> otherNames, string eol, out string why)
@@ -148,5 +149,82 @@ namespace KCppAssist
             }
             return list;
         }
+            /// <summary>
+        /// 前方宣言にした型(names)を std::unique_ptr で持つクラスの、コンストラクター・デストラクター・ムーブを、ヘッダーの中では宣言だけにする。
+        /// unique_ptr のデストラクターは、中身の型の完全な定義を要るので、ヘッダーに「~Foo() = default;」があると、前方宣言だけではコンパイルできない
+        /// (コンストラクターとムーブも、途中で例外が出たときや代入の前に、中身を消す処理を持つので同じ)。
+        /// 「= default;」か「{}」のものだけを宣言にする(処理を書いたものは触らない)。デストラクターがなければ「~Foo();」を足す。
+        /// moved に、宣言にしたもの(「Foo::~Foo」など)を入れる。直す所がなければ text をそのまま返す。
+        /// </summary>
+        public static string MoveSpecialsOut(string text, IEnumerable<string> names, string eol, out List<string> moved)
+        {
+            moved = new List<string>();
+            var set = new HashSet<string>(names.Select(n => n.Substring(n.LastIndexOf(':') + 1)), StringComparer.Ordinal);
+            if (set.Count == 0) return text;
+            string alt = string.Join("|", set.Select(Regex.Escape));
+            var uptr = new Regex(@"\b(?:std::)?unique_ptr\s*<\s*(?:const\s+)?(?:[A-Za-z_]\w*::)*(?:" + alt + @")\s*[,>]");
+            // 後ろのクラスから直す(前の位置がずれないように)
+            foreach (var s in Scopes.Parse(text).Where(x => x.IsClass && !string.IsNullOrEmpty(x.Name)).OrderByDescending(x => x.Open).ToList())
+            {
+                string m = CppText.Mask(text);
+                if (s.Close >= m.Length) continue;
+                var info = MemberScan.Of(text, s);
+                if (!info.Members.Any(x => uptr.IsMatch(x.Type))) continue;
+                string c = Regex.Escape(s.Name);
+                var rules = new List<KeyValuePair<Regex, Func<Match, string>>>
+                {
+                    new KeyValuePair<Regex, Func<Match, string>>(new Regex(@"^([ \t]*)(explicit\s+)?" + c + @"\s*\(\s*\)\s*(noexcept\s*)?(?:=\s*default\s*;|\{\s*\})[ \t]*$"),
+                        x => x.Groups[1].Value + x.Groups[2].Value + s.Name + "()" + (x.Groups[3].Success ? " noexcept" : "") + ";"),
+                    new KeyValuePair<Regex, Func<Match, string>>(new Regex(@"^([ \t]*)(virtual\s+)?~" + c + @"\s*\(\s*\)\s*(noexcept\s*)?(override\s*)?(?:=\s*default\s*;|\{\s*\})[ \t]*$"),
+                        x => x.Groups[1].Value + x.Groups[2].Value + "~" + s.Name + "()" + (x.Groups[4].Success ? " override" : "") + ";"),
+                    new KeyValuePair<Regex, Func<Match, string>>(new Regex(@"^([ \t]*)" + c + @"\s*\(\s*" + c + @"\s*&&\s*\w*\s*\)\s*(noexcept\s*)?=\s*default\s*;[ \t]*$"),
+                        x => x.Groups[1].Value + s.Name + "(" + s.Name + "&&)" + (x.Groups[2].Success ? " noexcept" : "") + ";"),
+                    new KeyValuePair<Regex, Func<Match, string>>(new Regex(@"^([ \t]*)" + c + @"\s*&\s*operator\s*=\s*\(\s*" + c + @"\s*&&\s*\w*\s*\)\s*(noexcept\s*)?=\s*default\s*;[ \t]*$"),
+                        x => x.Groups[1].Value + s.Name + "& operator=(" + s.Name + "&&)" + (x.Groups[2].Success ? " noexcept" : "") + ";"),
+                };
+                string[] label = { s.Name + "::" + s.Name, s.Name + "::~" + s.Name, s.Name + "::" + s.Name + "(&&)", s.Name + "::operator=(&&)" };
+                // クラスの本体の直下の行を、1 行ずつ見る
+                var edits = new List<Tuple<int, int, string>>();
+                bool hasDtor = false;
+                int depth = 0;
+                for (int i = s.Open; i < s.Close; i++)
+                {
+                    char ch = m[i];
+                    if (ch == '{') depth++;
+                    else if (ch == '}') depth--;
+                    if (!(ch == '\n' && depth == 1)) continue;
+                    int ls = i + 1, le = ls;
+                    while (le < s.Close && text[le] != '\n' && text[le] != '\r') le++;
+                    string ml = m.Substring(ls, le - ls);
+                    if (Regex.IsMatch(ml, @"~" + c + @"\s*\(")) hasDtor = true;
+                    for (int r = 0; r < rules.Count; r++)
+                    {
+                        var hit = rules[r].Key.Match(ml);
+                        if (!hit.Success) continue;
+                        edits.Add(Tuple.Create(ls, le - ls, rules[r].Value(hit)));
+                        moved.Add(label[r]);
+                        break;
+                    }
+                }
+                string before = text;
+                foreach (var e in edits.OrderByDescending(e => e.Item1)) text = text.Substring(0, e.Item1) + e.Item3 + text.Substring(e.Item1 + e.Item2);
+                if (!hasDtor)
+                {
+                    var sc = Scopes.Parse(text).FirstOrDefault(x => x.IsClass && x.Open == s.Open);
+                    var add = sc == null ? null : DefinitionGen.PlanPublicMember(text, sc.Open, sc.IsStruct, "~" + s.Name + "();", eol);
+                    if (add != null) { text = text.Substring(0, add.Position) + add.Text + text.Substring(add.Position); moved.Add(label[1]); }
+                }
+            }
+            return text;
+        }
+
+        /// <summary>DefinitionGen.PlanDefinition の「{ }」の本体を、「= default;」にする(コンストラクター・デストラクター・ムーブは、空の本体だと中身を移さないため)。</summary>
+        public static string AsDefaulted(string stub, string eol)
+        {
+            int k = stub.LastIndexOf(eol + "{" + eol + "}", StringComparison.Ordinal);
+            if (k < 0) return stub;
+            return stub.Substring(0, k) + " = default;" + stub.Substring(k + (eol + "{" + eol + "}").Length);
+        }
+
     }
 }

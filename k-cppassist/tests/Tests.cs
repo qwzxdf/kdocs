@@ -37,6 +37,21 @@ static class Tests
 
     static void Main()
     {
+        // ---- Getter だけ・Setter だけ ----
+        {
+            string h = "class A {\n public:\n private:\n  int hp_;\n  const int max_;\n};\n";
+            var c = AccessorEditor.ClassAt(h, h.IndexOf("hp_"));
+            string refused; var skipped = new System.Collections.Generic.List<string>();
+            var both = AccessorEditor.MakeLines(h, c, "hp_", "int", false, false, skipped, out refused);
+            Eq("accessor: both", string.Join("|", both), "int GetHp() const { return hp_; }|void SetHp(int value) { hp_ = value; }");
+            var g = AccessorEditor.MakeLines(h, c, "hp_", "int", false, false, skipped, out refused, true, false);
+            Eq("accessor: getter only", string.Join("|", g), "int GetHp() const { return hp_; }");
+            var s = AccessorEditor.MakeLines(h, c, "hp_", "int", false, false, skipped, out refused, false, true);
+            Eq("accessor: setter only", string.Join("|", s), "void SetHp(int value) { hp_ = value; }");
+            var ro = AccessorEditor.MakeLines(h, c, "max_", "int", true, false, skipped, out refused, false, true);
+            Eq("accessor: setter of const refused", ro == null ? refused : "made", "max_ は const なので、Setter は作れません");
+        }
+
         // ---- 文の切り出し ----
         var a = At("void A::F() {\n  stri|de_ = 3;\n}");
         Eq("single", a == null ? null : a.Name + "=" + a.Rhs, "stride_=3");

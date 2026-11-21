@@ -639,13 +639,14 @@ namespace KCppAssist
             await ReportAsync(declaration + " を " + Path.GetFileName(loc.File) + " の " + cref.Name + " に足しました (public)", false);
         }
 
-        // ---- ゲッター・セッター ----
+        // ---- Getter・Setter ----
 
-        internal void RunAccessor()
+        /// <summary>getter / setter: どちらを作るか(両方 true が「Getter・Setter を作る」)。</summary>
+        internal void RunAccessor(bool getter = true, bool setter = true)
         {
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
-                try { await RunAccessorAsync(); }
+                try { await RunAccessorAsync(getter, setter); }
                 catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
             });
         }
@@ -654,7 +655,7 @@ namespace KCppAssist
         /// ヘッダーの宣言行(UINT stride_;)か、cpp の代入行(stride_ = ...;)にカーソルがあれば、
         /// そのメンバー変数の GetStride / SetStride を、クラスの public: の末尾に足す。
         /// </summary>
-        private async Task RunAccessorAsync()
+        private async Task RunAccessorAsync(bool wantGetter, bool wantSetter)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
@@ -715,7 +716,7 @@ namespace KCppAssist
             var skipped = new List<string>();
             var page = (OptionsPage)GetDialogPage(typeof(OptionsPage));
             string refused;
-            var lines = AccessorEditor.MakeLines(all, cls, member, type, readOnly, page.BlankLineBetweenAccessors, skipped, out refused);
+            var lines = AccessorEditor.MakeLines(all, cls, member, type, readOnly, page.BlankLineBetweenAccessors, skipped, out refused, wantGetter, wantSetter);
             if (lines == null) { await ReportAsync(refused, true); return; }
             if (lines.Count == 0) { await ReportAsync(string.Join("、", skipped) + " はすでにあります", true); return; }
             string eol = CppText.Eol(all);

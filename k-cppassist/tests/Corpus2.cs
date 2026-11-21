@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using KCppAssist;
 
 /// <summary>
-/// 実在のリポジトリのヘッダーと cpp で、Alt+R(宣言 ⇄ 定義を作る)・Alt+Q/W(代入文の切り出しと型)・Alt+E(ゲッター・セッター)・Alt+F(#include)の
+/// 実在のリポジトリのヘッダーと cpp で、Alt+R(宣言 ⇄ 定義を作る)・Alt+Q/W(代入文の切り出しと型)・Alt+E(Getter・Setter)・Alt+F(#include)の
 /// VS に依存しない部分を、総当たりで試す。引数の同期(Alt+G と自動)は Corpus.cs。
 /// 作る編集を実際に適用して、読み直したときに期待どおりの関数・クラスが見えるかを確かめる。
 /// </summary>
@@ -28,7 +28,7 @@ static class Corpus2
         // 代入文
         public int As_Lines, As_Found, As_Wrong, As_Typed;
         public double As_MaxMs;
-        // ゲッター・セッター
+        // Getter・Setter
         public int Acc_Members, Acc_Made, Acc_Refused, Acc_NoType, Acc_Fail;
         // #include
         public int Inc_Tried, Inc_Added, Inc_Already, Inc_Fail;
@@ -113,7 +113,7 @@ static class Corpus2
                     }
                 }
 
-                // Alt+E: メンバー変数のゲッター・セッター
+                // Alt+E: メンバー変数の Getter・Setter
                 if (isHeader)
                 {
                     foreach (var cls in AccessorEditor.All(t))
@@ -146,7 +146,7 @@ static class Corpus2
                                             else
                                             {
                                                 var e = AccessorEditor.PlanPublic(t, cls, lines, eol, true);
-                                                if (e == null || e.Position < cls.Open || e.Position > cls.Close) { r.Acc_Fail++; Fail(r, "ゲッター 編集の位置が外: " + Path.GetFileName(f) + " " + cls.Name + "::" + member); }
+                                                if (e == null || e.Position < cls.Open || e.Position > cls.Close) { r.Acc_Fail++; Fail(r, "Getter 編集の位置が外: " + Path.GetFileName(f) + " " + cls.Name + "::" + member); }
                                                 else
                                                 {
                                                     string t2 = Apply(t, e.Position, e.Text);
@@ -154,11 +154,11 @@ static class Corpus2
                                                     bool balanced = m1.Count(c => c == '{') - m1.Count(c => c == '}') == m2.Count(c => c == '{') - m2.Count(c => c == '}');
                                                     var cls2 = AccessorEditor.All(t2).FirstOrDefault(c => c.Name == cls.Name && c.Open == cls.Open);
                                                     var added = FunctionScan.Scan(t2).Count - FunctionScan.Scan(t).Count;
-                                                    if (!balanced || cls2 == null || added < 1) { r.Acc_Fail++; Fail(r, "ゲッター 壊れた: " + Path.GetFileName(f) + " " + cls.Name + "::" + member + " (" + type + ") 関数 +" + added + (balanced ? "" : " 括弧がずれた")); }
+                                                    if (!balanced || cls2 == null || added < 1) { r.Acc_Fail++; Fail(r, "Getter 壊れた: " + Path.GetFileName(f) + " " + cls.Name + "::" + member + " (" + type + ") 関数 +" + added + (balanced ? "" : " 括弧がずれた")); }
                                                     else
                                                     {
                                                         r.Acc_Made++;
-                                                        if (r.Samples.Count < 400 && rng.Next(60) == 0) r.Samples.Add("ゲッター " + cls.Name + "::" + member + " (" + type + ") → " + string.Join(" / ", lines.Select(x => x.Trim())));
+                                                        if (r.Samples.Count < 400 && rng.Next(60) == 0) r.Samples.Add("Getter " + cls.Name + "::" + member + " (" + type + ") → " + string.Join(" / ", lines.Select(x => x.Trim())));
                                                     }
                                                 }
                                             }
@@ -311,7 +311,7 @@ static class Corpus2
             Console.WriteLine("  Alt+R 宣言→定義: 試した " + r.D2F_Tried + "  読み直して一致 " + r.D2F_Ok + "  失敗 " + r.D2F_Fail + "  作らない理由: " + Hist(r.D2F_Refused));
             Console.WriteLine("  Alt+R 定義→宣言: 試した " + r.F2D_Tried + "  読み直して一致 " + r.F2D_Ok + "  失敗 " + r.F2D_Fail + "  作らない理由: " + Hist(r.F2D_Refused));
             Console.WriteLine("  Alt+Q/W 代入文:  行 " + r.As_Lines + "  正しく切り出し " + r.As_Found + "  誤り " + r.As_Wrong + "  式から型が決まった " + r.As_Typed + "  最長 " + r.As_MaxMs.ToString("F1") + " ms");
-            Console.WriteLine("  Alt+E ゲッター:  メンバー " + r.Acc_Members + "  作れた " + r.Acc_Made + "  作らない(型で拒否) " + r.Acc_Refused + "  型が読めない(配列・static) " + r.Acc_NoType + "  失敗 " + r.Acc_Fail);
+            Console.WriteLine("  Alt+E Getter:  メンバー " + r.Acc_Members + "  作れた " + r.Acc_Made + "  作らない(型で拒否) " + r.Acc_Refused + "  型が読めない(配列・static) " + r.Acc_NoType + "  失敗 " + r.Acc_Fail);
             Console.WriteLine("  Alt+M 関数を移す: 試した " + r.Mv_Tried + "  往復して本体が一致 " + r.Mv_Ok + "  失敗 " + r.Mv_Fail + "  移さない理由: " + Hist(r.Mv_Refused));
             Console.WriteLine("  Alt+F #include:  試した " + r.Inc_Tried + "  足せた " + r.Inc_Added + "  すでにあった " + r.Inc_Already + "  失敗 " + r.Inc_Fail);
             Console.WriteLine("  対象の組 " + r.Pairs + "(300KB 超で省略 " + r.Skipped + ")  例外 " + r.Exceptions);

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace KCppAssist
 {
-    /// <summary>メンバー変数のゲッター・セッターを作る。ヘッダーの文字だけを見る(VS に依存しない)。</summary>
+    /// <summary>メンバー変数の Getter・Setter を作る。ヘッダーの文字だけを見る(VS に依存しない)。</summary>
     internal static class AccessorEditor
     {
         public sealed class ClassSpan
@@ -64,7 +64,7 @@ namespace KCppAssist
 
         /// <summary>
         /// クラスの本文から、変数 name の宣言を探して型を返す。見つからない・配列・static は null。
-        /// const メンバーと参照メンバーは readOnly(セッターを作れない)にする。
+        /// const メンバーと参照メンバーは readOnly(Setter を作れない)にする。
         /// </summary>
         public static string FindMemberType(string text, ClassSpan c, string name, out bool readOnly)
         {
@@ -107,17 +107,18 @@ namespace KCppAssist
         }
 
         /// <summary>
-        /// 追加する行を作る。ゲッターは Get○○(bool で is_ / has_ で始まる名前は Is○○ / Has○○)、セッターは Set○○。
+        /// 追加する行を作る。Getter は Get○○(bool で is_ / has_ で始まる名前は Is○○ / Has○○)、Setter は Set○○。
         /// 小さい型は値、大きい型は const 参照。スマートポインターなどは型ごとに決める。
         /// 本文にすでにあるものは足さない(skipped に名前を入れる)。作れない型は null を返し、refused に理由を入れる。
-        /// blankBetween が true なら、ゲッターとセッターの間に空行を入れる。
+        /// blankBetween が true なら、Getter と Setter の間に空行を入れる。
+        /// wantGetter / wantSetter で、片方だけを作れる(「Getter を作る」「Setter を作る」)。
         /// </summary>
         public static List<string> MakeLines(string text, ClassSpan c, string member, string type, bool readOnly,
-            bool blankBetween, List<string> skipped, out string refused)
+            bool blankBetween, List<string> skipped, out string refused, bool wantGetter = true, bool wantSetter = true)
         {
             refused = null;
             if (Regex.IsMatch(type, @"^(?:std::)?(?:mutex|recursive_mutex|shared_mutex|timed_mutex|thread|jthread|atomic_flag|condition_variable)\b"))
-            { refused = type + " はコピーも移動もできないので、ゲッター・セッターは作れません"; return null; }
+            { refused = type + " はコピーも移動もできないので、Getter・Setter は作れません"; return null; }
 
             string body = text.Substring(c.Open + 1, c.Close - c.Open - 1);
             string stem = member.StartsWith("m_") ? member.Substring(2) : member;
@@ -164,9 +165,17 @@ namespace KCppAssist
                 setter = "void " + setName + "(const " + type + "& value) { " + member + " = value; }";
             }
             if (readOnly) setter = null;
+            // Setter だけを頼まれたのに、作れない型(const のメンバー、unique_ptr など)
+            if (!wantGetter && setter == null)
+            {
+                refused = readOnly ? member + " は const なので、Setter は作れません" : type + " のメンバーには、Setter を作りません (持ち主を移す型のため)";
+                return null;
+            }
+            if (!wantSetter) setter = null;
 
             var lines = new List<string>();
-            if (Regex.IsMatch(body, @"\b" + getName + @"\s*\(")) skipped.Add(getName); else lines.Add(getter);
+            if (!wantGetter) { }
+            else if (Regex.IsMatch(body, @"\b" + getName + @"\s*\(")) skipped.Add(getName); else lines.Add(getter);
             if (setter != null)
             {
                 if (Regex.IsMatch(body, @"\b" + setName + @"\s*\(")) skipped.Add(setName);

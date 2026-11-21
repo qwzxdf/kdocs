@@ -31,9 +31,9 @@ namespace KCppAssist
     /// <summary>ツール → オプション → K-CppUltimateAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
-        [Category("ゲッター・セッター")]
-        [DisplayName("ゲッターとセッターの間に空行を入れる")]
-        [Description("True のとき、Alt+E で作るゲッターとセッターの間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
+        [Category("Getter・Setter")]
+        [DisplayName("Getter と Setter の間に空行を入れる")]
+        [Description("True のとき、Alt+E で作る Getter と Setter の間と、その前の行との間と、足した行の下(すぐ次が別のメンバーや private: のとき)に、空行を 1 行入れます。")]
         public bool BlankLineBetweenAccessors { get; set; } = true;
 
         [Category("#include")]
@@ -284,7 +284,7 @@ namespace KCppAssist
         public string MemberKey { get; set; } = "Alt+W";
 
         [Category("キー")]
-        [DisplayName("ゲッター・セッターを作る (Getter)")]
+        [DisplayName("Getter・Setter を作る (Getter)")]
         [Description(KeyHelp)]
         public string AccessorKey { get; set; } = "Alt+G";
 
