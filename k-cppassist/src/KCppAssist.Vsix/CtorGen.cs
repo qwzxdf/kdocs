@@ -162,7 +162,7 @@ namespace KCppAssist
             if (indent.Length <= classIndent.Length) indent = classIndent + unit;
             string labelIndent = firstLabelStart >= 0 ? LeadingSpace(text, firstLabelStart) : classIndent + CppText.LabelOffset(text);
 
-            string ctor = Build(cls.Name, members, indent, eol);
+            string ctor = Build(cls.Name, members, indent, unit, eol);
 
             // ---- 挿入する位置 ----
             int pos;
@@ -281,7 +281,7 @@ namespace KCppAssist
             mem.ParamType = "const " + bare + "&";
         }
 
-        private static string Build(string name, List<Member> ms, string indent, string eol)
+        private static string Build(string name, List<Member> ms, string indent, string unit, string eol)
         {
             string ex = ms.Count == 1 ? "explicit " : "";
             var ps = ms.Select(x => x.ParamType + " " + x.Param).ToList();
@@ -294,14 +294,15 @@ namespace KCppAssist
             if (oneLine.Length <= Limit) return oneLine + eol;
 
             string sig = head + string.Join(", ", ps) + ")";
-            string cont = indent + "    : ";
+            string step = unit == "\t" ? unit : unit + unit;   // 初期化子リストは 1 段(タブ)か 2 段(空白)下げる
+            string cont = indent + step + ": ";
             if (sig.Length <= Limit)
             {
                 sb.Append(sig).Append(eol);
             }
             else
             {
-                string pad = new string(' ', head.Length);
+                string pad = indent + new string(' ', head.Length - indent.Length);   // 引数をそろえる(字下げの部分は、そのまま)
                 for (int i = 0; i < ps.Count; i++)
                 {
                     sb.Append(i == 0 ? head : pad).Append(ps[i]).Append(i == ps.Count - 1 ? ")" : ",").Append(eol);
@@ -309,7 +310,7 @@ namespace KCppAssist
             }
             string joined = cont + string.Join(", ", inits) + " {}";
             if (joined.Length <= Limit) { sb.Append(joined).Append(eol); return sb.ToString(); }
-            string pad2 = indent + "      ";
+            string pad2 = indent + step + "  ";   // 「: 」の幅だけ右へ
             for (int i = 0; i < inits.Count; i++)
             {
                 sb.Append(i == 0 ? cont : pad2).Append(inits[i]).Append(i == inits.Count - 1 ? " {}" : ",").Append(eol);

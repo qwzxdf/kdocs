@@ -54,7 +54,7 @@ static class MoveTests
         string h3 = "class B {\n public:\n  B(int a, int b) : a_(a), b_(b) {}\n private:\n  int a_, b_;\n};\n";
         Check("コンストラクターの初期化子リスト",
             ToCpp(h3, "", "B"),
-            "class B {\n public:\n  B(int a, int b);\n private:\n  int a_, b_;\n};\n=====\nB::B(int a, int b)\n	: a_(a), b_(b) {\n}\n");
+            "class B {\n public:\n  B(int a, int b);\n private:\n  int a_, b_;\n};\n=====\nB::B(int a, int b)\n    : a_(a), b_(b) {\n}\n");
 
         string h4 = "class C {\n public:\n  template <typename T> void F(T t) { use(t); }\n};\n";
         Check("template は移さない", ToCpp(h4, "", "F").StartsWith("!") ? "refused" : "moved", "refused");
@@ -65,7 +65,7 @@ static class MoveTests
         string h5 ="namespace n {\ninline int Twice(int x) { return x * 2; }\n}\n";
         Check("クラス外の inline",
             ToCpp(h5, "", "Twice"),
-            "namespace n {\nint Twice(int x);\n}\n=====\nint n::Twice(int x) {\n  return x * 2;\n}\n");
+            "namespace n {\nint Twice(int x);\n}\n=====\nint n::Twice(int x) {\n	return x * 2;\n}\n");
 
         string h6 = "class D {\n public:\n  D() = default;\n  virtual int V() const override { return 1; }\n};\n";
         Check("override を定義に書かない",
@@ -106,6 +106,54 @@ static class MoveTests
         string back = ToHeader(parts[1], parts[0], "Run");
         string[] parts2 = back.Split(new[] { "=====\n" }, StringSplitOptions.None);
         Check("往復でヘッダーが元に戻る(Step の宣言は残る)", parts2[0], h2);
+
+        // ---- 字下げの流儀(タブ・空白 4)----
+        string t1 = "class A {\npublic:\n\tint Get() const { return x_; }\n\tvoid Set(int v);\n};\n";
+        string tc1 = "#include \"a.h\"\n\nvoid A::Set(int v)\n{\n\tx_ = v;\n}\n";
+        Check("タブ: 1行 getter",
+            ToCpp(t1, tc1, "Get"),
+            "class A {\npublic:\n\tint Get() const;\n\tvoid Set(int v);\n};\n=====\n#include \"a.h\"\n\nvoid A::Set(int v)\n{\n\tx_ = v;\n}\n\nint A::Get() const\n{\n\treturn x_;\n}\n");
+
+        string s4 = "class A {\npublic:\n    int Get() const { return x_; }\n    void Set(int v);\n};\n";
+        string sc4 = "#include \"a.h\"\n\nvoid A::Set(int v) {\n    x_ = v;\n}\n";
+        Check("空白4: 1行 getter",
+            ToCpp(s4, sc4, "Get"),
+            "class A {\npublic:\n    int Get() const;\n    void Set(int v);\n};\n=====\n#include \"a.h\"\n\nvoid A::Set(int v) {\n    x_ = v;\n}\n\nint A::Get() const {\n    return x_;\n}\n");
+
+        string s4b = "class A {\npublic:\n    void Run(int n) {\n        for (int i = 0; i < n; ++i) {\n            Step(i);\n        }\n    }\n    void Step(int i);\n};\n";
+        Check("空白4: 複数行",
+            ToCpp(s4b, sc4, "Run"),
+            "class A {\npublic:\n    void Run(int n);\n    void Step(int i);\n};\n=====\n#include \"a.h\"\n\nvoid A::Set(int v) {\n    x_ = v;\n}\n\nvoid A::Run(int n) {\n    for (int i = 0; i < n; ++i) {\n        Step(i);\n    }\n}\n");
+
+        string t2 = "class A {\npublic:\n\tvoid Run(int n)\n\t{\n\t\tfor (int i = 0; i < n; ++i)\n\t\t{\n\t\t\tStep(i);\n\t\t}\n\t}\n};\n";
+        Check("タブ+Allman: 複数行",
+            ToCpp(t2, tc1, "Run"),
+            "class A {\npublic:\n\tvoid Run(int n);\n};\n=====\n#include \"a.h\"\n\nvoid A::Set(int v)\n{\n\tx_ = v;\n}\n\nvoid A::Run(int n)\n{\n\tfor (int i = 0; i < n; ++i)\n\t{\n\t\tStep(i);\n\t}\n}\n");
+
+        string s4c = "class B {\npublic:\n    B(int a, int b) : a_(a), b_(b) {}\n};\n";
+        Check("空白4: 初期化子リスト",
+            ToCpp(s4c, sc4, "B"),
+            "class B {\npublic:\n    B(int a, int b);\n};\n=====\n#include \"a.h\"\n\nvoid A::Set(int v) {\n    x_ = v;\n}\n\nB::B(int a, int b)\n        : a_(a), b_(b) {\n}\n");
+
+        string n1 = "namespace n {\n    class A {\n    public:\n        int Get() const { return x_; }\n    };\n}\n";
+        Check("名前空間の中で字下げ",
+            ToCpp(n1, sc4, "Get"),
+            "namespace n {\n    class A {\n    public:\n        int Get() const;\n    };\n}\n=====\n#include \"a.h\"\n\nvoid A::Set(int v) {\n    x_ = v;\n}\n\nint n::A::Get() const {\n    return x_;\n}\n");
+
+        // cpp → ヘッダー(タブ・空白 4)
+        string th = "class A {\npublic:\n\tvoid Run(int n);\n};\n";
+        Check("タブ: 複数行をヘッダーへ",
+            ToHeader("void A::Run(int n)\n{\n\tfor (int i = 0; i < n; ++i)\n\t{\n\t\tStep(i);\n\t}\n}\n", th, "Run"),
+            "class A {\npublic:\n\tvoid Run(int n)\n\t{\n\t\tfor (int i = 0; i < n; ++i)\n\t\t{\n\t\t\tStep(i);\n\t\t}\n\t}\n};\n=====\n");
+
+        string sh = "class B {\npublic:\n    B(int a, int b);\n};\n";
+        Check("空白4: 初期化子リストをヘッダーへ",
+            ToHeader("B::B(int a, int b)\n    : a_(a), b_(b) {\n}\n", sh, "B"),
+            "class B {\npublic:\n    B(int a, int b)\n            : a_(a), b_(b) {}\n};\n=====\n");
+
+        Check("タブ: 初期化子リストをヘッダーへ",
+            ToHeader("B::B(int a, int b)\n\t: a_(a), b_(b) {\n}\n", "class B {\npublic:\n\tB(int a, int b);\n};\n", "B"),
+            "class B {\npublic:\n\tB(int a, int b)\n\t\t: a_(a), b_(b) {}\n};\n=====\n");
 
         Console.WriteLine("move: pass=" + pass + " fail=" + fail);
         return fail == 0 ? 0 : 1;

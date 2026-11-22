@@ -84,16 +84,17 @@ namespace KCppAssist
             string head = stub.Substring(0, brace);
 
             string indent = IndentOf(headerText, FirstCode(m, sig.PrefixStart));
-            string bodyText = Dedent(headerText.Substring(bodyFirst, sig.End + 1 - bodyFirst), indent, eol);
-            bool allman = gap.Contains("\n");
-            string composed = Compose(head, bodyText, sig.InitStart >= 0, sig.BodyOpen - bodyFirst, allman, eol);
+            string hUnit = CppText.IndentUnit(headerText), cUnit = CppText.IndentUnit(cppText, headerText);
+            string bodyText = Reunit(Dedent(headerText.Substring(bodyFirst, sig.End + 1 - bodyFirst), indent, eol), hUnit, cUnit, eol);
+            bool allman = AllmanOf(cppText) ?? gap.Contains("\n");   // cpp の流儀があればそれに合わせる
+            string composed = Compose(head, bodyText, sig.InitStart >= 0, sig.BodyOpen - bodyFirst, allman, eol, cUnit);
             plan.Target.Add(new Edit { Position = edit.Position, Length = 0, Text = pre + composed + suf });
             plan.TargetCaret = edit.Position + pre.Length;
             return plan;
         }
 
         /// <summary>head(戻り値・名前・引数・const まで)と本体を、cpp の書き方でつなぐ。</summary>
-        private static string Compose(string head, string body, bool hasInit, int bodyBraceOffset, bool allman, string eol)
+        private static string Compose(string head, string body, bool hasInit, int bodyBraceOffset, bool allman, string eol, string unit)
         {
             var sb = new StringBuilder(head);
             string init = "", braced = body;
@@ -102,11 +103,10 @@ namespace KCppAssist
                 init = body.Substring(0, bodyBraceOffset).Trim();
                 braced = body.Substring(bodyBraceOffset);
             }
-            braced = Expand(braced, eol);
+            braced = Expand(braced, eol, unit);
             if (hasInit)
             {
-                string u = CppText.IndentUnit(braced + eol + head);
-                u = u == "\t" ? "\t" : u + u;     // 初期化子リストの続きは 2 段(Google は空白 4)。タブなら 1 段
+                string u = Continuation(unit);     // 初期化子リストの続きは 2 段(Google は空白 4)。タブなら 1 段
                 sb.Append(eol).Append(u).Append(Regex.Replace(init, @"\s*\r?\n\s*", eol + u));
                 sb.Append(' ').Append(braced);
             }
@@ -116,12 +116,12 @@ namespace KCppAssist
         }
 
         /// <summary>1 行の本体「{ return x_; }」を、複数行「{ / return x_; / }」にする。複数行のものはそのまま。</summary>
-        private static string Expand(string braced, string eol)
+        private static string Expand(string braced, string eol, string unit)
         {
             if (braced.Contains("\n")) return braced;
             string inner = braced.Substring(1, braced.Length - 2).Trim();
             if (inner.Length == 0) return "{" + eol + "}";
-            return "{" + eol + "  " + inner + eol + "}";
+            return "{" + eol + unit + inner + eol + "}";
         }
 
         /// <summary>空の本体は「{}」、1 文だけの短い本体は「{ 文 }」の 1 行にする(ヘッダーに書く短い関数の形)。</summary>
@@ -169,7 +169,8 @@ namespace KCppAssist
             int tailEnd = bodyFirst;
             while (tailEnd > def.Close + 1 && char.IsWhiteSpace(cppText[tailEnd - 1])) tailEnd--;
             bool allman = cppText.Substring(tailEnd, bodyFirst - tailEnd).Contains("\n");
-            string body = Dedent(cppText.Substring(bodyFirst, def.End + 1 - bodyFirst), IndentOf(cppText, FirstCode(mc, def.PrefixStart)), eol);
+            string cUnit = CppText.IndentUnit(cppText), hUnit = CppText.IndentUnit(headerText, cppText);
+            string body = Reunit(Dedent(cppText.Substring(bodyFirst, def.End + 1 - bodyFirst), IndentOf(cppText, FirstCode(mc, def.PrefixStart)), eol), cUnit, hUnit, eol);
 
             // ヘッダー側の編集(後ろから適用する順)
             var h = new List<Edit>();
@@ -179,7 +180,7 @@ namespace KCppAssist
             {
                 string init = body.Substring(0, def.BodyOpen - bodyFirst).Trim();
                 string braced = body.Substring(def.BodyOpen - bodyFirst);
-                joined = eol + indent + "    " + Regex.Replace(init, @"\s*\r?\n\s*", eol + indent + "    ") + " " + Indent(Collapse(braced), indent, eol).TrimStart();
+                joined = eol + indent + Continuation(hUnit) + Regex.Replace(init, @"\s*\r?\n\s*", eol + indent + Continuation(hUnit)) + " " + Indent(Collapse(braced), indent, eol).TrimStart();
             }
             else if (allman) joined = eol + indent + indented.TrimStart();
             else joined = " " + indented.TrimStart();
@@ -268,6 +269,38 @@ namespace KCppAssist
                 string l = lines[i];
                 if (indent.Length > 0 && l.StartsWith(indent, StringComparison.Ordinal)) lines[i] = l.Substring(indent.Length);
                 else if (indent.Length > 0) lines[i] = l.TrimStart(' ', '\t').Length == 0 ? "" : l.Substring(Math.Min(l.Length - l.TrimStart(' ', '\t').Length, indent.Length));
+            }
+            return string.Join(eol, lines);
+        }
+
+        /// <summary>cpp の関数定義が「{」を別の行に書く流儀(Allman)か。「{」だけの行と、行末の「{」を数えて多い方。どちらもなければ null。</summary>
+        private static bool? AllmanOf(string cppText)
+        {
+            if (string.IsNullOrEmpty(cppText)) return null;
+            string m = CppText.Mask(cppText);
+            int alone = Regex.Matches(m, @"(?m)^[ \t]*\{[ \t]*\r?$").Count;
+            int eol = Regex.Matches(m, @"(?m)\)[ \t\w]*\{[ \t]*\r?$").Count;
+            if (alone == eol) return null;
+            return alone > eol;
+        }
+
+        /// <summary>初期化子リストの続きの字下げ。空白なら 2 段(Google は 4)、タブなら 1 段。</summary>
+        private static string Continuation(string unit)
+        {
+            return unit == "\t" ? "\t" : unit + unit;
+        }
+
+        /// <summary>2 行目以降の行頭の字下げの単位を、from から to に付け替える(from の整数倍の分だけ。端数の空白は残す)。</summary>
+        private static string Reunit(string body, string from, string to, string eol)
+        {
+            if (from == to) return body;
+            var lines = body.Replace("\r\n", "\n").Split('\n');
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string l = lines[i];
+                int n = 0;
+                while (string.CompareOrdinal(l, n * from.Length, from, 0, from.Length) == 0 && l.Length >= (n + 1) * from.Length) n++;
+                if (n > 0) lines[i] = string.Concat(Enumerable.Repeat(to, n)) + l.Substring(n * from.Length);
             }
             return string.Join(eol, lines);
         }
