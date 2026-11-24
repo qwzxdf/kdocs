@@ -114,7 +114,8 @@ namespace KCppAssist.Vcpkg
         private readonly TextBox _log = new TextBox { IsReadOnly = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, FontFamily = new FontFamily("Consolas"), FontSize = 12, TextWrapping = TextWrapping.NoWrap };
         private readonly ProgressBar _progress = new ProgressBar { Height = 3, IsIndeterminate = false, Visibility = Visibility.Collapsed, BorderThickness = new Thickness(0), Margin = new Thickness(0, 0, 0, 6) };
         private readonly TextBlock _modeText = new TextBlock { TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center };
-        private Button _btnMode, _btnIntegrate;
+        private Button _btnMode, _btnAllOff, _btnIntegrate;
+        private readonly WrapPanel _projPanel = new WrapPanel();
         private readonly CheckBox _chkBaseline = new CheckBox();
         private bool _baselineUi;
         private Button _btnInstall, _btnBaseline, _btnUndo, _btnCancel;
@@ -258,20 +259,37 @@ namespace KCppAssist.Vcpkg
             { var hb = Help("ベースラインは、「パッケージの版を、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じ版になります。切: 書かないので、手元の vcpkg にあるポートの、その時点の版が入ります。「ベースラインを更新」で、最新の時点に書き換えられます。"); hb.Margin = new Thickness(2, 0, 0, 0); buttons.Children.Add(hb); }
             bar.Children.Add(buttons);
 
-            // Visual Studio でのビルド時の自動インストール(マニフェスト モードと、VS との連携)
+            // 適用するプロジェクト(vcpkg の ON / OFF)と、ビルド時の自動インストールの状態
+            var projCard = new Border { CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Padding = new Thickness(12, 8, 12, 10), Margin = new Thickness(0, 10, 0, 0) };
+            projCard.SetResourceReference(Border.BackgroundProperty, "CardBrush");
+            projCard.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
+            var projBody = new StackPanel();
+            var projHead = new DockPanel();
+            var headBtns = new WrapPanel { VerticalAlignment = VerticalAlignment.Center };
+            _btnMode = MakeButton("すべて ON", () => SetAllProjects(true));
+            _btnAllOff = MakeButton("すべて OFF", () => SetAllProjects(false));
+            headBtns.Children.Add(_btnMode);
+            headBtns.Children.Add(_btnAllOff);
+            DockPanel.SetDock(headBtns, Dock.Right);
+            projHead.Children.Add(headBtns);
+            var headLeft = new StackPanel { Orientation = Orientation.Horizontal };
+            headLeft.Children.Add(new TextBlock { Text = L.T("vcpkg を使うプロジェクト"), FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
+            headLeft.Children.Add(Help("vcpkg を使うかどうかは、プロジェクトごとに決められます。ON のプロジェクトだけが、vcpkg.json のパッケージを使い、ビルド時に自動でインストールされます (.vcxproj の VcpkgEnabled と VcpkgEnableManifest を書き換えます)。OFF のプロジェクトは、vcpkg に関わりません。名前を押すと、ON と OFF が切り替わります。ここに並ぶのは、選んだ vcpkg.json の下にあるプロジェクトです。"));
+            projHead.Children.Add(headLeft);
+            projBody.Children.Add(projHead);
+            _projPanel.Margin = new Thickness(0, 8, 0, 0);
+            projBody.Children.Add(_projPanel);
             var modeRow = new DockPanel { Margin = new Thickness(0, 8, 0, 0), LastChildFill = true };
-            var modeBtns = new WrapPanel { VerticalAlignment = VerticalAlignment.Center };
-            _btnMode = MakeButton("ビルド時に自動でインストールする", () => EnableManifestMode(true));
             _btnIntegrate = MakeButton("VS と連携する (integrate install)", () => RunIntegrate());
-            modeBtns.Children.Add(_btnMode);
-            modeBtns.Children.Add(_btnIntegrate);
-            DockPanel.SetDock(modeBtns, Dock.Right);
-            modeRow.Children.Add(modeBtns);
-            var modeLeft = new StackPanel { Orientation = Orientation.Horizontal };
+            DockPanel.SetDock(_btnIntegrate, Dock.Right);
+            modeRow.Children.Add(_btnIntegrate);
+            var modeLeft = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             modeLeft.Children.Add(_modeText);
             modeLeft.Children.Add(Help("ビルド時の自動インストールは、2 つがそろうと働きます。(1) プロジェクトで、マニフェスト モード (VcpkgEnableManifest) が有効なこと。(2) Visual Studio と vcpkg が連携していること (vcpkg integrate install)。そろっていると、Visual Studio でビルドするたびに、vcpkg.json に書いたパッケージが、足りなければ自動で入ります。そのため「今すぐインストール」は、ビルドを待たずに入れたいときや、エラーの内容を先に見たいときだけ使えば足ります。パッケージを追加すると、この窓が、プロジェクトのマニフェスト モードを自動で有効にします。"));
             modeRow.Children.Add(modeLeft);
-            bar.Children.Add(modeRow);
+            projBody.Children.Add(modeRow);
+            projCard.Child = projBody;
+            bar.Children.Add(projCard);
             bar.Children.Add(_progress);
             _progress.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
             _progress.SetResourceReference(Control.BackgroundProperty, "LineBrush");
@@ -618,51 +636,75 @@ namespace KCppAssist.Vcpkg
             return result;
         }
 
-        /// <summary>ビルド時の自動インストールの状態を、画面に出す(連携 + 各プロジェクトのマニフェスト モード)。</summary>
+        private static string ProjectLabel(KeyValuePair<string, string> p) { return p.Key; }
+
+        /// <summary>プロジェクトごとの vcpkg の ON / OFF(チップ)と、ビルド時の自動インストールの状態を、画面に出す。</summary>
         private void RefreshMode()
         {
             var projects = TargetProjects();
             bool integrated = VcpkgSetup.Integrated;
             int on = 0, total = 0;
+            _projPanel.Children.Clear();
             foreach (var p in projects)
-                foreach (string f in VcpkgSetup.ProjectFiles(p.Value)) { total++; if (VcpkgSetup.ManifestMode(f) == true) on++; }
-            Brush ok = (Brush)FindResource("OkBrush"), warn = (Brush)FindResource("WarnBrush"), sub = (Brush)FindResource("SubBrush");
-            if (_manifest == null || !_manifest.Exists) { _modeText.Text = L.T("ビルド時の自動インストール: vcpkg.json を作ると使えます"); _modeText.Foreground = sub; }
-            else if (total == 0) { _modeText.Text = integrated ? L.T("ビルド時の自動インストール: プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)") : L.T("ビルド時の自動インストール: プロジェクト (.vcxproj) が見つかりません"); _modeText.Foreground = sub; }
-            else if (on == total && integrated) { _modeText.Text = L.F("ビルド時の自動インストール: ✔ 有効 ({0} 個のプロジェクト。ビルドすると、Visual Studio が自動で入れます)", total); _modeText.Foreground = ok; }
-            else
             {
-                var need = new List<string>();
-                if (on < total) need.Add(L.F("マニフェスト モードが有効なのは、{0} 個中 {1} 個", total, on));
-                if (!integrated) need.Add(L.T("VS と連携していません"));
-                _modeText.Text = L.T("ビルド時の自動インストール: 無効") + " (" + string.Join(" / ", need) + ")";
-                _modeText.Foreground = warn;
+                var files = VcpkgSetup.ProjectFiles(p.Value);
+                bool isOn = files.Count > 0 && files.All(f => VcpkgSetup.ManifestMode(f) == true);
+                total++;
+                if (isOn) on++;
+                var chip = Styled(new ToggleButton { IsChecked = isOn, IsEnabled = !_busy }, "FChip");
+                var label = new StackPanel { Orientation = Orientation.Horizontal };
+                label.Children.Add(new TextBlock { Text = ProjectLabel(p), FontWeight = FontWeights.SemiBold });
+                label.Children.Add(new TextBlock { Text = isOn ? "  ON" : "  OFF", FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Opacity = isOn ? 1 : 0.6 });
+                chip.Content = label;
+                chip.ToolTip = p.Value + (isOn ? "\n" + L.T("vcpkg: ON。押すと OFF にします") : "\n" + L.T("vcpkg: OFF。押すと ON にします"));
+                var proj = p;
+                chip.Click += (s, e) => SetProject(proj, chip.IsChecked == true);
+                _projPanel.Children.Add(chip);
             }
+            Brush ok = (Brush)FindResource("OkBrush"), warn = (Brush)FindResource("WarnBrush"), sub = (Brush)FindResource("SubBrush");
+            if (_manifest == null || !_manifest.Exists) { _modeText.Text = L.T("vcpkg.json を作ると、ビルド時の自動インストールが使えます"); _modeText.Foreground = sub; }
+            else if (total == 0) { _modeText.Text = L.T("プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)"); _modeText.Foreground = sub; }
+            else if (on == 0) { _modeText.Text = L.T("どのプロジェクトも、vcpkg が OFF です。使うプロジェクトを押して、ON にしてください"); _modeText.Foreground = warn; }
+            else if (!integrated) { _modeText.Text = L.F("ON: {0} / {1} 個。VS と連携していないので、ビルド時の自動インストールは働きません", on, total); _modeText.Foreground = warn; }
+            else { _modeText.Text = L.F("ON: {0} / {1} 個。✔ ビルドすると、Visual Studio が自動でインストールします", on, total); _modeText.Foreground = ok; }
             bool can = !_busy && _manifest != null && _manifest.Exists;
-            _btnMode.Visibility = total > 0 && on < total ? Visibility.Visible : Visibility.Collapsed;
-            _btnMode.IsEnabled = can;
+            _btnMode.IsEnabled = can && on < total;
+            _btnAllOff.IsEnabled = can && on > 0;
+            _btnMode.Visibility = _btnAllOff.Visibility = total > 0 ? Visibility.Visible : Visibility.Collapsed;
             _btnIntegrate.Visibility = !integrated && VcpkgTool.FindExe() != null ? Visibility.Visible : Visibility.Collapsed;
             _btnIntegrate.IsEnabled = !_busy;
         }
 
-        /// <summary>選んだ vcpkg.json の下の、すべての .vcxproj で、マニフェスト モードを有効にする。</summary>
-        private void EnableManifestMode(bool announce)
+        /// <summary>1 つのプロジェクトで、vcpkg を ON / OFF にする(.vcxproj を書き換える)。</summary>
+        private void SetProject(KeyValuePair<string, string> project, bool on)
         {
-            int changed = 0;
-            foreach (var p in TargetProjects())
-                foreach (string f in VcpkgSetup.ProjectFiles(p.Value))
+            foreach (string f in VcpkgSetup.ProjectFiles(project.Value))
+            {
+                try
                 {
-                    if (VcpkgSetup.ManifestMode(f) == true) continue;
-                    try
-                    {
-                        string msg;
-                        if (VcpkgSetup.EnableManifest(f, Triplet, out msg)) { changed++; AppendLog(L.F("{0} で、マニフェスト モード (VcpkgEnableManifest) を有効にしました", Path.GetFileName(f))); }
-                        else if (msg != null) AppendLog(L.F("{0}: {1}", Path.GetFileName(f), msg));
-                    }
-                    catch (Exception ex) { AppendLog(L.F("{0} を書き換えられませんでした: {1}", Path.GetFileName(f), ex.Message)); }
+                    string msg;
+                    bool changed = on ? VcpkgSetup.EnableManifest(f, Triplet, out msg) : VcpkgSetup.Disable(f, out msg);
+                    if (changed) AppendLog(L.F(on ? "{0}: vcpkg を ON にしました (VcpkgEnabled / VcpkgEnableManifest = true)" : "{0}: vcpkg を OFF にしました (VcpkgEnabled = false)", project.Key));
+                    else if (msg != null) AppendLog(L.F("{0}: {1}", project.Key, msg));
                 }
-            if (changed > 0 && announce) AppendLog(L.T("Visual Studio で開いているときは、「プロジェクトが変更されました」の確認が出ます。再読み込みを選んでください。"));
+                catch (Exception ex) { AppendLog(L.F("{0} を書き換えられませんでした: {1}", Path.GetFileName(f), ex.Message)); }
+            }
+            AppendLog(L.T("Visual Studio で開いているときは、「プロジェクトが変更されました」の確認が出ます。再読み込みを選んでください。"));
             RefreshMode();
+        }
+
+        private void SetAllProjects(bool on)
+        {
+            foreach (var p in TargetProjects()) SetProject(p, on);
+        }
+
+        /// <summary>パッケージを追加したときの既定: どのプロジェクトも OFF なら、すべて ON にする(選んだ状態があれば、触らない)。</summary>
+        private void EnableIfNone()
+        {
+            var projects = TargetProjects();
+            if (projects.Count == 0) return;
+            bool any = projects.Any(p => VcpkgSetup.ProjectFiles(p.Value).Any(f => VcpkgSetup.ManifestMode(f) == true));
+            if (!any) SetAllProjects(true);
         }
 
         private async void RunIntegrate()
@@ -957,7 +999,7 @@ namespace KCppAssist.Vcpkg
                     _manifest = VcpkgManifest.Load(_manifest.Path);
                     LoadTargets();
                 }
-                EnableManifestMode(false);              // 既定で、ビルド時の自動インストールが働く形にする
+                EnableIfNone();                         // どのプロジェクトも OFF なら、既定で ON にする
                 RefreshAfterChange();
                 ShowUsageHint(dep.Name);
             }

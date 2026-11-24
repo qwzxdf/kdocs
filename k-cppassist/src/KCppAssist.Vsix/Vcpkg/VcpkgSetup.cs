@@ -100,6 +100,38 @@ namespace KCppAssist.Vcpkg
             return true;
         }
 
+        /// <summary>.vcxproj で、vcpkg を OFF にする(VcpkgEnabled を false にする。なければ、足す)。書き換えたときは true。</summary>
+        public static bool Disable(string vcxproj, out string message)
+        {
+            message = null;
+            byte[] raw = File.ReadAllBytes(vcxproj);
+            bool bom = raw.Length >= 3 && raw[0] == 0xEF && raw[1] == 0xBB && raw[2] == 0xBF;
+            string text = new UTF8Encoding(false).GetString(raw, bom ? 3 : 0, raw.Length - (bom ? 3 : 0));
+            string nl = text.Contains("\r\n") ? "\r\n" : "\n";
+            string before = text;
+            if (EnabledElem.IsMatch(text)) text = EnabledElem.Replace(text, "<VcpkgEnabled>false</VcpkgEnabled>");
+            else
+            {
+                string group = "  <PropertyGroup Label=\"Vcpkg\">" + nl + "    <VcpkgEnabled>false</VcpkgEnabled>" + nl + "  </PropertyGroup>" + nl;
+                Match g = Regex.Match(text, @"<PropertyGroup[^>]*Label=""Globals""[^>]*>.*?</PropertyGroup>[ \t]*\r?\n", RegexOptions.Singleline);
+                if (g.Success) text = text.Insert(g.Index + g.Length, group);
+                else
+                {
+                    Match d = Regex.Match(text, @"^[ \t]*<Import\s+Project=""[^""]*Microsoft\.Cpp\.Default\.props""", RegexOptions.Multiline);
+                    if (!d.Success) { message = "Globals の PropertyGroup が見つかりませんでした"; return false; }
+                    text = text.Insert(d.Index, group);
+                }
+            }
+            if (text == before) return false;
+            byte[] body = new UTF8Encoding(false).GetBytes(text);
+            using (var fs = new FileStream(vcxproj, FileMode.Create, FileAccess.Write))
+            {
+                if (bom) fs.Write(new byte[] { 0xEF, 0xBB, 0xBF }, 0, 3);
+                fs.Write(body, 0, body.Length);
+            }
+            return true;
+        }
+
         // ---------- vcpkg 本体を入れる ----------
 
         public static string FindGit()

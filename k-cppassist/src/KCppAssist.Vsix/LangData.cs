@@ -1624,6 +1624,19 @@ namespace KCppAssist
             ["Visual Studio インストーラーを開く"] = new[] { "Open Visual Studio Installer", "", "", "", "", "", "", "" },
             ["自分で入れる場合"] = new[] { "Installing it yourself", "", "", "", "", "", "", "" },
             ["git clone https://github.com/microsoft/vcpkg を実行して、フォルダーの中で bootstrap-vcpkg.bat を実行します。そのあと、環境変数 VCPKG_ROOT にそのフォルダーを設定して、vcpkg integrate install を実行します。"] = new[] { "Run git clone https://github.com/microsoft/vcpkg, then run bootstrap-vcpkg.bat inside the folder. Then set the environment variable VCPKG_ROOT to that folder and run vcpkg integrate install.", "", "", "", "", "", "", "" },
+            ["vcpkg を使うかどうかは、プロジェクトごとに決められます。ON のプロジェクトだけが、vcpkg.json のパッケージを使い、ビルド時に自動でインストールされます (.vcxproj の VcpkgEnabled と VcpkgEnableManifest を書き換えます)。OFF のプロジェクトは、vcpkg に関わりません。名前を押すと、ON と OFF が切り替わります。ここに並ぶのは、選んだ vcpkg.json の下にあるプロジェクトです。"] = new[] { "You can decide per project whether to use vcpkg. Only ON projects use the packages in vcpkg.json and get automatic installs at build time (this rewrites VcpkgEnabled and VcpkgEnableManifest in the .vcxproj). OFF projects have nothing to do with vcpkg. Click a name to switch ON/OFF. The projects listed are the ones under the selected vcpkg.json.", "", "", "", "", "", "", "" },
+            ["vcpkg を使うプロジェクト"] = new[] { "Projects that use vcpkg", "", "", "", "", "", "", "" },
+            ["すべて ON"] = new[] { "All ON", "", "", "", "", "", "", "" },
+            ["すべて OFF"] = new[] { "All OFF", "", "", "", "", "", "", "" },
+            ["vcpkg: ON。押すと OFF にします"] = new[] { "vcpkg: ON. Click to turn OFF", "", "", "", "", "", "", "" },
+            ["vcpkg: OFF。押すと ON にします"] = new[] { "vcpkg: OFF. Click to turn ON", "", "", "", "", "", "", "" },
+            ["vcpkg.json を作ると、ビルド時の自動インストールが使えます"] = new[] { "Create a vcpkg.json to use automatic install at build time", "", "", "", "", "", "", "" },
+            ["プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)"] = new[] { "No project (.vcxproj) found (CMake etc. need their own vcpkg integration)", "", "", "", "", "", "", "" },
+            ["どのプロジェクトも、vcpkg が OFF です。使うプロジェクトを押して、ON にしてください"] = new[] { "vcpkg is OFF in every project. Click the projects you want to use it in to turn it ON", "", "", "", "", "", "", "" },
+            ["ON: {0} / {1} 個。VS と連携していないので、ビルド時の自動インストールは働きません"] = new[] { "ON: {0} / {1}. Not integrated with VS, so automatic install at build time will not run", "", "", "", "", "", "", "" },
+            ["ON: {0} / {1} 個。✔ ビルドすると、Visual Studio が自動でインストールします"] = new[] { "ON: {0} / {1}. ✔ Visual Studio installs automatically when you build", "", "", "", "", "", "", "" },
+            ["{0}: vcpkg を ON にしました (VcpkgEnabled / VcpkgEnableManifest = true)"] = new[] { "{0}: vcpkg turned ON (VcpkgEnabled / VcpkgEnableManifest = true)", "", "", "", "", "", "", "" },
+            ["{0}: vcpkg を OFF にしました (VcpkgEnabled = false)"] = new[] { "{0}: vcpkg turned OFF (VcpkgEnabled = false)", "", "", "", "", "", "", "" },
         };
     }
 }
