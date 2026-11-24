@@ -27,7 +27,10 @@ namespace KCppAssist
                 var window = FindToolWindow(typeof(VcpkgToolWindow), 0, true) as VcpkgToolWindow;
                 if (window == null || window.Frame == null) return;
                 AttachVcpkg(window.View);
-                ((IVsWindowFrame)window.Frame).Show();
+                var frame = (IVsWindowFrame)window.Frame;
+                // ドッキングせず、独立した窓として開く
+                frame.SetProperty((int)__VSFPROPID.VSFPROPID_FrameMode, VSFRAMEMODE.VSFM_Float);
+                frame.Show();
             }
             catch (Exception ex) { Log("vcpkg window failed: " + ex.Message); }
         }
