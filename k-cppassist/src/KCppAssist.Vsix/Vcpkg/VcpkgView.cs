@@ -92,6 +92,8 @@ namespace KCppAssist.Vcpkg
         // 上の欄
         private readonly ComboBox _target = new ComboBox { MinWidth = 250 };
         private readonly ComboBox _triplet = new ComboBox { MinWidth = 190 };
+        private readonly TextBlock _tripletNote = new TextBlock();
+        private FrameworkElement _helpInstall;
         private readonly TextBlock _exeText = new TextBlock { FontSize = 11 };
         private readonly TabControl _tabs = new TabControl();
 
@@ -211,14 +213,18 @@ namespace KCppAssist.Vcpkg
             p1.Children.Add(WithHelp(Caption("vcpkg.json の置き場所"), "vcpkg.json を置くフォルダーを選びます。ソリューションのフォルダーか、各プロジェクトのフォルダーです。まだ vcpkg.json がない場所を選んで追加すると、新しく作ります。"));
             p1.Children.Add(Styled(_target, "FCombo"));
             var p2 = new StackPanel();
-            p2.Children.Add(WithHelp(Caption("トリプレット"), "トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows-static (おすすめ): ライブラリを実行ファイルに埋め込みます。DLL を exe の隣に置かなくて済むので、配るのが楽です。そのとき、プロジェクトの「ランタイム ライブラリ」は、マルチスレッド (/MT, Debug は /MTd) にそろえます。x64-windows (次におすすめ): ライブラリを DLL にします。exe は小さくなり、DLL を入れ替えるだけで更新できますが、DLL を exe の隣に置く必要があります。そのほかに、DLL 版の CRT で静的ライブラリにする x64-windows-static-md もあります。プロジェクトの triplets フォルダーに置いた自作のものも並びます。"));
+            p2.Children.Add(WithHelp(Caption("トリプレット"), "トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows-static (おすすめ): ライブラリを実行ファイルに埋め込みます。DLL を exe の隣に置かなくて済むので、配るのが楽です。そのとき、プロジェクトの「ランタイム ライブラリ」は、マルチスレッド (/MT, Debug は /MTd) にそろえます。x64-windows (次におすすめ): ライブラリを DLL にします。exe は小さくなり、DLL を入れ替えるだけで更新できますが、DLL を exe の隣に置く必要があります。x64-windows-static-md: ライブラリは静的 (exe に埋め込む) ですが、C のランタイム (CRT) だけは DLL 版 (/MD) を使います。VS の既定のランタイム ライブラリ (/MD) のまま使えるので、プロジェクトの設定を変えずに済みます。ただし、CRT の DLL (VCRUNTIME など) は、配る先に必要です。プロジェクトの triplets フォルダーに置いた自作のものも並びます。"));
             p2.Children.Add(Styled(_triplet, "FCombo"));
+            _tripletNote.FontSize = 11;
+            _tripletNote.Margin = new Thickness(2, 3, 0, 0);
+            _tripletNote.SetResourceReference(TextBlock.ForegroundProperty, "SubBrush");
+            p2.Children.Add(_tripletNote);
             pickers.Children.Add(p1);
             pickers.Children.Add(p2);
             Grid.SetColumn(pickers, 1);
             top.Children.Add(pickers);
             _target.SelectionChanged += (s, e) => { if (!_loadingUi) OnTargetChanged(); };
-            _triplet.SelectionChanged += (s, e) => { if (!_loadingUi) SaveTriplet(); };
+            _triplet.SelectionChanged += (s, e) => { UpdateTripletNote(); if (!_loadingUi) SaveTriplet(); };
             Grid.SetRow(top, 0);
             root.Children.Add(top);
 
@@ -245,7 +251,7 @@ namespace KCppAssist.Vcpkg
             _btnCancel = MakeButton("中止", () => { if (_cts != null) _cts.Cancel(); });
             _btnCancel.IsEnabled = false;
             buttons.Children.Add(_btnInstall);
-            { var hi = Help("vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。マニフェスト モードと VS との連携がそろっていれば、Visual Studio がビルド時に自動でやるので、押さなくても入ります。ここで押すのは、ビルドを待たずに入れたいときや、失敗の原因を先にログで見たいときです。出力は、下のログに流れます。"); hi.Margin = new Thickness(-4, 0, 10, 0); buttons.Children.Add(hi); }
+            { var hi = _helpInstall = Help("vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。マニフェスト モードと VS との連携がそろっていれば、Visual Studio がビルド時に自動でやるので、押さなくても入ります。ここで押すのは、ビルドを待たずに入れたいときや、失敗の原因を先にログで見たいときです。出力は、下のログに流れます。"); hi.Margin = new Thickness(-4, 0, 10, 0); buttons.Children.Add(hi); }
             buttons.Children.Add(_btnBaseline);
             buttons.Children.Add(_btnUndo);
             buttons.Children.Add(_btnCancel);
@@ -592,14 +598,15 @@ namespace KCppAssist.Vcpkg
             _triplet.Items.Clear();
             // おすすめを先頭に並べる(x64-windows-static、次に x64-windows)。そのほかは名前順
             var all = VcpkgLocator.Triplets(t != null ? t.Dir : null);
-            foreach (string r in new[] { "x64-windows-static", "x64-windows" })
+            foreach (string r in new[] { "x64-windows-static", "x64-windows-static-md", "x64-windows" })
                 if (all.Contains(r)) _triplet.Items.Add(TripletDisplay(r));
-            foreach (string name in all) if (name != "x64-windows-static" && name != "x64-windows") _triplet.Items.Add(name);
+            foreach (string name in all) if (name != "x64-windows-static" && name != "x64-windows-static-md" && name != "x64-windows") _triplet.Items.Add(name);
             int i = IndexOfTriplet(keep ?? "x64-windows-static");
             if (i < 0) i = IndexOfTriplet("x64-windows-static");
             if (i < 0) i = IndexOfTriplet("x64-windows");
             if (i >= 0) _triplet.SelectedIndex = i;
             _loadingUi = false;
+            UpdateTripletNote();
             UpdateButtons();
             RefreshBrowse();
             if (_tabs.SelectedIndex == 1) RefreshInstalled();
@@ -615,8 +622,19 @@ namespace KCppAssist.Vcpkg
         private static string TripletDisplay(string name)
         {
             if (name == "x64-windows-static") return name + "   ★ " + L.T("おすすめ");
+            if (name == "x64-windows-static-md") return name + "   ☆ " + L.T("/MD のままなら");
             if (name == "x64-windows") return name + "   ☆ " + L.T("次におすすめ");
             return name;
+        }
+
+        /// <summary>選んだトリプレットで、プロジェクトのランタイム ライブラリを何にするかを、コンボの下に出す。</summary>
+        private void UpdateTripletNote()
+        {
+            string n = Triplet;
+            if (n == "x64-windows-static") _tripletNote.Text = L.T("ランタイム ライブラリ: /MT (Debug は /MTd) にそろえる。DLL は不要");
+            else if (n == "x64-windows-static-md") _tripletNote.Text = L.T("ランタイム ライブラリ: /MD (VS の既定) のまま。DLL は不要 (CRT は除く)");
+            else if (n == "x64-windows") _tripletNote.Text = L.T("ランタイム ライブラリ: /MD (VS の既定)。DLL を exe の隣に置く");
+            else _tripletNote.Text = "";
         }
 
         private static string TripletName(string display) { int i = (display ?? "").IndexOf("   ", StringComparison.Ordinal); return i < 0 ? display : display.Substring(0, i); }
@@ -688,6 +706,8 @@ namespace KCppAssist.Vcpkg
             else if (on == 0) { _modeText.Text = L.T("どのプロジェクトも、vcpkg が OFF です。使うプロジェクトを押して、ON にしてください"); _modeText.Foreground = warn; }
             else if (!integrated) { _modeText.Text = L.F("ON: {0} / {1} 個。VS と連携していないので、ビルド時の自動インストールは働きません", on, total); _modeText.Foreground = warn; }
             else { _modeText.Text = L.F("ON: {0} / {1} 個。✔ ビルドすると、Visual Studio が自動でインストールします", on, total); _modeText.Foreground = ok; }
+            bool auto = _manifest != null && _manifest.Exists && integrated && on > 0;
+            _btnInstall.Visibility = _helpInstall.Visibility = auto ? Visibility.Collapsed : Visibility.Visible;     // 自動で入るなら、手動のボタンは要らない
             bool can = !_busy && _manifest != null && _manifest.Exists;
             _btnMode.IsEnabled = can && on < total;
             _btnAllOff.IsEnabled = can && on > 0;
