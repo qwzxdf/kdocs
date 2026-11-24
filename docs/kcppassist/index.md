@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.32.4.vsix" download>K-CppUltimateAssist 0.32.4 をダウンロード（.vsix、約 777 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.32.5.vsix" download>K-CppUltimateAssist 0.32.5 をダウンロード（.vsix、約 778 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -471,7 +471,7 @@ cpp には、同じ名前のヘッダーがあれば `#include "GameObject.h"` �
 
 プロジェクトの「強制インクルード ファイル」（`/FI`）に `pch.h` があると、VS が cpp に書く `#include "pch.h"` は要りません。設定の「強制インクルードにある pch の #include を書かない」（初期値は True）で、書き直すときに消します。
 
-namespace と字下げは、ソリューションの既存のヘッダー（新しいほうから最大 300 個）を調べて、一番多いものを使います。行頭の `namespace X {` を数えるので、`std` は数えません。字下げは、タブと空白のどちらが多いかを見て、空白なら 2 か 4 を選びます。判断できなければ、タブにします。
+namespace と字下げは、ソリューションの既存のヘッダー（新しく作るファイルに近いフォルダーのものを先に、最大 300 個。`ThirdParty`・`external`・`vendor` など、外部ライブラリを置くフォルダーは除く）を調べて、一番多いものを使います。行頭の `namespace X {` を数えるので、`std` は数えません。字下げは、タブと空白のどちらが多いかを見て、空白なら 2 か 4 を選びます。判断できなければ、タブにします。
 
 設定（ツール → オプション → K-CppUltimateAssist → 新規ファイル）で、次を変えられます。
 
@@ -849,6 +849,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | 版 | 内容 |
 | --- | --- |
+| 0.32.5 | 新しいファイルのひな形で、外部ライブラリのフォルダー（ThirdParty・third_party・3rdparty・external・vendor など。大文字小文字と「_」「-」は区別しない）を調べる対象から外し、新しいファイルに近いフォルダーのヘッダーを先に調べるようにした（ライブラリの namespace や字下げを、取り違えていた） |
 | 0.32.4 | vcpkg パッケージの窓のトリプレットで、x64-windows-static-md を「おすすめ」、x64-windows を「次におすすめ」にし、x64-windows-static は印なしにした（既定は x64-windows-static-md） |
 | 0.32.3 | vcpkg パッケージの窓で、トリプレットに x64-windows-static-md（/MD のまま使える）を足し、選んだトリプレットのランタイム ライブラリを表示するようにした。ビルド時に自動でインストールされる状態では、「今すぐインストール」のボタンを隠すようにした |
 | 0.32.2 | vcpkg パッケージの窓のトリプレットで、x64-windows-static を「おすすめ」、x64-windows を「次におすすめ」として先頭に並べ、既定にした |

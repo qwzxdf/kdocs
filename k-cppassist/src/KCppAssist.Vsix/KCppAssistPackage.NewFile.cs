@@ -34,10 +34,16 @@ namespace KCppAssist
         private static Style cacheStyle;
 
         /// <summary>root の下の既存のヘッダー(新しい順に最大 300 個)から、namespace・字下げ・改行を調べる。60 秒だけ覚える。</summary>
-        public static Style Detect(string root, ISet<string> skip)
+        public static Style Detect(string root, ISet<string> skip, string hintDir = null)
         {
+            string key = root + "|" + hintDir;
             lock (gate)
-                if (cacheStyle != null && cacheRoot == root && (DateTime.UtcNow - cacheTime).TotalSeconds < 60) return cacheStyle;
+                if (cacheStyle != null && cacheRoot == key && (DateTime.UtcNow - cacheTime).TotalSeconds < 60) return cacheStyle;
+            // 外部ライブラリを置く、よくあるフォルダー名(ThirdParty・third_party・3rdparty・external・vendor など)。
+            // 「_」「-」と大文字小文字は区別しない。ここの namespace(glz など)や字下げを、自分のコードの流儀と取り違えない
+            var libNames = new HashSet<string>(new[] { "thirdparty", "3rdparty", "external", "externals", "extern", "vendor", "vendors", "deps", "dependencies", "contrib", "submodules", "thirdpartylibs", "externallibs" });
+            Func<string, string> norm = n => new string(n.Where(c => c != '_' && c != '-' && c != ' ').ToArray()).ToLowerInvariant();
+            var skipNorm = new HashSet<string>(skip.Select(norm));
             var files = new List<KeyValuePair<DateTime, string>>();
             try
             {
@@ -54,7 +60,7 @@ namespace KCppAssist
                         foreach (string d in Directory.GetDirectories(dir))
                         {
                             string leaf = Path.GetFileName(d);
-                            if (skip.Contains(leaf) || leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase) || leaf.StartsWith(".")) continue;
+                            if (skip.Contains(leaf) || skipNorm.Contains(norm(leaf)) || libNames.Contains(norm(leaf)) || leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase) || leaf.StartsWith(".")) continue;
                             stack.Push(d);
                         }
                     }
@@ -64,7 +70,16 @@ namespace KCppAssist
             catch (Exception ex) { KCppAssistPackage.Log("new file: scan failed: " + ex.Message); }
 
             var texts = new List<string>();
-            foreach (var kv in files.OrderByDescending(x => x.Key).Take(300))
+            // 新しく作るファイルに近いフォルダーのヘッダーを先にする(同じプロジェクトの流儀を、優先して拾う)。同じ近さなら、新しい順
+            Func<string, int> near = f =>
+            {
+                if (string.IsNullOrEmpty(hintDir)) return 0;
+                string a = Path.GetDirectoryName(f) ?? "";
+                int i = 0, n = Math.Min(a.Length, hintDir.Length);
+                while (i < n && char.ToLowerInvariant(a[i]) == char.ToLowerInvariant(hintDir[i])) i++;
+                return i;
+            };
+            foreach (var kv in files.OrderByDescending(x => near(x.Value)).ThenByDescending(x => x.Key).Take(300))
             {
                 try
                 {
@@ -80,7 +95,7 @@ namespace KCppAssist
             int crlf = texts.Sum(t => t.Split(new[] { "\r\n" }, StringSplitOptions.None).Length - 1);
             int lf = texts.Sum(t => t.Split('\n').Length - 1) - crlf;
             st.Eol = texts.Count > 0 && lf > crlf ? "\n" : "\r\n";
-            lock (gate) { cacheRoot = root; cacheTime = DateTime.UtcNow; cacheStyle = st; }
+            lock (gate) { cacheRoot = key; cacheTime = DateTime.UtcNow; cacheStyle = st; }
             return st;
         }
 
@@ -272,7 +287,7 @@ namespace KCppAssist
                 NewFileService.Style st = null;
                 // Auto でなければ、既存のヘッダーを調べなくてよい(調べるのは、namespace か字下げが Auto のときだけ)
                 bool needScan = opt.NewFileNamespaceMode == NewFileNamespaceMode.Auto || opt.NewFileIndent == IndentKind.Auto || true;
-                if (needScan) st = await Task.Run(() => NewFileService.Detect(root, skip));
+                if (needScan) st = await Task.Run(() => NewFileService.Detect(root, skip, Path.GetDirectoryName(path)));
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 var buf = view.TextBuffer;
                 string cur = buf.CurrentSnapshot.GetText();
@@ -319,7 +334,7 @@ namespace KCppAssist
             if (others.Count > 0) return others[0];
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var st = await Task.Run(() => NewFileService.Detect(root, IncludeService.SkipDirs(opt)));
+            var st = await Task.Run(() => NewFileService.Detect(root, IncludeService.SkipDirs(opt), dir));
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var o = NewFileService.Build(opt, st);
             o.Namespace = NamespaceOf(cls);                         // cpp は、クラスを囲んでいる namespace に合わせる
