@@ -160,6 +160,11 @@ namespace KCppAssist
         [LocDescription("True のとき、動作の記録を %LOCALAPPDATA%\\K-CppAssist\\vsix.log に書きます。不具合のとき、これを見ると原因が分かります。")]
         public bool WriteLog { get; set; } = true;
 
+        [LocCategory("全般")]
+        [LocDisplayName("「よく使うプロパティ」のページを出す")]
+        [LocDescription("True のとき、プロジェクトのプロパティの「構成プロパティ」の先頭に、「よく使うプロパティ」のページを足します。項目は C/C++・リンカーなどの元の設定と同じ値で、ここで変えると元の設定も変わります。変えたあとは、VS を再起動してください。")]
+        public bool CommonPropsPage { get; set; } = true;
+
         [LocCategory("#include")]
         [LocDisplayName("標準・Windows・DirectX の表を使う")]
         [LocDescription("True のとき、std::vector → <vector> のような、組み込みの対応表で、ヘッダーを決めます。")]

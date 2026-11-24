@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.29.0")]
+    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.30.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppUltimateAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.ErrorLog.ErrorLogToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
@@ -133,6 +133,8 @@ namespace KCppAssist
             Instance = this;
             LogEnabled = ((OptionsPage)GetDialogPage(typeof(OptionsPage))).WriteLog;
             InitLanguage();
+            bool commonProps = ((OptionsPage)GetDialogPage(typeof(OptionsPage))).CommonPropsPage;
+            System.Threading.Tasks.Task.Run(() => CommonProps.Apply(commonProps));
             var commands = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commands != null)
             {
