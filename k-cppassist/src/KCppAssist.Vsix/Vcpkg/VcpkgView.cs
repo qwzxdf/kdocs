@@ -113,6 +113,8 @@ namespace KCppAssist.Vcpkg
         // 下の欄
         private readonly TextBox _log = new TextBox { IsReadOnly = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, FontFamily = new FontFamily("Consolas"), FontSize = 12, TextWrapping = TextWrapping.NoWrap };
         private readonly ProgressBar _progress = new ProgressBar { Height = 3, IsIndeterminate = false, Visibility = Visibility.Collapsed, BorderThickness = new Thickness(0), Margin = new Thickness(0, 0, 0, 6) };
+        private readonly TextBlock _modeText = new TextBlock { TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center };
+        private Button _btnMode, _btnIntegrate;
         private readonly CheckBox _chkBaseline = new CheckBox();
         private bool _baselineUi;
         private Button _btnInstall, _btnBaseline, _btnUndo, _btnCancel;
@@ -236,13 +238,13 @@ namespace KCppAssist.Vcpkg
             // 操作ボタンと進捗
             var bar = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
             var buttons = new WrapPanel();
-            _btnInstall = MakeButton("インストール (vcpkg install)", () => RunInstall(), true);
+            _btnInstall = MakeButton("今すぐインストール (vcpkg install)", () => RunInstall(), true);
             _btnBaseline = MakeButton("ベースラインを更新", () => RunBaseline());
             _btnUndo = MakeButton("元に戻す", () => UndoLast());
             _btnCancel = MakeButton("中止", () => { if (_cts != null) _cts.Cancel(); });
             _btnCancel.IsEnabled = false;
             buttons.Children.Add(_btnInstall);
-            { var hi = Help("vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。出力は、下のログに流れます。失敗したときは、ログの末尾に原因の見当を書きます。"); hi.Margin = new Thickness(-4, 0, 10, 0); buttons.Children.Add(hi); }
+            { var hi = Help("vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。マニフェスト モードと VS との連携がそろっていれば、Visual Studio がビルド時に自動でやるので、押さなくても入ります。ここで押すのは、ビルドを待たずに入れたいときや、失敗の原因を先にログで見たいときです。出力は、下のログに流れます。"); hi.Margin = new Thickness(-4, 0, 10, 0); buttons.Children.Add(hi); }
             buttons.Children.Add(_btnBaseline);
             buttons.Children.Add(_btnUndo);
             buttons.Children.Add(_btnCancel);
@@ -255,6 +257,21 @@ namespace KCppAssist.Vcpkg
             buttons.Children.Add(_chkBaseline);
             { var hb = Help("ベースラインは、「パッケージの版を、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じ版になります。切: 書かないので、手元の vcpkg にあるポートの、その時点の版が入ります。「ベースラインを更新」で、最新の時点に書き換えられます。"); hb.Margin = new Thickness(2, 0, 0, 0); buttons.Children.Add(hb); }
             bar.Children.Add(buttons);
+
+            // Visual Studio でのビルド時の自動インストール(マニフェスト モードと、VS との連携)
+            var modeRow = new DockPanel { Margin = new Thickness(0, 8, 0, 0), LastChildFill = true };
+            var modeBtns = new WrapPanel { VerticalAlignment = VerticalAlignment.Center };
+            _btnMode = MakeButton("ビルド時に自動でインストールする", () => EnableManifestMode(true));
+            _btnIntegrate = MakeButton("VS と連携する (integrate install)", () => RunIntegrate());
+            modeBtns.Children.Add(_btnMode);
+            modeBtns.Children.Add(_btnIntegrate);
+            DockPanel.SetDock(modeBtns, Dock.Right);
+            modeRow.Children.Add(modeBtns);
+            var modeLeft = new StackPanel { Orientation = Orientation.Horizontal };
+            modeLeft.Children.Add(_modeText);
+            modeLeft.Children.Add(Help("ビルド時の自動インストールは、2 つがそろうと働きます。(1) プロジェクトで、マニフェスト モード (VcpkgEnableManifest) が有効なこと。(2) Visual Studio と vcpkg が連携していること (vcpkg integrate install)。そろっていると、Visual Studio でビルドするたびに、vcpkg.json に書いたパッケージが、足りなければ自動で入ります。そのため「今すぐインストール」は、ビルドを待たずに入れたいときや、エラーの内容を先に見たいときだけ使えば足ります。パッケージを追加すると、この窓が、プロジェクトのマニフェスト モードを自動で有効にします。"));
+            modeRow.Children.Add(modeLeft);
+            bar.Children.Add(modeRow);
             bar.Children.Add(_progress);
             _progress.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
             _progress.SetResourceReference(Control.BackgroundProperty, "LineBrush");
@@ -435,16 +452,63 @@ namespace KCppAssist.Vcpkg
             catch (Exception ex) { AppendLog("error: " + ex.Message); }
         }
 
+        private TextBox _installDir;
+
         private void ShowNoVcpkg()
         {
             _detail.Children.Clear();
             Heading(L.T("vcpkg が見つかりません"));
-            Paragraph(L.T("次のどれかの方法で入れてから、「もう一度探す」を押してください。"));
-            Paragraph(L.T("1. Visual Studio インストーラー → 「C++ によるデスクトップ開発」→ 個別のコンポーネント → 「vcpkg パッケージ マネージャー」にチェックを入れて、変更する。"), 1, 10);
-            Paragraph(L.T("2. git clone https://github.com/microsoft/vcpkg を実行して、フォルダの中で bootstrap-vcpkg.bat を実行する。そのあと、環境変数 VCPKG_ROOT にそのフォルダを設定する。"), 1, 8);
-            var b = Styled(new Button { Content = L.T("もう一度探す"), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 14, 0, 0) }, "FPrimary");
-            b.Click += (s, e) => Start();
-            _detail.Children.Add(b);
+            Paragraph(L.T("vcpkg は、C++ のライブラリを、ソースから自動でビルドして入れてくれる道具です。この窓は、それを動かす画面なので、まず本体が要ります。次のどちらかで入れられます。"), 1, 6);
+
+            Section(L.T("A. この窓から入れる (おすすめ)"), 14);
+            Paragraph(L.T("git clone と bootstrap を、順に実行します。ファイルは数百 MB で、数分かかります。パスに空白や日本語がない、短い場所にしてください。"), 1, 4);
+            var row = new DockPanel { Margin = new Thickness(0, 8, 0, 0) };
+            var go = Styled(new Button { Content = L.T("vcpkg を入れる") }, "FPrimary");
+            DockPanel.SetDock(go, Dock.Right);
+            row.Children.Add(go);
+            _installDir = Styled(new TextBox { Text = "C:" + System.IO.Path.DirectorySeparatorChar + "vcpkg", Padding = new Thickness(8, 6, 8, 6), Margin = new Thickness(0, 0, 8, 0) }, "FTextBox");
+            row.Children.Add(_installDir);
+            _detail.Children.Add(row);
+            var setRoot = Styled(new CheckBox { Content = L.T("環境変数 VCPKG_ROOT を設定する"), IsChecked = true, Margin = new Thickness(0, 8, 0, 0) }, "FCheck");
+            var integ = Styled(new CheckBox { Content = L.T("入れたあとに、VS と連携する (integrate install)"), IsChecked = true, Margin = new Thickness(0, 4, 0, 0) }, "FCheck");
+            _detail.Children.Add(setRoot);
+            _detail.Children.Add(integ);
+            if (VcpkgSetup.FindGit() == null)
+                Tinted(Paragraph(L.T("git が見つかりません。先に Git を入れてください (Visual Studio インストーラーの「Git for Windows」、または winget install Git.Git)。"), 1, 8), "WarnBrush", TextBlock.ForegroundProperty);
+            go.Click += async (s, e) =>
+            {
+                go.IsEnabled = false;
+                _log.Clear();
+                SetBusy(true);
+                _cts = new CancellationTokenSource();
+                try
+                {
+                    bool ok = await VcpkgSetup.InstallVcpkgAsync(_installDir.Text, setRoot.IsChecked == true, AppendLog, _cts.Token);
+                    if (ok)
+                    {
+                        AppendLog(L.T("vcpkg を入れました。"));
+                        VcpkgTool.FindExe(true);
+                        SetBusy(false);
+                        if (integ.IsChecked == true) await RunVcpkg("integrate install", false);
+                        Start();
+                    }
+                }
+                finally { SetBusy(false); _cts = null; go.IsEnabled = true; }
+            };
+
+            Section(L.T("B. Visual Studio に付いているものを使う"), 18);
+            Paragraph(L.T("Visual Studio インストーラー →「変更」→「個別のコンポーネント」→「vcpkg パッケージ マネージャー」にチェックを入れて、変更します。入れたあと、下の「もう一度探す」を押してください。付属の vcpkg は、一覧 (ports) を持たないので、検索には、A の全部入りが向いています。"), 1, 4);
+            var wrap = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
+            var vsi = Styled(new Button { Content = L.T("Visual Studio インストーラーを開く"), IsEnabled = VcpkgSetup.VsInstaller != null }, "FButton");
+            vsi.Click += (s, e) => { try { Process.Start(new ProcessStartInfo(VcpkgSetup.VsInstaller) { UseShellExecute = true }); } catch (Exception ex) { AppendLog(ex.Message); } };
+            wrap.Children.Add(vsi);
+            var again = Styled(new Button { Content = L.T("もう一度探す") }, "FButton");
+            again.Click += (s, e) => Start();
+            wrap.Children.Add(again);
+            _detail.Children.Add(wrap);
+
+            Section(L.T("自分で入れる場合"), 18);
+            Paragraph(L.T("git clone https://github.com/microsoft/vcpkg を実行して、フォルダーの中で bootstrap-vcpkg.bat を実行します。そのあと、環境変数 VCPKG_ROOT にそのフォルダーを設定して、vcpkg integrate install を実行します。"), 1, 4);
         }
 
         private async void LoadPorts(bool refresh)
@@ -532,8 +596,79 @@ namespace KCppAssist.Vcpkg
             _btnBaseline.IsEnabled = has && VcpkgTool.FindExe() != null && _manifest != null && _manifest.Exists;
             _btnUndo.IsEnabled = has && VcpkgManifest.CanUndo(VcpkgManifest.FileNameIn(t.Dir));
             _btnCancel.IsEnabled = _busy;
+            RefreshMode();
             _chkBaseline.IsEnabled = has && _manifest != null && _manifest.Exists && VcpkgTool.FindExe() != null;
             _chkBaseline.IsChecked = _manifest != null && _manifest.Exists && !string.IsNullOrEmpty(_manifest.Baseline);
+        }
+
+        /// <summary>選んだ vcpkg.json の下にあるプロジェクト(.vcxproj)。</summary>
+        private List<KeyValuePair<string, string>> TargetProjects()
+        {
+            var result = new List<KeyValuePair<string, string>>();
+            Target t = CurrentTarget;
+            if (t == null || ProjectDirs == null) return result;
+            foreach (var p in ProjectDirs())
+            {
+                string m = VcpkgLocator.FindManifestDir(p.Value);
+                bool inside = string.Equals(p.Value.TrimEnd(Path.DirectorySeparatorChar), t.Dir.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)
+                    || (m != null && string.Equals(m.TrimEnd(Path.DirectorySeparatorChar), t.Dir.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+                    || (t.IsNew && p.Value.StartsWith(t.Dir.TrimEnd(Path.DirectorySeparatorChar) + "\\", StringComparison.OrdinalIgnoreCase));
+                if (inside && VcpkgSetup.ProjectFiles(p.Value).Count > 0) result.Add(p);
+            }
+            return result;
+        }
+
+        /// <summary>ビルド時の自動インストールの状態を、画面に出す(連携 + 各プロジェクトのマニフェスト モード)。</summary>
+        private void RefreshMode()
+        {
+            var projects = TargetProjects();
+            bool integrated = VcpkgSetup.Integrated;
+            int on = 0, total = 0;
+            foreach (var p in projects)
+                foreach (string f in VcpkgSetup.ProjectFiles(p.Value)) { total++; if (VcpkgSetup.ManifestMode(f) == true) on++; }
+            Brush ok = (Brush)FindResource("OkBrush"), warn = (Brush)FindResource("WarnBrush"), sub = (Brush)FindResource("SubBrush");
+            if (_manifest == null || !_manifest.Exists) { _modeText.Text = L.T("ビルド時の自動インストール: vcpkg.json を作ると使えます"); _modeText.Foreground = sub; }
+            else if (total == 0) { _modeText.Text = integrated ? L.T("ビルド時の自動インストール: プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)") : L.T("ビルド時の自動インストール: プロジェクト (.vcxproj) が見つかりません"); _modeText.Foreground = sub; }
+            else if (on == total && integrated) { _modeText.Text = L.F("ビルド時の自動インストール: ✔ 有効 ({0} 個のプロジェクト。ビルドすると、Visual Studio が自動で入れます)", total); _modeText.Foreground = ok; }
+            else
+            {
+                var need = new List<string>();
+                if (on < total) need.Add(L.F("マニフェスト モードが有効なのは、{0} 個中 {1} 個", total, on));
+                if (!integrated) need.Add(L.T("VS と連携していません"));
+                _modeText.Text = L.T("ビルド時の自動インストール: 無効") + " (" + string.Join(" / ", need) + ")";
+                _modeText.Foreground = warn;
+            }
+            bool can = !_busy && _manifest != null && _manifest.Exists;
+            _btnMode.Visibility = total > 0 && on < total ? Visibility.Visible : Visibility.Collapsed;
+            _btnMode.IsEnabled = can;
+            _btnIntegrate.Visibility = !integrated && VcpkgTool.FindExe() != null ? Visibility.Visible : Visibility.Collapsed;
+            _btnIntegrate.IsEnabled = !_busy;
+        }
+
+        /// <summary>選んだ vcpkg.json の下の、すべての .vcxproj で、マニフェスト モードを有効にする。</summary>
+        private void EnableManifestMode(bool announce)
+        {
+            int changed = 0;
+            foreach (var p in TargetProjects())
+                foreach (string f in VcpkgSetup.ProjectFiles(p.Value))
+                {
+                    if (VcpkgSetup.ManifestMode(f) == true) continue;
+                    try
+                    {
+                        string msg;
+                        if (VcpkgSetup.EnableManifest(f, Triplet, out msg)) { changed++; AppendLog(L.F("{0} で、マニフェスト モード (VcpkgEnableManifest) を有効にしました", Path.GetFileName(f))); }
+                        else if (msg != null) AppendLog(L.F("{0}: {1}", Path.GetFileName(f), msg));
+                    }
+                    catch (Exception ex) { AppendLog(L.F("{0} を書き換えられませんでした: {1}", Path.GetFileName(f), ex.Message)); }
+                }
+            if (changed > 0 && announce) AppendLog(L.T("Visual Studio で開いているときは、「プロジェクトが変更されました」の確認が出ます。再読み込みを選んでください。"));
+            RefreshMode();
+        }
+
+        private async void RunIntegrate()
+        {
+            await RunVcpkg("integrate install", false);
+            RefreshMode();
         }
 
         private void ToggleBaseline()
@@ -822,6 +957,7 @@ namespace KCppAssist.Vcpkg
                     _manifest = VcpkgManifest.Load(_manifest.Path);
                     LoadTargets();
                 }
+                EnableManifestMode(false);              // 既定で、ビルド時の自動インストールが働く形にする
                 RefreshAfterChange();
                 ShowUsageHint(dep.Name);
             }
@@ -885,7 +1021,10 @@ namespace KCppAssist.Vcpkg
 
         private void ShowUsageHint(string name)
         {
-            _hint.Text = L.F("次は「インストール」を押してください。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います (正確な書き方は、インストール後のログに出ます)。MSBuild (.vcxproj) なら、プロジェクトの vcpkg のページで、「Use Vcpkg Manifest」を「はい」にしてください。", name);
+            bool auto = VcpkgSetup.Integrated && TargetProjects().Count > 0;
+            _hint.Text = auto
+                ? L.F("{0} を追加しました。Visual Studio でビルドすると、自動でインストールされます (「今すぐインストール」は、先に入れたいときだけ)。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います。", name)
+                : L.F("{0} を追加しました。ビルド時に自動で入れるには、下の「VS と連携する」を押してください。いま入れるなら、「今すぐインストール」です。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います。", name);
         }
 
         // ---------- 実行 ----------

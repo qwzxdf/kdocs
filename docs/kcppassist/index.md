@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.31.3.vsix" download>K-CppUltimateAssist 0.31.3 をダウンロード（.vsix、約 768 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.32.0.vsix" download>K-CppUltimateAssist 0.32.0 をダウンロード（.vsix、約 775 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -768,6 +768,29 @@ vcpkg が見つからないときは、入れ方の案内が出ます。一覧�
 
 自作のレジストリや overlay-ports の編集、ポートの公開は、この窓の対象外です。
 
+### ビルド時の自動インストールと VS との連携
+
+マニフェスト モードのプロジェクトは、Visual Studio でビルドするたびに、`vcpkg.json` に書いたパッケージを、足りなければ自動で入れます。そのため、窓の「今すぐインストール」は、押さなくても構いません。ビルドを待たずに入れたいときや、失敗の原因を先にログで見たいときだけ使います。
+
+自動で入るには、2 つがそろう必要があります。
+
+1. プロジェクトで、マニフェスト モード（`VcpkgEnableManifest`）が有効なこと
+2. Visual Studio と vcpkg が連携していること（`vcpkg integrate install`）
+
+窓の下に、この 2 つの状態が出ます。「✔ 有効」なら、ビルドするだけで入ります。足りないときは、押せるボタンが出ます。
+
+- 「ビルド時に自動でインストールする」: `vcpkg.json` の下にある `.vcxproj` で、`VcpkgEnabled` と `VcpkgEnableManifest` を `true` にします。足すのは、`Label="Vcpkg"` の `PropertyGroup` だけで、ほかの書式は変えません。トリプレットが `x64-windows` 以外なら、`VcpkgTriplet` も書きます
+- 「VS と連携する」: `vcpkg integrate install` を実行します。連携済みかは、`%LOCALAPPDATA%\vcpkg\vcpkg.user.targets` があるかで見ています
+
+パッケージを追加したときは、この窓が、マニフェスト モードを自動で有効にします。Visual Studio でそのプロジェクトを開いているときは、「プロジェクトが変更されました」の確認が出るので、再読み込みを選びます。CMake のプロジェクトには、この仕組みは使えません（`.vcxproj` が対象です）。
+
+### vcpkg が入っていないとき
+
+vcpkg が見つからないと、窓に入れ方の案内が出ます。
+
+- この窓から入れる: フォルダー（既定は `C:\vcpkg`）を決めて「vcpkg を入れる」を押すと、`git clone`、`bootstrap-vcpkg.bat` を順に実行して、環境変数 `VCPKG_ROOT`（ユーザー）の設定と `integrate install` までします。Git が要ります。履歴が要るので、浅い clone にはしません
+- Visual Studio に付いているものを使う: インストーラーの「vcpkg パッケージ マネージャー」を入れます。窓から、インストーラーを開けます。付属のものは、一覧（ports）がないので、検索にはおすすめしません
+
 ## 設定
 
 拡張機能 メニューの「K-Cpp: 設定...」から開けます（ツール → オプション → K-CppUltimateAssist → 全般と同じ画面です）。
@@ -822,6 +845,7 @@ vcpkg が見つからないときは、入れ方の案内が出ます。一覧�
 
 | 版 | 内容 |
 | --- | --- |
+| 0.32.0 | vcpkg パッケージの窓で、ビルド時の自動インストール（マニフェスト モードと VS との連携）の状態を出し、ワンボタンで有効にできるようにした。vcpkg 本体がないときは、窓から入れられるようにした |
 | 0.31.3 | vcpkg パッケージの窓に、「?」のアイコンを足した（押すと、ベースライン・既定の機能・トリプレットなどの説明が開く） |
 | 0.31.2 | vcpkg パッケージの窓で、既定で入る機能に「[既定]」の印を付けた。builtin-baseline で版をそろえるかを、チェックで切り替えられるようにした |
 | 0.31.1 | vcpkg パッケージの窓を、ドッキングせず、独立した窓として開くようにした |

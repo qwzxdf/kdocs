@@ -185,7 +185,7 @@ namespace KCppAssist.Vcpkg
             });
         }
 
-        private static void Kill(Process p)
+        internal static void Kill(Process p)
         {
             if (p.HasExited) return;
             try
