@@ -143,6 +143,42 @@ namespace KCppAssist.Vcpkg
             return b;
         }
 
+        private const string HelpTemplate = @"
+<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='ToggleButton'>
+  <Border x:Name='b' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' Width='18' Height='18' CornerRadius='9' BorderThickness='1' Background='Transparent' BorderBrush='{DynamicResource SubBrush}'>
+    <TextBlock x:Name='t' Text='?' FontSize='11' FontWeight='SemiBold' HorizontalAlignment='Center' VerticalAlignment='Center' Foreground='{DynamicResource SubBrush}'/>
+  </Border>
+  <ControlTemplate.Triggers>
+    <Trigger Property='IsMouseOver' Value='True'><Setter TargetName='b' Property='BorderBrush' Value='{DynamicResource AccentBrush}'/><Setter TargetName='t' Property='Foreground' Value='{DynamicResource AccentBrush}'/></Trigger>
+    <Trigger Property='IsChecked' Value='True'><Setter TargetName='b' Property='BorderBrush' Value='{DynamicResource AccentBrush}'/><Setter TargetName='t' Property='Foreground' Value='{DynamicResource AccentBrush}'/></Trigger>
+  </ControlTemplate.Triggers>
+</ControlTemplate>";
+
+        /// <summary>「?」のアイコン。押すと、説明の吹き出しが開く(ほかをクリックすると閉じる)。</summary>
+        private FrameworkElement Help(string ja)
+        {
+            var btn = new ToggleButton { Template = (ControlTemplate)XamlReader.Parse(HelpTemplate), Margin = new Thickness(6, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center, Cursor = System.Windows.Input.Cursors.Hand, Focusable = false, ToolTip = L.T("説明を見る") };
+            var text = new TextBlock { Text = L.T(ja), TextWrapping = TextWrapping.Wrap, MaxWidth = 360, FontSize = 12, LineHeight = 19 };
+            var card = new Border { CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Padding = new Thickness(14, 10, 14, 11), Margin = new Thickness(6), Child = text, Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 12, ShadowDepth = 2, Opacity = 0.35 } };
+            var pop = new Popup { PlacementTarget = btn, Placement = PlacementMode.Bottom, StaysOpen = false, AllowsTransparency = true, Child = card, PopupAnimation = PopupAnimation.Fade };
+            pop.SetBinding(Popup.IsOpenProperty, new System.Windows.Data.Binding("IsChecked") { Source = btn, Mode = System.Windows.Data.BindingMode.TwoWay });
+            btn.Checked += (s, e) =>
+            {
+                card.Background = (Brush)FindResource("CardBrush");
+                card.BorderBrush = (Brush)FindResource("LineBrush");
+                text.Foreground = (Brush)FindResource("TextBrush");
+            };
+            return btn;
+        }
+
+        private FrameworkElement WithHelp(FrameworkElement e, string help)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(e);
+            row.Children.Add(Help(help));
+            return row;
+        }
+
         private TextBlock Caption(string ja)
         {
             var t = new TextBlock { Text = L.T(ja), FontSize = 11, Margin = new Thickness(2, 0, 0, 3) };
@@ -169,10 +205,10 @@ namespace KCppAssist.Vcpkg
             top.Children.Add(title);
             var pickers = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Bottom };
             var p1 = new StackPanel { Margin = new Thickness(0, 0, 12, 0) };
-            p1.Children.Add(Caption("vcpkg.json の置き場所"));
+            p1.Children.Add(WithHelp(Caption("vcpkg.json の置き場所"), "vcpkg.json を置くフォルダーを選びます。ソリューションのフォルダーか、各プロジェクトのフォルダーです。まだ vcpkg.json がない場所を選んで追加すると、新しく作ります。"));
             p1.Children.Add(Styled(_target, "FCombo"));
             var p2 = new StackPanel();
-            p2.Children.Add(Caption("トリプレット"));
+            p2.Children.Add(WithHelp(Caption("トリプレット"), "トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows は、64 ビットの Windows で DLL を使う設定、x64-windows-static は、ライブラリを実行ファイルに埋め込む設定です。プロジェクトの triplets フォルダーに置いた自作のものも並びます。"));
             p2.Children.Add(Styled(_triplet, "FCombo"));
             pickers.Children.Add(p1);
             pickers.Children.Add(p2);
@@ -206,6 +242,7 @@ namespace KCppAssist.Vcpkg
             _btnCancel = MakeButton("中止", () => { if (_cts != null) _cts.Cancel(); });
             _btnCancel.IsEnabled = false;
             buttons.Children.Add(_btnInstall);
+            { var hi = Help("vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。出力は、下のログに流れます。失敗したときは、ログの末尾に原因の見当を書きます。"); hi.Margin = new Thickness(-4, 0, 10, 0); buttons.Children.Add(hi); }
             buttons.Children.Add(_btnBaseline);
             buttons.Children.Add(_btnUndo);
             buttons.Children.Add(_btnCancel);
@@ -216,6 +253,7 @@ namespace KCppAssist.Vcpkg
             _chkBaseline.Margin = new Thickness(14, 0, 0, 0);
             _chkBaseline.Click += (s, e) => ToggleBaseline();
             buttons.Children.Add(_chkBaseline);
+            { var hb = Help("ベースラインは、「パッケージの版を、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じ版になります。切: 書かないので、手元の vcpkg にあるポートの、その時点の版が入ります。「ベースラインを更新」で、最新の時点に書き換えられます。"); hb.Margin = new Thickness(2, 0, 0, 0); buttons.Children.Add(hb); }
             bar.Children.Add(buttons);
             bar.Children.Add(_progress);
             _progress.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
@@ -313,8 +351,14 @@ namespace KCppAssist.Vcpkg
             g.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             g.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Tinted(_installedNote, "SubBrush", TextBlock.ForegroundProperty);
-            Grid.SetRow(_installedNote, 0);
-            g.Children.Add(_installedNote);
+            var _installedNoteRow = new DockPanel();
+            var _installedNoteHelp = Help("入っている版は、このフォルダーの vcpkg_installed から読みます。最新の版は、GitHub の vcpkg から取ります。実際にどの版が入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
+            _installedNoteHelp.VerticalAlignment = VerticalAlignment.Top;
+            DockPanel.SetDock(_installedNoteHelp, Dock.Right);
+            _installedNoteRow.Children.Add(_installedNoteHelp);
+            _installedNoteRow.Children.Add(_installedNote);
+            Grid.SetRow(_installedNoteRow, 0);
+            g.Children.Add(_installedNoteRow);
             var head = StatusHeader("名前", "指定", "入っている版", "最新の版", "状態");
             Grid.SetRow(head, 1);
             g.Children.Add(head);
@@ -339,8 +383,14 @@ namespace KCppAssist.Vcpkg
             g.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             g.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Tinted(_updatesNote, "SubBrush", TextBlock.ForegroundProperty);
-            Grid.SetRow(_updatesNote, 0);
-            g.Children.Add(_updatesNote);
+            var _updatesNoteRow = new DockPanel();
+            var _updatesNoteHelp = Help("入っている版は、このフォルダーの vcpkg_installed から読みます。最新の版は、GitHub の vcpkg から取ります。実際にどの版が入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
+            _updatesNoteHelp.VerticalAlignment = VerticalAlignment.Top;
+            DockPanel.SetDock(_updatesNoteHelp, Dock.Right);
+            _updatesNoteRow.Children.Add(_updatesNoteHelp);
+            _updatesNoteRow.Children.Add(_updatesNote);
+            Grid.SetRow(_updatesNoteRow, 0);
+            g.Children.Add(_updatesNoteRow);
             var head = StatusHeader("名前", "指定", "入っている版", "最新の版", "状態");
             Grid.SetRow(head, 1);
             g.Children.Add(head);
@@ -586,6 +636,20 @@ namespace KCppAssist.Vcpkg
             return t;
         }
 
+        /// <summary>見出しの右に「?」を付ける(見出しを、横並びの入れ物に入れ替える)。</summary>
+        private void AddHelpTo(TextBlock heading, string help)
+        {
+            int i = _detail.Children.IndexOf(heading);
+            if (i < 0) return;
+            _detail.Children.RemoveAt(i);
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(heading);
+            var h = Help(help);
+            h.Margin = new Thickness(6, heading.Margin.Top, 0, 0);
+            row.Children.Add(h);
+            _detail.Children.Insert(i, row);
+        }
+
         private TextBlock Section(string text, double top = 16)
         {
             var t = new TextBlock { Text = text, FontWeight = FontWeights.SemiBold, FontSize = 14, Margin = new Thickness(0, top, 0, 2) };
@@ -632,9 +696,12 @@ namespace KCppAssist.Vcpkg
             StackPanel featurePanel = null;
             if (port.Features.Count > 0)
             {
-                Section(L.T("機能 (feature)"));
+                AddHelpTo(Section(L.T("機能 (feature)")), "機能 (feature) は、パッケージの追加部品です。チェックを入れたものを、既定の機能に加えて入れます。[既定] と付いたものは、「既定の機能を使う」が入のとき、チェックが切でも入ります。");
                 defaults = Styled(new CheckBox { Content = L.T("既定の機能を使う (default-features)"), IsChecked = existing == null || existing.DefaultFeatures, Margin = new Thickness(0, 6, 0, 4) }, "FCheck");
-                _detail.Children.Add(defaults);
+                var defRow = new StackPanel { Orientation = Orientation.Horizontal };
+                defRow.Children.Add(defaults);
+                defRow.Children.Add(Help("入: パッケージが既定にしている機能が入ります。切: 既定の機能は入らず、下でチェックした機能だけが入ります。切にすると、動くのに必要な機能まで入らず、ビルドが通らなくなることがあります。"));
+                _detail.Children.Add(defRow);
                 featurePanel = new StackPanel { Margin = new Thickness(27, 2, 0, 0) };
                 foreach (var kv in port.Features)
                 {
@@ -650,7 +717,7 @@ namespace KCppAssist.Vcpkg
             }
 
             // 版
-            Section(L.T("版"));
+            AddHelpTo(Section(L.T("版")), "ベースラインの版: vcpkg.json の builtin-baseline が指す時点の版が入ります。この版以上: 指定した版か、それより新しい版を使います。builtin-baseline がないと、版は指定できません。");
             var verRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
             var verMode = Styled(new ComboBox { MinWidth = 230 }, "FCombo");
             verMode.Items.Add(L.T("ベースラインの版 (指定しない)"));
@@ -682,6 +749,7 @@ namespace KCppAssist.Vcpkg
             var tree = Styled(new Button { Content = L.T("依存の木を見る"), IsEnabled = !_busy }, "FButton");
             tree.Click += (s, e) => ShowDependTree(port.Name);
             ops.Children.Add(tree);
+            { var ht = Help("このパッケージが、ほかのどのパッケージに依存しているかを、木の形でログに出します。"); ht.Margin = new Thickness(-2, 0, 8, 0); ops.Children.Add(ht); }
             _detail.Children.Add(ops);
 
             // GitHub から、最新の版・ホームページ・ライセンス・依存を取る(取れなくても、上の内容は変わらない)
