@@ -1463,3 +1463,101 @@ delete 式から呼ばれる、コンパイラが作るデストラクターの�
 「よく使うプロパティ」のページを出す	Show the "Common Properties" page	显示“常用属性”页	"자주 쓰는 속성" 페이지 표시	Mostrar la página "Propiedades comunes"	Mostrar a página "Propriedades comuns"	Seite "Häufige Eigenschaften" anzeigen	Afficher la page « Propriétés courantes »	Показывать страницу «Часто используемые свойства»
 True のとき、プロジェクトのプロパティの「構成プロパティ」の先頭に、「よく使うプロパティ」のページを足します。項目は C/C++・リンカーなどの元の設定と同じ値で、ここで変えると元の設定も変わります。変えたあとは、VS を再起動してください。	When True, adds a "Common Properties" page at the top of "Configuration Properties" in the project properties. Its items are the same settings as C/C++, Linker and so on, so changing one here changes the original too. Restart VS after changing this option.	为 True 时，在项目属性的“配置属性”最上方添加“常用属性”页。各项与 C/C++、链接器等处的原设置是同一个值，在此修改，原设置也会改变。更改后请重启 VS。	True이면 프로젝트 속성의 "구성 속성" 맨 위에 "자주 쓰는 속성" 페이지를 추가합니다. 항목은 C/C++, 링커 등의 원래 설정과 같은 값이며, 여기서 바꾸면 원래 설정도 바뀝니다. 바꾼 뒤에는 VS를 다시 시작하세요.	Si es True, añade la página "Propiedades comunes" al principio de "Propiedades de configuración". Sus elementos son los mismos ajustes de C/C++, Enlazador, etc., así que cambiarlos aquí también cambia los originales. Reinicie VS tras cambiarlo.	Se True, adiciona a página "Propriedades comuns" no início de "Propriedades de Configuração". Os itens são as mesmas configurações de C/C++, Vinculador etc., então alterá-los aqui também altera os originais. Reinicie o VS depois de alterar.	Bei True wird oben unter "Konfigurationseigenschaften" die Seite "Häufige Eigenschaften" ergänzt. Die Einträge sind dieselben Einstellungen wie bei C/C++, Linker usw.; Änderungen hier ändern auch die Originale. Nach einer Änderung VS neu starten.	Si True, ajoute la page « Propriétés courantes » en haut de « Propriétés de configuration ». Ses éléments sont les mêmes paramètres que C/C++, l'éditeur de liens, etc. : les modifier ici modifie aussi les originaux. Redémarrez VS après le changement.	Если True, в начало «Свойств конфигурации» добавляется страница «Часто используемые свойства». Её элементы — те же параметры, что в C/C++, компоновщике и т. д., поэтому изменение здесь меняет и исходные. После изменения перезапустите VS.
 外部ライブラリ	External Libraries	外部库	외부 라이브러리	Bibliotecas externas	Bibliotecas externas	Externe Bibliotheken	Bibliothèques externes	Внешние библиотеки
+描画・DirectX	Rendering / DirectX							
+ウィンドウ・入力・フレームワーク	Window / Input / Framework							
+UI・デバッグ表示	UI / Debug display							
+音	Audio							
+物理・ナビゲーション	Physics / Navigation							
+データ・保存	Data / Save							
+モデル・画像・フォント	Models / Images / Fonts							
+基盤・ユーティリティ	Core / Utilities							
+スクリプト・ECS	Scripting / ECS							
+ネットワーク	Networking							
+テスト・計測	Testing / Profiling							
+圧縮・暗号・文字コード	Compression / Crypto / Encoding							
+参照	Browse							
+インストール済み	Installed							
+更新	Updates							
+名前か説明の一部を入力すると、入力の途中から絞り込みます	Type part of a name or description; the list narrows as you type							
+すべての分野	All categories							
+おすすめ順	Recommended							
+名前順	By name							
+vcpkg が見つかりません	vcpkg was not found							
+次のどれかの方法で入れてから、「もう一度探す」を押してください。	Install vcpkg with one of the methods below, then press "Search again".							
+1. Visual Studio インストーラー → 「C++ によるデスクトップ開発」→ 個別のコンポーネント → 「vcpkg パッケージ マネージャー」にチェックを入れて、変更する。	1. Visual Studio Installer -> "Desktop development with C++" -> Individual components -> check "vcpkg package manager" and modify.							
+2. git clone https://github.com/microsoft/vcpkg を実行して、フォルダの中で bootstrap-vcpkg.bat を実行する。そのあと、環境変数 VCPKG_ROOT にそのフォルダを設定する。	2. Run git clone https://github.com/microsoft/vcpkg, run bootstrap-vcpkg.bat inside the folder, then set the VCPKG_ROOT environment variable to that folder.							
+もう一度探す	Search again							
+一覧を読み込んでいます…	Loading the list...							
+一覧を取得できませんでした。vcpkg の出力は、下のログを見てください。	Could not get the list. See the log below for vcpkg's output.							
+{0} に新しく作る ({1})	Create {0} in ({1})							
+ソリューション	solution							
+vcpkg.json を読めません: {0}	Cannot read vcpkg.json: {0}							
+追加済み	added							
+{0} 件のうち、先頭の {1} 件を表示	Showing the first {1} of {0}							
+{0} 件	{0} found							
+おすすめ {0} 件 (全体は {1} 件。検索で探せます)	{0} recommended ({1} in total; use search to find others)							
+おすすめ #{0}  ・  {1}	Recommended #{0}  -  {1}							
+機能 (feature)	Features							
+既定の機能を使う (default-features)	Use default features (default-features)							
+版	Version							
+ベースラインの版 (指定しない)	Baseline version (no constraint)							
+この版以上 (version>=)	This version or newer (version>=)							
+この vcpkg.json には builtin-baseline がありません。版を指定するには、「ベースラインを更新」を押して、先に書き込んでください。	This vcpkg.json has no builtin-baseline. To pin versions, press "Update baseline" first.							
+追加	Add							
+設定を更新	Update settings							
+削除	Remove							
+依存の木を見る	Show dependency tree							
+ホームページなどの詳細は、取得できませんでした (オフラインかもしれません)。	Could not get details such as the homepage (you may be offline).							
+ホームページ	Homepage							
+ライセンス	License							
+対応する環境 (supports)	Supported platforms (supports)							
+依存するパッケージ	Dependencies							
+プロジェクトの置き場所を選んでください。	Choose where vcpkg.json lives.							
+{0} を vcpkg.json に追加しました ({1})	Added {0} to vcpkg.json ({1})							
+追加できませんでした: {0}	Could not add: {0}							
+{0} を vcpkg.json から削除しました	Removed {0} from vcpkg.json							
+削除できませんでした: {0}	Could not remove: {0}							
+「この版以上」を、最新の版に書き換えました。インストールで反映されます。	Raised "this version or newer" to the latest. Install to apply.							
+vcpkg.json を、直前の状態に戻しました。	Restored vcpkg.json to its previous state.							
+次は「インストール」を押してください。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います (正確な書き方は、インストール後のログに出ます)。MSBuild (.vcxproj) なら、プロジェクトの vcpkg のページで、「Use Vcpkg Manifest」を「はい」にしてください。	Next, press "Install". With CMake, use find_package({0} CONFIG REQUIRED) and target_link_libraries(...) (the exact lines appear in the install log). With MSBuild (.vcxproj), set "Use Vcpkg Manifest" to Yes on the project's vcpkg page.							
+中止しました。	Canceled.							
+完了しました。	Done.							
+失敗しました (終了コード {0})。	Failed (exit code {0}).							
+原因: ベースラインの指定が古い、または GitHub から取れません。「ベースラインを更新」を試すか、ネットワークを確かめてください。	Cause: the baseline is outdated or cannot be fetched from GitHub. Try "Update baseline" or check the network.							
+原因: ネットワークに接続できないか、ダウンロードに失敗した可能性があります。つながっているか、プロキシの設定を確かめてください。	Cause: no network connection or a failed download. Check your connection and proxy settings.							
+原因: パッケージのビルドに失敗しました。ログの、buildtrees の下にあるログ ファイル (*-err.log) を見ると、詳しい理由が分かります。	Cause: the package failed to build. The log files under buildtrees (*-err.log) have details.							
+原因: このトリプレットでは、パッケージが対応していません。別のトリプレットを選んでください。	Cause: the package does not support this triplet. Choose another triplet.							
+原因: パッケージの名前が見つかりません。綴りと、ベースラインの版を確かめてください。	Cause: the package name was not found. Check the spelling and the baseline.							
+原因は、上のログの、最初の「error:」の行から探してください。	Look for the cause at the first "error:" line in the log above.							
+インストールが終わりました。	Installation finished.							
+{0} の依存の木を、下のログに出しました。	Printed the dependency tree of {0} in the log below.							
+一覧にありません	not in the list							
+未インストール	Not installed							
+更新あり	Update available							
+最新	Up to date							
+この場所には vcpkg.json がありません。「参照」でパッケージを追加すると、作られます。	There is no vcpkg.json here. Adding a package in Browse creates it.							
+{0} 個のパッケージ。未インストール: {1} 個。ベースライン: {2}	{0} packages. Not installed: {1}. Baseline: {2}							
+この場所には vcpkg.json がありません。	There is no vcpkg.json here.							
+更新できるパッケージは、ありません (入っている版が、一覧の最新と同じか、まだインストールしていません)。	Nothing to update (installed versions match the latest, or nothing is installed yet).							
+{0} 個のパッケージに、新しい版があります。実際にどの版が入るかは、vcpkg.json のベースラインで決まります。「ベースラインを更新」で、全体を新しくできます。	{0} packages have newer versions. Which version is installed is decided by the baseline in vcpkg.json; "Update baseline" refreshes everything.							
+vcpkg.json の置き場所	vcpkg.json location							
+トリプレット	Triplet							
+インストール (vcpkg install)	Install (vcpkg install)							
+ベースラインを更新	Update baseline							
+元に戻す	Undo							
+中止	Cancel							
+一覧を更新	Refresh list							
+詳細を見る	Details							
+この版以上にする	Raise minimum version							
+選んだものを、この版以上にする	Raise minimum version of selected							
+ベースラインを更新して、インストール	Update baseline and install							
+名前	Name							
+指定	Constraint							
+入っている版	Installed							
+最新の版	Latest							
+状態	Status							
+K-Cpp: vcpkg パッケージ...	K-Cpp: vcpkg Packages...							
+vcpkg パッケージ	vcpkg packages							
+おすすめ #{0}	Recommended #{0}							
+名前や説明で検索	Search by name or description							
+最新の版 (GitHub)	Latest version (GitHub)							

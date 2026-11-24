@@ -6,7 +6,20 @@
 
   <Commands package="guidKCppAssistPackage">
 
+    <Menus>
+      <!-- 拡張機能 メニューの中に、「K-Cpp」の項目を 1 つだけ置き、そこにマウスを重ねると、▶ で各機能が開く -->
+      <Menu guid="guidKCppAssistCmdSet" id="KCppAssistSubMenu" priority="0x0100" type="Menu">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-Cpp</ButtonText>
+        </Strings>
+      </Menu>
+    </Menus>
+
     <Groups>
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistSubA" priority="0x0100"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubMenu" /></Group>
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistSubB" priority="0x0200"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubMenu" /></Group>
+      <Group guid="guidKCppAssistCmdSet" id="KCppAssistSubC" priority="0x0300"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubMenu" /></Group>
       <Group guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" priority="0x0610">
         <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
       </Group>
@@ -25,70 +38,70 @@
 
     <Buttons>
       <Button guid="guidKCppAssistCmdSet" id="CmdHelp" priority="0x0102" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 使い方...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyProject" priority="0x0110" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: #include を整理（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0111" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 使っていない #include を消す（プロジェクト全体）</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdTidyFile" priority="0x0112" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: このファイルの #include を整理</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdForward" priority="0x0113" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: #include を前方宣言にする (Forward / Alt+F)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdCtor" priority="0x0115" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: メンバーからコンストラクターを作る (Constructor / Alt+C)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdOverride" priority="0x0116" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 基底クラスの仮想関数を override する (Override / Alt+O)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdUsage" priority="0x0117" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 呼び出しから関数を作る (Usage / Alt+U)</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0118" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: ファイルの文字コードをそろえる...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0119" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: この位置の書き換え・生成の一覧... (eXplore / Alt+X)</ButtonText>
@@ -144,15 +157,22 @@
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdErrorLog" priority="0x0107" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-ErrorLog (エラーログ)を開く</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdVcpkg" priority="0x0104" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>K-Cpp: vcpkg パッケージ...</ButtonText>
+        </Strings>
+      </Button>
       <!-- 拡張機能 メニューに出るのは、設定画面を開くものと、エラーログを開くものの 2 つ -->
       <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistSubA" />
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>K-Cpp: 設定...</ButtonText>
@@ -168,6 +188,8 @@
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdUnusedProject" priority="0x0002"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdEncoding" priority="0x0003"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdVcpkg" priority="0x0004"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistProjGroup" /></CommandPlacement>
+    <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdVcpkg" priority="0x0004"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistSolnGroup" /></CommandPlacement>
     <CommandPlacement guid="guidKCppAssistCmdSet" id="CmdRefactor" priority="0x0001"><Parent guid="guidKCppAssistCmdSet" id="KCppAssistEditGroup" /></CommandPlacement>
   </CommandPlacements>
 
@@ -203,6 +225,10 @@
 
     <GuidSymbol name="guidKCppAssistCmdSet" value="{e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95}">
       <IDSymbol name="KCppAssistMenuGroup" value="0x1000" />
+      <IDSymbol name="KCppAssistSubMenu" value="0x2000" />
+      <IDSymbol name="KCppAssistSubA" value="0x1010" />
+      <IDSymbol name="KCppAssistSubB" value="0x1011" />
+      <IDSymbol name="KCppAssistSubC" value="0x1012" />
       <IDSymbol name="CmdLocal" value="0x0100" />
       <IDSymbol name="CmdMember" value="0x0101" />
       <IDSymbol name="CmdAccessor" value="0x0102" />
@@ -227,6 +253,7 @@
       <IDSymbol name="CmdUsage" value="0x0113" />
       <IDSymbol name="CmdEncoding" value="0x0114" />
       <IDSymbol name="CmdRefactor" value="0x0115" />
+      <IDSymbol name="CmdVcpkg" value="0x0116" />
     </GuidSymbol>
   </Symbols>
 
