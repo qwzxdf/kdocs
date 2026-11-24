@@ -24,17 +24,19 @@ namespace KCppAssist
         // (規則の XML, 規則名, 取り込む項目)。順番がそのままページの順番になる。
         private sealed class Source
         {
-            public string File, Rule, ItemType;
+            public string File, Rule, ItemType, Title;      // Title: ページ内の見出し(null なら、元の規則の名前)。同じ Title は 1 つにまとまる
             public string[] Names;
         }
 
         private static readonly Source[] Sources =
         {
+            new Source { File = "cl.xml", Rule = "CL", Title = "外部ライブラリ", Names = new[] { "AdditionalIncludeDirectories" } },
+            new Source { File = "link.xml", Rule = "Link", Title = "外部ライブラリ", Names = new[] { "AdditionalLibraryDirectories", "AdditionalDependencies" } },
             new Source { File = "general.xml", Rule = "ConfigurationGeneral", Names = new[] { "ConfigurationType", "PlatformToolset", "CharacterSet", "OutDir", "IntDir" } },
             new Source { File = "cl.xml", Rule = "CL", Names = new[] { "LanguageStandard", "LanguageStandard_C", "ConformanceMode", "WarningLevel", "SDLCheck",
-                "MultiProcessorCompilation", "AdditionalIncludeDirectories", "PreprocessorDefinitions", "ForcedIncludeFiles", "DisableSpecificWarnings",
+                "MultiProcessorCompilation", "PreprocessorDefinitions", "ForcedIncludeFiles", "DisableSpecificWarnings",
                 "PrecompiledHeader", "PrecompiledHeaderFile", "AdditionalOptions" } },
-            new Source { File = "link.xml", Rule = "Link", Names = new[] { "SubSystem", "AdditionalDependencies", "AdditionalLibraryDirectories", "EntryPointSymbol" } },
+            new Source { File = "link.xml", Rule = "Link", Names = new[] { "SubSystem", "EntryPointSymbol" } },
             new Source { File = "mt.xml", Rule = "Manifest", Names = new[] { "EnableSegmentHeap", "AdditionalManifestFiles" } },
             new Source { File = "build_events.xml", Rule = "ConfigurationBuildEvents", Names = new[] { "PostBuildCommand", "PostBuildMessage" } },
         };
@@ -85,6 +87,7 @@ namespace KCppAssist
             XNamespace x = Ns;
             var categories = new XElement(x + "Rule.Categories");
             var props = new List<XElement>();
+            var catNames = new Dictionary<string, string>();
             foreach (Source s in Sources)
             {
                 string path = Path.Combine(dir, s.File);
@@ -93,7 +96,10 @@ namespace KCppAssist
                 if (rule == null) continue;
                 // 規則の DataSource(Persistence・ItemType・ラベル)は、項目が自分の DataSource を持たないときに、項目へ移す
                 XElement ruleSource = rule.Elements(x + "Rule.DataSource").Elements(x + "DataSource").FirstOrDefault();
-                string catName = "K" + props.Count.ToString(CultureInfo.InvariantCulture);
+                string title = s.Title != null ? L.T(s.Title) : ((string)rule.Attribute("DisplayName") ?? s.Rule);
+                string catName;
+                bool newCategory = !catNames.TryGetValue(title, out catName);
+                if (newCategory) catName = "K" + catNames.Count.ToString(CultureInfo.InvariantCulture);
                 int before = props.Count;
                 foreach (string name in s.Names)
                 {
@@ -106,8 +112,8 @@ namespace KCppAssist
                         copy.AddFirst(new XElement(x + (copy.Name.LocalName + ".DataSource"), new XElement(ruleSource)));
                     props.Add(copy);
                 }
-                if (props.Count == before) continue;
-                string title = (string)rule.Attribute("DisplayName") ?? s.Rule;
+                if (props.Count == before || !newCategory) continue;
+                catNames[title] = catName;
                 categories.Add(new XElement(x + "Category", new XAttribute("Name", catName), new XAttribute("DisplayName", title), new XAttribute("Description", title)));
             }
             if (props.Count == 0) return null;
