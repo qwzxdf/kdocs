@@ -1,100 +1,70 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using System.Windows.Threading;
-using DTE = EnvDTE.DTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Formatting;
+using Microsoft.VisualStudio.Utilities;
 
 namespace KCppAssist
 {
+    /// <summary>点線を描く層(テキストの上)の定義。</summary>
+    internal sealed class ChangeMarkLayer
+    {
+        public const string Name = "KCppAssistChange";
+
+        [Export(typeof(AdornmentLayerDefinition))]
+        [Name(Name)]
+        [Order(After = PredefinedAdornmentLayers.Text)]
+        internal AdornmentLayerDefinition Definition = null;
+    }
+
     /// <summary>
-    /// ほかの場所を書き換えたとき、何を変えたかを、小さなウィンドウで少しの間だけ見せる。
-    /// ウィンドウは、変えた名前(関数の名前など)の 1 文字目に左端をそろえて、その行のすぐ上に出す。名前には重ねない。
-    /// フォーカスは奪わず、Visual Studio を持ち主にして出すので、ほかのアプリの上には出ない。
+    /// ほかの場所を書き換えたとき(引数を相手のファイルへ写した、名前を変えた、呼び出しの引数を直した)、書き換えた名前の下に、
+    /// 点線を少しの間だけ出す。C# の名前の変更と同じ見せかたで、ウィンドウは出さない(下や上のコードを隠さない)。
+    /// 点線は、いま開いているエディターの中の、変えた名前だけに出る。ほかのファイルの変更は、点線では見えない。
     /// </summary>
     internal static class SyncPreview
     {
-        private const double MaxWidth = 460;
-        private static Window current;
-        private static Border currentBorder;
+        private static readonly Brush LineBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x3F, 0x8F, 0xE0)));
         private static DispatcherTimer closeTimer;
+        private static IWpfTextView markedView;
         private static int generation;
-        private static IWpfTextView noteView;       // 名前の変更の知らせを出しているエディター
-        private static DateTime noteAt;
 
-        private static readonly Color Red = Color.FromArgb(0x70, 0xB0, 0x3A, 0x3A);
-        private static readonly Color Green = Color.FromArgb(0x70, 0x2E, 0xA0, 0x43);
+        private static Brush Freeze(SolidColorBrush b) { b.Freeze(); return b; }
 
-        /// <summary>引数を相手のファイルへ写したことを、前(赤)とあと(緑)の行で見せる。</summary>
-        /// <param name="anchor">いま作業しているエディター。</param>
-        /// <param name="anchorPos">anchor の中の、変えた関数の名前の頭の位置。この真上に出す。分からなければ -1(キャレットの行)。</param>
-        /// <param name="file">書き換えた相手のファイル名。</param>
-        /// <param name="after">書き換えたあとの相手の文字。</param>
-        /// <param name="open">相手の関数の「(」の位置。</param>
-        /// <param name="newLength">書き換えたあとの括弧の中身の長さ。</param>
-        /// <param name="oldInner">書き換える前の括弧の中身。</param>
+        /// <summary>引数を相手のファイルへ写したとき。変えた関数の名前(anchorPos)に、点線を出す。残りの引数は、点線を出す場所の目印だけに使う。</summary>
         public static void Show(IWpfTextView anchor, int anchorPos, string file, ITextSnapshot after, int open, int newLength, string oldInner)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var o = SyncService.Options;
-            if (o == null || !o.ShowSyncPreview || anchor == null) return;
-            // 引数の名前を変えている間は、名前の変更の知らせを残す(打つたびに、こちらで上書きしない)
-            if (noteView == anchor && (DateTime.UtcNow - noteAt).TotalMilliseconds < 1500) return;
-            try
-            {
-                int first = after.GetLineNumberFromPosition(open);
-                int last = after.GetLineNumberFromPosition(Math.Min(after.Length, open + 1 + newLength));
-                // 書き換える前の行と、あとの行を、並べて見せる(前の行は、あとの行の括弧の中身を、前の中身に戻して作る)
-                int blockStart = after.GetLineFromLineNumber(first).Start.Position;
-                int blockEnd = after.GetLineFromLineNumber(last).End.Position;
-                string block = after.GetText(blockStart, blockEnd - blockStart);
-                int innerAt = Math.Max(0, Math.Min(block.Length, open + 1 - blockStart));
-                int innerLen = Math.Max(0, Math.Min(block.Length - innerAt, newLength));
-                string oldBlock = block.Substring(0, innerAt) + oldInner + block.Substring(innerAt + innerLen);
-
-                var panel = Panel(L.F("{0} に写しました", file));
-                AddCode(panel, oldBlock, Red);
-                AddCode(panel, block, Green);
-                Present(anchor, anchorPos, panel);
-            }
-            catch (Exception ex) { KCppAssistPackage.Log("sync preview failed: " + ex.Message); }
+            if (o == null || !o.ShowSyncPreview || anchor == null || anchor.IsClosed) return;
+            var spans = new List<SnapshotSpan>();
+            SnapshotSpan? name = NameSpan(anchor.TextSnapshot, anchorPos >= 0 ? anchorPos : anchor.Caret.Position.BufferPosition.Position);
+            if (name.HasValue) spans.Add(name.Value);
+            Mark(anchor, spans);
         }
 
-        /// <summary>題と、その下の何行かの説明を見せる(名前を変えた、呼び出しの引数を並べ替えた、など)。</summary>
-        /// <param name="before">赤で見せる 1 行(変える前)。なければ null。</param>
-        /// <param name="after">緑で見せる 1 行(変えたあと)。なければ null。</param>
-        /// <param name="hold">true のとき、少しの間、引数の同期の知らせ(Show)で上書きさせない。</param>
-        public static void ShowNote(IWpfTextView anchor, int anchorPos, string title, string before, string after, IEnumerable<string> lines, bool hold = false)
+        /// <summary>名前を変えた・呼び出しを直したとき。spans(開いているエディターの中の、変えた場所)と、anchorPos の名前に、点線を出す。</summary>
+        public static void ShowNote(IWpfTextView anchor, int anchorPos, string title, string before, string after, IEnumerable<string> lines, bool hold = false, IEnumerable<SnapshotSpan> spans = null)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var o = SyncService.Options;
             if (o == null || !o.ShowSyncPreview || anchor == null || anchor.IsClosed) return;
-            if (hold) { noteView = anchor; noteAt = DateTime.UtcNow; }
-            try
+            var all = new List<SnapshotSpan>();
+            if (spans != null) all.AddRange(spans);
+            if (anchorPos >= 0)
             {
-                var panel = Panel(title);
-                if (before != null) AddCode(panel, before, Red);
-                if (after != null) AddCode(panel, after, Green);
-                if (lines != null)
-                    foreach (string ln in lines)
-                        panel.Children.Add(new TextBlock
-                        {
-                            Text = ln,
-                            FontSize = 12,
-                            Foreground = new SolidColorBrush(Color.FromRgb(0xD0, 0xD0, 0xD0)),
-                            TextTrimming = TextTrimming.CharacterEllipsis,
-                            Margin = new Thickness(0, 2, 0, 0),
-                        });
-                Present(anchor, anchorPos, panel);
+                SnapshotSpan? name = NameSpan(anchor.TextSnapshot, anchorPos);
+                if (name.HasValue && !all.Any(s => s.Start == name.Value.Start)) all.Add(name.Value);
             }
-            catch (Exception ex) { KCppAssistPackage.Log("sync note failed: " + ex.Message); }
+            Mark(anchor, all);
         }
 
         /// <summary>snap の「(」の位置 open の左にある、関数の名前の頭の位置。</summary>
@@ -107,138 +77,66 @@ namespace KCppAssist
             return s;
         }
 
-        private static StackPanel Panel(string title)
+        /// <summary>pos から始まる識別子の範囲。識別子でなければ null。</summary>
+        private static SnapshotSpan? NameSpan(ITextSnapshot snap, int pos)
         {
-            var panel = new StackPanel { Margin = new Thickness(10, 8, 10, 8) };
-            panel.Children.Add(new TextBlock
-            {
-                Text = title,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                Margin = new Thickness(0, 0, 0, 4),
-            });
-            return panel;
+            if (pos < 0 || pos >= snap.Length) return null;
+            int s = pos;
+            while (s > 0 && CppText.IsId(snap[s - 1])) s--;
+            int e = pos;
+            while (e < snap.Length && CppText.IsId(snap[e])) e++;
+            return e > s ? new SnapshotSpan(snap, s, e - s) : (SnapshotSpan?)null;
         }
 
-        private static void AddCode(StackPanel panel, string code, Color bg)
+        /// <summary>spans の下に、点線を引く。前の点線は消す。約 3 秒で薄くなって消える。</summary>
+        private static void Mark(IWpfTextView view, IEnumerable<SnapshotSpan> spans)
         {
-            var mono = new FontFamily("Consolas");
-            foreach (string ln in code.Replace("\r", "").Split('\n'))
-                panel.Children.Add(new TextBlock
-                {
-                    Text = ln.Replace("\t", "    "),
-                    FontFamily = mono,
-                    FontSize = 12,
-                    Foreground = Brushes.White,
-                    Background = new SolidColorBrush(bg),
-                    TextTrimming = TextTrimming.CharacterEllipsis,
-                    Padding = new Thickness(2, 0, 2, 0),
-                });
-        }
-
-        /// <summary>panel を小さなウィンドウに入れて出す。もう出ていれば、中身を入れ替えて、置き直す(打つたびに作り直すと、ちらつく)。</summary>
-        private static void Present(IWpfTextView anchor, int anchorPos, StackPanel panel)
-        {
-            if (current == null)
-            {
-                currentBorder = new Border
-                {
-                    Background = new SolidColorBrush(Color.FromArgb(0xEE, 0x25, 0x25, 0x26)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0x3F, 0x8F, 0xE0)),
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(4),
-                    MaxWidth = MaxWidth,
-                };
-                current = new Window
-                {
-                    WindowStyle = WindowStyle.None,
-                    ResizeMode = ResizeMode.NoResize,
-                    AllowsTransparency = true,
-                    Background = Brushes.Transparent,
-                    ShowInTaskbar = false,
-                    ShowActivated = false,
-                    Focusable = false,
-                    IsHitTestVisible = false,
-                    SizeToContent = SizeToContent.WidthAndHeight,
-                    MaxWidth = MaxWidth,
-                    Content = currentBorder,
-                };
-                // Visual Studio を持ち主にして、フォーカスを奪わずに出す
-                var dte = (DTE)Package.GetGlobalService(typeof(DTE));
-                if (dte != null) new WindowInteropHelper(current) { Owner = (IntPtr)dte.MainWindow.HWnd };
-            }
-            Window win = current;
-            win.BeginAnimation(UIElement.OpacityProperty, null);     // 消えかけていたら、戻す
-            win.Opacity = 1;
-            currentBorder.Child = panel;
-            currentBorder.Measure(new Size(MaxWidth, double.PositiveInfinity));
-            Place(win, anchor, anchorPos, currentBorder.DesiredSize.Width, currentBorder.DesiredSize.Height);
-            if (!win.IsVisible) win.Show();
-
-            int gen = ++generation;
-            if (closeTimer != null) closeTimer.Stop();
-            closeTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2800) };
-            closeTimer.Tick += (s, e) =>
-            {
-                ((DispatcherTimer)s).Stop();
-                if (gen != generation || current != win) return;
-                var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(300));
-                fade.Completed += (s2, e2) => { if (gen == generation && current == win) Close(); };
-                win.BeginAnimation(UIElement.OpacityProperty, fade);
-            };
-            closeTimer.Start();
-        }
-
-        /// <summary>
-        /// ウィンドウを、anchorPos の文字の真上に置く(左端を、その文字の左端にそろえる)。上に収まらなくても、下には回さない(エディターの上にはみ出す)。
-        /// どちらでも、その行には重ならない。PointToScreen は画面のピクセル、Window.Left/Top はデバイス非依存の単位なので、変換する。
-        /// </summary>
-        private static void Place(Window win, IWpfTextView anchor, int anchorPos, double w, double h)
-        {
-            FrameworkElement el = anchor.VisualElement;
-            PresentationSource src = PresentationSource.FromVisual(el);
-            Func<Point, Point> toDip = pt => src != null ? src.CompositionTarget.TransformFromDevice.Transform(pt) : pt;
-            Point topLeft = toDip(el.PointToScreen(new Point(0, 0)));
-            Point bottomRight = toDip(el.PointToScreen(new Point(el.ActualWidth, el.ActualHeight)));
-
-            bool placedAbove = false;
-            double left = bottomRight.X - w - 24, top = topLeft.Y + 8;     // 行が見えていないときは、右上
             try
             {
-                ITextSnapshot snap = anchor.TextSnapshot;
-                SnapshotPoint caret = anchor.Caret.Position.BufferPosition;
-                SnapshotPoint pt = anchorPos >= 0 && anchorPos < snap.Length ? new SnapshotPoint(snap, anchorPos) : caret;
-                ITextViewLine line = VisibleLine(anchor, pt);
-                if (line == null && pt != caret) { pt = caret; line = VisibleLine(anchor, pt); }
-                if (line != null)
+                Clear();
+                IAdornmentLayer layer = view.GetAdornmentLayer(ChangeMarkLayer.Name);
+                int count = 0;
+                foreach (SnapshotSpan span in spans)
                 {
-                    TextBounds tb = line.GetCharacterBounds(pt);
-                    Point above = toDip(el.PointToScreen(new Point(tb.Left - anchor.ViewportLeft, line.Top - anchor.ViewportTop)));
-                    left = above.X;
-                    top = above.Y - h - 3;
-                    // 必ず、その行の上に置く。エディターの上端に収まらなくても、下には回さない(下に出すと、すぐ下のコードを隠すため)。
-                    // 上にはみ出したぶんは、エディターの外(タブやツールバーの上)に出る別ウィンドウなので、そのまま見える
-                    placedAbove = true;
+                    SnapshotSpan s = span.TranslateTo(view.TextSnapshot, SpanTrackingMode.EdgeInclusive);
+                    if (s.IsEmpty) continue;
+                    Geometry g = view.TextViewLines.GetMarkerGeometry(s);
+                    if (g == null) continue;                                    // 画面に見えていない行
+                    Rect r = g.Bounds;
+                    var line = new Line
+                    {
+                        X1 = r.Left, X2 = r.Right, Y1 = r.Bottom - 1, Y2 = r.Bottom - 1,
+                        Stroke = LineBrush,
+                        StrokeThickness = 1.5,
+                        StrokeDashArray = new DoubleCollection { 1, 2 },        // 点線(点 1 : すき間 2)
+                        StrokeDashCap = PenLineCap.Round,
+                        IsHitTestVisible = false,
+                    };
+                    layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, s, null, line, null);
+                    count++;
                 }
+                if (count == 0) return;
+                markedView = view;
+                int gen = ++generation;
+                closeTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2800) };
+                closeTimer.Tick += (sender, e) =>
+                {
+                    ((DispatcherTimer)sender).Stop();
+                    if (gen != generation) return;
+                    Clear();
+                };
+                closeTimer.Start();
             }
-            catch (Exception) { }
-            win.Left = Math.Max(topLeft.X + 4, Math.Min(left, bottomRight.X - w - 8));
-            // 行の上に置いたときは、エディターの上端で切らない(画面の上端でだけ切る)。それ以外(行が見えない)は、エディターの中に収める
-            win.Top = placedAbove ? Math.Max(SystemParameters.VirtualScreenTop, top) : Math.Max(topLeft.Y, Math.Min(top, bottomRight.Y - h));
+            catch (Exception ex) { KCppAssistPackage.Log("sync mark failed: " + ex.Message); }
         }
 
-        private static ITextViewLine VisibleLine(IWpfTextView view, SnapshotPoint pt)
-        {
-            ITextViewLine line = view.TextViewLines == null ? null : view.TextViewLines.GetTextViewLineContainingBufferPosition(pt);
-            if (line == null || line.VisibilityState == VisibilityState.Hidden || line.VisibilityState == VisibilityState.Unattached) return null;
-            return line;
-        }
-
-        private static void Close()
+        private static void Clear()
         {
             if (closeTimer != null) { closeTimer.Stop(); closeTimer = null; }
-            if (current != null) { try { current.Close(); } catch (Exception) { } current = null; currentBorder = null; }
+            IWpfTextView v = markedView;
+            markedView = null;
+            if (v == null || v.IsClosed) return;
+            try { v.GetAdornmentLayer(ChangeMarkLayer.Name).RemoveAllAdornments(); } catch (Exception) { }
         }
     }
 }

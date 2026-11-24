@@ -967,7 +967,16 @@ namespace KCppAssist
                 if (r.AmbiguousLines.Count > 0) lines.Add(L.F("同じ物か決められない {0} か所は変えていません(出力ウィンドウ)", r.AmbiguousLines.Count));
                 if (r.Locked.Count > 0) lines.Add(L.F("開いているのに書き換えられなかった文書が {0} 個あります(出力ウィンドウ)", r.Locked.Count));
             }
-            SyncPreview.ShowNote(view, AnchorOf(r), L.T("名前を変える"), r.OldName, name, lines, true);
+            // 開いているエディターの中の、変えた場所すべてに、点線を出す
+            var marks = new List<SnapshotSpan>();
+            try
+            {
+                foreach (var l in r.Links)
+                    if (l.Buffer == view.TextBuffer)
+                        foreach (var sp in l.Spans) marks.Add(sp.GetSpan(view.TextSnapshot));
+            }
+            catch (Exception) { }
+            SyncPreview.ShowNote(view, AnchorOf(r), L.T("名前を変える"), r.OldName, name, lines, true, marks);
         }
 
         private async Task ResolveAsync(Run r, ITextSnapshot before)

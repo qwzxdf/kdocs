@@ -76,8 +76,8 @@ namespace KCppAssist
         public int SyncDelayMs { get; set; } = 0;
 
         [LocCategory("引数の同期")]
-        [LocDisplayName("書き換えた場所を小さなウィンドウで見せる")]
-        [LocDescription("True のとき、引数を相手のファイルへ写したときや、名前を変えたときに、変えた内容を約 3 秒だけ見せます。ウィンドウは、変えた名前の 1 文字目に左端をそろえて、その行のすぐ上に出ます(名前には重なりません)。")]
+        [LocDisplayName("書き換えた場所に点線を出す")]
+        [LocDescription("True のとき、引数を相手のファイルへ写したときや、名前を変えたときに、書き換えた名前の下に、点線を約 3 秒だけ出します(C# の名前の変更と同じ見せかたで、ウィンドウは出しません)。点線が出るのは、いま開いているエディターの中の場所だけです。")]
         public bool ShowSyncPreview { get; set; } = true;
 
         [LocCategory("名前の変更")]
