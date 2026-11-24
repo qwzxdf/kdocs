@@ -191,7 +191,7 @@ namespace KCppAssist
         }
 
         /// <summary>
-        /// ウィンドウを、anchorPos の文字の真上に置く(左端を、その文字の左端にそろえる)。上に収まらなければ、その行のすぐ下に置く。
+        /// ウィンドウを、anchorPos の文字の真上に置く(左端を、その文字の左端にそろえる)。上に収まらなくても、下には回さない(エディターの上にはみ出す)。
         /// どちらでも、その行には重ならない。PointToScreen は画面のピクセル、Window.Left/Top はデバイス非依存の単位なので、変換する。
         /// </summary>
         private static void Place(Window win, IWpfTextView anchor, int anchorPos, double w, double h)
@@ -202,6 +202,7 @@ namespace KCppAssist
             Point topLeft = toDip(el.PointToScreen(new Point(0, 0)));
             Point bottomRight = toDip(el.PointToScreen(new Point(el.ActualWidth, el.ActualHeight)));
 
+            bool placedAbove = false;
             double left = bottomRight.X - w - 24, top = topLeft.Y + 8;     // 行が見えていないときは、右上
             try
             {
@@ -214,15 +215,17 @@ namespace KCppAssist
                 {
                     TextBounds tb = line.GetCharacterBounds(pt);
                     Point above = toDip(el.PointToScreen(new Point(tb.Left - anchor.ViewportLeft, line.Top - anchor.ViewportTop)));
-                    Point below = toDip(el.PointToScreen(new Point(tb.Left - anchor.ViewportLeft, line.Bottom - anchor.ViewportTop)));
                     left = above.X;
                     top = above.Y - h - 3;
-                    if (top < topLeft.Y) top = below.Y + 3;
+                    // 必ず、その行の上に置く。エディターの上端に収まらなくても、下には回さない(下に出すと、すぐ下のコードを隠すため)。
+                    // 上にはみ出したぶんは、エディターの外(タブやツールバーの上)に出る別ウィンドウなので、そのまま見える
+                    placedAbove = true;
                 }
             }
             catch (Exception) { }
             win.Left = Math.Max(topLeft.X + 4, Math.Min(left, bottomRight.X - w - 8));
-            win.Top = Math.Max(topLeft.Y, Math.Min(top, bottomRight.Y - h));
+            // 行の上に置いたときは、エディターの上端で切らない(画面の上端でだけ切る)。それ以外(行が見えない)は、エディターの中に収める
+            win.Top = placedAbove ? Math.Max(SystemParameters.VirtualScreenTop, top) : Math.Max(topLeft.Y, Math.Min(top, bottomRight.Y - h));
         }
 
         private static ITextViewLine VisibleLine(IWpfTextView view, SnapshotPoint pt)
