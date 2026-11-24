@@ -134,6 +134,12 @@ namespace KCppAssist.Vcpkg
             if (!string.IsNullOrEmpty(dep.MinVersion)) o["version>="] = dep.MinVersion;
         }
 
+        /// <summary>builtin-baseline を消す(ベースラインで版を固定しない)。</summary>
+        public bool RemoveBaseline()
+        {
+            return Root.Remove("builtin-baseline");
+        }
+
         public bool Remove(string name)
         {
             var arr = Root["dependencies"] as JArray;

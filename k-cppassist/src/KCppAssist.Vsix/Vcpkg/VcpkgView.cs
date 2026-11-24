@@ -113,6 +113,8 @@ namespace KCppAssist.Vcpkg
         // 下の欄
         private readonly TextBox _log = new TextBox { IsReadOnly = true, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, FontFamily = new FontFamily("Consolas"), FontSize = 12, TextWrapping = TextWrapping.NoWrap };
         private readonly ProgressBar _progress = new ProgressBar { Height = 3, IsIndeterminate = false, Visibility = Visibility.Collapsed, BorderThickness = new Thickness(0), Margin = new Thickness(0, 0, 0, 6) };
+        private readonly CheckBox _chkBaseline = new CheckBox();
+        private bool _baselineUi;
         private Button _btnInstall, _btnBaseline, _btnUndo, _btnCancel;
         private readonly TextBlock _hint = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(2, 0, 2, 6) };
 
@@ -207,6 +209,13 @@ namespace KCppAssist.Vcpkg
             buttons.Children.Add(_btnBaseline);
             buttons.Children.Add(_btnUndo);
             buttons.Children.Add(_btnCancel);
+            Styled(_chkBaseline, "FCheck");
+            _chkBaseline.Content = L.T("ベースラインで版をそろえる (builtin-baseline)");
+            _chkBaseline.ToolTip = L.T("入: vcpkg.json に builtin-baseline を書いて、全員が同じ版を使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。");
+            _chkBaseline.VerticalAlignment = VerticalAlignment.Center;
+            _chkBaseline.Margin = new Thickness(14, 0, 0, 0);
+            _chkBaseline.Click += (s, e) => ToggleBaseline();
+            buttons.Children.Add(_chkBaseline);
             bar.Children.Add(buttons);
             bar.Children.Add(_progress);
             _progress.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
@@ -473,6 +482,20 @@ namespace KCppAssist.Vcpkg
             _btnBaseline.IsEnabled = has && VcpkgTool.FindExe() != null && _manifest != null && _manifest.Exists;
             _btnUndo.IsEnabled = has && VcpkgManifest.CanUndo(VcpkgManifest.FileNameIn(t.Dir));
             _btnCancel.IsEnabled = _busy;
+            _chkBaseline.IsEnabled = has && _manifest != null && _manifest.Exists && VcpkgTool.FindExe() != null;
+            _chkBaseline.IsChecked = _manifest != null && _manifest.Exists && !string.IsNullOrEmpty(_manifest.Baseline);
+        }
+
+        private void ToggleBaseline()
+        {
+            if (_manifest == null || !_manifest.Exists) return;
+            if (_chkBaseline.IsChecked == true) { RunBaseline(); return; }
+            try
+            {
+                if (_manifest.RemoveBaseline()) { _manifest.Save(); AppendLog(L.T("builtin-baseline を、vcpkg.json から消しました (「元に戻す」で戻せます)。")); }
+            }
+            catch (Exception ex) { AppendLog(ex.Message); }
+            RefreshAfterChange();
         }
 
         // ---------- 参照 ----------
@@ -606,12 +629,13 @@ namespace KCppAssist.Vcpkg
             Dependency existing = _manifest != null ? _manifest.Find(port.Name) : null;
             var checks = new List<CheckBox>();
             CheckBox defaults = null;
+            StackPanel featurePanel = null;
             if (port.Features.Count > 0)
             {
                 Section(L.T("機能 (feature)"));
                 defaults = Styled(new CheckBox { Content = L.T("既定の機能を使う (default-features)"), IsChecked = existing == null || existing.DefaultFeatures, Margin = new Thickness(0, 6, 0, 4) }, "FCheck");
                 _detail.Children.Add(defaults);
-                var featurePanel = new StackPanel { Margin = new Thickness(27, 2, 0, 0) };
+                featurePanel = new StackPanel { Margin = new Thickness(27, 2, 0, 0) };
                 foreach (var kv in port.Features)
                 {
                     var cb = Styled(new CheckBox { Tag = kv.Key, IsChecked = existing != null && existing.Features.Contains(kv.Key), Margin = new Thickness(0, 4, 0, 0) }, "FCheck");
@@ -669,6 +693,14 @@ namespace KCppAssist.Vcpkg
                 return;
             }
             if (!string.IsNullOrEmpty(d.Version)) _latest[port.Name] = d.Version;
+            // 既定で入る機能に、印を付ける(チェックが切でも、「既定の機能を使う」が入なら入る)
+            if (featurePanel != null)
+                foreach (CheckBox cb in featurePanel.Children.OfType<CheckBox>())
+                {
+                    var tb = cb.Content as TextBlock;
+                    if (tb != null && d.DefaultFeatures.Contains((string)cb.Tag))
+                        tb.Inlines.InsertAfter(tb.Inlines.FirstInline, new Run("  [" + L.T("既定") + "]") { Foreground = (Brush)FindResource("AccentBrush"), FontSize = 11 });
+                }
             Action<string, string> line = (label, value) =>
             {
                 var p = new TextBlock { Margin = new Thickness(0, 5, 0, 0), TextWrapping = TextWrapping.Wrap };

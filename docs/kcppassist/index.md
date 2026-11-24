@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.31.1.vsix" download>K-CppUltimateAssist 0.31.1 をダウンロード（.vsix、約 764 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.31.2.vsix" download>K-CppUltimateAssist 0.31.2 をダウンロード（.vsix、約 765 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -760,7 +760,7 @@ vcpkg のライブラリを探して、`vcpkg.json` に足すところまでを�
 - インストール済み: `vcpkg.json` に書いてあるパッケージと、実際に入っている版、最新の版を並べます。削除や、「この版以上」への書き換えもできます
 - 更新: 新しい版があるものだけを出します。「ベースラインを更新して、インストール」で、まとめて新しくできます
 
-右の詳細では、機能（feature）のチェックと、既定の機能（default-features）の有無、版の指定（ベースラインのまま、または `version>=`）を選んで、「追加」を押します。`vcpkg.json` の書式は壊さず、「元に戻す」で直前の状態に戻せます。`vcpkg.json` がない場所を選んで追加すると、新しく作って、`builtin-baseline` も書き込みます。
+右の詳細では、機能（feature）のチェックと、既定の機能（default-features）の有無、版の指定（ベースラインのまま、または `version>=`）を選んで、「追加」を押します。`vcpkg.json` の書式は壊さず、「元に戻す」で直前の状態に戻せます。機能の一覧では、既定で入るものに「[既定]」と付きます（「既定の機能を使う」が入のとき、チェックが切でも入ります）。下の「ベースラインで版をそろえる」のチェックで、`builtin-baseline` を書く・消すを切り替えられます。`vcpkg.json` がない場所を選んで追加すると、新しく作って、`builtin-baseline` も書き込みます。
 
 上の欄で、`vcpkg.json` の置き場所（ソリューションと各プロジェクト）と、トリプレット（`x64-windows` など。プロジェクトの `triplets` フォルダーの自作トリプレットも）を選びます。「インストール」は `vcpkg install` を実行して、出力を下のログに流します。失敗したときは、ネットワーク・ベースライン・ビルド失敗・非対応のトリプレットなどの原因の見当を、ログの末尾に書きます。
 
@@ -822,6 +822,7 @@ vcpkg が見つからないときは、入れ方の案内が出ます。一覧�
 
 | 版 | 内容 |
 | --- | --- |
+| 0.31.2 | vcpkg パッケージの窓で、既定で入る機能に「[既定]」の印を付けた。builtin-baseline で版をそろえるかを、チェックで切り替えられるようにした |
 | 0.31.1 | vcpkg パッケージの窓を、ドッキングせず、独立した窓として開くようにした |
 | 0.31.0 | vcpkg パッケージの窓（K-vcpkg）を追加。メニュー「拡張機能」の K-Cpp を、▶ で開くサブメニューにまとめた |
 | 0.30.1 | 「よく使うプロパティ」の先頭に「外部ライブラリ」の見出しを作り、インクルードの検索パス・追加のライブラリ ディレクトリ・追加の依存ファイルをまとめた |

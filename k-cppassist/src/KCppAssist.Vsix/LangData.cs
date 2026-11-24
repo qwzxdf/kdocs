@@ -1573,6 +1573,10 @@ namespace KCppAssist
             ["おすすめ #{0}"] = new[] { "Recommended #{0}", "", "", "", "", "", "", "" },
             ["名前や説明で検索"] = new[] { "Search by name or description", "", "", "", "", "", "", "" },
             ["最新の版 (GitHub)"] = new[] { "Latest version (GitHub)", "", "", "", "", "", "", "" },
+            ["既定"] = new[] { "default", "", "", "", "", "", "", "" },
+            ["ベースラインで版をそろえる (builtin-baseline)"] = new[] { "Pin versions with a baseline (builtin-baseline)", "", "", "", "", "", "", "" },
+            ["入: vcpkg.json に builtin-baseline を書いて、全員が同じ版を使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。"] = new[] { "On: writes builtin-baseline to vcpkg.json so everyone uses the same versions. Off: omits it and uses the latest ports of your local vcpkg.", "", "", "", "", "", "", "" },
+            ["builtin-baseline を、vcpkg.json から消しました (「元に戻す」で戻せます)。"] = new[] { "Removed builtin-baseline from vcpkg.json (you can restore it with Undo).", "", "", "", "", "", "", "" },
         };
     }
 }

@@ -36,6 +36,7 @@ namespace KCppAssist.Vcpkg
         public string Homepage, License, Supports, Version;           // Version: GitHub の vcpkg にある、最新の版
         public List<string> Dependencies = new List<string>();
         public Dictionary<string, string> FeatureDescriptions = new Dictionary<string, string>();
+        public List<string> DefaultFeatures = new List<string>();      // 既定で入る機能(default-features)
     }
 
     /// <summary>vcpkg.exe の場所の特定と、実行、検索結果・詳細の取得、版の比較。画面からは、ここだけを使う。</summary>
@@ -342,6 +343,9 @@ namespace KCppAssist.Vcpkg
                         var fo = f.Value as JObject;
                         if (fo != null && fo["description"] != null) d.FeatureDescriptions[f.Key] = (string)fo["description"];
                     }
+                var defs = o["default-features"] as JArray;
+                if (defs != null)
+                    foreach (JToken t in defs) { string n = t.Type == JTokenType.String ? (string)t : (string)t["name"]; if (!string.IsNullOrEmpty(n)) d.DefaultFeatures.Add(n); }
                 return d;
             }
             catch { return null; }
