@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.32.1.vsix" download>K-CppUltimateAssist 0.32.1 をダウンロード（.vsix、約 776 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.32.2.vsix" download>K-CppUltimateAssist 0.32.2 をダウンロード（.vsix、約 777 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -849,6 +849,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | 版 | 内容 |
 | --- | --- |
+| 0.32.2 | vcpkg パッケージの窓のトリプレットで、x64-windows-static を「おすすめ」、x64-windows を「次におすすめ」として先頭に並べ、既定にした |
 | 0.32.1 | vcpkg パッケージの窓で、vcpkg を使うプロジェクトを、プロジェクトごとに ON / OFF できるようにした（名前のチップを押して切り替え。「すべて ON」「すべて OFF」つき） |
 | 0.32.0 | vcpkg パッケージの窓で、ビルド時の自動インストール（マニフェスト モードと VS との連携）の状態を出し、ワンボタンで有効にできるようにした。vcpkg 本体がないときは、窓から入れられるようにした |
 | 0.31.3 | vcpkg パッケージの窓に、「?」のアイコンを足した（押すと、ベースライン・既定の機能・トリプレットなどの説明が開く） |
