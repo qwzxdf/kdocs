@@ -213,7 +213,7 @@ namespace KCppAssist.Vcpkg
             p1.Children.Add(WithHelp(Caption("vcpkg.json の置き場所"), "vcpkg.json を置くフォルダーを選びます。ソリューションのフォルダーか、各プロジェクトのフォルダーです。まだ vcpkg.json がない場所を選んで追加すると、新しく作ります。"));
             p1.Children.Add(Styled(_target, "FCombo"));
             var p2 = new StackPanel();
-            p2.Children.Add(WithHelp(Caption("トリプレット"), "トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows-static (おすすめ): ライブラリを実行ファイルに埋め込みます。DLL を exe の隣に置かなくて済むので、配るのが楽です。そのとき、プロジェクトの「ランタイム ライブラリ」は、マルチスレッド (/MT, Debug は /MTd) にそろえます。x64-windows (次におすすめ): ライブラリを DLL にします。exe は小さくなり、DLL を入れ替えるだけで更新できますが、DLL を exe の隣に置く必要があります。x64-windows-static-md: ライブラリは静的 (exe に埋め込む) ですが、C のランタイム (CRT) だけは DLL 版 (/MD) を使います。VS の既定のランタイム ライブラリ (/MD) のまま使えるので、プロジェクトの設定を変えずに済みます。ただし、CRT の DLL (VCRUNTIME など) は、配る先に必要です。プロジェクトの triplets フォルダーに置いた自作のものも並びます。"));
+            p2.Children.Add(WithHelp(Caption("トリプレット"), "トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows-static-md (おすすめ): ライブラリは静的 (exe に埋め込む) で、C のランタイム (CRT) だけは DLL 版 (/MD) を使います。VS の既定のランタイム ライブラリ (/MD) のまま使えるので、プロジェクトの設定を変えずに済み、ライブラリの DLL も exe の隣に置かなくて済みます。ただし、CRT の DLL (VCRUNTIME など) は、配る先に必要です。x64-windows (次におすすめ): ライブラリを DLL にします。exe は小さくなり、DLL を入れ替えるだけで更新できますが、DLL を exe の隣に置く必要があります。x64-windows-static: CRT も含めて、すべてを exe に埋め込みます。配る先に何も要りませんが、プロジェクトの「ランタイム ライブラリ」を、マルチスレッド (/MT, Debug は /MTd) にそろえる必要があります。プロジェクトの triplets フォルダーに置いた自作のものも並びます。"));
             p2.Children.Add(Styled(_triplet, "FCombo"));
             _tripletNote.FontSize = 11;
             _tripletNote.Margin = new Thickness(2, 3, 0, 0);
@@ -598,11 +598,11 @@ namespace KCppAssist.Vcpkg
             _triplet.Items.Clear();
             // おすすめを先頭に並べる(x64-windows-static、次に x64-windows)。そのほかは名前順
             var all = VcpkgLocator.Triplets(t != null ? t.Dir : null);
-            foreach (string r in new[] { "x64-windows-static", "x64-windows-static-md", "x64-windows" })
+            foreach (string r in new[] { "x64-windows-static-md", "x64-windows", "x64-windows-static" })
                 if (all.Contains(r)) _triplet.Items.Add(TripletDisplay(r));
             foreach (string name in all) if (name != "x64-windows-static" && name != "x64-windows-static-md" && name != "x64-windows") _triplet.Items.Add(name);
-            int i = IndexOfTriplet(keep ?? "x64-windows-static");
-            if (i < 0) i = IndexOfTriplet("x64-windows-static");
+            int i = IndexOfTriplet(keep ?? "x64-windows-static-md");
+            if (i < 0) i = IndexOfTriplet("x64-windows-static-md");
             if (i < 0) i = IndexOfTriplet("x64-windows");
             if (i >= 0) _triplet.SelectedIndex = i;
             _loadingUi = false;
@@ -616,13 +616,12 @@ namespace KCppAssist.Vcpkg
         private string TripletFile { get { return Path.Combine(VcpkgTool.DataDir, "triplet.txt"); } }
         private string LoadSavedTriplet() { try { return File.Exists(TripletFile) ? File.ReadAllText(TripletFile).Trim() : null; } catch { return null; } }
         private void SaveTriplet() { try { var t = _triplet.SelectedItem as string; if (t != null) File.WriteAllText(TripletFile, TripletName(t)); } catch { } }
-        private string Triplet { get { var t = _triplet.SelectedItem as string; return t != null ? TripletName(t) : "x64-windows-static"; } }
+        private string Triplet { get { var t = _triplet.SelectedItem as string; return t != null ? TripletName(t) : "x64-windows-static-md"; } }
 
         /// <summary>選択欄の表示(おすすめの印つき)。名前は、前の部分だけ。</summary>
         private static string TripletDisplay(string name)
         {
-            if (name == "x64-windows-static") return name + "   ★ " + L.T("おすすめ");
-            if (name == "x64-windows-static-md") return name + "   ☆ " + L.T("/MD のままなら");
+            if (name == "x64-windows-static-md") return name + "   ★ " + L.T("おすすめ");
             if (name == "x64-windows") return name + "   ☆ " + L.T("次におすすめ");
             return name;
         }
