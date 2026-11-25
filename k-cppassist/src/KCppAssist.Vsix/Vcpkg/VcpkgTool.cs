@@ -325,6 +325,27 @@ namespace KCppAssist.Vcpkg
         }
 
         /// <summary>
+        /// 手元の vcpkg が git のコピーなら、git pull で最新にする。x-update-baseline は、git のコピーの vcpkg では、
+        /// 手元の HEAD をベースラインに書くので、コピーが古いと、いまと同じコミットを書き直すだけで、何も変わらない。
+        /// git のコピーでない(VS 付属など)ときは、何もしないで true を返す。
+        /// </summary>
+        public static Task<bool> PullRootAsync(Action<string> log, CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                string root = Root;
+                if (string.IsNullOrEmpty(root) || (!Directory.Exists(Path.Combine(root, ".git")) && !File.Exists(Path.Combine(root, ".git")))) return true;
+                if (log != null) log(L.F("> git pull ({0})  手元の vcpkg を最新にします", root));
+                string o;
+                int code = RunGit(root, "pull --ff-only", ct, out o);
+                if (log != null) foreach (string line in (o ?? "").Split('
+')) if (line.Trim().Length > 0) log(line.TrimEnd(''));
+                if (code != 0 && log != null) log(L.T("git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。"));
+                return code == 0;
+            });
+        }
+
+        /// <summary>
         /// ベースラインのコミットが、手元の vcpkg (git のコピー) にあるようにする。なければ git fetch で取る。
         /// vcpkg は、builtin-baseline のコミットを、手元のコピーの git から読む。コピーが古いと、新しいコミットがなくて
         /// 「git show versions/baseline.json に失敗しました」になる。git のコピーでない vcpkg (VS 付属など) は、vcpkg が自分で取るので、何もしない。

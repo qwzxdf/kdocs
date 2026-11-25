@@ -1252,8 +1252,16 @@ namespace KCppAssist.Vcpkg
         private async void RunBaseline(bool thenInstall = false)
         {
             if (_manifest == null || !_manifest.Exists) return;
+            _log.Clear();
+            // git のコピーの vcpkg は、手元の HEAD を書くので、先に最新にする
+            SetBusy(true);
+            _cts = new CancellationTokenSource();
+            bool pulled;
+            try { pulled = await VcpkgTool.PullRootAsync(AppendLog, _cts.Token); }
+            finally { SetBusy(false); _cts = null; }
+            if (!pulled) return;
             string args = "x-update-baseline" + (string.IsNullOrEmpty(_manifest.Baseline) ? " --add-initial-baseline" : "");
-            RunResult r = await RunVcpkg(args, true);
+            RunResult r = await RunVcpkg(args, false);
             _manifest = VcpkgManifest.Load(_manifest.Path);
             if (r != null && r.Ok && thenInstall) RunInstall();
             else RefreshAfterChange();

@@ -1661,6 +1661,8 @@ namespace KCppAssist
             ["git fetch で取れませんでした: {0}"] = new[] { "git fetch failed: {0}", "", "", "", "", "", "", "" },
             ["コミットを取れなかったので、ベースラインは書き換えませんでした。"] = new[] { "Could not get the commit, so the baseline was not changed.", "", "", "", "", "", "", "" },
             ["ベースラインのコミットを、手元の vcpkg に取れませんでした。ネットワークと、vcpkg のフォルダーで git fetch ができるかを確かめてください。"] = new[] { "Could not get the baseline commit into your local vcpkg. Check the network and that git fetch works in the vcpkg folder.", "", "", "", "", "", "", "" },
+            ["> git pull ({0})  手元の vcpkg を最新にします"] = new[] { "> git pull ({0})  Updating your local vcpkg", "", "", "", "", "", "", "" },
+            ["git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。"] = new[] { "git pull failed. Your local vcpkg may have local changes, or the network may be unavailable.", "", "", "", "", "", "", "" },
         };
     }
 }
