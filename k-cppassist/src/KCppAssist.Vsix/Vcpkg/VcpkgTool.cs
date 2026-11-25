@@ -300,6 +300,37 @@ namespace KCppAssist.Vcpkg
             return c;
         }
 
+        /// <summary>GitHub の microsoft/vcpkg の、いちばん新しいコミット(master の先頭)。つながらなければ null。
+        /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いてしまうことがあるので、自分で取る。</summary>
+        public static async Task<string> LatestBaselineAsync(CancellationToken ct)
+        {
+            try
+            {
+                var req = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/repos/microsoft/vcpkg/commits/master");
+                req.Headers.Accept.ParseAdd("application/vnd.github.sha");          // コミットの SHA だけを返してもらう
+                using (HttpResponseMessage res = await Http.SendAsync(req, ct))
+                {
+                    if (!res.IsSuccessStatusCode) return null;
+                    string sha = (await res.Content.ReadAsStringAsync()).Trim();
+                    return Regex.IsMatch(sha, "^[0-9a-f]{40}$") ? sha : null;
+                }
+            }
+            catch { return null; }
+        }
+
+        /// <summary>current から見た latest の位置。"ahead"(latest のほうが新しい) / "identical" / "behind"(latest のほうが古い) / "diverged"。分からなければ null。</summary>
+        public static async Task<string> CompareBaselineAsync(string current, string latest, CancellationToken ct)
+        {
+            if (!Regex.IsMatch(current ?? "", "^[0-9a-f]{40}$") || !Regex.IsMatch(latest ?? "", "^[0-9a-f]{40}$")) return null;
+            try
+            {
+                string json = await Http.GetStringAsync("https://api.github.com/repos/microsoft/vcpkg/compare/" + current + "..." + latest + "?per_page=1");
+                Match m = Regex.Match(json, "\"status\"\\s*:\\s*\"(\\w+)\"");
+                return m.Success ? m.Groups[1].Value : null;
+            }
+            catch { return null; }
+        }
+
         /// <summary>ホームページ・ライセンス・対応環境・依存を、GitHub の vcpkg の vcpkg.json から取る。1 度取ったものは、ファイルに残す。つながらなければ null。</summary>
         public static async Task<PortDetail> LoadDetailAsync(string name, CancellationToken ct)
         {

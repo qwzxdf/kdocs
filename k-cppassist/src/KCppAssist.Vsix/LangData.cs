@@ -1644,6 +1644,19 @@ namespace KCppAssist
             ["ランタイム ライブラリ: /MT (Debug は /MTd) にそろえる。DLL は不要"] = new[] { "Runtime Library: set to /MT (/MTd for Debug). No DLLs needed", "", "", "", "", "", "", "" },
             ["ランタイム ライブラリ: /MD (VS の既定) のまま。DLL は不要 (CRT は除く)"] = new[] { "Runtime Library: keep /MD (VS default). No DLLs needed (except the CRT)", "", "", "", "", "", "", "" },
             ["ランタイム ライブラリ: /MD (VS の既定)。DLL を exe の隣に置く"] = new[] { "Runtime Library: /MD (VS default). Put the DLLs next to the exe", "", "", "", "", "", "", "" },
+            ["{0} / {1} 個目: {2}"] = new[] { "{2} ({0} / {1})", "", "", "", "", "", "", "" },
+            ["ON: {0} / {1} 個"] = new[] { "ON: {0} / {1}", "", "", "", "", "", "", "" },
+            ["VS と連携していないので、ビルド時の自動インストールは働きません"] = new[] { "Not integrated with VS, so automatic install at build time will not work", "", "", "", "", "", "", "" },
+            ["{0} の追加は完了しました。Visual Studio でビルドすると、自動でインストールされます。"] = new[] { "{0} has been added. It will be installed automatically when you build in Visual Studio.", "", "", "", "", "", "", "" },
+            ["{0} の追加は完了しました。ビルド時に自動で入れるには、下の「VS と連携する」を押してください。"] = new[] { "{0} has been added. To install it automatically at build time, press \"Integrate with VS\" below.", "", "", "", "", "", "", "" },
+            ["vcpkg.json に追加"] = new[] { "Add to vcpkg.json", "", "", "", "", "", "", "" },
+            ["vcpkg.json の設定を更新"] = new[] { "Update the setting in vcpkg.json", "", "", "", "", "", "", "" },
+            ["> 最新のベースライン (GitHub の vcpkg の先頭コミット) を調べています"] = new[] { "> Checking the latest baseline (the head commit of vcpkg on GitHub)", "", "", "", "", "", "", "" },
+            ["最新のベースラインを GitHub から取れませんでした。ネットワークを確かめてください。vcpkg.json は変えていません。"] = new[] { "Could not get the latest baseline from GitHub. Check the network. vcpkg.json was not changed.", "", "", "", "", "", "", "" },
+            ["ベースラインは、すでに最新です。"] = new[] { "The baseline is already the latest.", "", "", "", "", "", "", "" },
+            ["今のベースラインのほうが新しいので、書き換えませんでした。"] = new[] { "The current baseline is newer, so it was not changed.", "", "", "", "", "", "", "" },
+            ["builtin-baseline を {0} に更新しました (「元に戻す」で戻せます)。"] = new[] { "Updated builtin-baseline to {0} (you can undo it).", "", "", "", "", "", "", "" },
+            ["ベースラインを更新できませんでした: {0}"] = new[] { "Could not update the baseline: {0}", "", "", "", "", "", "", "" },
         };
     }
 }

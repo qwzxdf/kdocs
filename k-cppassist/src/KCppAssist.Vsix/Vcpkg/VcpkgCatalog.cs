@@ -45,6 +45,7 @@ imgui|UI・デバッグ表示|ゲームの中に、デバッグ用のウィン�
 directxtk|描画・DirectX|DirectX 11 の補助クラス集。SimpleMath、SpriteBatch、モデル、入力、音がそろう。|Helper classes for DirectX 11: SimpleMath, SpriteBatch, models, input and audio.
 directxtk12|描画・DirectX|DirectX 12 版の補助クラス集。リソースのアップロードやスプライト描画を楽にする。|The DirectX 12 counterpart: resource upload, sprite drawing and more.
 nlohmann-json|データ・保存|C++ らしい書き方で読み書きできる JSON ライブラリ。設定やセーブデータの定番。|JSON for modern C++. The usual choice for settings and save data.
+glaze|データ・保存|構造体をそのまま JSON や バイナリに読み書きできる、コンパイル時に動くシリアライズ ライブラリ。リフレクション風に書ける。|Compile-time serialization of structs to and from JSON and binary, with reflection-like usage.
 spdlog|基盤・ユーティリティ|速いログ出力ライブラリ。ファイル・コンソール・VS の出力欄に書き分けられる。|Fast logging to files, the console and the VS output window.
 stb|モデル・画像・フォント|画像の読み込み（stb_image）やフォントの描画など、1 ファイルで使える小道具集。|Single-file helpers: image loading (stb_image), font rasterizing and more.
 joltphysics|物理・ナビゲーション|剛体の物理と衝突判定。マルチスレッドで速く、最近のゲームでの採用例も多い。|Rigid-body physics and collision. Multithreaded and fast, used by recent games.
@@ -102,6 +103,9 @@ tinygltf|モデル・画像・フォント|ヘッダーだけで使える glTF �
 tinyobjloader|モデル・画像・フォント|OBJ ファイルだけを、軽く読み込む。|A tiny Wavefront OBJ loader.
 magic-enum|基盤・ユーティリティ|enum の値を、文字列に変換したり、文字列から戻したりする。|Converts between enum values and strings.
 fmt|基盤・ユーティリティ|書式つき文字列の作成。C++20 の std::format のもとになったライブラリ。|Formatting library that std::format is based on.
+boost|基盤・ユーティリティ|C++ の定番ライブラリ集。small_vector や static_vector、asio、filesystem など、標準にない部品が多い。全部入りで大きいので、必要な部品だけ (boost-container など) を入れる手もある。|The classic C++ library collection: small_vector, static_vector, asio and more. It is large, so you can add single parts (e.g. boost-container) instead.
+abseil|基盤・ユーティリティ|Google の基盤ライブラリ。InlinedVector、FixedArray、flat_hash_map など、速いコンテナーと文字列の道具がそろう。|Google's foundation library: InlinedVector, FixedArray, flat_hash_map and other fast containers and string utilities.
+etl|基盤・ユーティリティ|動的確保をしない、固定容量の vector や string など。サイズが決まっているデータを、ヒープなしで扱える。|Fixed-capacity vector, string and more that never allocate from the heap.
 range-v3|基盤・ユーティリティ|C++20 の ranges のもとになったライブラリ。C++20 より前の機能も使える。|The library std::ranges is based on, with extra features.
 unordered-dense|基盤・ユーティリティ|std::unordered_map より速く、メモリも少ないハッシュ マップ。|A hash map faster and smaller than std::unordered_map.
 robin-hood-hashing|基盤・ユーティリティ|速いハッシュ マップ。unordered-dense の前から使われている。|A fast hash map predating unordered-dense.
@@ -134,14 +138,12 @@ nanovg|UI・デバッグ表示|アンチエイリアスつきのベクター描�
 lunasvg|UI・デバッグ表示|SVG を、画像にして描く。アイコン用。|Renders SVG to images, handy for icons.
 nuklear|UI・デバッグ表示|ImGui に似た、C 言語の即時モード UI。|A C immediate-mode UI similar to ImGui.
 gsl-lite|基盤・ユーティリティ|C++ Core Guidelines の補助型（span など）。|C++ Core Guidelines support types such as span.
-etl|基盤・ユーティリティ|動的確保をしないコンテナ集。固定サイズで使える。|Containers that never allocate, with fixed capacity.
 wg21-sg14|基盤・ユーティリティ|ゲーム向けの C++ 標準化グループ SG14 が提案した部品集。|Components proposed by the games-oriented C++ study group SG14.
 stduuid|基盤・ユーティリティ|UUID（一意な ID）を作る。アセットの ID に使う。|Generates UUIDs, handy for asset IDs.
 utfcpp|圧縮・暗号・文字コード|UTF-8 / 16 / 32 の変換。|UTF-8/16/32 conversions.
 rttr|基盤・ユーティリティ|実行時にクラスのメンバーを調べる、リフレクション。エディタ作りに向く。|Run-time reflection, useful for editors.
 plog|基盤・ユーティリティ|軽くて簡単なログ ライブラリ。|A light, simple logging library.
 nanobench|テスト・計測|1 ファイルで使える、小さなベンチマーク。|A single-header micro benchmark.
-abseil|基盤・ユーティリティ|Google の基盤ライブラリ。コンテナ、文字列、時間など。|Google's foundation library: containers, strings, time.
 readerwriterqueue|基盤・ユーティリティ|1 つのスレッドから 1 つのスレッドへ渡す、ロックしないキュー。|A lock-free single-producer single-consumer queue.
 vulkan-headers|描画・DirectX|Vulkan のヘッダー。|Vulkan headers.
 volk|描画・DirectX|Vulkan の関数を、実行時に読み込むローダー。|A Vulkan meta loader.

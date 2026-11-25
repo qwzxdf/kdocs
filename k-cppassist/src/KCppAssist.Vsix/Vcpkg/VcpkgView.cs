@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -121,6 +122,10 @@ namespace KCppAssist.Vcpkg
         private readonly CheckBox _chkBaseline = new CheckBox();
         private bool _baselineUi;
         private Button _btnInstall, _btnBaseline, _btnUndo, _btnCancel;
+        private readonly TextBlock _progressText = new TextBlock { FontSize = 12, Margin = new Thickness(0, 0, 0, 6), Visibility = Visibility.Collapsed };
+        private readonly TextBlock _countText = new TextBlock { FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 1, 0, 0) };
+        private Border _modeRowBox;
+        private string _addedFor;                       // 追加したばかりのパッケージ(詳細の追加ボタンの下に、案内を出す)
         private readonly TextBlock _hint = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(2, 0, 2, 6) };
 
         public VcpkgView()
@@ -280,7 +285,9 @@ namespace KCppAssist.Vcpkg
             projHead.Children.Add(headBtns);
             var headLeft = new StackPanel { Orientation = Orientation.Horizontal };
             headLeft.Children.Add(new TextBlock { Text = L.T("vcpkg を使うプロジェクト"), FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
-            headLeft.Children.Add(Help("vcpkg を使うかどうかは、プロジェクトごとに決められます。ON のプロジェクトだけが、vcpkg.json のパッケージを使い、ビルド時に自動でインストールされます (.vcxproj の VcpkgEnabled と VcpkgEnableManifest を書き換えます)。OFF のプロジェクトは、vcpkg に関わりません。名前を押すと、ON と OFF が切り替わります。ここに並ぶのは、選んだ vcpkg.json の下にあるプロジェクトです。"));
+            headLeft.Children.Add(_countText);
+            Tinted(_countText, "SubBrush", TextBlock.ForegroundProperty);
+            headLeft.Children.Add(Help("ビルド時の自動インストールは、プロジェクトでマニフェスト モード (VcpkgEnableManifest) が有効で、Visual Studio と vcpkg が連携している (vcpkg integrate install) と働きます。そろっていると、Visual Studio でビルドするたびに、vcpkg.json に書いたパッケージが、足りなければ自動で入ります。パッケージを追加すると、この窓が、プロジェクトのマニフェスト モードを自動で有効にします。 vcpkg を使うかどうかは、プロジェクトごとに決められます。ON のプロジェクトだけが、vcpkg.json のパッケージを使い、ビルド時に自動でインストールされます (.vcxproj の VcpkgEnabled と VcpkgEnableManifest を書き換えます)。OFF のプロジェクトは、vcpkg に関わりません。名前を押すと、ON と OFF が切り替わります。ここに並ぶのは、選んだ vcpkg.json の下にあるプロジェクトです。"));
             projHead.Children.Add(headLeft);
             projBody.Children.Add(projHead);
             _projPanel.Margin = new Thickness(0, 8, 0, 0);
@@ -291,12 +298,13 @@ namespace KCppAssist.Vcpkg
             modeRow.Children.Add(_btnIntegrate);
             var modeLeft = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
             modeLeft.Children.Add(_modeText);
-            modeLeft.Children.Add(Help("ビルド時の自動インストールは、2 つがそろうと働きます。(1) プロジェクトで、マニフェスト モード (VcpkgEnableManifest) が有効なこと。(2) Visual Studio と vcpkg が連携していること (vcpkg integrate install)。そろっていると、Visual Studio でビルドするたびに、vcpkg.json に書いたパッケージが、足りなければ自動で入ります。そのため「今すぐインストール」は、ビルドを待たずに入れたいときや、エラーの内容を先に見たいときだけ使えば足ります。パッケージを追加すると、この窓が、プロジェクトのマニフェスト モードを自動で有効にします。"));
             modeRow.Children.Add(modeLeft);
-            projBody.Children.Add(modeRow);
+            _modeRowBox = new Border { Child = modeRow };
+            projBody.Children.Add(_modeRowBox);
             projCard.Child = projBody;
             bar.Children.Add(projCard);
             bar.Children.Add(_progress);
+            bar.Children.Add(Tinted(_progressText, "SubBrush", TextBlock.ForegroundProperty));
             _progress.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
             _progress.SetResourceReference(Control.BackgroundProperty, "LineBrush");
             bar.Children.Add(Tinted(_hint, "AccentBrush", TextBlock.ForegroundProperty));
@@ -700,11 +708,16 @@ namespace KCppAssist.Vcpkg
                 _projPanel.Children.Add(chip);
             }
             Brush ok = (Brush)FindResource("OkBrush"), warn = (Brush)FindResource("WarnBrush"), sub = (Brush)FindResource("SubBrush");
-            if (_manifest == null || !_manifest.Exists) { _modeText.Text = L.T("vcpkg.json を作ると、ビルド時の自動インストールが使えます"); _modeText.Foreground = sub; }
-            else if (total == 0) { _modeText.Text = L.T("プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)"); _modeText.Foreground = sub; }
-            else if (on == 0) { _modeText.Text = L.T("どのプロジェクトも、vcpkg が OFF です。使うプロジェクトを押して、ON にしてください"); _modeText.Foreground = warn; }
-            else if (!integrated) { _modeText.Text = L.F("ON: {0} / {1} 個。VS と連携していないので、ビルド時の自動インストールは働きません", on, total); _modeText.Foreground = warn; }
-            else { _modeText.Text = L.F("ON: {0} / {1} 個。✔ ビルドすると、Visual Studio が自動でインストールします", on, total); _modeText.Foreground = ok; }
+            _countText.Text = total > 0 ? L.F("ON: {0} / {1} 個", on, total) : "";
+            // うまくいっているときは、何も出さない。直すべきことがあるときだけ、1 行出す
+            string problem = null; Brush problemBrush = sub;
+            if (_manifest == null || !_manifest.Exists) problem = L.T("vcpkg.json を作ると、ビルド時の自動インストールが使えます");
+            else if (total == 0) problem = L.T("プロジェクト (.vcxproj) が見つかりません (CMake などは、vcpkg の連携が別に要ります)");
+            else if (on == 0) { problem = L.T("どのプロジェクトも、vcpkg が OFF です。使うプロジェクトを押して、ON にしてください"); problemBrush = warn; }
+            else if (!integrated) { problem = L.T("VS と連携していないので、ビルド時の自動インストールは働きません"); problemBrush = warn; }
+            _modeText.Text = problem ?? "";
+            _modeText.Foreground = problemBrush;
+            _modeRowBox.Visibility = (problem != null || (!integrated && VcpkgTool.FindExe() != null)) ? Visibility.Visible : Visibility.Collapsed;
             bool auto = _manifest != null && _manifest.Exists && integrated && on > 0;
             _btnInstall.Visibility = _helpInstall.Visibility = auto ? Visibility.Collapsed : Visibility.Visible;     // 自動で入るなら、手動のボタンは要らない
             bool can = !_busy && _manifest != null && _manifest.Exists;
@@ -951,7 +964,7 @@ namespace KCppAssist.Vcpkg
 
             // 操作
             var ops = new WrapPanel { Margin = new Thickness(0, 18, 0, 0) };
-            var add = Styled(new Button { Content = existing == null ? L.T("追加") : L.T("設定を更新"), IsEnabled = CurrentTarget != null && !_busy }, "FPrimary");
+            var add = Styled(new Button { Content = existing == null ? L.T("vcpkg.json に追加") : L.T("vcpkg.json の設定を更新"), IsEnabled = CurrentTarget != null && !_busy }, "FPrimary");
             add.Click += (s, e) =>
             {
                 var dep = new Dependency { Name = port.Name, DefaultFeatures = defaults == null || defaults.IsChecked == true };
@@ -968,6 +981,9 @@ namespace KCppAssist.Vcpkg
             ops.Children.Add(tree);
             { var ht = Help("このパッケージが、ほかのどのパッケージに依存しているかを、木の形でログに出します。"); ht.Margin = new Thickness(-2, 0, 8, 0); ops.Children.Add(ht); }
             _detail.Children.Add(ops);
+            if (existing != null && string.Equals(_addedFor, port.Name, StringComparison.OrdinalIgnoreCase))
+                _detail.Children.Add(Tinted(new TextBlock { Text = AddedMessage(port.Name), TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 8, 0, 0) }, "OkBrush", TextBlock.ForegroundProperty));
+            else if (existing == null && string.Equals(_addedFor, port.Name, StringComparison.OrdinalIgnoreCase)) _addedFor = null;
 
             // GitHub から、最新の版・ホームページ・ライセンス・依存を取る(取れなくても、上の内容は変わらない)
             PortDetail d = await VcpkgTool.LoadDetailAsync(port.Name, CancellationToken.None);
@@ -1048,6 +1064,7 @@ namespace KCppAssist.Vcpkg
 
         private void RemoveDependency(string name)
         {
+            if (string.Equals(_addedFor, name, StringComparison.OrdinalIgnoreCase)) _addedFor = null;
             string err;
             if (!EnsureManifest(out err)) { AppendLog(err); return; }
             try
@@ -1103,10 +1120,17 @@ namespace KCppAssist.Vcpkg
 
         private void ShowUsageHint(string name)
         {
+            _addedFor = name;
+            _hint.Text = "";
+            if (_selected != null && string.Equals(_selected.Name, name, StringComparison.OrdinalIgnoreCase)) ShowDetail(_selected);   // 追加ボタンの下に、案内を出す
+        }
+
+        private string AddedMessage(string name)
+        {
             bool auto = VcpkgSetup.Integrated && TargetProjects().Count > 0;
-            _hint.Text = auto
-                ? L.F("{0} を追加しました。Visual Studio でビルドすると、自動でインストールされます (「今すぐインストール」は、先に入れたいときだけ)。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います。", name)
-                : L.F("{0} を追加しました。ビルド時に自動で入れるには、下の「VS と連携する」を押してください。いま入れるなら、「今すぐインストール」です。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います。", name);
+            return auto
+                ? L.F("{0} の追加は完了しました。Visual Studio でビルドすると、自動でインストールされます。", name)
+                : L.F("{0} の追加は完了しました。ビルド時に自動で入れるには、下の「VS と連携する」を押してください。", name);
         }
 
         // ---------- 実行 ----------
@@ -1115,7 +1139,10 @@ namespace KCppAssist.Vcpkg
         {
             _busy = busy;
             _progress.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
-            _progress.IsIndeterminate = busy;
+            _progress.IsIndeterminate = busy;                       // 「Installing 3/12」が出るまでは、流れる表示
+            _progress.Minimum = 0; _progress.Maximum = 1; _progress.Value = 0;
+            _progressText.Visibility = Visibility.Collapsed;
+            _progressText.Text = "";
             UpdateButtons();
         }
 
@@ -1137,12 +1164,36 @@ namespace KCppAssist.Vcpkg
             try
             {
                 string work = neutral ? await VcpkgTool.NeutralDirAsync(_manifest != null ? _manifest.Baseline : null, _cts.Token) : (t != null ? t.Dir : null);
-                RunResult r = await VcpkgTool.RunAsync(args, work, AppendLog, _cts.Token);
+                RunResult r = await VcpkgTool.RunAsync(args, work, line => { AppendLog(line); TrackProgress(line); }, _cts.Token);
                 AppendLog(r.Canceled ? L.T("中止しました。") : r.Ok ? L.T("完了しました。") : L.F("失敗しました (終了コード {0})。", r.ExitCode));
                 if (!r.Ok && !r.Canceled) AppendLog(Diagnose(r.Output));
                 return r;
             }
             finally { SetBusy(false); _cts = null; }
+        }
+
+        // vcpkg が出す「Installing 3/12 name:triplet...」を読んで、ライブラリ 1 個ごとに進捗バーを進める
+        private static readonly Regex InstallingLine = new Regex(@"^\s*(Installing|Building)\s+(\d+)/(\d+)\s+(\S+)", RegexOptions.Compiled);
+        private static readonly Regex DoneLine = new Regex(@"^\s*(Total install time|Elapsed time to handle\s+\S+:)", RegexOptions.Compiled);
+
+        private void TrackProgress(string line)
+        {
+            if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(new Action(() => TrackProgress(line))); return; }
+            Match m = InstallingLine.Match(line ?? "");
+            if (m.Success)
+            {
+                int i = int.Parse(m.Groups[2].Value), n = int.Parse(m.Groups[3].Value);
+                if (n <= 0) return;
+                string pkg = m.Groups[4].Value; int c = pkg.IndexOf(':'); if (c > 0) pkg = pkg.Substring(0, c);
+                _progress.IsIndeterminate = false;
+                _progress.Maximum = n;
+                _progress.Value = Math.Max(_progress.Value, i - 1);            // 前のライブラリまでが終わった
+                _progressText.Visibility = Visibility.Visible;
+                _progressText.Text = L.F("{0} / {1} 個目: {2}", i, n, pkg);
+                return;
+            }
+            if (DoneLine.IsMatch(line ?? "") && !_progress.IsIndeterminate && _progress.Value < _progress.Maximum)
+                _progress.Value = Math.Min(_progress.Maximum, Math.Floor(_progress.Value) + 1);   // 1 個終わった
         }
 
         /// <summary>よくある失敗を、原因が分かる形で書き足す。</summary>
@@ -1185,13 +1236,43 @@ namespace KCppAssist.Vcpkg
             return string.Join("\n", lines);
         }
 
+        /// <summary>
+        /// ベースラインを、GitHub の vcpkg のいちばん新しいコミットに書き換える。
+        /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いて、版が下がることがあったので、自分で取って書く。
+        /// 今のベースラインより古いコミットは、書かない。取れなかったときは、何も書き換えない。
+        /// </summary>
+        private async Task<bool> UpdateBaselineAsync()
+        {
+            SetBusy(true);
+            _cts = new CancellationTokenSource();
+            try
+            {
+                AppendLog(L.T("> 最新のベースライン (GitHub の vcpkg の先頭コミット) を調べています"));
+                string latest = await VcpkgTool.LatestBaselineAsync(_cts.Token);
+                if (latest == null) { AppendLog(L.T("最新のベースラインを GitHub から取れませんでした。ネットワークを確かめてください。vcpkg.json は変えていません。")); return false; }
+                string current = _manifest.Baseline;
+                if (!string.IsNullOrEmpty(current))
+                {
+                    if (string.Equals(current, latest, StringComparison.OrdinalIgnoreCase)) { AppendLog(L.T("ベースラインは、すでに最新です。")); return true; }
+                    string rel = await VcpkgTool.CompareBaselineAsync(current, latest, _cts.Token);
+                    if (rel == "behind" || rel == "identical") { AppendLog(L.T("今のベースラインのほうが新しいので、書き換えませんでした。")); return true; }
+                }
+                _manifest.SetBaseline(latest);
+                _manifest.Save();
+                AppendLog(L.F("builtin-baseline を {0} に更新しました (「元に戻す」で戻せます)。", latest.Substring(0, 10)));
+                return true;
+            }
+            catch (Exception ex) { AppendLog(L.F("ベースラインを更新できませんでした: {0}", ex.Message)); return false; }
+            finally { SetBusy(false); _cts = null; }
+        }
+
         private async void RunBaseline(bool thenInstall = false)
         {
             if (_manifest == null || !_manifest.Exists) return;
-            string args = "x-update-baseline" + (string.IsNullOrEmpty(_manifest.Baseline) ? " --add-initial-baseline" : "");
-            RunResult r = await RunVcpkg(args, true);
+            _log.Clear();
+            bool ok = await UpdateBaselineAsync();
             _manifest = VcpkgManifest.Load(_manifest.Path);
-            if (r != null && r.Ok && thenInstall) RunInstall();
+            if (ok && thenInstall) RunInstall();
             else RefreshAfterChange();
         }
 

@@ -134,6 +134,12 @@ namespace KCppAssist.Vcpkg
             if (!string.IsNullOrEmpty(dep.MinVersion)) o["version>="] = dep.MinVersion;
         }
 
+        /// <summary>builtin-baseline を書く(なければ足す)。</summary>
+        public void SetBaseline(string sha)
+        {
+            Root["builtin-baseline"] = sha;
+        }
+
         /// <summary>builtin-baseline を消す(ベースラインで版を固定しない)。</summary>
         public bool RemoveBaseline()
         {

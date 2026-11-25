@@ -19,6 +19,8 @@ namespace KCppAssist
             commands.AddCommand(new OleMenuCommand((s, e) => ShowVcpkgWindow(), new CommandID(CmdSet, CmdVcpkg)));
         }
 
+        private bool vcpkgSized;
+
         private void ShowVcpkgWindow()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -30,6 +32,18 @@ namespace KCppAssist
                 var frame = (IVsWindowFrame)window.Frame;
                 // ドッキングせず、独立した窓として開く
                 frame.SetProperty((int)__VSFPROPID.VSFPROPID_FrameMode, VSFRAMEMODE.VSFM_Float);
+                if (!vcpkgSized)
+                {
+                    // 初めて開くときだけ、大きく開く(あとは、ユーザーが変えた大きさのまま)。単位はピクセル
+                    vcpkgSized = true;
+                    double scale = 1.0;
+                    var src = System.Windows.PresentationSource.FromVisual(window.View);
+                    if (src != null && src.CompositionTarget != null) scale = src.CompositionTarget.TransformToDevice.M11;
+                    var area = System.Windows.SystemParameters.WorkArea;
+                    int w = (int)Math.Min(1600 * scale, area.Width * scale * 0.9);
+                    int h = (int)Math.Min(1000 * scale, area.Height * scale * 0.92);
+                    frame.SetFramePos(VSSETFRAMEPOS.SFP_fSize, Guid.Empty, 0, 0, w, h);
+                }
                 frame.Show();
             }
             catch (Exception ex) { Log("vcpkg window failed: " + ex.Message); }
