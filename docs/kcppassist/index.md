@@ -30,7 +30,7 @@ Visual Studio 2026（Community・Professional・Enterprise）で動きます。2
 |---|---|---|
 | Alt+W | メンバー変数として宣言する（Write member） | クラスのヘッダー（`.h`）に `型 名前;` を足す |
 | Alt+Q | ローカル変数に型を付ける（Qualify type） | その場の `count = 0;` を `int count = 0;` にする |
-| Alt+G | Getter・Setter を作る（Getter） | `stride_` の `GetStride()` と `SetStride(...)` を `public:` の末尾に足す |
+| Alt+G | Getter・Setter を作る（Getter） | `hp_` の `GetHp()` と `SetHp(...)` を `public:` の末尾に足す |
 | Alt+N | ファイル名をまとめて変える（Name） | ヘッダーか cpp の名前を変え、相手のファイル・`#include`・CMake も同じ名前に直す。名前を変えると自動でも直す（下の「ファイル名をまとめて変える」） |
 | Alt+M | 関数を ヘッダー ⇄ cpp に移す（Move） | ヘッダーに書いた関数の本体を cpp へ、cpp の `Class::Func` の本体をヘッダーへ移す |
 | Alt+F | `#include` を前方宣言にする（Forward） | ヘッダーの `#include "x.h"` を `class X;` に置き換えて、`#include` を cpp に移す |
@@ -45,18 +45,18 @@ Visual Studio 2026（Community・Professional・Enterprise）で動きます。2
 どのコマンドも <strong>カーソルが行のどこにあっても</strong>押せます。対象は行頭の `名前 = 右辺;` の左辺です。
 
 ```cpp
-// Alloc.cpp
-Alloc::Alloc(Dev* device, int type) {
-    stride_ = device->GetStride(type);   // この行のどこでも Alt+W
+// Player.cpp
+Player::Player(Weapon* weapon, int level) {
+    hp_ = weapon->GetPower(level);   // この行のどこでも Alt+W
 }
 ```
 
-Alt+W を押すと `Alloc` の宣言から、ヘッダーに次の 1 行が入ります。
+Alt+W を押すと `Player` の宣言から、ヘッダーに次の 1 行が入ります。
 
 ```cpp
  private:
-  int capacity_;
-  unsigned int stride_;
+  int level_;
+  unsigned int hp_;
 ```
 
 `Class::Func` の `Class` を宣言から探して、そのクラスの `private:` の末尾に足します。`private:` が最後でなければ末尾に `private:` を作ってから足します。ヘッダーはエディターで開いたままになり（保存はしません）、作業中のファイルへ戻ります。挿入は 1 回の編集なので Undo も 1 回です。字下げされた定義や引数が複数行に分かれた定義でも見つかります。
@@ -77,17 +77,17 @@ Alt+W を押すと `Alloc` の宣言から、ヘッダーに次の 1 行が入�
 
 ## Getter・Setter
 
-メンバー変数の宣言行（`UINT stride_;`）にカーソルを置くか `.cpp` の `stride_ = ...;` の行にカーソルを置いて、Alt+G を押します。名前は `stride_` から末尾の `_` を外して、先頭を大文字にします（`cpu_start_` は `GetCpuStart` / `SetCpuStart`）。
+メンバー変数の宣言行（`UINT hp_;`）にカーソルを置くか `.cpp` の `hp_ = ...;` の行にカーソルを置いて、Alt+G を押します。名前は `hp_` から末尾の `_` を外して、先頭を大文字にします（`cpu_start_` は `GetCpuStart` / `SetCpuStart`）。
 
 電球（Alt+Enter）には「Getter・Setter を作る」「Getter を作る」「Setter を作る」の 3 つが並びます。片方だけが要るときは、下の 2 つを使います。`const` のメンバーや `std::unique_ptr` のように Setter を作れない型で「Setter を作る」を選ぶと、作らずに理由を出します。
 
 ```cpp
  public:
-  Alloc(Dev* device, int type);
+  Player(Weapon* weapon, int level);
 
-  unsigned int GetStride() const { return stride_; }
+  unsigned int GetHp() const { return hp_; }
 
-  void SetStride(unsigned int value) { stride_ = value; }
+  void SetHp(unsigned int value) { hp_ = value; }
 ```
 
 同じ名前がすでにあるときは足しません。`public:` がなければクラスの先頭に作ります。型によって書き方を変えます。
@@ -113,7 +113,7 @@ Alt+W を押すと `Alloc` の宣言から、ヘッダーに次の 1 行が入�
 
 ヘッダーは次の順に決めます。
 
-1. 表。 標準ライブラリ（`std::vector` → `<vector>`）、Windows（`UINT` → `<Windows.h>`）、DirectX（`ID3D12Device` → `<d3d12.h>`、`XMFLOAT3` → `<DirectXMath.h>`）の固定の対応表。
+1. 表。 標準ライブラリ（`std::vector` → `<vector>`）、Windows（`UINT` → `<Windows.h>`）、DirectX（`ID3D12Resource` → `<d3d12.h>`、`XMFLOAT3` → `<DirectXMath.h>`）の固定の対応表。
 2. ソリューションの索引。 ヘッダーから集めた `class` / `struct` / `enum` / `using X =` / `typedef` の定義。関数、メソッド、変数、クラスの中の入れ子の型は入れないので、`Instance()` のような名前がヘッダーに引かれることはありません。
 3. 索引で複数見つかったら、選ぶ欄を出します（自動では足しません）。
 
@@ -145,10 +145,10 @@ PCH（プリコンパイル済みヘッダー）経由でもう見えている�
 ヘッダーの宣言か cpp の定義（コンストラクターを含む）の引数を変えると、相手の引数も同じに書き換えます。引数の型・数・名前の変更、並べ替え追加、削除に対応します。
 
 ```cpp
-// Alloc.h
-Alloc(Dev* device, int type = 0);          // ← float scale = 1.0f を足す
-// Alloc.cpp
-Alloc::Alloc(Dev* device, int type) {...}  // ← 自動で (Dev* device, int type, float scale) になる
+// Player.h
+Player(Weapon* weapon, int level = 0);         // ← float scale = 1.0f を足す
+// Player.cpp
+Player::Player(Weapon* weapon, int level) {...}  // ← 自動で (Weapon* weapon, int level, float scale) になる
 ```
 
 - 自動（設定の「宣言と定義の引数を合わせるしかた」が `Auto`、初期値）: 括弧の中を編集すると、すぐに（待ちは 0 ミリ秒。設定の「自動で合わせるまでの待ち」で変えられます）、相手を書き換えます。相手がエディターで開いていなければ、開いて書き換え作業中のファイルへ戻ります。
