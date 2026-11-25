@@ -300,6 +300,55 @@ namespace KCppAssist.Vcpkg
             return c;
         }
 
+        private static int RunGit(string root, string args, CancellationToken ct, out string output)
+        {
+            var psi = new ProcessStartInfo("git", "-C \"" + root.Replace("\"", "") + "\" " + args)
+            {
+                UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+            };
+            try
+            {
+                using (var p = new Process { StartInfo = psi })
+                {
+                    var sb = new StringBuilder();
+                    p.OutputDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
+                    p.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
+                    p.Start(); p.BeginOutputReadLine(); p.BeginErrorReadLine();
+                    using (ct.Register(() => { try { Kill(p); } catch { } })) p.WaitForExit();
+                    p.WaitForExit();
+                    lock (sb) output = sb.ToString();
+                    return p.ExitCode;
+                }
+            }
+            catch (Exception ex) { output = ex.Message; return -1; }
+        }
+
+        /// <summary>
+        /// ベースラインのコミットが、手元の vcpkg (git のコピー) にあるようにする。なければ git fetch で取る。
+        /// vcpkg は、builtin-baseline のコミットを、手元のコピーの git から読む。コピーが古いと、新しいコミットがなくて
+        /// 「git show versions/baseline.json に失敗しました」になる。git のコピーでない vcpkg (VS 付属など) は、vcpkg が自分で取るので、何もしない。
+        /// </summary>
+        public static Task<bool> EnsureCommitAsync(string sha, Action<string> log, CancellationToken ct)
+        {
+            return Task.Run(() =>
+            {
+                string root = Root;
+                if (string.IsNullOrEmpty(root) || !Regex.IsMatch(sha ?? "", "^[0-9a-f]{40}$")) return true;
+                if (!Directory.Exists(Path.Combine(root, ".git")) && !File.Exists(Path.Combine(root, ".git"))) return true;
+                string o;
+                if (RunGit(root, "cat-file -e " + sha + "^{commit}", ct, out o) == 0) return true;
+                if (log != null) log(L.F("手元の vcpkg に、ベースラインのコミット {0} がないので、git fetch で取ります (数十秒かかることがあります)", sha.Substring(0, 10)));
+                if (RunGit(root, "fetch origin " + sha, ct, out o) != 0 || RunGit(root, "cat-file -e " + sha + "^{commit}", ct, out o) != 0)
+                {
+                    RunGit(root, "fetch origin", ct, out o);                       // コミットを直接取れない設定なら、全体を取る
+                }
+                bool ok = RunGit(root, "cat-file -e " + sha + "^{commit}", ct, out o) == 0;
+                if (!ok && log != null) log(L.F("git fetch で取れませんでした: {0}", (o ?? "").Trim()));
+                return ok;
+            });
+        }
+
         /// <summary>GitHub の microsoft/vcpkg の、いちばん新しいコミット(master の先頭)。つながらなければ null。
         /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いてしまうことがあるので、自分で取る。</summary>
         public static async Task<string> LatestBaselineAsync(CancellationToken ct)

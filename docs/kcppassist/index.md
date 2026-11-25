@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.1.vsix" download>K-CppUltimateAssist 0.33.1 をダウンロード（.vsix、約 781 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.2.vsix" download>K-CppUltimateAssist 0.33.2 をダウンロード（.vsix、約 782 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -849,6 +849,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | 版 | 内容 |
 | --- | --- |
+| 0.33.2 | K-vcpkg のベースラインの更新・インストールで、「git show versions/baseline.json に失敗しました」になるのを直した。手元の vcpkg に、ベースラインのコミットがないときは、先に git fetch で取る |
 | 0.33.1 | K-vcpkg の直し。ベースラインの更新で、版が古くなることがあったのを直した（手元の vcpkg が古いと、古いコミットが書かれていた。GitHub の最新を自分で取って書き、今より古いものは書かない）。インストール中は、ライブラリ 1 個ごとに進捗バーが進む。追加ボタンを「vcpkg.json に追加」にして、その下に、追加が終わったことと、ビルドで自動で入ることを出すようにした。「ON: 1 / 4 個」は、「vcpkg を使うプロジェクト」の横に移し、うまくいっているときの案内の行は消した。窓を大きく開くようにした |
 | 0.33.0 | 書き換えたときの小さなウィンドウをやめて、書き換えた名前の下に点線を約 3 秒だけ出すようにした（C# の名前の変更と同じ見せかた。ウィンドウは出さないので、コードを隠さない）。設定の名前は「書き換えた場所に点線を出す」 |
 | 0.32.6 | 名前を変えたときなどの小さなウィンドウを、必ず、その行の上に出すようにした（エディターの上端に収まらないときも、行の下には回さず、エディターの上にはみ出して出す。下のコードを隠さない） |

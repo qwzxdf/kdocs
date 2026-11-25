@@ -1657,6 +1657,10 @@ namespace KCppAssist
             ["今のベースラインのほうが新しいので、書き換えませんでした。"] = new[] { "The current baseline is newer, so it was not changed.", "", "", "", "", "", "", "" },
             ["builtin-baseline を {0} に更新しました (「元に戻す」で戻せます)。"] = new[] { "Updated builtin-baseline to {0} (you can undo it).", "", "", "", "", "", "", "" },
             ["ベースラインを更新できませんでした: {0}"] = new[] { "Could not update the baseline: {0}", "", "", "", "", "", "", "" },
+            ["手元の vcpkg に、ベースラインのコミット {0} がないので、git fetch で取ります (数十秒かかることがあります)"] = new[] { "The baseline commit {0} is missing from your local vcpkg, so it will be fetched with git fetch (this may take a while).", "", "", "", "", "", "", "" },
+            ["git fetch で取れませんでした: {0}"] = new[] { "git fetch failed: {0}", "", "", "", "", "", "", "" },
+            ["コミットを取れなかったので、ベースラインは書き換えませんでした。"] = new[] { "Could not get the commit, so the baseline was not changed.", "", "", "", "", "", "", "" },
+            ["ベースラインのコミットを、手元の vcpkg に取れませんでした。ネットワークと、vcpkg のフォルダーで git fetch ができるかを確かめてください。"] = new[] { "Could not get the baseline commit into your local vcpkg. Check the network and that git fetch works in the vcpkg folder.", "", "", "", "", "", "", "" },
         };
     }
 }

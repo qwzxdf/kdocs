@@ -1217,6 +1217,15 @@ namespace KCppAssist.Vcpkg
         private async void RunInstall()
         {
             if (_manifest == null || !_manifest.Exists) return;
+            if (!string.IsNullOrEmpty(_manifest.Baseline))
+            {
+                SetBusy(true);
+                _cts = new CancellationTokenSource();
+                bool have;
+                try { have = await VcpkgTool.EnsureCommitAsync(_manifest.Baseline, AppendLog, _cts.Token); }
+                finally { SetBusy(false); _cts = null; }
+                if (!have) { AppendLog(L.T("ベースラインのコミットを、手元の vcpkg に取れませんでした。ネットワークと、vcpkg のフォルダーで git fetch ができるかを確かめてください。")); return; }
+            }
             var args = new StringBuilder("install --triplet " + Quote(Triplet));
             foreach (string d in VcpkgLocator.OverlayDirs(CurrentTarget.Dir)) args.Append(" --overlay-triplets=" + Quote(d));
             RunResult r = await RunVcpkg(args.ToString(), true);
@@ -1251,6 +1260,8 @@ namespace KCppAssist.Vcpkg
                 string latest = await VcpkgTool.LatestBaselineAsync(_cts.Token);
                 if (latest == null) { AppendLog(L.T("最新のベースラインを GitHub から取れませんでした。ネットワークを確かめてください。vcpkg.json は変えていません。")); return false; }
                 string current = _manifest.Baseline;
+                // 手元の vcpkg に、そのコミットがないと、インストールが「git show に失敗」になる。先に取る
+                if (!await VcpkgTool.EnsureCommitAsync(latest, AppendLog, _cts.Token)) { AppendLog(L.T("コミットを取れなかったので、ベースラインは書き換えませんでした。")); return false; }
                 if (!string.IsNullOrEmpty(current))
                 {
                     if (string.Equals(current, latest, StringComparison.OrdinalIgnoreCase)) { AppendLog(L.T("ベースラインは、すでに最新です。")); return true; }
