@@ -338,8 +338,7 @@ namespace KCppAssist.Vcpkg
                 if (log != null) log(L.F("> git pull ({0})  手元の vcpkg を最新にします", root));
                 string o;
                 int code = RunGit(root, "pull --ff-only", ct, out o);
-                if (log != null) foreach (string line in (o ?? "").Split('
-')) if (line.Trim().Length > 0) log(line.TrimEnd(''));
+                if (log != null) foreach (string line in (o ?? "").Replace("\r", "").Split('\n')) if (line.Trim().Length > 0) log(line);
                 if (code != 0 && log != null) log(L.T("git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。"));
                 return code == 0;
             });
