@@ -1246,44 +1246,16 @@ namespace KCppAssist.Vcpkg
         }
 
         /// <summary>
-        /// ベースラインを、GitHub の vcpkg のいちばん新しいコミットに書き換える。
-        /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いて、バージョンが下がることがあったので、自分で取って書く。
-        /// 今のベースラインより古いコミットは、書かない。取れなかったときは、何も書き換えない。
+        /// ベースラインを更新する。vcpkg 自身の x-update-baseline に任せる(ベースラインがなければ --add-initial-baseline で、最初の 1 つを書く)。
+        /// ベースラインは、ライブラリごとではなく、レジストリ全体で 1 つ(コミット)。進めると、すべてのライブラリが、そのコミット時点のバージョンになる。
         /// </summary>
-        private async Task<bool> UpdateBaselineAsync()
-        {
-            SetBusy(true);
-            _cts = new CancellationTokenSource();
-            try
-            {
-                AppendLog(L.T("> 最新のベースライン (GitHub の vcpkg の先頭コミット) を調べています"));
-                string latest = await VcpkgTool.LatestBaselineAsync(_cts.Token);
-                if (latest == null) { AppendLog(L.T("最新のベースラインを GitHub から取れませんでした。ネットワークを確かめてください。vcpkg.json は変えていません。")); return false; }
-                string current = _manifest.Baseline;
-                // 手元の vcpkg に、そのコミットがないと、インストールが「git show に失敗」になる。先に取る
-                if (!await VcpkgTool.EnsureCommitAsync(latest, AppendLog, _cts.Token)) { AppendLog(L.T("コミットを取れなかったので、ベースラインは書き換えませんでした。")); return false; }
-                if (!string.IsNullOrEmpty(current))
-                {
-                    if (string.Equals(current, latest, StringComparison.OrdinalIgnoreCase)) { AppendLog(L.T("ベースラインは、すでに最新です。")); return true; }
-                    string rel = await VcpkgTool.CompareBaselineAsync(current, latest, _cts.Token);
-                    if (rel == "behind" || rel == "identical") { AppendLog(L.T("今のベースラインのほうが新しいので、書き換えませんでした。")); return true; }
-                }
-                _manifest.SetBaseline(latest);
-                _manifest.Save();
-                AppendLog(L.F("builtin-baseline を {0} に更新しました (「元に戻す」で戻せます)。", latest.Substring(0, 10)));
-                return true;
-            }
-            catch (Exception ex) { AppendLog(L.F("ベースラインを更新できませんでした: {0}", ex.Message)); return false; }
-            finally { SetBusy(false); _cts = null; }
-        }
-
         private async void RunBaseline(bool thenInstall = false)
         {
             if (_manifest == null || !_manifest.Exists) return;
-            _log.Clear();
-            bool ok = await UpdateBaselineAsync();
+            string args = "x-update-baseline" + (string.IsNullOrEmpty(_manifest.Baseline) ? " --add-initial-baseline" : "");
+            RunResult r = await RunVcpkg(args, true);
             _manifest = VcpkgManifest.Load(_manifest.Path);
-            if (ok && thenInstall) RunInstall();
+            if (r != null && r.Ok && thenInstall) RunInstall();
             else RefreshAfterChange();
         }
 
