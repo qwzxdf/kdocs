@@ -218,7 +218,7 @@ namespace KCppAssist
 
             // すでにこのクラスにある関数(名前と引数の個数が同じ)は足さない
             var own = new HashSet<string>(Funcs(text, m, cls).Select(f => f.Key));
-            // final の関数は、それより下では override できない(近い基底が先に見つかるので、final の版が残っている)
+            // final の関数は、それより下では override できない(近い基底が先に見つかるので、final のバージョンが残っている)
             var todo = found.Values.Where(f => !own.Contains(f.Key) && !f.Final).ToList();
             if (todo.Count == 0) { why = L.T("足りない仮想関数はありません"); return null; }
 

@@ -514,7 +514,7 @@ namespace KCppAssist
         private sealed class Run
         {
             public ITrackingSpan DeclSpan;
-            public int DeclVersion;                                 // DeclSpan を作ったときの、バッファーの版
+            public int DeclVersion;                                 // DeclSpan を作ったときの、バッファーのバージョン
             public string OldName, FinalName;
             public string Applied;                                  // 追いかけている場所に、最後に書いた名前(はじめは OldName)
             public SymbolScan.Decl Decl;

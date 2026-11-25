@@ -21,7 +21,7 @@ namespace KCppAssist.Vcpkg
         public bool Ok { get { return ExitCode == 0 && !Canceled; } }
     }
 
-    /// <summary>`vcpkg search` で分かる 1 件(名前・最新の版・説明・機能)。</summary>
+    /// <summary>`vcpkg search` で分かる 1 件(名前・最新のバージョン・説明・機能)。</summary>
     internal sealed class PortInfo
     {
         public string Name;
@@ -33,13 +33,13 @@ namespace KCppAssist.Vcpkg
     /// <summary>GitHub の vcpkg に載っている、ポートの詳細(ホームページ・ライセンスなど)。</summary>
     internal sealed class PortDetail
     {
-        public string Homepage, License, Supports, Version;           // Version: GitHub の vcpkg にある、最新の版
+        public string Homepage, License, Supports, Version;           // Version: GitHub の vcpkg にある、最新のバージョン
         public List<string> Dependencies = new List<string>();
         public Dictionary<string, string> FeatureDescriptions = new Dictionary<string, string>();
         public List<string> DefaultFeatures = new List<string>();      // 既定で入る機能(default-features)
     }
 
-    /// <summary>vcpkg.exe の場所の特定と、実行、検索結果・詳細の取得、版の比較。画面からは、ここだけを使う。</summary>
+    /// <summary>vcpkg.exe の場所の特定と、実行、検索結果・詳細の取得、バージョンの比較。画面からは、ここだけを使う。</summary>
     internal static class VcpkgTool
     {
         private static string _exe;
@@ -437,9 +437,9 @@ namespace KCppAssist.Vcpkg
             return t.Type == JTokenType.String ? (string)t : null;
         }
 
-        // ---------- 版の比較 ----------
+        // ---------- バージョンの比較 ----------
 
-        /// <summary>"3.2.10" と "3.10.0"、"2025-04-16"、"1.2.3#2" のような版を比べる。数字は数として、それ以外は文字として比べる。</summary>
+        /// <summary>"3.2.10" と "3.10.0"、"2025-04-16"、"1.2.3#2" のようなバージョンを比べる。数字は数として、それ以外は文字として比べる。</summary>
         public static int CompareVersions(string a, string b)
         {
             a = StripPort(a); b = StripPort(b);

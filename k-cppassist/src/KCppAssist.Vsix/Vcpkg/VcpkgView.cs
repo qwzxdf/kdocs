@@ -81,7 +81,7 @@ namespace KCppAssist.Vcpkg
 
         private List<PortInfo> _ports = new List<PortInfo>();
         private Dictionary<string, PortInfo> _byName = new Dictionary<string, PortInfo>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, string> _latest = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);   // GitHub の最新の版
+        private readonly Dictionary<string, string> _latest = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);   // GitHub の最新のバージョン
         private VcpkgManifest _manifest;
         private PortInfo _selected;
         private CancellationTokenSource _cts;
@@ -261,13 +261,13 @@ namespace KCppAssist.Vcpkg
             buttons.Children.Add(_btnUndo);
             buttons.Children.Add(_btnCancel);
             Styled(_chkBaseline, "FCheck");
-            _chkBaseline.Content = L.T("ベースラインで版をそろえる (builtin-baseline)");
-            _chkBaseline.ToolTip = L.T("入: vcpkg.json に builtin-baseline を書いて、全員が同じ版を使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。");
+            _chkBaseline.Content = L.T("ベースラインでバージョンをそろえる (builtin-baseline)");
+            _chkBaseline.ToolTip = L.T("入: vcpkg.json に builtin-baseline を書いて、全員が同じバージョンを使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。");
             _chkBaseline.VerticalAlignment = VerticalAlignment.Center;
             _chkBaseline.Margin = new Thickness(14, 0, 0, 0);
             _chkBaseline.Click += (s, e) => ToggleBaseline();
             buttons.Children.Add(_chkBaseline);
-            { var hb = Help("ベースラインは、「パッケージの版を、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じ版になります。切: 書かないので、手元の vcpkg にあるポートの、その時点の版が入ります。「ベースラインを更新」で、最新の時点に書き換えられます。"); hb.Margin = new Thickness(2, 0, 0, 0); buttons.Children.Add(hb); }
+            { var hb = Help("ベースラインは、「パッケージのバージョンを、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じバージョンになります。切: 書かないので、手元の vcpkg にあるポートの、その時点のバージョンが入ります。「ベースラインを更新」で、最新の時点に書き換えられます。"); hb.Margin = new Thickness(2, 0, 0, 0); buttons.Children.Add(hb); }
             bar.Children.Add(buttons);
 
             // 適用するプロジェクト(vcpkg の ON / OFF)と、ビルド時の自動インストールの状態
@@ -401,14 +401,14 @@ namespace KCppAssist.Vcpkg
             g.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Tinted(_installedNote, "SubBrush", TextBlock.ForegroundProperty);
             var _installedNoteRow = new DockPanel();
-            var _installedNoteHelp = Help("入っている版は、このフォルダーの vcpkg_installed から読みます。最新の版は、GitHub の vcpkg から取ります。実際にどの版が入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
+            var _installedNoteHelp = Help("入っているバージョンは、このフォルダーの vcpkg_installed から読みます。最新のバージョンは、GitHub の vcpkg から取ります。実際にどのバージョンが入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
             _installedNoteHelp.VerticalAlignment = VerticalAlignment.Top;
             DockPanel.SetDock(_installedNoteHelp, Dock.Right);
             _installedNoteRow.Children.Add(_installedNoteHelp);
             _installedNoteRow.Children.Add(_installedNote);
             Grid.SetRow(_installedNoteRow, 0);
             g.Children.Add(_installedNoteRow);
-            var head = StatusHeader("名前", "指定", "入っている版", "最新の版", "状態");
+            var head = StatusHeader("名前", "指定", "入っているバージョン", "最新のバージョン", "状態");
             Grid.SetRow(head, 1);
             g.Children.Add(head);
             _installed.ItemTemplate = (DataTemplate)XamlReader.Parse(StatusTemplate);
@@ -418,7 +418,7 @@ namespace KCppAssist.Vcpkg
             var btns = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
             btns.Children.Add(MakeButton("詳細を見る", () => { var r = _installed.SelectedItem as Row; if (r != null) GoToBrowse(r.Name); }));
             btns.Children.Add(MakeButton("削除", () => RemoveSelected(_installed)));
-            btns.Children.Add(MakeButton("この版以上にする", () => RaiseMinVersion(_installed)));
+            btns.Children.Add(MakeButton("このバージョン以上にする", () => RaiseMinVersion(_installed)));
             Grid.SetRow(btns, 3);
             g.Children.Add(btns);
             return g;
@@ -433,14 +433,14 @@ namespace KCppAssist.Vcpkg
             g.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             Tinted(_updatesNote, "SubBrush", TextBlock.ForegroundProperty);
             var _updatesNoteRow = new DockPanel();
-            var _updatesNoteHelp = Help("入っている版は、このフォルダーの vcpkg_installed から読みます。最新の版は、GitHub の vcpkg から取ります。実際にどの版が入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
+            var _updatesNoteHelp = Help("入っているバージョンは、このフォルダーの vcpkg_installed から読みます。最新のバージョンは、GitHub の vcpkg から取ります。実際にどのバージョンが入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。");
             _updatesNoteHelp.VerticalAlignment = VerticalAlignment.Top;
             DockPanel.SetDock(_updatesNoteHelp, Dock.Right);
             _updatesNoteRow.Children.Add(_updatesNoteHelp);
             _updatesNoteRow.Children.Add(_updatesNote);
             Grid.SetRow(_updatesNoteRow, 0);
             g.Children.Add(_updatesNoteRow);
-            var head = StatusHeader("名前", "指定", "入っている版", "最新の版", "状態");
+            var head = StatusHeader("名前", "指定", "入っているバージョン", "最新のバージョン", "状態");
             Grid.SetRow(head, 1);
             g.Children.Add(head);
             _updates.ItemTemplate = (DataTemplate)XamlReader.Parse(StatusTemplate);
@@ -448,7 +448,7 @@ namespace KCppAssist.Vcpkg
             Grid.SetRow(_updates, 2);
             g.Children.Add(_updates);
             var btns = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
-            btns.Children.Add(MakeButton("選んだものを、この版以上にする", () => RaiseMinVersion(_updates)));
+            btns.Children.Add(MakeButton("選んだものを、このバージョン以上にする", () => RaiseMinVersion(_updates)));
             btns.Children.Add(MakeButton("ベースラインを更新して、インストール", () => RunBaseline(true), true));
             Grid.SetRow(btns, 3);
             g.Children.Add(btns);
@@ -901,7 +901,7 @@ namespace KCppAssist.Vcpkg
             bool ja = L.Current == UiLanguage.Japanese;
             _detail.Children.Clear();
 
-            // 題名と版
+            // 題名とバージョン
             var head = new StackPanel { Orientation = Orientation.Horizontal };
             head.Children.Add(new TextBlock { Text = port.Name, FontSize = 22, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
             var pill = new Border { CornerRadius = new CornerRadius(10), Padding = new Thickness(9, 1, 9, 2), Margin = new Thickness(12, 3, 0, 0), VerticalAlignment = VerticalAlignment.Center, Child = Tinted(new TextBlock { Text = port.Version, FontSize = 12 }, "SubBrush", TextBlock.ForegroundProperty) };
@@ -946,12 +946,12 @@ namespace KCppAssist.Vcpkg
                 _detail.Children.Add(featurePanel);
             }
 
-            // 版
-            AddHelpTo(Section(L.T("版")), "ベースラインの版: vcpkg.json の builtin-baseline が指す時点の版が入ります。この版以上: 指定した版か、それより新しい版を使います。builtin-baseline がないと、版は指定できません。");
+            // バージョン
+            AddHelpTo(Section(L.T("バージョン")), "ベースラインのバージョン: vcpkg.json の builtin-baseline が指す時点のバージョンが入ります。このバージョン以上: 指定したバージョンか、それより新しいバージョンを使います。builtin-baseline がないと、バージョンは指定できません。");
             var verRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
             var verMode = Styled(new ComboBox { MinWidth = 230 }, "FCombo");
-            verMode.Items.Add(L.T("ベースラインの版 (指定しない)"));
-            verMode.Items.Add(L.T("この版以上 (version>=)"));
+            verMode.Items.Add(L.T("ベースラインのバージョン (指定しない)"));
+            verMode.Items.Add(L.T("このバージョン以上 (version>=)"));
             var verBox = Styled(new TextBox { MinWidth = 100, Margin = new Thickness(8, 0, 0, 0), Text = existing != null && existing.MinVersion != null ? existing.MinVersion : StripPortVersion(port.Version) }, "FTextBox");
             verMode.SelectedIndex = existing != null && existing.MinVersion != null ? 1 : 0;
             verBox.IsEnabled = verMode.SelectedIndex == 1;
@@ -960,7 +960,7 @@ namespace KCppAssist.Vcpkg
             verRow.Children.Add(verBox);
             _detail.Children.Add(verRow);
             if (_manifest != null && _manifest.Exists && string.IsNullOrEmpty(_manifest.Baseline))
-                Tinted(Paragraph(L.T("この vcpkg.json には builtin-baseline がありません。版を指定するには、「ベースラインを更新」を押して、先に書き込んでください。"), 1, 8), "WarnBrush", TextBlock.ForegroundProperty);
+                Tinted(Paragraph(L.T("この vcpkg.json には builtin-baseline がありません。バージョンを指定するには、「ベースラインを更新」を押して、先に書き込んでください。"), 1, 8), "WarnBrush", TextBlock.ForegroundProperty);
 
             // 操作
             var ops = new WrapPanel { Margin = new Thickness(0, 18, 0, 0) };
@@ -985,7 +985,7 @@ namespace KCppAssist.Vcpkg
                 _detail.Children.Add(Tinted(new TextBlock { Text = AddedMessage(port.Name), TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 8, 0, 0) }, "OkBrush", TextBlock.ForegroundProperty));
             else if (existing == null && string.Equals(_addedFor, port.Name, StringComparison.OrdinalIgnoreCase)) _addedFor = null;
 
-            // GitHub から、最新の版・ホームページ・ライセンス・依存を取る(取れなくても、上の内容は変わらない)
+            // GitHub から、最新のバージョン・ホームページ・ライセンス・依存を取る(取れなくても、上の内容は変わらない)
             PortDetail d = await VcpkgTool.LoadDetailAsync(port.Name, CancellationToken.None);
             if (!ReferenceEquals(_selected, port)) return;
             if (d == null)
@@ -1009,7 +1009,7 @@ namespace KCppAssist.Vcpkg
                 p.Inlines.Add(new Run(value));
                 detailSlot.Children.Add(p);
             };
-            if (!string.IsNullOrEmpty(d.Version)) line(L.T("最新の版 (GitHub)"), d.Version);
+            if (!string.IsNullOrEmpty(d.Version)) line(L.T("最新のバージョン (GitHub)"), d.Version);
             if (!string.IsNullOrEmpty(d.License)) line(L.T("ライセンス"), d.License);
             if (!string.IsNullOrEmpty(d.Supports)) line(L.T("対応する環境 (supports)"), d.Supports);
             if (d.Dependencies.Count > 0) line(L.T("依存するパッケージ"), string.Join(", ", d.Dependencies));
@@ -1050,7 +1050,7 @@ namespace KCppAssist.Vcpkg
                 AppendLog(L.F("{0} を vcpkg.json に追加しました ({1})", dep.Name, _manifest.Path));
                 if (created)
                 {
-                    // 新しく作ったときは、版を指定できるように、builtin-baseline も書き込む
+                    // 新しく作ったときは、バージョンを指定できるように、builtin-baseline も書き込む
                     await RunVcpkg("x-update-baseline --add-initial-baseline", false);
                     _manifest = VcpkgManifest.Load(_manifest.Path);
                     LoadTargets();
@@ -1092,7 +1092,7 @@ namespace KCppAssist.Vcpkg
                 d.MinVersion = StripPortVersion(latest);
                 _manifest.AddOrUpdate(d);
             }
-            try { _manifest.Save(); AppendLog(L.T("「この版以上」を、最新の版に書き換えました。インストールで反映されます。")); }
+            try { _manifest.Save(); AppendLog(L.T("「このバージョン以上」を、最新のバージョンに書き換えました。インストールで反映されます。")); }
             catch (Exception ex) { AppendLog(ex.Message); }
             RefreshAfterChange();
         }
@@ -1210,7 +1210,7 @@ namespace KCppAssist.Vcpkg
             if (o.Contains("unsupported") || o.Contains("is only supported on"))
                 return L.T("原因: このトリプレットでは、パッケージが対応していません。別のトリプレットを選んでください。");
             if (o.Contains("does not exist") || o.Contains("Could not find a package"))
-                return L.T("原因: パッケージの名前が見つかりません。綴りと、ベースラインの版を確かめてください。");
+                return L.T("原因: パッケージの名前が見つかりません。綴りと、ベースラインのバージョンを確かめてください。");
             return L.T("原因は、上のログの、最初の「error:」の行から探してください。");
         }
 
@@ -1247,7 +1247,7 @@ namespace KCppAssist.Vcpkg
 
         /// <summary>
         /// ベースラインを、GitHub の vcpkg のいちばん新しいコミットに書き換える。
-        /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いて、版が下がることがあったので、自分で取って書く。
+        /// vcpkg x-update-baseline は、手元の vcpkg のコピーが古いと、古いコミットを書いて、バージョンが下がることがあったので、自分で取って書く。
         /// 今のベースラインより古いコミットは、書かない。取れなかったときは、何も書き換えない。
         /// </summary>
         private async Task<bool> UpdateBaselineAsync()
@@ -1297,7 +1297,7 @@ namespace KCppAssist.Vcpkg
 
         // ---------- インストール済み・更新 ----------
 
-        /// <summary>最新の版。GitHub の vcpkg で分かった版と、ローカルの一覧の版の、新しいほう(ローカルの一覧は、vcpkg のコピーが古いと、古い)。</summary>
+        /// <summary>最新のバージョン。GitHub の vcpkg で分かったバージョンと、ローカルの一覧のバージョンの、新しいほう(ローカルの一覧は、vcpkg のコピーが古いと、古い)。</summary>
         private string LatestOf(string name)
         {
             PortInfo p;
@@ -1339,7 +1339,7 @@ namespace KCppAssist.Vcpkg
             return rows;
         }
 
-        /// <summary>vcpkg.json の各パッケージの最新の版を、GitHub から取る(最初の表示は、ローカルの版。取れたら表を作り直す)。</summary>
+        /// <summary>vcpkg.json の各パッケージの最新のバージョンを、GitHub から取る(最初の表示は、ローカルのバージョン。取れたら表を作り直す)。</summary>
         private async Task FetchLatestAsync()
         {
             if (_manifest == null || !_manifest.Exists) return;
@@ -1381,8 +1381,8 @@ namespace KCppAssist.Vcpkg
             var rows = StatusRows().Where(r => r.Status == L.T("更新あり")).ToList();
             _updates.ItemsSource = rows;
             if (_manifest == null || !_manifest.Exists) _updatesNote.Text = L.T("この場所には vcpkg.json がありません。");
-            else if (rows.Count == 0) _updatesNote.Text = L.T("更新できるパッケージは、ありません (入っている版が、一覧の最新と同じか、まだインストールしていません)。");
-            else _updatesNote.Text = L.F("{0} 個のパッケージに、新しい版があります。実際にどの版が入るかは、vcpkg.json のベースラインで決まります。「ベースラインを更新」で、全体を新しくできます。", rows.Count);
+            else if (rows.Count == 0) _updatesNote.Text = L.T("更新できるパッケージは、ありません (入っているバージョンが、一覧の最新と同じか、まだインストールしていません)。");
+            else _updatesNote.Text = L.F("{0} 個のパッケージに、新しいバージョンがあります。実際にどのバージョンが入るかは、vcpkg.json のベースラインで決まります。「ベースラインを更新」で、全体を新しくできます。", rows.Count);
         }
     }
 }

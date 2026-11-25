@@ -1181,10 +1181,10 @@ HLSL: 機能が使えない(シェーダー モデル)	HLSL: Feature not availab
 シェーダー モデル (/T) を上げるか、別の書き方にします。	Raise the shader model (/T), or write it another way.	提高着色器模型（/T），或改用其他写法。	셰이더 모델(/T)을 올리거나 다른 방식으로 씁니다.	Suba el shader model (/T) o escríbalo de otra forma.	Eleve o shader model (/T) ou escreva de outra forma.	Shadermodell (/T) anheben oder anders schreiben.	Relevez le shader model (/T) ou écrivez autrement.	Повысьте модель шейдеров (/T) или напишите иначе.
 NuGet: パッケージが見つからない	NuGet: Package not found	NuGet：找不到包	NuGet: 패키지를 찾을 수 없습니다	NuGet: no se encuentra el paquete	NuGet: pacote não encontrado	NuGet: Paket nicht gefunden	NuGet : package introuvable	NuGet: пакет не найден
 パッケージ名と、パッケージ ソース(nuget.org)を確かめます。	Check the package name and the package source (nuget.org).	检查包名和包源（nuget.org）。	패키지 이름과 패키지 소스(nuget.org)를 확인합니다.	Revise el nombre del paquete y el origen (nuget.org).	Verifique o nome do pacote e a origem (nuget.org).	Paketname und Paketquelle (nuget.org) prüfen.	Vérifiez le nom du package et la source (nuget.org).	Проверьте имя пакета и источник пакетов (nuget.org).
-NuGet: 指定の版がない	NuGet: Specified version not available	NuGet：没有指定的版本	NuGet: 지정한 버전이 없습니다	NuGet: la versión indicada no existe	NuGet: a versão indicada não existe	NuGet: Angegebene Version nicht vorhanden	NuGet : version indiquée inexistante	NuGet: указанной версии нет
-存在する版を指定します。	Specify a version that exists.	指定存在的版本。	존재하는 버전을 지정합니다.	Indique una versión que exista.	Indique uma versão existente.	Eine vorhandene Version angeben.	Indiquez une version existante.	Укажите существующую версию.
-NuGet: 版のダウングレード	NuGet: Version downgrade	NuGet：版本降级	NuGet: 버전 다운그레이드	NuGet: bajada de versión	NuGet: rebaixamento de versão	NuGet: Versionsherabstufung	NuGet : rétrogradation de version	NuGet: понижение версии
-依存関係の版を、そろえます。	Make the dependency versions consistent.	统一依赖项的版本。	종속성의 버전을 맞춥니다.	Unifique las versiones de las dependencias.	Unifique as versões das dependências.	Versionen der Abhängigkeiten angleichen.	Harmonisez les versions des dépendances.	Согласуйте версии зависимостей.
+NuGet: 指定のバージョンがない	NuGet: Specified version not available	NuGet：没有指定的版本	NuGet: 지정한 버전이 없습니다	NuGet: la versión indicada no existe	NuGet: a versão indicada não existe	NuGet: Angegebene Version nicht vorhanden	NuGet : version indiquée inexistante	NuGet: указанной версии нет
+存在するバージョンを指定します。	Specify a version that exists.	指定存在的版本。	존재하는 버전을 지정합니다.	Indique una versión que exista.	Indique uma versão existente.	Eine vorhandene Version angeben.	Indiquez une version existante.	Укажите существующую версию.
+NuGet: バージョンのダウングレード	NuGet: Version downgrade	NuGet：版本降级	NuGet: 버전 다운그레이드	NuGet: bajada de versión	NuGet: rebaixamento de versão	NuGet: Versionsherabstufung	NuGet : rétrogradation de version	NuGet: понижение версии
+依存関係のバージョンを、そろえます。	Make the dependency versions consistent.	统一依赖项的版本。	종속성의 버전을 맞춥니다.	Unifique las versiones de las dependencias.	Unifique as versões das dependências.	Versionen der Abhängigkeiten angleichen.	Harmonisez les versions des dépendances.	Согласуйте версии зависимостей.
 参照アセンブリが見つからない	Reference assemblies not found	找不到引用程序集	참조 어셈블리를 찾을 수 없습니다	No se encuentran los ensamblados de referencia	Assemblies de referência não encontrados	Verweisassemblys nicht gefunden	Assemblys de référence introuvables	Не найдены ссылочные сборки
 対象の .NET Framework の Developer Pack を入れます。	Install the Developer Pack for the target .NET Framework.	安装目标 .NET Framework 的 Developer Pack。	대상 .NET Framework의 Developer Pack을 설치합니다.	Instale el Developer Pack del .NET Framework de destino.	Instale o Developer Pack do .NET Framework de destino.	Developer Pack für das Ziel-.NET Framework installieren.	Installez le Developer Pack du .NET Framework cible.	Установите Developer Pack для целевого .NET Framework.
 インポートするプロジェクトが見つからない	Imported project not found	找不到要导入的项目	가져올 프로젝트를 찾을 수 없습니다	No se encuentra el proyecto importado	Projeto importado não encontrado	Importiertes Projekt nicht gefunden	Projet importé introuvable	Не найден импортируемый проект
@@ -1499,10 +1499,10 @@ vcpkg.json を読めません: {0}	Cannot read vcpkg.json: {0}
 おすすめ #{0}  ・  {1}	Recommended #{0}  -  {1}							
 機能 (feature)	Features							
 既定の機能を使う (default-features)	Use default features (default-features)							
-版	Version							
-ベースラインの版 (指定しない)	Baseline version (no constraint)							
-この版以上 (version>=)	This version or newer (version>=)							
-この vcpkg.json には builtin-baseline がありません。版を指定するには、「ベースラインを更新」を押して、先に書き込んでください。	This vcpkg.json has no builtin-baseline. To pin versions, press "Update baseline" first.							
+バージョン	Version							
+ベースラインのバージョン (指定しない)	Baseline version (no constraint)							
+このバージョン以上 (version>=)	This version or newer (version>=)							
+この vcpkg.json には builtin-baseline がありません。バージョンを指定するには、「ベースラインを更新」を押して、先に書き込んでください。	This vcpkg.json has no builtin-baseline. To pin versions, press "Update baseline" first.							
 追加	Add							
 設定を更新	Update settings							
 削除	Remove							
@@ -1517,7 +1517,7 @@ vcpkg.json を読めません: {0}	Cannot read vcpkg.json: {0}
 追加できませんでした: {0}	Could not add: {0}							
 {0} を vcpkg.json から削除しました	Removed {0} from vcpkg.json							
 削除できませんでした: {0}	Could not remove: {0}							
-「この版以上」を、最新の版に書き換えました。インストールで反映されます。	Raised "this version or newer" to the latest. Install to apply.							
+「このバージョン以上」を、最新のバージョンに書き換えました。インストールで反映されます。	Raised "this version or newer" to the latest. Install to apply.							
 vcpkg.json を、直前の状態に戻しました。	Restored vcpkg.json to its previous state.							
 次は「インストール」を押してください。CMake なら find_package({0} CONFIG REQUIRED) と target_link_libraries(...) で使います (正確な書き方は、インストール後のログに出ます)。MSBuild (.vcxproj) なら、プロジェクトの vcpkg のページで、「Use Vcpkg Manifest」を「はい」にしてください。	Next, press "Install". With CMake, use find_package({0} CONFIG REQUIRED) and target_link_libraries(...) (the exact lines appear in the install log). With MSBuild (.vcxproj), set "Use Vcpkg Manifest" to Yes on the project's vcpkg page.							
 中止しました。	Canceled.							
@@ -1527,7 +1527,7 @@ vcpkg.json を、直前の状態に戻しました。	Restored vcpkg.json to its
 原因: ネットワークに接続できないか、ダウンロードに失敗した可能性があります。つながっているか、プロキシの設定を確かめてください。	Cause: no network connection or a failed download. Check your connection and proxy settings.							
 原因: パッケージのビルドに失敗しました。ログの、buildtrees の下にあるログ ファイル (*-err.log) を見ると、詳しい理由が分かります。	Cause: the package failed to build. The log files under buildtrees (*-err.log) have details.							
 原因: このトリプレットでは、パッケージが対応していません。別のトリプレットを選んでください。	Cause: the package does not support this triplet. Choose another triplet.							
-原因: パッケージの名前が見つかりません。綴りと、ベースラインの版を確かめてください。	Cause: the package name was not found. Check the spelling and the baseline.							
+原因: パッケージの名前が見つかりません。綴りと、ベースラインのバージョンを確かめてください。	Cause: the package name was not found. Check the spelling and the baseline.							
 原因は、上のログの、最初の「error:」の行から探してください。	Look for the cause at the first "error:" line in the log above.							
 インストールが終わりました。	Installation finished.							
 {0} の依存の木を、下のログに出しました。	Printed the dependency tree of {0} in the log below.							
@@ -1538,8 +1538,8 @@ vcpkg.json を、直前の状態に戻しました。	Restored vcpkg.json to its
 この場所には vcpkg.json がありません。「参照」でパッケージを追加すると、作られます。	There is no vcpkg.json here. Adding a package in Browse creates it.							
 {0} 個のパッケージ。未インストール: {1} 個。ベースライン: {2}	{0} packages. Not installed: {1}. Baseline: {2}							
 この場所には vcpkg.json がありません。	There is no vcpkg.json here.							
-更新できるパッケージは、ありません (入っている版が、一覧の最新と同じか、まだインストールしていません)。	Nothing to update (installed versions match the latest, or nothing is installed yet).							
-{0} 個のパッケージに、新しい版があります。実際にどの版が入るかは、vcpkg.json のベースラインで決まります。「ベースラインを更新」で、全体を新しくできます。	{0} packages have newer versions. Which version is installed is decided by the baseline in vcpkg.json; "Update baseline" refreshes everything.							
+更新できるパッケージは、ありません (入っているバージョンが、一覧の最新と同じか、まだインストールしていません)。	Nothing to update (installed versions match the latest, or nothing is installed yet).							
+{0} 個のパッケージに、新しいバージョンがあります。実際にどのバージョンが入るかは、vcpkg.json のベースラインで決まります。「ベースラインを更新」で、全体を新しくできます。	{0} packages have newer versions. Which version is installed is decided by the baseline in vcpkg.json; "Update baseline" refreshes everything.							
 vcpkg.json の置き場所	vcpkg.json location							
 トリプレット	Triplet							
 インストール (vcpkg install)	Install (vcpkg install)							
@@ -1548,30 +1548,30 @@ vcpkg.json の置き場所	vcpkg.json location
 中止	Cancel							
 一覧を更新	Refresh list							
 詳細を見る	Details							
-この版以上にする	Raise minimum version							
-選んだものを、この版以上にする	Raise minimum version of selected							
+このバージョン以上にする	Raise minimum version							
+選んだものを、このバージョン以上にする	Raise minimum version of selected							
 ベースラインを更新して、インストール	Update baseline and install							
 名前	Name							
 指定	Constraint							
-入っている版	Installed							
-最新の版	Latest							
+入っているバージョン	Installed							
+最新のバージョン	Latest							
 状態	Status							
 K-Cpp: vcpkg パッケージ...	K-Cpp: vcpkg Packages...							
 vcpkg パッケージ	vcpkg packages							
 おすすめ #{0}	Recommended #{0}							
 名前や説明で検索	Search by name or description							
-最新の版 (GitHub)	Latest version (GitHub)							
+最新のバージョン (GitHub)	Latest version (GitHub)							
 既定	default							
-ベースラインで版をそろえる (builtin-baseline)	Pin versions with a baseline (builtin-baseline)							
-入: vcpkg.json に builtin-baseline を書いて、全員が同じ版を使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。	On: writes builtin-baseline to vcpkg.json so everyone uses the same versions. Off: omits it and uses the latest ports of your local vcpkg.							
+ベースラインでバージョンをそろえる (builtin-baseline)	Pin versions with a baseline (builtin-baseline)							
+入: vcpkg.json に builtin-baseline を書いて、全員が同じバージョンを使えるようにします。切: 書かずに、手元の vcpkg の最新のポートを使います。	On: writes builtin-baseline to vcpkg.json so everyone uses the same versions. Off: omits it and uses the latest ports of your local vcpkg.							
 builtin-baseline を、vcpkg.json から消しました (「元に戻す」で戻せます)。	Removed builtin-baseline from vcpkg.json (you can restore it with Undo).							
 vcpkg.json を置くフォルダーを選びます。ソリューションのフォルダーか、各プロジェクトのフォルダーです。まだ vcpkg.json がない場所を選んで追加すると、新しく作ります。	Choose the folder that holds vcpkg.json: the solution folder or a project folder. If you pick a place without a vcpkg.json and add a package, one is created.							
 トリプレットは、「どの CPU・OS・リンク方式で作るか」の組み合わせです。x64-windows は、64 ビットの Windows で DLL を使う設定、x64-windows-static は、ライブラリを実行ファイルに埋め込む設定です。プロジェクトの triplets フォルダーに置いた自作のものも並びます。	A triplet is the combination of CPU, OS and link style to build for. x64-windows means 64-bit Windows with DLLs; x64-windows-static embeds the libraries in the executable. Custom triplets in the project's triplets folder are listed too.							
 機能 (feature) は、パッケージの追加部品です。チェックを入れたものを、既定の機能に加えて入れます。[既定] と付いたものは、「既定の機能を使う」が入のとき、チェックが切でも入ります。	A feature is an optional part of a package. Checked features are installed in addition to the default ones. Features marked [default] are installed even when unchecked, as long as 'Use default features' is on.							
 入: パッケージが既定にしている機能が入ります。切: 既定の機能は入らず、下でチェックした機能だけが入ります。切にすると、動くのに必要な機能まで入らず、ビルドが通らなくなることがあります。	On: the features the package marks as default are installed. Off: only the features you check below are installed. Turning it off can leave out what the package needs to work and break the build.							
-ベースラインの版: vcpkg.json の builtin-baseline が指す時点の版が入ります。この版以上: 指定した版か、それより新しい版を使います。builtin-baseline がないと、版は指定できません。	Baseline version: the version at the point builtin-baseline refers to. Version or newer: uses that version or a newer one. Without a builtin-baseline you cannot specify versions.							
-ベースラインは、「パッケージの版を、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じ版になります。切: 書かないので、手元の vcpkg にあるポートの、その時点の版が入ります。「ベースラインを更新」で、最新の時点に書き換えられます。	A baseline pins package versions to one point in time. It points at one commit of vcpkg's history and is written as builtin-baseline in vcpkg.json. On: everyone gets the same versions whenever they install. Off: it is omitted and the ports in your local vcpkg are used as they are. 'Update baseline' moves it to the latest point.							
-入っている版は、このフォルダーの vcpkg_installed から読みます。最新の版は、GitHub の vcpkg から取ります。実際にどの版が入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。	Installed versions are read from this folder's vcpkg_installed. Latest versions come from vcpkg on GitHub. The version actually installed is decided by the baseline, so use 'Update baseline' to get newer ones.							
+ベースラインのバージョン: vcpkg.json の builtin-baseline が指す時点のバージョンが入ります。このバージョン以上: 指定したバージョンか、それより新しいバージョンを使います。builtin-baseline がないと、バージョンは指定できません。	Baseline version: the version at the point builtin-baseline refers to. Version or newer: uses that version or a newer one. Without a builtin-baseline you cannot specify versions.							
+ベースラインは、「パッケージのバージョンを、ある時点にそろえる」ための印です。vcpkg の履歴の 1 点 (コミット) を指して、vcpkg.json の builtin-baseline に書きます。入: 誰がいつインストールしても、同じバージョンになります。切: 書かないので、手元の vcpkg にあるポートの、その時点のバージョンが入ります。「ベースラインを更新」で、最新の時点に書き換えられます。	A baseline pins package versions to one point in time. It points at one commit of vcpkg's history and is written as builtin-baseline in vcpkg.json. On: everyone gets the same versions whenever they install. Off: it is omitted and the ports in your local vcpkg are used as they are. 'Update baseline' moves it to the latest point.							
+入っているバージョンは、このフォルダーの vcpkg_installed から読みます。最新のバージョンは、GitHub の vcpkg から取ります。実際にどのバージョンが入るかは、ベースラインで決まるので、新しくしたいときは「ベースラインを更新」を使います。	Installed versions are read from this folder's vcpkg_installed. Latest versions come from vcpkg on GitHub. The version actually installed is decided by the baseline, so use 'Update baseline' to get newer ones.							
 vcpkg.json に書いたパッケージを、すべて入れます (vcpkg install)。出力は、下のログに流れます。失敗したときは、ログの末尾に原因の見当を書きます。	Installs everything listed in vcpkg.json (vcpkg install). Output goes to the log below; on failure a likely cause is added at the end.							
 このパッケージが、ほかのどのパッケージに依存しているかを、木の形でログに出します。	Prints, as a tree in the log, which packages this package depends on.							
 説明を見る	Show help							

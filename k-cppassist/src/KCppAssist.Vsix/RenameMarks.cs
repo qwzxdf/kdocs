@@ -74,7 +74,7 @@ namespace KCppAssist
                             SnapshotSpan sp = e.Span.GetSpan(snap);
                             if (sp.Length > 0) result.Add(new KeyValuePair<SnapshotSpan, bool>(sp, e.Decl));
                         }
-                        catch (Exception) { }      // 古い版の範囲(元に戻したあとなど)は描かない
+                        catch (Exception) { }      // 古いバージョンの範囲(元に戻したあとなど)は描かない
                     }
             }
             return result;

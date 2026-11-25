@@ -39,7 +39,7 @@ namespace KCppAssist
         private readonly DispatcherTimer timer;
         private string path;
         private bool busy;
-        private int lastVersion = -1;       // 同じ版では、2 回試さない
+        private int lastVersion = -1;       // 同じバージョンでは、2 回試さない
         // 自動で case を入れた switch の「{」。あとで本体を消されても(Ctrl+Z も含めて)、同じ switch には 2 度と入れない
         private readonly List<ITrackingPoint> handled = new List<ITrackingPoint>();
 

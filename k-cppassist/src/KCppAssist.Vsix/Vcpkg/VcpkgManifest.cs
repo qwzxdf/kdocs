@@ -85,7 +85,7 @@ namespace KCppAssist.Vcpkg
             return Dependencies().FirstOrDefault(d => string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>追加する。すでにあれば、機能・版の指定を置き換える。特別な指定がなければ、名前だけの文字列にする(書式をそろえる)。</summary>
+        /// <summary>追加する。すでにあれば、機能・バージョンの指定を置き換える。特別な指定がなければ、名前だけの文字列にする(書式をそろえる)。</summary>
         public void AddOrUpdate(Dependency dep)
         {
             var arr = Root["dependencies"] as JArray;
@@ -140,7 +140,7 @@ namespace KCppAssist.Vcpkg
             Root["builtin-baseline"] = sha;
         }
 
-        /// <summary>builtin-baseline を消す(ベースラインで版を固定しない)。</summary>
+        /// <summary>builtin-baseline を消す(ベースラインでバージョンを固定しない)。</summary>
         public bool RemoveBaseline()
         {
             return Root.Remove("builtin-baseline");
@@ -201,7 +201,7 @@ namespace KCppAssist.Vcpkg
 
         // ---------- 入っているものの状態 ----------
 
-        /// <summary>vcpkg_installed\vcpkg\status を読んで、入っているパッケージの版(トリプレット別)を返す。「名前:トリプレット」→ 版。</summary>
+        /// <summary>vcpkg_installed\vcpkg\status を読んで、入っているパッケージのバージョン(トリプレット別)を返す。「名前:トリプレット」→ バージョン。</summary>
         public Dictionary<string, string> InstalledVersions()
         {
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -240,7 +240,7 @@ namespace KCppAssist.Vcpkg
             catch { }
         }
 
-        /// <summary>入っている版を、トリプレットを問わずに引く(複数あれば、いちばん新しい物)。</summary>
+        /// <summary>入っているバージョンを、トリプレットを問わずに引く(複数あれば、いちばん新しい物)。</summary>
         public static string InstalledVersion(Dictionary<string, string> map, string name)
         {
             string best = null;

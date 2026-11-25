@@ -193,8 +193,8 @@ namespace KCppAssist.ErrorLog
 
             // ---- NuGet / MSBuild ----
             ["NU1101"] = new Hint("NuGet: パッケージが見つからない", "パッケージ名と、パッケージ ソース(nuget.org)を確かめます。"),
-            ["NU1102"] = new Hint("NuGet: 指定の版がない", "存在する版を指定します。"),
-            ["NU1605"] = new Hint("NuGet: 版のダウングレード", "依存関係の版を、そろえます。"),
+            ["NU1102"] = new Hint("NuGet: 指定のバージョンがない", "存在するバージョンを指定します。"),
+            ["NU1605"] = new Hint("NuGet: バージョンのダウングレード", "依存関係のバージョンを、そろえます。"),
             ["MSB3644"] = new Hint("参照アセンブリが見つからない", "対象の .NET Framework の Developer Pack を入れます。"),
             ["MSB4019"] = new Hint("インポートするプロジェクトが見つからない", "Visual Studio のワークロードが足りないか、パスが違います。"),
             ["MSB8003"] = new Hint("ビルド ツールの設定が不正", "プロジェクトのプロパティを確かめます。"),

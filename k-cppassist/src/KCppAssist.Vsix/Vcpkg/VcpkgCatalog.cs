@@ -43,7 +43,7 @@ namespace KCppAssist.Vcpkg
         private const string Table = @"
 imgui|UI・デバッグ表示|ゲームの中に、デバッグ用のウィンドウやエディタを手軽に作れる即時モードの UI。まず入れる 1 つ。|Immediate-mode UI for in-game debug windows and editors. Usually the first thing to add.
 directxtk|描画・DirectX|DirectX 11 の補助クラス集。SimpleMath、SpriteBatch、モデル、入力、音がそろう。|Helper classes for DirectX 11: SimpleMath, SpriteBatch, models, input and audio.
-directxtk12|描画・DirectX|DirectX 12 版の補助クラス集。リソースのアップロードやスプライト描画を楽にする。|The DirectX 12 counterpart: resource upload, sprite drawing and more.
+directxtk12|描画・DirectX|DirectX 12 バージョンの補助クラス集。リソースのアップロードやスプライト描画を楽にする。|The DirectX 12 counterpart: resource upload, sprite drawing and more.
 nlohmann-json|データ・保存|C++ らしい書き方で読み書きできる JSON ライブラリ。設定やセーブデータの定番。|JSON for modern C++. The usual choice for settings and save data.
 glaze|データ・保存|構造体をそのまま JSON や バイナリに読み書きできる、コンパイル時に動くシリアライズ ライブラリ。リフレクション風に書ける。|Compile-time serialization of structs to and from JSON and binary, with reflection-like usage.
 spdlog|基盤・ユーティリティ|速いログ出力ライブラリ。ファイル・コンソール・VS の出力欄に書き分けられる。|Fast logging to files, the console and the VS output window.
@@ -156,7 +156,7 @@ cgltf|モデル・画像・フォント|C 言語の、ヘッダー 1 つの glTF
 glad|描画・DirectX|OpenGL の関数を読み込むローダーを、生成する。|Generates OpenGL function loaders.
 lodepng|モデル・画像・フォント|1 ファイルで使える PNG の読み書き。|A single-file PNG codec.
 tinyexr|モデル・画像・フォント|EXR 画像を、軽く読み書きする。|A light EXR reader and writer.
-sdl2|ウィンドウ・入力・フレームワーク|SDL の 2 番目の版。情報が多く、まだ広く使われている。|The older, widely documented SDL 2.
+sdl2|ウィンドウ・入力・フレームワーク|SDL の 2 番目のバージョン。情報が多く、まだ広く使われている。|The older, widely documented SDL 2.
 pybind11|スクリプト・ECS|C++ と Python をつなぐ。ツールやエディタの拡張に使う。|Binds C++ and Python for tooling.
 ";
 

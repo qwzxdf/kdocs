@@ -614,7 +614,7 @@ namespace KCppAssist
         public bool KeyScopeMigrated { get; set; } = false;
 
         /// <summary>
-        /// 既定を変えた設定を、新しい既定に移した版(0 は未移行)。
+        /// 既定を変えた設定を、新しい既定に移したバージョン(0 は未移行)。
         /// VS は設定画面で OK を押すと全部の値を保存するので、既定を変えても、古い既定のまま保存された値が勝ってしまう。
         /// </summary>
         [Browsable(false)]

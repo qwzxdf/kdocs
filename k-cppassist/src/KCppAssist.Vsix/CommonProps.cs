@@ -11,7 +11,7 @@ namespace KCppAssist
     /// プロジェクトのプロパティ ページの「構成プロパティ」に、「よく使うプロパティ」のページを足す。
     /// 項目は新しい値ではなく、C/C++・リンカーなどにある元のプロパティの窓口(DataSource を元と同じにする)なので、
     /// ここで変えると .vcxproj の同じ要素が書き換わり、元のページと常に同じ値になる。
-    /// 規則 XML は VS 自身の cl.xml などから項目の定義を写して作る(説明文・選択肢が VS の言語・版のままになる)。
+    /// 規則 XML は VS 自身の cl.xml などから項目の定義を写して作る(説明文・選択肢が VS の言語・バージョンのままになる)。
     /// 規則は %LOCALAPPDATA%\K-CppAssist\KCommonProps.xml に書き、ユーザーの Microsoft.Cpp.(プラットフォーム).user.props から読み込ませる。
     /// </summary>
     internal static class CommonProps
