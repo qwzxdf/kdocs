@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.7.vsix" download>K-CppUltimateAssist 0.33.7 をダウンロード（.vsix、約 782 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.8.vsix" download>K-CppUltimateAssist 0.33.8 をダウンロード（.vsix、約 782 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しいバージョンに更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -809,7 +809,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 - <strong>引数の並べ替え・削除を、呼び出しにも写す</strong>（初期値は True）。
 - <strong>電球（Quick Fix）に出す</strong>（初期値は True）。`Ctrl+.` の電球にこのツールの機能を出します。
 - <strong>エラーログを使う</strong>。初期値は True。False にすると、ビルドが終わってもエラーログを作りません（窓も自動では開きません）。ビルドを重くしたくないときや、エラーログが要らないときに切ります。
-- <strong>エラーがあるとき、窓を自動で前に出す</strong>。初期値は True。False のときは、拡張機能 メニューの「K-ErrorLog (エラーログ)を開く」から開きます。
+- <strong>エラーがあるとき、窓を自動で前に出す</strong>。初期値は False（ビルドが失敗しても、窓は自動では開きません）。True にすると前に出ます。False のときは、拡張機能 メニューの「K-ErrorLog (エラーログ)を開く」から開きます。
 - <strong>原因を探す (.lib とソースの検索)</strong>。初期値は True。未解決の外部シンボル（LNK2019 など）について、ソリューションの `.lib` とソースを探して、原因を言い当てます。時間がかかるときは False にします。「探す時間の上限 (秒)」（初期値 6）と「読む .lib の数の上限」（初期値 800）も変えられます。
 - <strong>型名を短くする</strong>。初期値は True。`std::basic_string<char, …>` を `std::string` のようにします。False にすると、コンパイラの出した型名のまま出します。
 - <strong>ヒントを出す</strong>。初期値は True。エラー コードごとの見出しの下に、対処のヒントを、表示する言語で出します。
@@ -849,6 +849,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | バージョン | 内容 |
 | --- | --- |
+| 0.33.8 | K-ErrorLog の直し。ビルドが失敗しても、K-ErrorLog の窓を自動では開かないようにした（「エラーがあるとき、窓を自動で前に出す」の初期値を False にした。前に出したい人は、オプションで True にする） |
 | 0.33.7 | K-vcpkg の「インストール」の直し。この窓のインストール先を、Visual Studio のビルドと同じ場所（vcpkg_installed\（トリプレット）\）にした。場所が違うと、ここで入れても、ビルドが使う方は古いままで、一覧のバージョンも変わらなかった。一覧は、複数の場所にあるときは、新しいバージョンを出す |
 | 0.33.6 | K-vcpkg の「ベースラインを更新」で、git pull のあとに bootstrap-vcpkg.bat を実行して、vcpkg.exe も新しくするようにした（古い vcpkg.exe が新しい scripts を読めず、エラーになっていた）。git pull の出力を絞って、画面が固まったように見えるのを直した |
 | 0.33.5 | K-vcpkg の「ベースラインを更新」で、バージョンが何も変わらないのを直した。git のコピーの vcpkg（C:cpkg など）は、x-update-baseline が手元の HEAD を書くため、コピーが古いと同じコミットを書き直すだけだった。更新の前に git pull で手元の vcpkg を最新にする |

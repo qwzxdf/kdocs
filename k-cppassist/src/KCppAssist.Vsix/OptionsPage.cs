@@ -237,8 +237,8 @@ namespace KCppAssist
 
         [LocCategory("エラーログ")]
         [LocDisplayName("エラーがあるとき、窓を自動で前に出す")]
-        [LocDescription("True のとき、ビルドが終わってエラーがあれば、窓を前に出します(入力は奪いません)。False のときは、拡張機能 メニューから開きます。")]
-        public bool ErrorLogAutoShow { get; set; } = true;
+        [LocDescription("True のとき、ビルドが終わってエラーがあれば、窓を前に出します(入力は奪いません)。False(既定)のときは、拡張機能 メニューから開きます。")]
+        public bool ErrorLogAutoShow { get; set; } = false;
 
         [LocCategory("エラーログ")]
         [LocDisplayName("原因を探す (.lib とソースの検索)")]
