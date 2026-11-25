@@ -337,11 +337,50 @@ namespace KCppAssist.Vcpkg
                 if (string.IsNullOrEmpty(root) || (!Directory.Exists(Path.Combine(root, ".git")) && !File.Exists(Path.Combine(root, ".git")))) return true;
                 if (log != null) log(L.F("> git pull ({0})  手元の vcpkg を最新にします", root));
                 string o;
-                int code = RunGit(root, "pull --ff-only", ct, out o);
+                string headBefore; RunGit(root, "rev-parse HEAD", ct, out headBefore);
+                int code = RunGit(root, "pull --ff-only -q", ct, out o);
                 if (log != null) foreach (string line in (o ?? "").Replace("\r", "").Split('\n')) if (line.Trim().Length > 0) log(line);
                 if (code != 0 && log != null) log(L.T("git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。"));
+                if (code == 0)
+                {
+                    // 新しい scripts を読めるように、vcpkg.exe も新しくする(古い vcpkg.exe は、新しい vcpkg-tools.json を読めずに失敗する)
+                    string headAfter; RunGit(root, "rev-parse HEAD", ct, out headAfter);
+                    string bat = Path.Combine(root, "bootstrap-vcpkg.bat");
+                    if ((headBefore ?? "").Trim() != (headAfter ?? "").Trim() && File.Exists(bat))
+                    {
+                        if (log != null) log(L.T("> bootstrap-vcpkg.bat  vcpkg.exe を新しくします"));
+                        string bo;
+                        int bc = RunCmd(root, "\"" + bat + "\" -disableMetrics", ct, out bo);
+                        if (log != null) foreach (string line in (bo ?? "").Replace("\r", "").Split('\n')) if (line.Trim().Length > 0) log(line);
+                        if (bc != 0) { if (log != null) log(L.T("bootstrap-vcpkg.bat に失敗しました。vcpkg のフォルダーで、自分で実行してください。")); return false; }
+                        FindExe(true);
+                    }
+                }
                 return code == 0;
             });
+        }
+
+        private static int RunCmd(string workDir, string commandLine, CancellationToken ct, out string output)
+        {
+            var psi = new ProcessStartInfo("cmd.exe", "/c \"" + commandLine + "\"")
+            {
+                WorkingDirectory = workDir, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true,
+            };
+            try
+            {
+                using (var p = new Process { StartInfo = psi })
+                {
+                    var sb = new StringBuilder();
+                    p.OutputDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
+                    p.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
+                    p.Start(); p.BeginOutputReadLine(); p.BeginErrorReadLine();
+                    using (ct.Register(() => { try { Kill(p); } catch { } })) p.WaitForExit();
+                    p.WaitForExit();
+                    lock (sb) output = sb.ToString();
+                    return p.ExitCode;
+                }
+            }
+            catch (Exception ex) { output = ex.Message; return -1; }
         }
 
         /// <summary>

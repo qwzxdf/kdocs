@@ -1651,3 +1651,5 @@ git fetch で取れませんでした: {0}	git fetch failed: {0}
 ベースラインのコミットを、手元の vcpkg に取れませんでした。ネットワークと、vcpkg のフォルダーで git fetch ができるかを確かめてください。	Could not get the baseline commit into your local vcpkg. Check the network and that git fetch works in the vcpkg folder.							
 > git pull ({0})  手元の vcpkg を最新にします	> git pull ({0})  Updating your local vcpkg							
 git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。	git pull failed. Your local vcpkg may have local changes, or the network may be unavailable.							
+> bootstrap-vcpkg.bat  vcpkg.exe を新しくします	> bootstrap-vcpkg.bat  Updating vcpkg.exe							
+bootstrap-vcpkg.bat に失敗しました。vcpkg のフォルダーで、自分で実行してください。	bootstrap-vcpkg.bat failed. Run it yourself in the vcpkg folder.							

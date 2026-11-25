@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.5.vsix" download>K-CppUltimateAssist 0.33.5 をダウンロード（.vsix、約 782 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.33.6.vsix" download>K-CppUltimateAssist 0.33.6 をダウンロード（.vsix、約 782 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しいバージョンに更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -849,6 +849,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | バージョン | 内容 |
 | --- | --- |
+| 0.33.6 | K-vcpkg の「ベースラインを更新」で、git pull のあとに bootstrap-vcpkg.bat を実行して、vcpkg.exe も新しくするようにした（古い vcpkg.exe が新しい scripts を読めず、エラーになっていた）。git pull の出力を絞って、画面が固まったように見えるのを直した |
 | 0.33.5 | K-vcpkg の「ベースラインを更新」で、バージョンが何も変わらないのを直した。git のコピーの vcpkg（C:cpkg など）は、x-update-baseline が手元の HEAD を書くため、コピーが古いと同じコミットを書き直すだけだった。更新の前に git pull で手元の vcpkg を最新にする |
 | 0.33.4 | K-vcpkg の「ベースラインを更新」を、vcpkg 自身の x-update-baseline に任せる形に戻した（GitHub の API で調べて書く方法をやめた）。ベースラインのコミットが手元の vcpkg にないときの git fetch は、そのまま残している |
 | 0.33.3 | 画面と説明の「版」を、すべて「バージョン」に言い換えた |
