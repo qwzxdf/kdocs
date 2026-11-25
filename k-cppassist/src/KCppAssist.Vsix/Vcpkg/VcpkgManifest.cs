@@ -223,7 +223,12 @@ namespace KCppAssist.Vcpkg
                 {
                     if (raw.Length == 0)
                     {
-                        if (pkg != null && !feature && st != null && st.EndsWith("installed", StringComparison.Ordinal)) map[pkg + ":" + arch] = ver;
+                        if (pkg != null && !feature && st != null && st.EndsWith("installed", StringComparison.Ordinal))
+                        {
+                            // 同じパッケージが、複数の場所(コマンド ラインと MSBuild)にあるときは、新しいバージョンを採る
+                            string key = pkg + ":" + arch, old;
+                            if (!map.TryGetValue(key, out old) || VcpkgTool.CompareVersions(ver, old) > 0) map[key] = ver;
+                        }
                         pkg = ver = arch = st = null; feature = false;
                         continue;
                     }

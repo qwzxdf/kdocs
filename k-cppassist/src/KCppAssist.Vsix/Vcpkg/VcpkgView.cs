@@ -1173,7 +1173,7 @@ namespace KCppAssist.Vcpkg
         }
 
         // vcpkg が出す「Installing 3/12 name:triplet...」を読んで、ライブラリ 1 個ごとに進捗バーを進める
-        private static readonly Regex InstallingLine = new Regex(@"^\s*(Installing|Building)\s+(\d+)/(\d+)\s+(\S+)", RegexOptions.Compiled);
+        private static readonly Regex InstallingLine = new Regex(@"^\s*(Installing|Building|Removing)\s+(\d+)/(\d+)\s+(\S+)", RegexOptions.Compiled);
         private static readonly Regex DoneLine = new Regex(@"^\s*(Total install time|Elapsed time to handle\s+\S+:)", RegexOptions.Compiled);
 
         private void TrackProgress(string line)
@@ -1228,6 +1228,10 @@ namespace KCppAssist.Vcpkg
             }
             var args = new StringBuilder("install --triplet " + Quote(Triplet));
             foreach (string d in VcpkgLocator.OverlayDirs(CurrentTarget.Dir)) args.Append(" --overlay-triplets=" + Quote(d));
+            // Visual Studio (MSBuild) は、vcpkg_installed\(トリプレット)\ に入れる。コマンド ラインの既定は vcpkg_installed\ で、場所が違うと、
+            // ここで入れても、ビルドが使う場所は古いままになる。ON のプロジェクトがあるときは、MSBuild と同じ場所に入れる
+            bool msbuildLayout = TargetProjects().Any(p => VcpkgSetup.ProjectFiles(p.Value).Any(f => VcpkgSetup.ManifestMode(f) == true));
+            if (msbuildLayout) args.Append(" --x-install-root=" + Quote(Path.Combine(CurrentTarget.Dir, "vcpkg_installed", Triplet)));
             RunResult r = await RunVcpkg(args.ToString(), true);
             if (r != null && r.Ok)
             {
