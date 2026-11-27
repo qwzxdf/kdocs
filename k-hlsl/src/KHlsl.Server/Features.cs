@@ -47,6 +47,7 @@ namespace KHlsl.Server
         private JToken Completion(JToken p)
         {
             var res = CompletionCore(p);
+            PlainCompletionDocs(res);
             try
             {
                 // 範囲は、要求のキャレット位置(行・文字)をそのまま使う。
@@ -74,6 +75,33 @@ namespace KHlsl.Server
             }
             catch (Exception) { }
             return res;
+        }
+
+        private static readonly Regex RxFence = new Regex(@"```[\w-]*\n(?<body>.*?)\n?```\n*", RegexOptions.Compiled | RegexOptions.Singleline);
+
+        /// <summary>
+        /// 補完の候補の説明から、``` で囲んだコード ブロックを外して、1 行ずつのインライン コードにする。
+        /// VS は、選んだ候補の説明を約 0.5 秒後に出すときに、```hlsl のブロックを色付けしようとして失敗し、
+        /// 補完の一覧ごと閉じてしまう(saturate など、シグネチャを持つ候補で起きる)。
+        /// シグネチャの 1 つ目は detail にもあるので、説明では重載も含めて、文字だけで並べる。
+        /// ホバーは VS 拡張の側で描くので、ここは補完だけ。
+        /// </summary>
+        private static void PlainCompletionDocs(JToken res)
+        {
+            var items = res == null ? null : res["items"] as JArray;
+            if (items == null) return;
+            foreach (JObject it in items)
+            {
+                var doc = it["documentation"] as JObject;
+                string v = doc == null ? null : (string)doc["value"];
+                if (v == null || v.IndexOf("```", StringComparison.Ordinal) < 0) continue;
+                doc["value"] = RxFence.Replace(v, m =>
+                {
+                    var lines = m.Groups["body"].Value.Split('\n').Where(x => x.Trim().Length > 0)
+                        .Select(x => "`" + x.Trim().Replace("`", "'") + "`");
+                    return string.Join("  \n", lines) + "\n\n";
+                }).TrimEnd('\n');
+            }
         }
 
         private JToken CompletionCore(JToken p)
