@@ -81,6 +81,15 @@ namespace KHlsl.Server
             var c = MakeCtx(p);
             string m = c.Masked;
             int off = Math.Min(c.Offset, m.Length);
+            // #include "…" のファイル名。引用符の中は「文字列の中」と判定されるので、その判定より先に、
+            // コメントと文字列を消す前の本文で見る(消した本文では、打ったファイル名が空白になる)
+            {
+                int rs = off;
+                while (rs > 0 && c.Text[rs - 1] != '\n') rs--;
+                var im = Regex.Match(c.Text.Substring(rs, off - rs), @"^\s*#\s*include\s*[""<]([^"">]*)$");
+                if (im.Success && m.Substring(rs, off - rs).TrimStart().StartsWith("#", StringComparison.Ordinal))
+                    return Items(IncludeFiles(c.Uri, im.Groups[1].Value));
+            }
             // コメントや文字列の中
             if (IsInCommentOrString(c.Text, off)) return Items(new List<JObject>());
             int ls = off;
@@ -97,10 +106,6 @@ namespace KHlsl.Server
                     items.Add(Item(d.n, KKeyword, d.syntax, DocText(d.syntax, d.d, null)));
                 return Items(items);
             }
-            // #include "…" のファイル名
-            var im = Regex.Match(before, @"^\s*#\s*include\s*[""<]([^"">]*)$");
-            if (im.Success) return Items(IncludeFiles(c.Uri, im.Groups[1].Value));
-
             // メンバー補完(. の後)
             var mm = Regex.Match(before, @"(?<expr>[\w\]\[\.\s]*?)\.\s*(?<w>\w*)$");
             if (mm.Success && !Regex.IsMatch(before, @"\d\.\w*$") || mm.Success && Regex.IsMatch(before, @"[A-Za-z_]\w*\s*\.\s*\w*$"))
