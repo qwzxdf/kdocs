@@ -27,7 +27,7 @@ namespace KCppAssist
 
         private void RegisterRefactorCommands(OleMenuCommandService commands)
         {
-            commands.AddCommand(new OleMenuCommand((s, e) => ShowRefactorMenu(), new CommandID(CmdSet, CmdRefactor)));
+            AddCmd(commands, CmdRefactor, () => ShowRefactorMenu());
         }
 
         private sealed class Active

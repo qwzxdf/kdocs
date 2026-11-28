@@ -15,7 +15,7 @@ namespace KCppAssist
 
         private void RegisterHelpCommand(OleMenuCommandService commands)
         {
-            commands.AddCommand(new OleMenuCommand((s, e) => ShowHelp(), new CommandID(CmdSet, CmdHelp)));
+            AddCmd(commands, CmdHelp, () => ShowHelp());
         }
 
         // 表は、パッケージを読み込んだとき(言語を決める前)に作られるので、文字は表示のときに訳す

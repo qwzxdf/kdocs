@@ -25,7 +25,7 @@ namespace KCppAssist
 
         private void RegisterEncodingCommand(OleMenuCommandService commands)
         {
-            commands.AddCommand(new OleMenuCommand((s, e) => ShowEncodingWindow(), new CommandID(CmdSet, CmdEncoding)));
+            AddCmd(commands, CmdEncoding, () => ShowEncodingWindow());
         }
 
         private sealed class EncRow

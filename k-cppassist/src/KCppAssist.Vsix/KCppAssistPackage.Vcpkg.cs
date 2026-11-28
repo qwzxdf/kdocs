@@ -16,7 +16,7 @@ namespace KCppAssist
 
         private void RegisterVcpkgCommand(OleMenuCommandService commands)
         {
-            commands.AddCommand(new OleMenuCommand((s, e) => ShowVcpkgWindow(), new CommandID(CmdSet, CmdVcpkg)));
+            AddCmd(commands, CmdVcpkg, () => ShowVcpkgWindow());
         }
 
         private bool vcpkgSized;

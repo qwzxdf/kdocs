@@ -83,6 +83,19 @@ namespace KCppAssist
             [0x0116] = "K-Cpp: vcpkg パッケージ...",
         };
 
+        /// <summary>
+        /// メニュー・ショートカットのコマンドを 1 つ登録する。すべてのコマンドは、ここを通る。
+        /// 実行中の例外は、ここで受けてログに残す(VS のエラー ダイアログにしない)。
+        /// </summary>
+        private static void AddCmd(OleMenuCommandService commands, int id, Action run)
+        {
+            commands.AddCommand(new OleMenuCommand((s, e) =>
+            {
+                try { run(); }
+                catch (Exception ex) { Log("command 0x" + id.ToString("X4") + " failed: " + ex); }
+            }, new CommandID(CmdSet, id)));
+        }
+
         /// <summary>メニューの文字を、いまの言語にする。表示のたびに読み直すので、設定で言語を変えると、次に開いたメニューから変わる。</summary>
         private static void ApplyMenuTexts(OleMenuCommandService commands)
         {
@@ -140,22 +153,22 @@ namespace KCppAssist
             var commands = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commands != null)
             {
-                commands.AddCommand(new OleMenuCommand((s, e) => Run(false), new CommandID(CmdSet, CmdLocal)));
-                commands.AddCommand(new OleMenuCommand((s, e) => Run(true), new CommandID(CmdSet, CmdMember)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunInclude(), new CommandID(CmdSet, CmdInclude)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunSync(), new CommandID(CmdSet, CmdSync)));
-                commands.AddCommand(new OleMenuCommand((s, e) => ShowWindow(true, true), new CommandID(CmdSet, CmdErrorLog)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunRename(), new CommandID(CmdSet, CmdRename)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunCreate(), new CommandID(CmdSet, CmdCreate)));
-                commands.AddCommand(new OleMenuCommand((s, e) => RunMove(), new CommandID(CmdSet, CmdMove)));
+                AddCmd(commands, CmdLocal, () => Run(false));
+                AddCmd(commands, CmdMember, () => Run(true));
+                AddCmd(commands, CmdAccessor, () => RunAccessor());
+                AddCmd(commands, CmdInclude, () => RunInclude());
+                AddCmd(commands, CmdSync, () => RunSync());
+                AddCmd(commands, CmdErrorLog, () => ShowWindow(true, true));
+                AddCmd(commands, CmdRename, () => RunRename());
+                AddCmd(commands, CmdCreate, () => RunCreate());
+                AddCmd(commands, CmdMove, () => RunMove());
                 RegisterTidyCommands(commands);
                 RegisterGenCommands(commands);
                 RegisterRefactorCommands(commands);
                 RegisterHelpCommand(commands);
                 RegisterVcpkgCommand(commands);
                 RegisterEncodingCommand(commands);
-                commands.AddCommand(new OleMenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
+                AddCmd(commands, CmdSettings, () => ShowOptionPage(typeof(OptionsPage)));
                 ApplyMenuTexts(commands);
             }
             try { ((OptionsPage)GetDialogPage(typeof(OptionsPage))).MigrateKeyScopes(); }
