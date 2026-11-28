@@ -53,8 +53,21 @@ namespace KCppAssist
                 if (m.Type.EndsWith("&") || Regex.IsMatch(m.Type, @"^const\b") && cpp != null && Regex.IsMatch(CppText.Mask(cpp), @"\b" + Regex.Escape(c) + @"\s*::\s*" + Regex.Escape(c) + @"\s*\([^)]*\)\s*:[^{]*\b" + Regex.Escape(m.Name) + @"\s*[({]"))
                 { why = L.F("{0} は参照か const で、コンストラクターの初期化子リストで決めています。pimpl にすると Impl の中で決める必要があるので、手で移してください", m.Name); return null; }
 
-            // ---- ヘッダー ----
-            // 移すメンバーの文(1 行に 1 つ)を消し、最初の行の場所に、struct Impl; と impl_ を置く
+            List<string> implLines;
+            string h = RewriteHeader(header, eol, c, cls, moved, out implLines, out why);
+            if (h == null) return null;
+            string ct = RewriteCpp(cpp, h, eol, c, header, names, implLines);
+            return new Result { Header = h, Cpp = ct, Moved = names };
+        }
+
+        /// <summary>
+        /// ヘッダー: 移すメンバーの文(1 行に 1 つ)を消し、最初の行の場所に、struct Impl; と impl_ を置く。
+        /// 必要なら #include &lt;memory&gt; と、引数のないコンストラクターの宣言を足し、デストラクター・ムーブは cpp に出す。作れなければ null で、理由を why に入れる。
+        /// </summary>
+        private static string RewriteHeader(string header, string eol, string c, MemberScan.ClassInfo cls, List<MemberScan.Member> moved, out List<string> implLinesOut, out string why)
+        {
+            why = null;
+            implLinesOut = null;
             var stmts = moved.GroupBy(m => m.Start).Select(g => g.First()).OrderBy(m => m.Start).ToList();
             var lines = new List<Tuple<int, int>>();            // 消す行(頭、次の行の頭)
             var implLines = new List<string>();                 // Impl の中に書く文
@@ -92,7 +105,16 @@ namespace KCppAssist
             List<string> specials;
             h = ForwardDecl.MoveSpecialsOut(h, new[] { "Impl" }, eol, out specials);
 
-            // ---- cpp ----
+            implLinesOut = implLines;
+            return h;
+        }
+
+        /// <summary>
+        /// cpp: 既存の Foo:: の定義の中で、移したメンバーを impl_-&gt; にし、struct Foo::Impl を置き、
+        /// ヘッダーで宣言だけにしたコンストラクター・デストラクター・ムーブの定義を作る。h は書き換えたあとのヘッダー。
+        /// </summary>
+        private static string RewriteCpp(string cpp, string h, string eol, string c, string header, List<string> names, List<string> implLines)
+        {
             string cppText = cpp ?? "";
             string unit = CppText.IndentUnit(cppText, header);
             // 既存の Foo:: の定義の中で、移したメンバーを impl_-> にする(後ろの定義から)
@@ -205,7 +227,7 @@ namespace KCppAssist
             var ma = Regex.Match(hmask, Regex.Escape(c) + @"\s*&\s*operator\s*=\s*\(\s*" + Regex.Escape(c) + @"\s*&&\s*\w*\s*\)\s*(noexcept)?\s*;");
             if (ma.Success) ct = ForwardDecl.AddOutOfClassDef(h, ct, c, "moveassign", ma.Groups[1].Success, eol);
 
-            return new Result { Header = h, Cpp = ct, Moved = names };
+            return ct;
         }
 
         /// <summary>移したメンバーの名前(単語の単位)を impl_-&gt;名前 にする。「this-&gt;x_」も直す。「obj.x_」「p-&gt;x_」「A::x_」は触らない。</summary>
