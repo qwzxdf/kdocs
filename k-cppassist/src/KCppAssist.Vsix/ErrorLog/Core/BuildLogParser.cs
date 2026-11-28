@@ -55,17 +55,25 @@ namespace KCppAssist.ErrorLog
 
         private static readonly Regex SummaryLine = new Regex(@"^={5,}\s*(?<s>.*?)\s*={5,}$", RegexOptions.Compiled);
 
+        private sealed class ParseState
+        {
+            public BuildReport Report;
+            public readonly HashSet<string> Seen = new HashSet<string>();
+            public Diag Current;
+            public Frame Last;
+            public bool Skipping;
+            public string LdObj = "", LdFunc = "";
+
+            // 診断のまとまりを閉じる(インデントのない行・見出し・要約の行で呼ぶ)
+            public void Close() { Current = null; Last = null; Skipping = false; }
+        }
+
         public static BuildReport Parse(string text)
         {
             var report = new BuildReport { RawText = text ?? "" };
             if (string.IsNullOrEmpty(text)) return report;
 
-            var seen = new HashSet<string>();
-            Diag current = null;
-            Frame last = null;
-            bool skipping = false;
-            string ldObj = "", ldFunc = "";
-
+            var st = new ParseState { Report = report };
             foreach (string rawLine in text.Split('\n'))
             {
                 string line = rawLine.TrimEnd('\r');
@@ -81,124 +89,140 @@ namespace KCppAssist.ErrorLog
                 var raw = new RawLine { Text = line };
                 report.RawLines.Add(raw);
 
-                Match hm = ProjHeader.Match(line);
-                if (hm.Success)
-                {
-                    report.Projects[projNo] = hm.Groups["proj"].Value.Trim();
-                    report.Config = hm.Groups["cfg"].Value.Trim();
-                    raw.Kind = RawKind.ProjectHeader;
-                    current = null; last = null; skipping = false;
-                    continue;
-                }
-                Match sm = SummaryLine.Match(line);
-                if (sm.Success)
-                {
-                    report.Summary = sm.Groups["s"].Value;
-                    raw.Kind = RawKind.Summary;
-                    current = null; last = null; skipping = false;
-                    continue;
-                }
-
-                // lld の続きの行(">>> referenced by foo.obj:(func)")
-                if (current != null && current.Kind == DiagKind.Unresolved && line.StartsWith(">>>", StringComparison.Ordinal))
-                {
-                    if (!skipping) { AddLldRef(current, line); current.Raw.Add(line); }
-                    raw.Kind = RawKind.Normal;
-                    continue;
-                }
-
-                // GNU ld
-                Match ldf = LdFunc.Match(line);
-                if (ldf.Success)
-                {
-                    ldObj = ldf.Groups["obj"].Value;
-                    ldFunc = ldf.Groups["fn"].Value;
-                    current = null; last = null; skipping = false;
-                    continue;
-                }
-                Match ldu = LdUndef.Match(line);
-                Match lldu = ldu.Success ? null : LldUndef.Match(line);
-                if (ldu.Success || (lldu != null && lldu.Success))
-                {
-                    var f2 = new Frame { Sev = Sev.Error, Message = line };
-                    raw.Parsed = f2;
-                    raw.Kind = RawKind.Error;
-                    raw.Linker = true;
-
-                    var d2 = new Diag { ProjectNo = projNo, Sev = Sev.Error, Message = line, Kind = DiagKind.Unresolved };
-                    var r2 = new UnresolvedRef();
-                    if (ldu.Success)
-                    {
-                        r2.SymbolDem = r2.SymbolMangled = ldu.Groups["sym"].Value;
-                        r2.FromObj = ldObj.Length > 0 ? ldObj : ldu.Groups["loc"].Value;
-                        r2.FuncDem = r2.FuncMangled = ldFunc;
-                        d2.File = r2.FromObj;
-                    }
-                    else
-                    {
-                        r2.SymbolDem = r2.SymbolMangled = lldu.Groups["sym"].Value.Trim();
-                        d2.File = lldu.Groups["tool"].Value;
-                    }
-                    d2.Unresolved = r2;
-                    f2.File = d2.File;
-                    string key2 = projNo + "|" + DedupKey(d2);
-                    skipping = !seen.Add(key2);
-                    if (skipping) { current = null; last = null; continue; }
-                    d2.Raw.Add(line);
-                    report.Diags.Add(d2);
-                    current = d2;
-                    last = null;
-                    continue;
-                }
-
-                Frame f = ParseLine(line);
-                if (f != null)
-                {
-                    raw.Parsed = f;
-                    raw.Linker = f.Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase);
-                    raw.Kind = f.Sev == Sev.Error ? RawKind.Error : f.Sev == Sev.Warning ? RawKind.Warning : RawKind.Note;
-
-                    bool primary = f.Sev == Sev.Error || f.Sev == Sev.Warning;
-                    if (primary)
-                    {
-                        Diag d = MakeDiag(f, projNo, report);
-                        string key = projNo + "|" + DedupKey(d);
-                        skipping = !seen.Add(key);
-                        if (skipping) { current = null; last = null; continue; }
-                        d.Raw.Add(line);
-                        report.Diags.Add(d);
-                        current = d;
-                        last = null;
-                        if (d.Code == "LNK1120") report.LinkerUnresolvedTotal = ParseTotal(d.Message);
-                    }
-                    else if (current != null && !skipping)
-                    {
-                        f.Kind = Classify(f.Message);
-                        current.Frames.Add(f);
-                        current.Raw.Add(line);
-                        last = f;
-                    }
-                    continue;
-                }
-
-                // インデントされた補足行("with" や "[ _Ty=int ]" など)
-                if (current != null && !skipping && line.Length > 0 && char.IsWhiteSpace(rawLine.Length > pm.Length ? rawLine[pm.Length] : 'x') && line.Trim().Length > 0)
-                {
-                    current.Raw.Add(line);
-                    if (last != null) last.Details.Add(line.Trim());
-                    else current.Details.Add(line.Trim());
-                    continue;
-                }
+                if (TryHeaderOrSummary(st, line, projNo, raw)) continue;
+                if (TryLldRef(st, line, raw)) continue;
+                if (TryLinkerUndefined(st, line, projNo, raw)) continue;
+                if (TryDiagnosticLine(st, line, projNo, raw)) continue;
+                if (TryDetailLine(st, line, rawLine, pm)) continue;
 
                 // インデントのない普通の行(「Main.cpp」「Generating Code...」など)でグループを閉じる
-                current = null;
-                last = null;
-                skipping = false;
+                st.Close();
             }
 
             foreach (Diag d in report.Diags)
                 if (d.ProjectNo > 0 && report.Projects.ContainsKey(d.ProjectNo)) d.Project = report.Projects[d.ProjectNo];
             return report;
+        }
+
+        // プロジェクトの見出し行と、末尾の要約行
+        private static bool TryHeaderOrSummary(ParseState st, string line, int projNo, RawLine raw)
+        {
+            Match hm = ProjHeader.Match(line);
+            if (hm.Success)
+            {
+                st.Report.Projects[projNo] = hm.Groups["proj"].Value.Trim();
+                st.Report.Config = hm.Groups["cfg"].Value.Trim();
+                raw.Kind = RawKind.ProjectHeader;
+                st.Close();
+                return true;
+            }
+            Match sm = SummaryLine.Match(line);
+            if (sm.Success)
+            {
+                st.Report.Summary = sm.Groups["s"].Value;
+                raw.Kind = RawKind.Summary;
+                st.Close();
+                return true;
+            }
+            return false;
+        }
+
+        // lld の続きの行(">>> referenced by foo.obj:(func)")
+        private static bool TryLldRef(ParseState st, string line, RawLine raw)
+        {
+            if (st.Current == null || st.Current.Kind != DiagKind.Unresolved || !line.StartsWith(">>>", StringComparison.Ordinal))
+                return false;
+            if (!st.Skipping) { AddLldRef(st.Current, line); st.Current.Raw.Add(line); }
+            raw.Kind = RawKind.Normal;
+            return true;
+        }
+
+        // GNU ld / lld のリンカー行(「In function ...」と「undefined reference to ...」)
+        private static bool TryLinkerUndefined(ParseState st, string line, int projNo, RawLine raw)
+        {
+            Match ldf = LdFunc.Match(line);
+            if (ldf.Success)
+            {
+                st.LdObj = ldf.Groups["obj"].Value;
+                st.LdFunc = ldf.Groups["fn"].Value;
+                st.Close();
+                return true;
+            }
+            Match ldu = LdUndef.Match(line);
+            Match lldu = ldu.Success ? null : LldUndef.Match(line);
+            if (!ldu.Success && (lldu == null || !lldu.Success)) return false;
+
+            var frame = new Frame { Sev = Sev.Error, Message = line };
+            raw.Parsed = frame;
+            raw.Kind = RawKind.Error;
+            raw.Linker = true;
+
+            var diag = new Diag { ProjectNo = projNo, Sev = Sev.Error, Message = line, Kind = DiagKind.Unresolved };
+            var r = new UnresolvedRef();
+            if (ldu.Success)
+            {
+                r.SymbolDem = r.SymbolMangled = ldu.Groups["sym"].Value;
+                r.FromObj = st.LdObj.Length > 0 ? st.LdObj : ldu.Groups["loc"].Value;
+                r.FuncDem = r.FuncMangled = st.LdFunc;
+                diag.File = r.FromObj;
+            }
+            else
+            {
+                r.SymbolDem = r.SymbolMangled = lldu.Groups["sym"].Value.Trim();
+                diag.File = lldu.Groups["tool"].Value;
+            }
+            diag.Unresolved = r;
+            frame.File = diag.File;
+            st.Skipping = !st.Seen.Add(projNo + "|" + DedupKey(diag));
+            if (st.Skipping) { st.Current = null; st.Last = null; return true; }
+            diag.Raw.Add(line);
+            st.Report.Diags.Add(diag);
+            st.Current = diag;
+            st.Last = null;
+            return true;
+        }
+
+        // 「file(line): error C1234: ...」の形の行。error / warning は新しい診断、note は直前の診断の枝
+        private static bool TryDiagnosticLine(ParseState st, string line, int projNo, RawLine raw)
+        {
+            Frame f = ParseLine(line);
+            if (f == null) return false;
+            raw.Parsed = f;
+            raw.Linker = f.Code.StartsWith("LNK", StringComparison.OrdinalIgnoreCase);
+            raw.Kind = f.Sev == Sev.Error ? RawKind.Error : f.Sev == Sev.Warning ? RawKind.Warning : RawKind.Note;
+
+            bool primary = f.Sev == Sev.Error || f.Sev == Sev.Warning;
+            if (primary)
+            {
+                Diag d = MakeDiag(f, projNo, st.Report);
+                st.Skipping = !st.Seen.Add(projNo + "|" + DedupKey(d));
+                if (st.Skipping) { st.Current = null; st.Last = null; return true; }
+                d.Raw.Add(line);
+                st.Report.Diags.Add(d);
+                st.Current = d;
+                st.Last = null;
+                if (d.Code == "LNK1120") st.Report.LinkerUnresolvedTotal = ParseTotal(d.Message);
+            }
+            else if (st.Current != null && !st.Skipping)
+            {
+                f.Kind = Classify(f.Message);
+                st.Current.Frames.Add(f);
+                st.Current.Raw.Add(line);
+                st.Last = f;
+            }
+            return true;
+        }
+
+        // インデントされた補足行("with" や "[ _Ty=int ]" など)
+        private static bool TryDetailLine(ParseState st, string line, string rawLine, Match prefix)
+        {
+            if (st.Current == null || st.Skipping || line.Length == 0) return false;
+            char first = rawLine.Length > prefix.Length ? rawLine[prefix.Length] : 'x';
+            if (!char.IsWhiteSpace(first) || line.Trim().Length == 0) return false;
+            st.Current.Raw.Add(line);
+            if (st.Last != null) st.Last.Details.Add(line.Trim());
+            else st.Current.Details.Add(line.Trim());
+            return true;
         }
 
         private static void AddLldRef(Diag d, string line)
