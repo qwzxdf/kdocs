@@ -157,7 +157,7 @@ namespace KHlsl.Server
                 case "textDocument/didOpen":
                 {
                     string uri = (string)p["textDocument"]["uri"];
-                    _docs[uri] = (string)p["textDocument"]["text"];
+                    lock (_docs) _docs[uri] = (string)p["textDocument"]["text"];
                     ScheduleDiagnostics(uri, 0);
                     break;
                 }
@@ -165,21 +165,21 @@ namespace KHlsl.Server
                 {
                     string uri = (string)p["textDocument"]["uri"];
                     var changes = (JArray)p["contentChanges"];
-                    if (changes.Count > 0) _docs[uri] = (string)changes[changes.Count - 1]["text"];
+                    if (changes.Count > 0) lock (_docs) _docs[uri] = (string)changes[changes.Count - 1]["text"];
                     ScheduleDiagnostics(uri, 700);
                     break;
                 }
                 case "textDocument/didSave":
                 {
                     string uri = (string)p["textDocument"]["uri"];
-                    if (p["text"] != null && p["text"].Type == JTokenType.String) _docs[uri] = (string)p["text"];
+                    if (p["text"] != null && p["text"].Type == JTokenType.String) lock (_docs) _docs[uri] = (string)p["text"];
                     ScheduleDiagnostics(uri, 0);
                     break;
                 }
                 case "textDocument/didClose":
                 {
                     string uri = (string)p["textDocument"]["uri"];
-                    _docs.Remove(uri);
+                    lock (_docs) _docs.Remove(uri);
                     CancelDiag(uri);
                     Notify("textDocument/publishDiagnostics", new JObject { ["uri"] = uri, ["diagnostics"] = new JArray() });
                     break;
@@ -251,7 +251,7 @@ namespace KHlsl.Server
                 ["capabilities"] = new JObject
                 {
                     ["textDocumentSync"] = new JObject { ["openClose"] = true, ["change"] = 1, ["save"] = new JObject { ["includeText"] = true } },
-                    ["completionProvider"] = new JObject { ["triggerCharacters"] = new JArray(".", ":", "#", "[", "(") },
+                    ["completionProvider"] = new JObject { ["triggerCharacters"] = new JArray(".", ":", "#", "[", "(", "\"") },
                     // hover は VS 拡張の khlsl/hover が、色付きで出す(標準のホバーは色が付かない)
                     ["hoverProvider"] = false,
                     ["signatureHelpProvider"] = new JObject { ["triggerCharacters"] = new JArray("(", ","), ["retriggerCharacters"] = new JArray(",") },
@@ -313,7 +313,9 @@ namespace KHlsl.Server
             var cts = new CancellationTokenSource();
             lock (_diag) _diag[uri] = cts;
             string text;
-            if (!_docs.TryGetValue(uri, out text)) return;
+            bool found;
+            lock (_docs) found = _docs.TryGetValue(uri, out text);
+            if (!found) return;
             string path = PathOf(uri);
             Task.Run(() =>
             {
@@ -382,11 +384,15 @@ namespace KHlsl.Server
         private string TextOf(string uri)
         {
             string t;
-            if (_docs.TryGetValue(uri, out t)) return t;
-            // URI の書き方(ドライブ文字の大小、%20 など)が違っても、同じファイルなら、開いている本文を使う
             string path = PathOf(uri);
-            foreach (var kv in _docs)
-                if (string.Equals(PathOf(kv.Key), path, StringComparison.OrdinalIgnoreCase)) return kv.Value;
+            // _docs は、起動直後の Warmup(別のスレッド)からも触るので、ロックしてから読む
+            lock (_docs)
+            {
+                if (_docs.TryGetValue(uri, out t)) return t;
+                // URI の書き方(ドライブ文字の大小、%20 など)が違っても、同じファイルなら、開いている本文を使う
+                foreach (var kv in _docs)
+                    if (string.Equals(PathOf(kv.Key), path, StringComparison.OrdinalIgnoreCase)) return kv.Value;
+            }
             try { return File.ReadAllText(path); } catch (Exception) { return ""; }
         }
 
@@ -400,7 +406,7 @@ namespace KHlsl.Server
             var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { path };
             var cfg = Config.For(path);
             var open = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var kv in _docs) open[PathOf(kv.Key)] = kv.Value;
+            lock (_docs) foreach (var kv in _docs) open[PathOf(kv.Key)] = kv.Value;
             var own = Analyzer.Scan(path, text);
             result.AddRange(own.Syms);
             var queue = new Queue<Tuple<string, string, int>>();
@@ -417,13 +423,15 @@ namespace KHlsl.Server
                 {
                     DateTime stamp = File.GetLastWriteTimeUtc(resolved);
                     Tuple<DateTime, FileScan> c;
-                    if (_incCache.TryGetValue(resolved, out c) && c.Item1 == stamp) scan = c.Item2;
+                    bool hit;
+                    lock (_incCache) hit = _incCache.TryGetValue(resolved, out c) && c.Item1 == stamp;
+                    if (hit) scan = c.Item2;
                     else
                     {
                         string t;
                         try { t = File.ReadAllText(resolved); } catch (Exception) { continue; }
                         scan = Analyzer.Scan(resolved, t);
-                        _incCache[resolved] = Tuple.Create(stamp, scan);
+                        lock (_incCache) _incCache[resolved] = Tuple.Create(stamp, scan);
                     }
                 }
                 result.AddRange(scan.Syms.Where(s => !s.Local));

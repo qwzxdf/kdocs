@@ -73,7 +73,13 @@ namespace KHlsl.Server
 
         public static string Find(Config cfg)
         {
-            if (!string.IsNullOrEmpty(cfg.dxc) && File.Exists(cfg.dxc)) return cfg.dxc;
+            if (!string.IsNullOrEmpty(cfg.dxc))
+            {
+                // 相対パスは、.khlsl.json のあるフォルダーから見る(サーバーの作業フォルダーからではない)
+                string p = cfg.dxc;
+                try { if (!Path.IsPathRooted(p) && cfg.Root != null) p = Path.GetFullPath(Path.Combine(cfg.Root, p)); } catch (Exception) { }
+                if (File.Exists(p)) return p;
+            }
             if (_cached != null && File.Exists(_cached)) return _cached;
             string env = Environment.GetEnvironmentVariable("KHLSL_DXC");
             if (!string.IsNullOrEmpty(env) && File.Exists(env)) return _cached = env;
@@ -145,7 +151,9 @@ namespace KHlsl.Server
                 return null;
             }
             var magic = MagicArgs(text);
-            bool userTarget = magic.Contains("-T") || cfg.args.Contains("-T");
+            // -T ps_6_6 と、詰めた -Tps_6_6 の両方を、利用者の指定として扱う
+            bool userTarget = HasOption(magic, "-T") || HasOption(cfg.args, "-T");
+            bool userEntry = HasOption(magic, "-E");
             string temp = Path.Combine(Path.GetTempPath(), "khlsl", (uint)docPath.GetHashCode() + "_" + Path.GetFileName(docPath));
             Directory.CreateDirectory(Path.GetDirectoryName(temp));
             File.WriteAllText(temp, text, new UTF8Encoding(false));
@@ -157,7 +165,7 @@ namespace KHlsl.Server
                 if (ct.IsCancellationRequested) return null;
                 var a = new List<string>();
                 if (t != null) { a.Add("-T"); a.Add(t); }
-                if (cfg.entry != null && !magic.Contains("-E")) { a.Add("-E"); a.Add(cfg.entry); }
+                if (cfg.entry != null && !userEntry) { a.Add("-E"); a.Add(cfg.entry); }
                 if (cfg.hlslVersion != null) { a.Add("-HV"); a.Add(cfg.hlslVersion); }
                 if (cfg.enable16bit) a.Add("-enable-16bit-types");
                 a.Add("-I"); a.Add(Path.GetDirectoryName(docPath));
@@ -233,7 +241,19 @@ namespace KHlsl.Server
             foreach (var raw in lines)
             {
                 var m = RxDiag.Match(raw);
-                if (!m.Success) continue;
+                if (!m.Success)
+                {
+                    // 位置のないエラー(missing entry point definition、invalid profile など)は、ファイルの先頭に出す。
+                    // 捨てると、コンパイルできないのに「エラーなし」に見える
+                    var g = RxGlobalDiag.Match(raw);
+                    if (g.Success)
+                    {
+                        var gd = new Diag { Line = 0, Col = 0, EndCol = 1, Severity = g.Groups["sev"].Value == "warning" ? 2 : 1, Message = g.Groups["msg"].Value };
+                        list.Add(gd);
+                        prev = gd;
+                    }
+                    continue;
+                }
                 string file = m.Groups["file"].Value;
                 string sev = m.Groups["sev"].Value;
                 string msg = m.Groups["msg"].Value;
@@ -252,8 +272,10 @@ namespace KHlsl.Server
                 var d = new Diag { Severity = sev == "warning" ? 2 : sev == "remark" ? 3 : 1 };
                 if (mine)
                 {
-                    d.Line = line; d.Col = col;
                     string sl = line < src.Length ? src[line].TrimEnd('\r') : "";
+                    // DXC(clang)の列は UTF-8 のバイト数。LSP の列は UTF-16 なので、日本語などを含む行で変換する
+                    col = ByteColumnToCharIndex(sl, col);
+                    d.Line = line; d.Col = col;
                     int e = col;
                     while (e < sl.Length && (char.IsLetterOrDigit(sl[e]) || sl[e] == '_')) e++;
                     d.EndCol = e > col ? e : Math.Min(col + 1, Math.Max(col, sl.Length));
@@ -269,6 +291,29 @@ namespace KHlsl.Server
                 prev = d;
             }
             return list;
+        }
+
+        /// <summary>args に、opt(-T など)が、分けた形か詰めた形で入っているか。</summary>
+        private static bool HasOption(List<string> args, string opt)
+        {
+            return args.Any(x => x.StartsWith(opt, StringComparison.Ordinal));
+        }
+
+        private static readonly Regex RxGlobalDiag = new Regex(@"^(?<sev>fatal error|error|warning): (?<msg>.*)$", RegexOptions.Compiled);
+
+        /// <summary>UTF-8 のバイト単位の列を、その行の UTF-16 の文字位置に直す。</summary>
+        internal static int ByteColumnToCharIndex(string line, int byteCol)
+        {
+            int bytes = 0, i = 0;
+            while (i < line.Length && bytes < byteCol)
+            {
+                if (char.IsHighSurrogate(line[i]) && i + 1 < line.Length && char.IsLowSurrogate(line[i + 1])) { bytes += 4; i += 2; continue; }
+                char c = line[i];
+                bytes += c < 0x80 ? 1 : c < 0x800 ? 2 : 3;
+                i++;
+            }
+            // 行より先を指す列(行末の後ろ)は、そのまま残りのバイト数を足す
+            return i + Math.Max(0, byteCol - bytes);
         }
 
         private static bool SamePath(string a, string b)

@@ -34,6 +34,7 @@ namespace KHlsl.Server
             public int StmtLevel;        // いまの文の字下げ
             public bool Label;           // case / default / public: の途中か
             public bool Root;
+            public int Tpl = -1;         // template<...> の < > の深さ。-1 は template の頭の外
         }
 
         /// <summary>( ) [ ] と、式の中の { }。</summary>
@@ -482,8 +483,16 @@ namespace KHlsl.Server
                     b.P++;
                     return;
                 }
+                // template<...> の頭。閉じる > で文を区切り、次の行(関数や struct の宣言)を、文の続きとして字下げしない
+                if (b.Tpl >= 0 && t.Kind == K.Punct && (x == "<" || x == ">" || x == ">>"))
+                {
+                    b.Tpl += x == "<" ? 1 : -x.Length;
+                    if (b.Tpl <= 0) { b.Stmt = false; b.P = 0; b.Tpl = -1; }
+                    return;
+                }
                 if (!b.Stmt)
                 {
+                    if (t.Kind == K.Word && x == "template" && NextSig(t) != null && NextSig(t).Text == "<") b.Tpl = 0;
                     if (t.Kind == K.Word && x == "if")
                     {
                         var pv = PrevSig(t);
@@ -494,7 +503,7 @@ namespace KHlsl.Server
                 }
                 if (t.Kind == K.Punct)
                 {
-                    if (x == ";") { b.Stmt = false; b.P = 0; b.Label = false; }
+                    if (x == ";") { b.Stmt = false; b.P = 0; b.Label = false; b.Tpl = -1; }
                     else if (x == ":" && b.Label) { b.Stmt = false; b.P = 0; b.Label = false; }
                 }
             }
