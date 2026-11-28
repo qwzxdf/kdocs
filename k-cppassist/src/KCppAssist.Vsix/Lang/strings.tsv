@@ -1653,3 +1653,7 @@ git fetch で取れませんでした: {0}	git fetch failed: {0}
 git pull に失敗しました。手元の vcpkg に、自分で書き換えた変更があるか、ネットワークに接続できないかもしれません。	git pull failed. Your local vcpkg may have local changes, or the network may be unavailable.							
 > bootstrap-vcpkg.bat  vcpkg.exe を新しくします	> bootstrap-vcpkg.bat  Updating vcpkg.exe							
 bootstrap-vcpkg.bat に失敗しました。vcpkg のフォルダーで、自分で実行してください。	bootstrap-vcpkg.bat failed. Run it yourself in the vcpkg folder.							
+private メンバー変数としてヘッダーに宣言する ({0})	Declare in header as private member variable ({0})							
+public メンバー変数としてヘッダーに宣言する ({0})	Declare in header as public member variable ({0})							
+private 定数 (static constexpr) としてヘッダーに宣言する ({0})	Declare in header as private constant (static constexpr) ({0})							
+public 定数 (static constexpr) としてヘッダーに宣言する ({0})	Declare in header as public constant (static constexpr) ({0})							

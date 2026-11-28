@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.34.0")]
+    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.34.1")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppUltimateAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.Vcpkg.VcpkgToolWindow), Style = VsDockStyle.Float, Transient = true, Width = 1500, Height = 950)]
@@ -167,11 +167,16 @@ namespace KCppAssist
             Log("package initialized");
         }
 
-        internal void Run(bool member)
+        /// <summary>「名前 = 右辺;」の名前を、どう宣言するか。</summary>
+        internal enum DeclKind { Local, PrivateMember, PublicMember, PrivateConst, PublicConst }
+
+        internal void Run(bool member) { Run(member ? DeclKind.PrivateMember : DeclKind.Local); }
+
+        internal void Run(DeclKind kind)
         {
             _ = JoinableTaskFactory.RunAsync(async () =>
             {
-                try { await RunAsync(member); }
+                try { await RunAsync(kind); }
                 catch (Exception ex) { await ReportAsync(L.F("例外: {0}", ex.Message), true); Log(ex.ToString()); }
             });
         }
@@ -185,8 +190,11 @@ namespace KCppAssist
             if (bar != null) bar.SetText("K-Cpp: " + message);
         }
 
-        private async Task RunAsync(bool member)
+        private async Task RunAsync(DeclKind kind)
         {
+            bool member = kind != DeclKind.Local;
+            bool constant = kind == DeclKind.PrivateConst || kind == DeclKind.PublicConst;
+            string access = kind == DeclKind.PublicMember || kind == DeclKind.PublicConst ? "public" : "private";
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
@@ -223,7 +231,7 @@ namespace KCppAssist
             string how = inferred.Value;
             if (type == null)
             {
-                if (!member) { type = "auto"; how = "auto"; }
+                if (!member || constant) { type = "auto"; how = "auto"; }
                 else
                 {
                     type = Ask(L.F("型を決められませんでした。{0} の型を入力してください。", name), "");
@@ -232,7 +240,7 @@ namespace KCppAssist
                     type = type.Trim();
                 }
             }
-            Log("mode=" + (member ? "member" : "local") + " name=" + name + " rhs=" + Regex.Replace(rhs, @"\s+", " ") + " type=" + type + " by=" + how);
+            Log("mode=" + kind + " access=" + access + " name=" + name + " rhs=" + Regex.Replace(rhs, @"\s+", " ") + " type=" + type + " by=" + how);
 
             if (!member)
             {
@@ -244,7 +252,35 @@ namespace KCppAssist
                 return;
             }
 
-            await AddMemberAsync(view, classRef, type + " " + name + ";", type, name, how);
+            if (!constant)
+            {
+                await AddMemberAsync(view, classRef, type + " " + name + ";", type, name, how, access, false);
+                return;
+            }
+
+            // 定数: 値を宣言に移す(代入の文は消す)。constexpr の変数は、宣言のあとに代入できない
+            string flat = Regex.Replace(rhs, @"\s+", " ").Trim();
+            string decl = "static constexpr " + type + " " + name + " = " + flat + ";";
+            var startPt = snap.CreateTrackingPoint(assign.StmtStart, PointTrackingMode.Positive);
+            var endPt = snap.CreateTrackingPoint(assign.StmtEnd, PointTrackingMode.Negative);
+            var cppBuffer = view.TextBuffer;
+            bool added = await AddMemberAsync(view, classRef, decl, type, name, how, access, true);
+            if (!added) return;
+            RemoveStatement(cppBuffer, startPt, endPt);
+        }
+
+        /// <summary>代入の文を消す。その行に、ほかに何もなければ、行ごと消す(空行を残さない)。</summary>
+        private static void RemoveStatement(ITextBuffer buffer, ITrackingPoint startPt, ITrackingPoint endPt)
+        {
+            var cur = buffer.CurrentSnapshot;
+            int a = startPt.GetPosition(cur), b = endPt.GetPosition(cur);
+            if (a < 0 || b <= a || b > cur.Length) return;
+            var l1 = cur.GetLineFromPosition(a);
+            var l2 = cur.GetLineFromPosition(Math.Max(a, b - 1));
+            bool onlyThis = cur.GetText(l1.Start.Position, a - l1.Start.Position).Trim().Length == 0
+                && cur.GetText(b, l2.End.Position - b).Trim().Length == 0;
+            if (onlyThis) buffer.Delete(new Span(l1.Start.Position, l2.EndIncludingLineBreak.Position - l1.Start.Position));
+            else buffer.Delete(new Span(a, b - a));
         }
 
         /// <summary>
@@ -306,27 +342,28 @@ namespace KCppAssist
 
         // ---- メンバー変数 ----
 
-        private async Task AddMemberAsync(IWpfTextView cppView, ClassRef classRef, string declaration, string type, string name, string how)
+        private async System.Threading.Tasks.Task<bool> AddMemberAsync(IWpfTextView cppView, ClassRef classRef, string declaration, string type, string name, string how, string access, bool constant)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var dte = (DTE)await GetServiceAsync(typeof(DTE));
             string cppPath = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
 
             var loc = await LocateClassAsync(dte, cppPath, cppView, classRef);
-            if (loc == null) return;
+            if (loc == null) return false;
 
             string all = loc.Text;
             string body = all.Substring(loc.Scope.Open, loc.Scope.Close - loc.Scope.Open);
             if (Regex.IsMatch(body, @"[\w>*&]\s+\*?&?" + Regex.Escape(name) + @"\s*(;|=|\{)"))
-            { await ReportAsync(L.F("{0} は {1} の {2} にすでにあります", name, Path.GetFileName(loc.File), classRef.Name), true); return; }
+            { await ReportAsync(L.F("{0} は {1} の {2} にすでにあります", name, Path.GetFileName(loc.File), classRef.Name), true); return false; }
 
             string eol = CppText.Eol(all);
-            var edit = HeaderEditor.PlanAt(all, loc.Scope.Open, declaration, eol);
-            if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), classRef.Name), true); return; }
+            var edit = HeaderEditor.PlanMember(all, loc.Scope.Open, access, constant, declaration, eol);
+            if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), classRef.Name), true); return false; }
 
             loc.View.TextBuffer.Insert(edit.Position, edit.Text);
             ReturnTo(cppPath, loc.File);
             await ReportAsync(L.F("{0} を {1} に追加しました ({2})", declaration, Path.GetFileName(loc.File), L.T(how)), false);
+            return true;
         }
 
         /// <summary>開いたファイルから、作業中のファイルへ戻る(同じファイルなら何もしない)。</summary>

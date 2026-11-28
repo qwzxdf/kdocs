@@ -598,6 +598,50 @@ static class GenTests
             Check("autoswitch: int switch -> no plan", SwitchGen.Make(ints, ints.IndexOf("\t\n\t}") + 1, new List<SwitchGen.EnumDef>(), "\n", out why2, true) == null ? "null" : "made", "null");
         }
 
+        // ---- メンバー変数・定数を足す(HeaderEditor.PlanMember) ----
+        Func<string, string, bool, string, string> pm = (text, access, constant, decl) =>
+        {
+            int open = text.IndexOf('{');
+            var e = HeaderEditor.PlanMember(text, open, access, constant, decl, "\n");
+            return e == null ? "(null)" : text.Insert(e.Position, e.Text);
+        };
+        string K = "static constexpr int kMax = 3;";
+        string V = "int hp_;";
+        // class: private の変数は、private: の末尾(関数のあとに空行で分けて)
+        Check("pm private var after func", pm("class A {\n public:\n  A();\n  void F();\n\n private:\n  int x_;\n};\n", "private", false, V),
+            "class A {\n public:\n  A();\n  void F();\n\n private:\n  int x_;\n  int hp_;\n};\n");
+        Check("pm private var after func in region", pm("class A {\n private:\n  void G();\n};\n", "private", false, V),
+            "class A {\n private:\n  void G();\n\n  int hp_;\n};\n");
+        // 定数は、型・using の後ろ、コンストラクターの前
+        Check("pm private const before ctor", pm("class A {\n private:\n  A();\n  int x_;\n};\n", "private", true, K),
+            "class A {\n private:\n  static constexpr int kMax = 3;\n\n  A();\n  int x_;\n};\n");
+        Check("pm private const after using", pm("class A {\n private:\n  using T = int;\n\n  A();\n};\n", "private", true, K),
+            "class A {\n private:\n  using T = int;\n  static constexpr int kMax = 3;\n\n  A();\n};\n");
+        Check("pm const after const", pm("class A {\n private:\n  static constexpr int kMin = 1;\n\n  void F();\n};\n", "private", true, K),
+            "class A {\n private:\n  static constexpr int kMin = 1;\n  static constexpr int kMax = 3;\n\n  void F();\n};\n");
+        // public 定数 / 変数
+        Check("pm public const", pm("class A {\n public:\n  A();\n\n private:\n  int x_;\n};\n", "public", true, K),
+            "class A {\n public:\n  static constexpr int kMax = 3;\n\n  A();\n\n private:\n  int x_;\n};\n");
+        Check("pm public var", pm("class A {\n public:\n  A();\n  void F();\n\n private:\n  int x_;\n};\n", "public", false, V),
+            "class A {\n public:\n  A();\n  void F();\n\n  int hp_;\n\n private:\n  int x_;\n};\n");
+        // 区画がない: public は先頭に、private は末尾に作る
+        Check("pm public create", pm("class A {\n private:\n  int x_;\n};\n", "public", false, V),
+            "class A {\n public:\n  int hp_;\n\n private:\n  int x_;\n};\n");
+        Check("pm private create", pm("class A {\n public:\n  A();\n};\n", "private", false, V),
+            "class A {\n public:\n  A();\n\n private:\n  int hp_;\n};\n");
+        // class の、指定子のない先頭は private
+        Check("pm implicit private", pm("class A {\n  void F();\n};\n", "private", false, V),
+            "class A {\n  void F();\n\n  int hp_;\n};\n");
+        // 空の指定子
+        Check("pm empty region", pm("class A {\n public:\n\n private:\n};\n", "private", false, V),
+            "class A {\n public:\n\n private:\n\tint hp_;\n};\n");
+        Check("pm empty region before next", pm("class A {\n public:\n private:\n  int x_;\n};\n", "public", true, K),
+            "class A {\n public:\n  static constexpr int kMax = 3;\n\n private:\n  int x_;\n};\n");
+        Check("pm empty class private", pm("class A {\n};\n", "private", true, K),
+            "class A {\nprivate:\n\tstatic constexpr int kMax = 3;\n};\n");
+        // struct
+        Check("pm struct public var", pm("struct A {\n  int x;\n};\n", "public", false, "int y;"),
+            "struct A {\n  int x;\n  int y;\n};\n");
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -99,6 +100,97 @@ namespace KCppAssist
                 Position = braceFirst ? lineStart : close,
                 Text = braceFirst ? sb.ToString() : eol + sb.ToString(),
             };
+        }
+
+        /// <summary>
+        /// open の「{」で始まるクラスに、メンバー変数か定数(static constexpr)を 1 行足す編集を返す。
+        /// access は "public" か "private"。置き場所は、その指定子の最後の区画の中で、並び順(型 → 定数 → コンストラクター → 関数 → メンバー変数)を守る位置。
+        /// その指定子の区画がなければ、public はクラスの先頭、private はクラスの末尾に、指定子ごと作る。空行は、前後の宣言と種類が違うときだけ入れる。
+        /// </summary>
+        public static Edit PlanMember(string text, int open, string access, bool constant, string declaration, string eol)
+        {
+            string m = CppText.Mask(text);
+            int close = Scopes.MatchBrace(m, open);
+            if (close < 0) return null;
+            string head = m.Substring(0, open);
+            bool isStruct = Regex.IsMatch(head.Substring(Math.Max(0, head.LastIndexOfAny(new[] { ';', '{', '}' }) + 1)), @"\bstruct\b");
+
+            var ranked = DefinitionGen.TryPlanRanked(text, open, isStruct,
+                new[] { new DefinitionGen.Item { Rank = constant ? -1 : 5, Text = declaration } }, eol, access);
+            if (ranked != null && ranked.Count == 1) return new Edit { Position = ranked[0].Position, Text = ranked[0].Text };
+
+            // 直下の指定子(波括弧の深さ 1)を集める
+            var specs = new List<KeyValuePair<int, string>>();
+            var specEnd = new Dictionary<int, int>();
+            int depth = 0;
+            for (int i = open; i < close; i++)
+            {
+                char c = m[i];
+                if (c == '{') depth++;
+                else if (c == '}') depth--;
+                else if (depth == 1 && c == 'p' && !CppText.IsId(m[i - 1]))
+                {
+                    var s = Regex.Match(m.Substring(i, Math.Min(m.Length - i, 16)), @"^(public|protected|private)\s*:(?!:)");
+                    if (s.Success) { specs.Add(new KeyValuePair<int, string>(i, s.Groups[1].Value)); specEnd[i] = i + s.Length; }
+                }
+            }
+
+            int lineStart = close;
+            while (lineStart > 0 && text[lineStart - 1] != '\n') lineStart--;
+            bool braceFirst = text.Substring(lineStart, close - lineStart).Trim().Length == 0;
+            string closeIndent = braceFirst ? text.Substring(lineStart, close - lineStart) : "";
+            string unit = CppText.IndentUnit(text);
+            string memberIndent = closeIndent + unit;
+            string label = closeIndent + CppText.LabelOffset(text);
+
+            int idx = specs.FindLastIndex(x => x.Value == access);
+            if (idx >= 0)
+            {
+                // 指定子はあるが、中身が空。指定子の行の下に入れる。すぐ次が別の指定子なら、空行で分ける
+                int at = specEnd[specs[idx].Key];
+                while (at < text.Length && text[at] != '\n' && text[at] != '\r') at++;
+                var sb2 = new StringBuilder();
+                sb2.Append(eol).Append(memberIndent).Append(declaration);
+                if (idx + 1 < specs.Count)
+                {
+                    int nextLine = specs[idx + 1].Key;
+                    while (nextLine > 0 && text[nextLine - 1] != '\n') nextLine--;
+                    string gap = text.Substring(at, Math.Max(0, nextLine - at));
+                    if (!Regex.IsMatch(gap, @"\n[ \t]*\r?\n")) sb2.Append(eol);
+                }
+                return new Edit { Position = at, Text = sb2.ToString() };
+            }
+
+            if (access == "public")
+            {
+                // public: がない。クラスの先頭に作る。もともとのメンバー(指定子なしの class では private)が続くなら、private: を足して private のまま残す
+                int nlOpen = text.IndexOf('\n', open);
+                if (braceFirst && nlOpen > open && nlOpen < close && m.Substring(open + 1, nlOpen - open - 1).Trim().Length == 0)
+                {
+                    int firstSpec = specs.Count > 0 ? specs[0].Key : close;
+                    bool implicitPrivate = m.Substring(open + 1, firstSpec - open - 1).Trim().Length > 0;
+                    bool hasBody = m.Substring(open + 1, close - open - 1).Trim().Length > 0;
+                    var top = new StringBuilder();
+                    top.Append(label).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
+                    if (implicitPrivate) top.Append(eol).Append(label).Append("private:").Append(eol);
+                    else if (hasBody) top.Append(eol);
+                    return new Edit { Position = nlOpen + 1, Text = top.ToString() };
+                }
+                var one = new StringBuilder();
+                one.Append(eol).Append(closeIndent).Append(CppText.LabelOffset(text)).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
+                return new Edit { Position = braceFirst ? lineStart : close, Text = braceFirst ? one.ToString() : eol + one.ToString() };
+            }
+
+            // private: がない。クラスの末尾に作る。直前に宣言があって空行がなければ、空行を 1 行入れる
+            int insertAt = braceFirst ? lineStart : close;
+            string before = text.Substring(open + 1, insertAt - open - 1);
+            bool hasContent = before.Trim().Length > 0;
+            bool blankBefore = Regex.IsMatch(before, @"\n[ \t]*\r?\n[ \t]*\z");
+            var sb = new StringBuilder();
+            if (!braceFirst) sb.Append(eol);
+            else if (hasContent && !blankBefore) sb.Append(eol);
+            sb.Append(label).Append("private:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
+            return new Edit { Position = insertAt, Text = sb.ToString() };
         }
 
         /// <summary>open の '{' に対応する '}' の位置。コメントと文字列の中は数えない。</summary>

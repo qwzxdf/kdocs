@@ -15,6 +15,8 @@ namespace KCppAssist
             public int NameStart;     // 名前の位置(text の中)
             public int RhsStart;      // 右辺の最初の文字の位置
             public string Rhs;        // 右辺(改行も含めた元の文字。前後の空白は除く)
+            public int StmtStart;     // 文の最初の文字(this-> か名前)の位置
+            public int StmtEnd;       // 文の終わりの次の位置(「;」があればその次)
         }
 
         private static readonly Regex Label = new Regex(@"\G\s*(?:(?:(?:public|private|protected)\s*:(?!:)|default\s*:(?!:)|case\s+(?:[^:;{}]|::)+?:(?!:))\s*)+");
@@ -51,6 +53,8 @@ namespace KCppAssist
                 NameStart = head.Groups[2].Index,
                 RhsStart = rhsStart,
                 Rhs = trimmed,
+                StmtStart = head.Groups[1].Success ? head.Groups[1].Index : head.Groups[2].Index,
+                StmtEnd = end < m.Length && m[end] == ';' ? end + 1 : end,
             };
         }
 

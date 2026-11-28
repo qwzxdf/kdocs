@@ -253,7 +253,7 @@ namespace KCppAssist
 
         public sealed class Item
         {
-            public int Rank;            // -1: 型・using・friend / 0: コンストラクター / 1: デストラクター / 2: コピー / 3: ムーブ / 4: 関数 / 5: メンバー変数
+            public int Rank;            // -1: 型・using・friend・定数(static constexpr) / 0: コンストラクター / 1: デストラクター / 2: コピー / 3: ムーブ / 4: 関数 / 5: メンバー変数
             public string Text;         // 宣言(字下げなし。Raw なら、字下げ済みで複数行でもよい)
             public bool Raw;
         }
@@ -267,6 +267,11 @@ namespace KCppAssist
             s = AttrRx.Replace(s, "").Trim();
             if (Regex.IsMatch(s, @"^(?:using|typedef|enum|class|struct|union|friend|static_assert)\b")) return -1;
             if (Regex.IsMatch(s, @"^template\b") && Regex.IsMatch(s, @"\b(?:using|class|struct)\s+\w+\s*(?:=|\{|;)")) return -1;
+            // 定数(static constexpr / static const の変数)は、型・using と同じ先頭の区画に置く(Google スタイルの並び: 型 → 定数 → コンストラクター → 関数 → メンバー変数)
+            string pre = s;
+            int eq = pre.IndexOfAny(new[] { '=', '{', ';' });
+            if (eq >= 0) pre = pre.Substring(0, eq);
+            if (pre.IndexOf('(') < 0 && Regex.IsMatch(pre, @"\bstatic\b") && Regex.IsMatch(pre, @"\b(?:constexpr|const)\b")) return -1;
             string t = Regex.Replace(s, @"^(?:(?:explicit|virtual|inline|constexpr|consteval|static|\w+_API|__declspec\s*\([^)]*\))\s+)*", "");
             int p = t.IndexOf('(');
             if (p < 0) return 5;
@@ -445,7 +450,8 @@ namespace KCppAssist
                 if (last + 1 < specs.Count) regionEnd = specs[last + 1].Key;
                 return true;
             }
-            if (isStruct && access == "public")
+            // struct は、指定子がなければ public。class は、指定子がなければ private(最初の指定子の前まで)
+            if ((isStruct && access == "public") || (!isStruct && access == "private"))
             {
                 regionStart = open + 1;
                 if (specs.Count > 0) regionEnd = specs[0].Key;

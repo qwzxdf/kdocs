@@ -137,7 +137,14 @@ namespace KCppAssist
                 if (assign != null)
                 {
                     if (!assign.HasThis) list.Add(Action(L.F("ローカル変数として型を付ける ({0})", assign.Name), () => Invoke(p => p.Run(false))));
-                    if (CppScan.EnclosingClassRef(text, caret) != null) list.Add(Action(L.F("メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(true))));
+                    if (CppScan.EnclosingClassRef(text, caret) != null)
+                    {
+                        // メンバーの 4 通り。定数は static constexpr で、値(右辺)を宣言に移して、この代入の文は消す
+                        list.Add(Action(L.F("private メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateMember))));
+                        list.Add(Action(L.F("public メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicMember))));
+                        list.Add(Action(L.F("private 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateConst))));
+                        list.Add(Action(L.F("public 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicConst))));
+                    }
                 }
 
                 // メンバー変数の宣言の行: Getter・Setter を作る(Alt+E)
