@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Visual Studio に依存しない部分(C++ の文字の解析と、編集の計画)。VSIX は、これを参照する。
+       単体テストは tests\run.ps1 が、このフォルダーの .cs を丸ごと csc に渡して動かす。 -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>KCppAssist.Core</AssemblyName>
+    <RootNamespace>KCppAssist</RootNamespace>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);CS0649;NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="KCppAssist.Vsix" />
+  </ItemGroup>
+
+</Project>

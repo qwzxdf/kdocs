@@ -2,7 +2,7 @@
 TSV: 1 行目は列名(ja en zh ko es pt de fr ru)。\\n \\t \\\\ はエスケープ。空の欄は、実行時に英語(なければ日本語)になる。"""
 import io, os
 
-SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'KCppAssist.Vsix')
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'KCppAssist.Core')
 
 def tsv_unescape(s):
     out = []; i = 0

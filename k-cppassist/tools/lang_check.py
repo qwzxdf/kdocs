@@ -9,7 +9,8 @@ lang_check.known.txt にある文は、既知として黙認する。
 import io, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, '..', 'src', 'KCppAssist.Vsix')
+SRC = os.path.join(HERE, '..', 'src')
+TSV = os.path.join(SRC, 'KCppAssist.Core', 'Lang', 'strings.tsv')
 KNOWN = os.path.join(HERE, 'lang_check.known.txt')
 
 LIT = r'"((?:[^"\\]|\\.)*)"'
@@ -42,7 +43,7 @@ def tsv_unescape(s):
 
 def load_keys():
     keys = set()
-    with io.open(os.path.join(SRC, 'Lang', 'strings.tsv'), encoding='utf-8') as f:
+    with io.open(TSV, encoding='utf-8') as f:
         for n, l in enumerate(f.read().split('\n')):
             if n == 0 or not l:
                 continue

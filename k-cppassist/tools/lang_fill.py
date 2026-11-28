@@ -2,7 +2,7 @@
 行番号は lang_dump.py が出す番号(TSV の 2 行目が 0)。{0} などの数が日本語と合わない訳は、受け付けずに止まる。"""
 import io, os, re, sys, runpy
 
-SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'KCppAssist.Vsix', 'Lang', 'strings.tsv')
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'KCppAssist.Core', 'Lang', 'strings.tsv')
 
 def esc(s): return s.replace('\\', '\\\\').replace('\t', '\\t').replace('\n', '\\n').replace('\r', '\\r')
 def unesc(s):

@@ -2,7 +2,7 @@
 TSV の 1 行 = 日本語の原文(実行時の文字そのもの) と各言語の訳。改行は \\n、タブは \\t、バックスラッシュは \\\\ で書く。"""
 import re, io, os, sys
 
-SRC = os.path.join(os.path.dirname(__file__), '..', 'src', 'KCppAssist.Vsix')
+SRC = os.path.join(os.path.dirname(__file__), '..', 'src', 'KCppAssist.Core')
 LANGS = ['ja', 'en', 'zh', 'ko', 'es', 'pt', 'de', 'fr', 'ru']
 
 def unescape_cs(s):
