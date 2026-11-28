@@ -18,7 +18,7 @@ K-CppUltimateAssist はこの往復をキー 1 つにする Visual Studio 用の
 !!! note "名前を変えました"
     0.27.0 で、K-CppAssist から K-CppUltimateAssist に名前を変えました。メニュー・ステータスバー・ダイアログでは、短く「K-Cpp:」と出ます。上書きでインストールすれば、設定はそのまま引き継ぎます（ログは今までどおり `%LOCALAPPDATA%\K-CppAssist\vsix.log` です）。
 
-<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.34.2.vsix" download>K-CppUltimateAssist 0.34.2 をダウンロード（.vsix、約 793 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppUltimateAssist-0.35.0.vsix" download>K-CppUltimateAssist 0.35.0 をダウンロード（.vsix、約 879 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しいバージョンに更新するときも同じ手順で上書きできます。アンインストールは Visual Studio の「拡張機能の管理」から行います。
 
@@ -880,6 +880,7 @@ vcpkg が見つからないと、窓に入れ方の案内が出ます。
 
 | バージョン | 内容 |
 | --- | --- |
+| 0.35.0 | 内部の整理。純粋なテキスト処理を `KCppAssist.Core` プロジェクトに分けた（VS なしでテストできる部分）。電球の提供元・コマンドの登録・長い関数（Diagnoser・CtorGen・SwitchGen・PimplGen・BuildLogParser）を小さな関数に分け、クラス本体のアクセス指定の走査を 1 か所にまとめた。握りつぶしていた例外を、出力ウィンドウのログに残すようにした。リリースの手順は `tools/release.ps1` にまとめた。機能は変わらない |
 | 0.34.2 | 定数（`static constexpr`）を置く位置を、オプションで選べるようにした（型・using の直後 / 区画の一番上 / メンバー変数の直前） |
 | 0.34.1 | 未定義の変数の電球に、宣言のしかたを足した。ローカル変数のほかに、private メンバー変数・public メンバー変数・private 定数・public 定数（`static constexpr`。値は宣言へ移して、代入の行は消す）から選べる。メンバーを足す位置は、型 → 定数 → コンストラクター → 関数 → メンバー変数の並びを必ず守り、空行も、前後の宣言と種類が違うときだけ入れる |
 | 0.34.0 | 電球（Alt+Enter）の追加と直し。「実装を cpp に移す」（関数名で押す。cpp がなければ作り、`namespace {}` の中に書く）、クラス名で「コンストラクター・デストラクターを cpp に移す」（すでにあるものを移す）と「struct にする」（デフォルトのコンストラクター・デストラクターを消す）。生成するコードの並びを、コンストラクター → デストラクター → コピー → ムーブ → 関数 → メンバー変数にそろえた（public: の中にメンバー変数があっても、関数が変数のあとに入らない。override もコンストラクターより前に入らない）。cpp に定義を作るとき、cpp に namespace の枠がなければ、末尾に枠を作って中に書く（`Prest::Foo::Bar()` と修飾しない） |

@@ -1,4 +1,4 @@
-# K-CppUltimateAssist release script: bump version in every place, test, build, publish to docs, commit, push, install.
+﻿# K-CppUltimateAssist release script: bump version in every place, test, build, publish to docs, commit, push, install.
 #
 #   powershell -File k-cppassist\tools\release.ps1 -Version 0.35.0 -NoteFile note.txt
 #
