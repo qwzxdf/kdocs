@@ -81,6 +81,39 @@ namespace KCppAssist
             return result;
         }
 
+        /// <summary>電球の項目を決めるのに使う、カーソルの位置の情報。提供元(Offer...)が読む。</summary>
+        private sealed class OfferContext
+        {
+            public OptionsPage Options;
+            public string Path;
+            public string Text;
+            public int Caret;
+            public string LineText;
+            public int LineStart, LineEnd;
+            public List<FunctionScan.Sig> Sigs;
+            public FunctionScan.Sig Sig;          // カーソルの位置の関数(なければ null)
+            public bool Header;
+            public List<ISuggestedAction> List;
+
+            // 「メンバーからコンストラクターを作る」は、書き換えの一覧のコンストラクターの項目のすぐ下に出す
+            public ISuggestedAction CtorAction;
+            public int CtorAt = -1;
+        }
+
+        // 同じ文字(スナップショット)なら、読み込んだ文字と、関数の一覧を使い回す。キャレットを動かすたびに、ファイル全体を読み直さない
+        private ITextSnapshot scanSnapshot;
+        private string scanText;
+        private List<FunctionScan.Sig> scanSigs;
+
+        private void TextAndSigs(ITextSnapshot snapshot, out string text, out List<FunctionScan.Sig> sigs)
+        {
+            lock (cacheGate)
+                if (scanSnapshot == snapshot) { text = scanText; sigs = scanSigs; return; }
+            text = snapshot.GetText();
+            sigs = FunctionScan.Scan(text);
+            lock (cacheGate) { scanSnapshot = snapshot; scanText = text; scanSigs = sigs; }
+        }
+
         private List<ISuggestedAction> CollectCore(SnapshotSpan range)
         {
             var list = new List<ISuggestedAction>();
@@ -90,127 +123,173 @@ namespace KCppAssist
                 if (opt == null || !opt.ShowQuickFix) return list;
                 ITextDocument doc;
                 if (!provider.Documents.TryGetTextDocument(buffer, out doc)) return list;
-                string path = doc.FilePath;
-                string text = range.Snapshot.GetText();
-                int caret = range.Start.Position;
-                var line = range.Snapshot.GetLineFromPosition(caret);
-                var sigs = FunctionScan.Scan(text);
-                var sig = sigs.FirstOrDefault(s => (caret >= s.NameStart && caret <= s.Close + 1) || (s.Open >= line.Start.Position && s.Open <= line.End.Position));
-                bool header = IncludeService.IsHeader(path);
+                var c = new OfferContext { Options = opt, Path = doc.FilePath, Caret = range.Start.Position, List = list };
+                List<FunctionScan.Sig> sigs;
+                TextAndSigs(range.Snapshot, out c.Text, out sigs);
+                c.Sigs = sigs;
+                var line = range.Snapshot.GetLineFromPosition(c.Caret);
+                c.LineText = line.GetText();
+                c.LineStart = line.Start.Position;
+                c.LineEnd = line.End.Position;
+                int caret = c.Caret;
+                c.Sig = sigs.FirstOrDefault(s => (caret >= s.NameStart && caret <= s.Close + 1) || (s.Open >= c.LineStart && s.Open <= c.LineEnd));
+                c.Header = IncludeService.IsHeader(c.Path);
 
-                if (sig != null && !sig.HasBody && header)
-                {
-                    // 同じ名前の cpp に定義がなければ「定義を作る」。あれば、引数が違うときだけ「引数を合わせる」
-                    var def = Counterparts(path, sig, text, true);
-                    if (def == Counterpart.None && !sig.Name.StartsWith("~")) list.Add(Action("宣言から cpp に定義を作る", () => Invoke(p => p.RunCreate())));
-                    else if (def == Counterpart.Different) list.Add(Action("cpp の定義の引数を、この宣言に合わせる", () => Invoke(p => p.RunSync())));
-                }
-                else if (sig != null && sig.HasBody && !sig.InClass && sig.Class != null && !header)
-                {
-                    var decl = Counterparts(path, sig, text, false);
-                    if (decl == Counterpart.None) list.Add(Action("定義からヘッダーに宣言を作る", () => Invoke(p => p.RunCreate())));
-                    else if (decl == Counterpart.Different) list.Add(Action("ヘッダーの宣言の引数を、この定義に合わせる", () => Invoke(p => p.RunSync())));
-                }
-
-                // ヘッダーの #include "..." の行: 前方宣言にする
-                if (header && System.Text.RegularExpressions.Regex.IsMatch(line.GetText(), @"^\s*#\s*include\s*""")) list.Add(Action("#include を前方宣言にして、cpp に #include を移す", () => Invoke(p => p.RunForward())));
-
-                // 本体のある関数: ヘッダーなら cpp へ、cpp の Class::Func ならヘッダーへ、本体を移す
-                if (sig != null && sig.HasBody && !sig.InTemplate)
-                {
-                    if (header && sig.InClass && sig.Class != null) list.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
-                    else if (header && !sig.InClass && sig.Class == null) list.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
-                    else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("実装をヘッダーに移す", () => Invoke(p => p.RunMove())));
-                }
-
-                // class / struct の行: override・コンストラクターを作る
-                // 「メンバーからコンストラクターを作る」は、「コンストラクター・デストラクターを作る」の 3 つのすぐ下に出す(下の書き換えの一覧で入れる)
-                string lineText = line.GetText();
-                ISuggestedAction ctorAction = null;
-                int lastCtor = -1;          // コンストラクター・デストラクターの項目の最後の位置
-                int ctorAt = -1;
-                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$")) { list.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride()))); ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
-                else if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:class|struct)\s+\w+[^;]*$") && !lineText.Contains("enum")) { ctorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor())); ctorAt = list.Count; }
-
-                // 宣言していない変数への代入: 型を付ける。メンバー関数の中なら、メンバー変数にもできる
-                var assign = AssignScan.Find(text, caret);
-                if (assign != null)
-                {
-                    if (!assign.HasThis) list.Add(Action(L.F("ローカル変数として型を付ける ({0})", assign.Name), () => Invoke(p => p.Run(false))));
-                    if (CppScan.EnclosingClassRef(text, caret) != null)
-                    {
-                        // メンバーの 4 通り。定数は static constexpr で、値(右辺)を宣言に移して、この代入の文は消す
-                        list.Add(Action(L.F("private メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateMember))));
-                        list.Add(Action(L.F("public メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicMember))));
-                        list.Add(Action(L.F("private 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateConst))));
-                        list.Add(Action(L.F("public 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicConst))));
-                    }
-                }
-
-                // メンバー変数の宣言の行: Getter・Setter を作る(Alt+E)
-                if (header && !lineText.Contains("(") && MemberScan.At(text, caret) != null
-                    && System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:(?:static|mutable|const|inline)\s+)*[A-Za-z_][\w:<>,\s\*&]*?\s+[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;\s*(?://.*)?$")
-                    && !System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*(?:return|using|typedef|friend|delete|goto)"))
-                {
-                    list.Add(Action("Getter・Setter を作る", () => Invoke(p => p.RunAccessor(true, true))));
-                    list.Add(Action("Getter を作る", () => Invoke(p => p.RunAccessor(true, false))));
-                    list.Add(Action("Setter を作る", () => Invoke(p => p.RunAccessor(false, true))));
-                }
-
-                // メンバー変数の行で、型がポインター・参照・スマート ポインターの中身なら、その型の #include を前方宣言にする。
-                // その名前のヘッダーを #include していて、まだ前方宣言していないときだけ出す
-                if (header && !lineText.Contains("(") && MemberScan.At(text, caret) != null)
-                {
-                    var fm = System.Text.RegularExpressions.Regex.Match(lineText,
-                        @"(?:(?:unique_ptr|shared_ptr|weak_ptr|ComPtr|observer_ptr)\s*<\s*(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*>|(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*[*&])\s*[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;");
-                    string ft = fm.Success ? (fm.Groups[1].Success ? fm.Groups[1].Value : fm.Groups[2].Value) : null;
-                    if (ft != null && char.IsUpper(ft[0]) && !CppText.IsForwardDeclared(CppText.Mask(text), ft)
-                        && System.Text.RegularExpressions.Regex.IsMatch(text, @"#\s*include\s*[<""](?:[^"">]*/)?" + System.Text.RegularExpressions.Regex.Escape(ft) + @"\.(?:h|hpp|hh|hxx)["">]"))
-                    {
-                        string name = ft;
-                        list.Add(Action(L.F("{0} を前方宣言にする (#include を cpp に移す)", name), () => Invoke(p => p.RunForward(name))));
-                    }
-                }
-
-                // 足りない #include: カーソルの名前のヘッダーを足す(Alt+F)
-                var incWord = IncludeWordAt(text, caret);
-                if (incWord != null && header && CppText.IsForwardDeclared(CppText.Mask(text), incWord)) incWord = null;   // 前方宣言で済ませている
-                if (incWord != null && opt.IncludeMode != IncludeMode.Off)
-                {
-                    string stdh = StdHeaders.Lookup(incWord);
-                    bool missing = false;
-                    if (stdh != null) missing = !text.Contains("#include " + stdh) && !System.Text.RegularExpressions.Regex.IsMatch(text, @"#\s*include\s*" + System.Text.RegularExpressions.Regex.Escape(stdh));
-                    else
-                    {
-                        var files = IncludeService.Index.Lookup(incWord.Substring(incWord.LastIndexOf(':') + 1)).Where(f => !string.Equals(f, path, StringComparison.OrdinalIgnoreCase)).ToList();
-                        missing = files.Count > 0 && !files.Any(f => text.Contains(Path.GetFileName(f)));
-                    }
-                    if (missing) list.Add(Action(L.F("#include を足す ({0})", incWord), () => Invoke(p => p.RunInclude())));
-                }
-
-                // #include の行: このファイルの #include を整理する・使っていないものを消す
-                if (System.Text.RegularExpressions.Regex.IsMatch(lineText, @"^\s*#\s*include"))
-                {
-                    list.Add(Action("このファイルの #include を整理する", () => Invoke(p => p.RunTidy(false, true))));
-                    list.Add(Action("このファイルの使っていない #include を消す", () => Invoke(p => p.RunTidy(true, true))));
-                }
-
-                // 書き換え・生成(NULL → nullptr、if の反転、formatter、入力レイアウト…)
-                string eol = CppText.Eol(text);
-                foreach (var o in KCppAssistPackage.OffersAt(path, text, caret, eol))
-                {
-                    string id = o.Id;
-                    list.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
-                    if (id.StartsWith("ctordtor", StringComparison.Ordinal)) lastCtor = list.Count - 1;
-                }
-                if (ctorAction != null)
-                {
-                    // .cpp の項目がない(cpp のファイルなど)ときは、コンストラクターの 2 通りのすぐ後ろ
-                    list.Insert(lastCtor >= 0 ? lastCtor + 1 : Math.Min(ctorAt, list.Count), ctorAction);
-                }
+                // 並べる順は、ここに書いた順。項目を足すときは、提供元の関数を作って、ここに足す
+                OfferDeclarationDefinition(c);
+                OfferForwardFromInclude(c);
+                OfferMoveBody(c);
+                OfferClassLine(c);
+                OfferDeclareVariable(c);
+                OfferAccessors(c);
+                OfferForwardMember(c);
+                OfferMissingInclude(c);
+                OfferIncludeTidy(c);
+                OfferRefactors(c);
             }
             catch (Exception ex) { KCppAssistPackage.Log("quickfix collect failed: " + ex.Message); }
             return list;
+        }
+
+        private static readonly System.Text.RegularExpressions.Regex IncludeQuoteLine = new System.Text.RegularExpressions.Regex(@"^\s*#\s*include\s*""");
+        private static readonly System.Text.RegularExpressions.Regex ClassDerivedLine = new System.Text.RegularExpressions.Regex(@"^\s*(?:class|struct)\s+\w+[^;:]*:[^;]*$");
+        private static readonly System.Text.RegularExpressions.Regex ClassLine = new System.Text.RegularExpressions.Regex(@"^\s*(?:class|struct)\s+\w+[^;]*$");
+        private static readonly System.Text.RegularExpressions.Regex MemberDeclLine = new System.Text.RegularExpressions.Regex(@"^\s*(?:(?:static|mutable|const|inline)\s+)*[A-Za-z_][\w:<>,\s\*&]*?\s+[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;\s*(?://.*)?$");
+        private static readonly System.Text.RegularExpressions.Regex NotMemberLine = new System.Text.RegularExpressions.Regex(@"^\s*(?:return|using|typedef|friend|delete|goto)");
+        private static readonly System.Text.RegularExpressions.Regex ForwardableMember = new System.Text.RegularExpressions.Regex(
+            @"(?:(?:unique_ptr|shared_ptr|weak_ptr|ComPtr|observer_ptr)\s*<\s*(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*>|(?:const\s+)?(?:[A-Za-z_]\w*::)*([A-Za-z_]\w*)\s*[*&])\s*[A-Za-z_]\w*\s*(?:=[^;]*|\{[^}]*\})?;");
+
+        /// <summary>ヘッダーの関数の宣言 ⇄ cpp の定義: 相手がなければ作る。あれば、引数が違うときだけ合わせる。</summary>
+        private void OfferDeclarationDefinition(OfferContext c)
+        {
+            var sig = c.Sig;
+            if (sig != null && !sig.HasBody && c.Header)
+            {
+                // 同じ名前の cpp に定義がなければ「定義を作る」。あれば、引数が違うときだけ「引数を合わせる」
+                var def = Counterparts(c.Path, sig, c.Text, true);
+                if (def == Counterpart.None && !sig.Name.StartsWith("~")) c.List.Add(Action("宣言から cpp に定義を作る", () => Invoke(p => p.RunCreate())));
+                else if (def == Counterpart.Different) c.List.Add(Action("cpp の定義の引数を、この宣言に合わせる", () => Invoke(p => p.RunSync())));
+            }
+            else if (sig != null && sig.HasBody && !sig.InClass && sig.Class != null && !c.Header)
+            {
+                var decl = Counterparts(c.Path, sig, c.Text, false);
+                if (decl == Counterpart.None) c.List.Add(Action("定義からヘッダーに宣言を作る", () => Invoke(p => p.RunCreate())));
+                else if (decl == Counterpart.Different) c.List.Add(Action("ヘッダーの宣言の引数を、この定義に合わせる", () => Invoke(p => p.RunSync())));
+            }
+        }
+
+        /// <summary>ヘッダーの #include "..." の行: 前方宣言にする。</summary>
+        private void OfferForwardFromInclude(OfferContext c)
+        {
+            if (c.Header && IncludeQuoteLine.IsMatch(c.LineText)) c.List.Add(Action("#include を前方宣言にして、cpp に #include を移す", () => Invoke(p => p.RunForward())));
+        }
+
+        /// <summary>本体のある関数: ヘッダーなら cpp へ、cpp の Class::Func ならヘッダーへ、本体を移す。</summary>
+        private void OfferMoveBody(OfferContext c)
+        {
+            var sig = c.Sig;
+            if (sig == null || !sig.HasBody || sig.InTemplate) return;
+            if (c.Header && sig.InClass && sig.Class != null) c.List.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
+            else if (c.Header && !sig.InClass && sig.Class == null) c.List.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
+            else if (!c.Header && !sig.InClass && sig.Class != null) c.List.Add(Action("実装をヘッダーに移す", () => Invoke(p => p.RunMove())));
+        }
+
+        /// <summary>class / struct の行: override・コンストラクターを作る。コンストラクターの項目は、あとで書き換えの一覧の位置に差し込む。</summary>
+        private void OfferClassLine(OfferContext c)
+        {
+            if (ClassDerivedLine.IsMatch(c.LineText))
+            {
+                c.List.Add(Action("基底クラスの仮想関数を override する", () => Invoke(p => p.RunOverride())));
+                c.CtorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()));
+                c.CtorAt = c.List.Count;
+            }
+            else if (ClassLine.IsMatch(c.LineText) && !c.LineText.Contains("enum"))
+            {
+                c.CtorAction = Action("メンバーからコンストラクターを作る", () => Invoke(p => p.RunCtor()));
+                c.CtorAt = c.List.Count;
+            }
+        }
+
+        /// <summary>宣言していない変数への代入: ローカル変数にするか、メンバー変数・定数としてヘッダーに宣言する。</summary>
+        private void OfferDeclareVariable(OfferContext c)
+        {
+            var assign = AssignScan.Find(c.Text, c.Caret);
+            if (assign == null) return;
+            if (!assign.HasThis) c.List.Add(Action(L.F("ローカル変数として型を付ける ({0})", assign.Name), () => Invoke(p => p.Run(false))));
+            if (CppScan.EnclosingClassRef(c.Text, c.Caret) == null) return;
+            // メンバーの 4 通り。定数は static constexpr で、値(右辺)を宣言に移して、この代入の文は消す
+            c.List.Add(Action(L.F("private メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateMember))));
+            c.List.Add(Action(L.F("public メンバー変数としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicMember))));
+            c.List.Add(Action(L.F("private 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PrivateConst))));
+            c.List.Add(Action(L.F("public 定数 (static constexpr) としてヘッダーに宣言する ({0})", assign.Name), () => Invoke(p => p.Run(KCppAssistPackage.DeclKind.PublicConst))));
+        }
+
+        /// <summary>メンバー変数の宣言の行: Getter・Setter を作る(Alt+E)。</summary>
+        private void OfferAccessors(OfferContext c)
+        {
+            if (!c.Header || c.LineText.Contains("(") || MemberScan.At(c.Text, c.Caret) == null) return;
+            if (!MemberDeclLine.IsMatch(c.LineText) || NotMemberLine.IsMatch(c.LineText)) return;
+            c.List.Add(Action("Getter・Setter を作る", () => Invoke(p => p.RunAccessor(true, true))));
+            c.List.Add(Action("Getter を作る", () => Invoke(p => p.RunAccessor(true, false))));
+            c.List.Add(Action("Setter を作る", () => Invoke(p => p.RunAccessor(false, true))));
+        }
+
+        /// <summary>
+        /// メンバー変数の行で、型がポインター・参照・スマート ポインターの中身なら、その型の #include を前方宣言にする。
+        /// その名前のヘッダーを #include していて、まだ前方宣言していないときだけ出す。
+        /// </summary>
+        private void OfferForwardMember(OfferContext c)
+        {
+            if (!c.Header || c.LineText.Contains("(") || MemberScan.At(c.Text, c.Caret) == null) return;
+            var fm = ForwardableMember.Match(c.LineText);
+            string ft = fm.Success ? (fm.Groups[1].Success ? fm.Groups[1].Value : fm.Groups[2].Value) : null;
+            if (ft == null || !char.IsUpper(ft[0]) || CppText.IsForwardDeclared(CppText.Mask(c.Text), ft)) return;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(c.Text, @"#\s*include\s*[<""](?:[^"">]*/)?" + System.Text.RegularExpressions.Regex.Escape(ft) + @"\.(?:h|hpp|hh|hxx)["">]")) return;
+            string name = ft;
+            c.List.Add(Action(L.F("{0} を前方宣言にする (#include を cpp に移す)", name), () => Invoke(p => p.RunForward(name))));
+        }
+
+        /// <summary>足りない #include: カーソルの名前のヘッダーを足す(Alt+I)。</summary>
+        private void OfferMissingInclude(OfferContext c)
+        {
+            var incWord = IncludeWordAt(c.Text, c.Caret);
+            if (incWord != null && c.Header && CppText.IsForwardDeclared(CppText.Mask(c.Text), incWord)) incWord = null;   // 前方宣言で済ませている
+            if (incWord == null || c.Options.IncludeMode == IncludeMode.Off) return;
+            string stdh = StdHeaders.Lookup(incWord);
+            bool missing;
+            if (stdh != null) missing = !c.Text.Contains("#include " + stdh) && !System.Text.RegularExpressions.Regex.IsMatch(c.Text, @"#\s*include\s*" + System.Text.RegularExpressions.Regex.Escape(stdh));
+            else
+            {
+                var files = IncludeService.Index.Lookup(incWord.Substring(incWord.LastIndexOf(':') + 1)).Where(f => !string.Equals(f, c.Path, StringComparison.OrdinalIgnoreCase)).ToList();
+                missing = files.Count > 0 && !files.Any(f => c.Text.Contains(Path.GetFileName(f)));
+            }
+            if (missing) c.List.Add(Action(L.F("#include を足す ({0})", incWord), () => Invoke(p => p.RunInclude())));
+        }
+
+        /// <summary>#include の行: このファイルの #include を整理する・使っていないものを消す。</summary>
+        private void OfferIncludeTidy(OfferContext c)
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(c.LineText, @"^\s*#\s*include")) return;
+            c.List.Add(Action("このファイルの #include を整理する", () => Invoke(p => p.RunTidy(false, true))));
+            c.List.Add(Action("このファイルの使っていない #include を消す", () => Invoke(p => p.RunTidy(true, true))));
+        }
+
+        /// <summary>書き換え・生成(NULL → nullptr、if の反転、formatter、入力レイアウト…)。最後に、コンストラクターの項目を差し込む。</summary>
+        private void OfferRefactors(OfferContext c)
+        {
+            string eol = CppText.Eol(c.Text);
+            int lastCtor = -1;      // コンストラクター・デストラクターの項目の最後の位置
+            foreach (var o in KCppAssistPackage.OffersAt(c.Path, c.Text, c.Caret, eol))
+            {
+                string id = o.Id;
+                c.List.Add(Action(o.Title, () => Invoke(p => p.RunRefactor(id))));
+                if (id.StartsWith("ctordtor", StringComparison.Ordinal)) lastCtor = c.List.Count - 1;
+            }
+            if (c.CtorAction != null)
+            {
+                // .cpp の項目がない(cpp のファイルなど)ときは、コンストラクターの 2 通りのすぐ後ろ
+                c.List.Insert(lastCtor >= 0 ? lastCtor + 1 : Math.Min(c.CtorAt, c.List.Count), c.CtorAction);
+            }
         }
 
         /// <summary>カーソルの位置の識別子(std::vector のような修飾つき)。コメント・文字列・#include の行・予約語は除く。なければ null。</summary>
