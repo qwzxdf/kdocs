@@ -246,12 +246,28 @@ namespace KCppAssist.ErrorLog
                 .FirstOrDefault();
         }
 
+        /// <summary>
+        /// 未解決のシンボル 1 つを、原因の組に振り分ける。原因ごとの判定は Cause... の関数に分けてあり、ここは、上から順に当てはまるものを探す。
+        /// 順番に意味がある(たとえば、起動関数の判定は、ほかのどれよりも先)。
+        /// </summary>
         private static CauseGroup Assign(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
         {
-            SymInfo info = s.Info;
-            ushort want = LibScanner.MachineOf(ctx.Platform);
+            return CauseEntry(s, ctx, groups, order)
+                ?? CauseLibFound(s, ctx, groups, order)
+                ?? CauseCrt(s, ctx, groups, order)
+                ?? CauseWin32(s, ctx, groups, order)
+                ?? CauseVTable(s, ctx, groups, order)
+                ?? CauseVariable(s, ctx, groups, order)
+                ?? CauseDefinedInSource(s, ctx, groups, order)
+                ?? CauseDllImport(s, ctx, groups, order)
+                ?? CauseTemplate(s, ctx, groups, order)
+                ?? CauseMemberFunction(s, ctx, groups, order)
+                ?? CauseFunction(s, ctx, groups, order);
+        }
 
-            // 1. 起動関数
+        /// <summary>1. 起動関数(当てはまらなければ null)</summary>
+        private static CauseGroup CauseEntry(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
             if (IsEntry(s))
             {
                 string core = CoreName(s.Mangled);
@@ -266,7 +282,15 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 2. .lib が見つかったとき
+            return null;
+        }
+
+        /// <summary>2. .lib が見つかったとき(当てはまらなければ null)</summary>
+        private static CauseGroup CauseLibFound(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+            ushort want = LibScanner.MachineOf(ctx.Platform);
+
             if (s.Libs != null && s.Libs.Count > 0)
             {
                 LibHit exact = BestHit(s, ctx, true, null);
@@ -321,7 +345,12 @@ namespace KCppAssist.ErrorLog
                 }
             }
 
-            // 2.5 C ランタイムの内部の関数(ランタイムがリンクされていない)
+            return null;
+        }
+
+        /// <summary>2.5. C ランタイムの内部の関数(ランタイムがリンクされていない)(当てはまらなければ null)</summary>
+        private static CauseGroup CauseCrt(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
             if (CrtNames.Contains(CoreName(s.Mangled)))
             {
                 return Get(groups, order, "crt", g =>
@@ -335,7 +364,12 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 3. Windows / DirectX
+            return null;
+        }
+
+        /// <summary>3. Windows / DirectX(当てはまらなければ null)</summary>
+        private static CauseGroup CauseWin32(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
             if (s.Win32Lib != null)
             {
                 string lib = s.Win32Lib;
@@ -348,7 +382,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 4. vtable
+            return null;
+        }
+
+        /// <summary>4. vtable(当てはまらなければ null)</summary>
+        private static CauseGroup CauseVTable(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (info.Kind == SymKind.VTable || s.Mangled.StartsWith("??_7", StringComparison.Ordinal))
             {
                 string cls = info.Scope.Length > 0 ? info.Scope : info.Pretty;
@@ -362,7 +403,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 5. static メンバー変数・グローバル変数
+            return null;
+        }
+
+        /// <summary>5. static メンバー変数・グローバル変数(当てはまらなければ null)</summary>
+        private static CauseGroup CauseVariable(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (!info.IsFunction && (info.Kind == SymKind.StaticVariable || info.Kind == SymKind.Variable))
             {
                 string cls = info.Class.Length > 0 ? info.Class : L.T("(グローバル)");
@@ -377,7 +425,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 6. 定義がソースにある
+            return null;
+        }
+
+        /// <summary>6. 定義がソースにある(当てはまらなければ null)</summary>
+        private static CauseGroup CauseDefinedInSource(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (s.Defs != null && s.Defs.Count > 0)
             {
                 return Get(groups, order, "def-found:" + (info.Import ? "imp:" : "") + (info.Class.Length > 0 ? info.Class : info.Namespace), g =>
@@ -393,7 +448,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 7. dllimport で、実体がどこにも見つからない
+            return null;
+        }
+
+        /// <summary>7. dllimport で、実体がどこにも見つからない(当てはまらなければ null)</summary>
+        private static CauseGroup CauseDllImport(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (info.Import)
             {
                 string ns = info.Namespace.Length > 0 ? FirstScope(info.Namespace) : "";
@@ -408,7 +470,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 8. テンプレート
+            return null;
+        }
+
+        /// <summary>8. テンプレート(当てはまらなければ null)</summary>
+        private static CauseGroup CauseTemplate(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (info.Kind == SymKind.TemplateFunction || (info.Name.IndexOf('<') >= 0 && info.IsFunction))
             {
                 return Get(groups, order, "template", g =>
@@ -420,7 +489,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 9. メンバー関数
+            return null;
+        }
+
+        /// <summary>9. メンバー関数(当てはまらなければ null)</summary>
+        private static CauseGroup CauseMemberFunction(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             if (info.IsMember && info.Class.Length > 0)
             {
                 string cls = info.Class;
@@ -435,7 +511,14 @@ namespace KCppAssist.ErrorLog
                 });
             }
 
-            // 10. 関数 / C の名前 / そのほか
+            return null;
+        }
+
+        /// <summary>10. 関数 / C の名前 / そのほか(当てはまらなければ null)</summary>
+        private static CauseGroup CauseFunction(UnresolvedSym s, AnalysisContext ctx, Dictionary<string, CauseGroup> groups, List<CauseGroup> order)
+        {
+            SymInfo info = s.Info;
+
             string fnNs = info.Namespace.Length > 0 ? FirstScope(info.Namespace) : "";
             return Get(groups, order, "func:" + fnNs, g =>
             {
