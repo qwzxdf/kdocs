@@ -45,12 +45,41 @@ namespace KCppAssist
             if (cls == null) { why = L.T("カーソルが、class / struct の中にありません"); return null; }
             if (MemberScan.LineStart(text, cls.Open) == MemberScan.LineStart(text, cls.Close)) { why = L.T("クラスが 1 行に書かれています。複数行に広げてください"); return null; }
 
-            var members = new List<Member>();
-            var ctorCounts = new List<int>();
+            var scan = ScanMembers(text, m, cls);
+            if (scan.RefuseReason != null) { why = scan.RefuseReason; return null; }
+            var members = scan.Members;
+            var ctorCounts = scan.CtorCounts;
+            if (members.Count == 0) { why = L.T("データ メンバーが見つかりません"); return null; }
+
+            NameParams(members);
+
+            if (ctorCounts.Contains(members.Count) && !(members.Count == 1 && !ctorCounts.Contains(1)))
+            {
+                why = L.F("引数が {0} 個のコンストラクターが、すでにあります", members.Count);
+                return null;
+            }
+
+            return PlaceConstructor(text, cls, members, scan, eol);
+        }
+
+        /// <summary>クラス本体を読んで見つけたもの(データ メンバー・既存のコンストラクターの引数の数・最初のラベルや文の位置)。</summary>
+        private sealed class ClassScan
+        {
+            public List<Member> Members = new List<Member>();
+            public List<int> CtorCounts = new List<int>();
+            public int FirstPublicLabelEnd = -1, FirstLabelStart = -1, FirstStmt = -1;
+            public string RefuseReason;       // 作れない理由(1 行に複数のメンバーを宣言している、など)
+        }
+
+        /// <summary>クラス本体を 1 文ずつ読んで、データ メンバーを集める。関数・型・static などは飛ばす。</summary>
+        private static ClassScan ScanMembers(string text, string m, Scopes.Scope cls)
+        {
+            var scan = new ClassScan();
+            var members = scan.Members;
+            var ctorCounts = scan.CtorCounts;
             int firstPublicLabelEnd = -1, firstLabelStart = -1, firstStmt = -1;
             bool refused = false;
             string refuseReason = null;
-
             int st = cls.Open + 1;
             for (int i = cls.Open + 1; i < cls.Close; i++)
             {
@@ -125,10 +154,16 @@ namespace KCppAssist
                 if (type.Length == 0 || Skip.IsMatch(type) || Regex.IsMatch(type, @"^(?:public|private|protected)\b")) continue;
                 members.Add(new Member { Type = type, Name = name });
             }
-            if (refused) { why = refuseReason; return null; }
-            if (members.Count == 0) { why = L.T("データ メンバーが見つかりません"); return null; }
+            scan.FirstPublicLabelEnd = firstPublicLabelEnd;
+            scan.FirstLabelStart = firstLabelStart;
+            scan.FirstStmt = firstStmt;
+            if (refused) scan.RefuseReason = refuseReason;
+            return scan;
+        }
 
-            // ---- 引数の名前と型 ----
+        /// <summary>メンバーの名前から、コンストラクターの引数の名前を決める(m_ と末尾の _ を外す。予約語や重複は避ける)。型も決める。</summary>
+        private static void NameParams(List<Member> members)
+        {
             var used = new HashSet<string>(StringComparer.Ordinal);
             foreach (var mem in members)
             {
@@ -143,12 +178,12 @@ namespace KCppAssist
                 ParamTypeOf(mem);
             }
 
-            if (ctorCounts.Contains(members.Count) && !(members.Count == 1 && !ctorCounts.Contains(1)))
-            {
-                why = L.F("引数が {0} 個のコンストラクターが、すでにあります", members.Count);
-                return null;
-            }
+        }
 
+        /// <summary>コンストラクターを、どこに、どんな書き出しで入れるかを決める(public: の下か、なければ作る)。</summary>
+        private static Plan PlaceConstructor(string text, Scopes.Scope cls, List<Member> members, ClassScan scan, string eol)
+        {
+            int firstPublicLabelEnd = scan.FirstPublicLabelEnd, firstLabelStart = scan.FirstLabelStart, firstStmt = scan.FirstStmt;
             // ---- 字下げ ----
             string classIndent = LeadingSpace(text, cls.Open);
             if (text.Substring(MemberScan.LineStart(text, cls.Open), cls.Open - MemberScan.LineStart(text, cls.Open)).Trim().Length == 0)

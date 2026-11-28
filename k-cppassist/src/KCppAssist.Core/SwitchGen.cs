@@ -134,8 +134,48 @@ namespace KCppAssist
             Sw sw = FindSwitch(text, m, caret);
             if (sw == null) { why = L.T("カーソルが、switch の中にありません"); return null; }
 
-            // ---- いまある case と default(switch 直下だけ。入れ子の switch は見ない) ----
-            var labels = new List<string>();
+            var found = ReadLabels(text, m, sw);
+            var labels = found.Labels;
+            var labelNames = found.LabelNames;
+            string prefixStyle = found.PrefixStyle;
+            int firstCase = found.FirstCase, defaultPos = found.DefaultPos;
+
+            EnumDef best = ChooseEnum(m, sw, enums, labels);
+            if (best == null) { why = L.T("enum の型を決められません。case を 1 つ書くか、変数の宣言が見える場所で試してください"); return null; }
+
+            // ---- 足りない enumerator ----
+            foreach (string l in labelNames.ToList())
+            {
+                string target;
+                if (best.Aliases.TryGetValue(l, out target)) labelNames.Add(target);       // case First: は case Up: と同じ
+            }
+            var values = best.Values.ToList();
+            if (values.Count > 1 && Sentinel.IsMatch(values[values.Count - 1])) values.RemoveAt(values.Count - 1);
+            var missing = values.Where(v => !labelNames.Contains(v)).ToList();
+            bool needDefault = addDefault && defaultPos < 0;
+            if (missing.Count == 0 && !needDefault) { why = L.F("足りない case はありません ({0})", best.Name); return null; }
+
+            // 足す文字(case の並びと default)を作る
+            string textBody = BuildCases(text, sw, best, missing, needDefault, prefixStyle, firstCase, eol);
+
+            return PlaceCases(text, m, sw, best, missing, needDefault, firstCase, defaultPos, textBody, eol);
+        }
+
+        /// <summary>switch の直下にある case のラベルと default の位置。入れ子の switch は見ない。</summary>
+        private sealed class FoundLabels
+        {
+            public List<string> Labels = new List<string>();
+            public HashSet<string> LabelNames = new HashSet<string>(StringComparer.Ordinal);
+            public string PrefixStyle;        // いまの case の、名前の前の修飾(「State::」など)
+            public int FirstCase = -1, DefaultPos = -1;
+        }
+
+        private static FoundLabels ReadLabels(string text, string m, Sw sw)
+        {
+            var r = new FoundLabels();
+            var labels = r.Labels;
+            var labelNames = r.LabelNames;
+            string prefixStyle = null;
             int firstCase = -1, defaultPos = -1;
             int depth = 0;
             for (int i = sw.Open + 1; i < sw.Close; i++)
@@ -163,8 +203,6 @@ namespace KCppAssist
                     }
                 }
             }
-            var labelNames = new HashSet<string>(StringComparer.Ordinal);
-            string prefixStyle = null;
             foreach (string l in labels)
             {
                 Match nm = Regex.Match(l, @"([A-Za-z_]\w*)\s*$");
@@ -173,7 +211,15 @@ namespace KCppAssist
                 if (prefixStyle == null) prefixStyle = Regex.Replace(l.Substring(0, nm.Index), @"\s+", "");
             }
 
-            // ---- enum の型 ----
+            r.PrefixStyle = prefixStyle;
+            r.FirstCase = firstCase;
+            r.DefaultPos = defaultPos;
+            return r;
+        }
+
+        /// <summary>switch の対象の enum を決める。いまの case のラベルが一番多く合うもの。なければ、式の名前の変数宣言から探す。決められなければ null。</summary>
+        private static EnumDef ChooseEnum(string m, Sw sw, IList<EnumDef> enums, List<string> labels)
+        {
             EnumDef best = null;
             int bestScore = 0;
             foreach (var e in enums)
@@ -202,21 +248,13 @@ namespace KCppAssist
                     }
                 }
             }
-            if (best == null) { why = L.T("enum の型を決められません。case を 1 つ書くか、変数の宣言が見える場所で試してください"); return null; }
 
-            // ---- 足りない enumerator ----
-            foreach (string l in labelNames.ToList())
-            {
-                string target;
-                if (best.Aliases.TryGetValue(l, out target)) labelNames.Add(target);       // case First: は case Up: と同じ
-            }
-            var values = best.Values.ToList();
-            if (values.Count > 1 && Sentinel.IsMatch(values[values.Count - 1])) values.RemoveAt(values.Count - 1);
-            var missing = values.Where(v => !labelNames.Contains(v)).ToList();
-            bool needDefault = addDefault && defaultPos < 0;
-            if (missing.Count == 0 && !needDefault) { why = L.F("足りない case はありません ({0})", best.Name); return null; }
+            return best;
+        }
 
-            // ---- 書き方(字下げと、名前の前の修飾)を、いまの case にそろえる ----
+        /// <summary>足す case と default の文字。字下げと、名前の前の修飾は、いまの case にそろえる。</summary>
+        private static string BuildCases(string text, Sw sw, EnumDef best, List<string> missing, bool needDefault, string prefixStyle, int firstCase, string eol)
+        {
             // 1 段の字下げは、switch の行の字下げがタブならタブ、そうでなければ、ファイルで多いほう(判断できなければ空白 2 つ)
             string swIndent = LeadingSpace(text, sw.Start);
             string unit = swIndent.Contains("\t") ? "\t" : (NewFileGen.DetectIndent(new[] { text }) ?? "  ");
@@ -246,20 +284,26 @@ namespace KCppAssist
             if (needDefault)
                 sb.Append(indent).Append("default:").Append(eol).Append(body).Append("break;").Append(eol);
 
+            return sb.ToString();
+        }
+
+        /// <summary>足す文字を、どこに入れるかを決める。本体が空の複数行なら、空の行ごと置き換える。</summary>
+        private static Plan PlaceCases(string text, string m, Sw sw, EnumDef best, List<string> missing, bool needDefault, int firstCase, int defaultPos, string added, string eol)
+        {
             // ---- 本体が空で複数行のとき: 空の行を、足す文字で置き換える ----
             bool emptyBody = firstCase < 0 && defaultPos < 0 && text.Substring(sw.Open + 1, sw.Close - sw.Open - 1).Trim().Length == 0;
             int firstNl = text.IndexOf('\n', sw.Open);
             if (emptyBody && firstNl >= 0 && firstNl < sw.Close && text.Substring(MemberScan.LineStart(text, sw.Close), sw.Close - MemberScan.LineStart(text, sw.Close)).Trim().Length == 0)
             {
                 int from = firstNl + 1, to = MemberScan.LineStart(text, sw.Close);
-                var p0 = new Plan { Position = from, Length = to - from, Text = sb.ToString(), EnumName = best.Name, AddedDefault = needDefault };
+                var p0 = new Plan { Position = from, Length = to - from, Text = added, EnumName = best.Name, AddedDefault = needDefault };
                 p0.Added.AddRange(missing);
                 return p0;
             }
 
             // ---- 挿入する位置: default の前、なければ、閉じる } の前 ----
             int pos;
-            string textOut = sb.ToString();
+            string textOut = added;
             // default: の直前の case が、break などで終わらずに default へ落ちているときは、その間に入れると動きが変わる。末尾に入れる
             int anchor = defaultPos >= 0 && EndsFlow(m, sw.Open + 1, defaultPos) ? defaultPos : sw.Close;
             int ls = MemberScan.LineStart(text, anchor);
