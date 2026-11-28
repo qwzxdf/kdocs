@@ -148,7 +148,7 @@ namespace KCppAssist
                                 candidates.Add(new KeyValuePair<string, string>(f, text));
                                 texts[f] = text;
                             }
-                            catch (Exception) { }
+                            catch (Exception swallowed) { Safe.Ignore(swallowed); }
                         }
                         foreach (string sub in Directory.GetDirectories(dir))
                         {
@@ -156,7 +156,7 @@ namespace KCppAssist
                             if (!skip.Contains(leaf) && !leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase)) stack.Push(sub);
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
             }
 
@@ -337,7 +337,7 @@ namespace KCppAssist
                         if (buf != null) map[p] = buf.CurrentSnapshot;
                         else locked.Add(p);
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
             }
             catch (Exception ex) { KCppAssistPackage.Log("symbol: list documents failed: " + ex.Message); }
@@ -367,7 +367,7 @@ namespace KCppAssist
             try
             {
                 ITextUndoHistory history = null;
-                if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+                if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
                 using (var tx = history == null ? null : history.CreateTransaction(description))
                 {
                     if (tx != null && mergeWithPrevious) tx.MergePolicy = MergeWithPrevious.Instance;
@@ -975,7 +975,7 @@ namespace KCppAssist
                     if (l.Buffer == view.TextBuffer)
                         foreach (var sp in l.Spans) marks.Add(sp.GetSpan(view.TextSnapshot));
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             SyncPreview.ShowNote(view, AnchorOf(r), L.T("名前を変える"), r.OldName, name, lines, true, marks);
         }
 

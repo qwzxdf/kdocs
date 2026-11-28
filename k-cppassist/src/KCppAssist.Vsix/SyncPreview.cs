@@ -136,7 +136,7 @@ namespace KCppAssist
             IWpfTextView v = markedView;
             markedView = null;
             if (v == null || v.IsClosed) return;
-            try { v.GetAdornmentLayer(ChangeMarkLayer.Name).RemoveAllAdornments(); } catch (Exception) { }
+            try { v.GetAdornmentLayer(ChangeMarkLayer.Name).RemoveAllAdornments(); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
     }
 }

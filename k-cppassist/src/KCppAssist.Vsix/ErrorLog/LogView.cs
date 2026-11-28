@@ -205,7 +205,7 @@ namespace KCppAssist.ErrorLog
                 KCppAssistPackage.Log("render failed: " + ex);
                 _doc = new Doc();
                 new LineBuilder(_doc).Add(L.F("表示の組み立てに失敗しました: {0}", ex.Message), Role.Error).Done();
-                try { Fill(_doc); } catch (Exception) { }
+                try { Fill(_doc); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
         }
 

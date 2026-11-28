@@ -67,7 +67,7 @@ namespace KCppAssist.Vcpkg
                 string pathTxt = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "vcpkg", "vcpkg.path.txt");
                 if (File.Exists(pathTxt)) dirs.Add(File.ReadAllText(pathTxt).Trim());
             }
-            catch { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             dirs.Add(@"C:\vcpkg");
             foreach (string pf in new[] { Environment.GetEnvironmentVariable("ProgramFiles"), Environment.GetEnvironmentVariable("ProgramFiles(x86)") })
             {
@@ -79,7 +79,7 @@ namespace KCppAssist.Vcpkg
                     foreach (string v in Directory.GetDirectories(vsRoot).OrderByDescending(x => x))
                         foreach (string ed in Directory.GetDirectories(v)) dirs.Add(Path.Combine(ed, "VC", "vcpkg"));
                 }
-                catch { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             // ports フォルダがある vcpkg(全部入り)を優先する。VS 付属の物は、manifest でしか、ポートを引けない
             string fallback = null;
@@ -93,7 +93,7 @@ namespace KCppAssist.Vcpkg
                     if (Directory.Exists(Path.Combine(dir, "ports"))) { _exe = exe; return exe; }
                     if (fallback == null) fallback = exe;
                 }
-                catch { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             _exe = fallback;
             return fallback;
@@ -124,7 +124,7 @@ namespace KCppAssist.Vcpkg
                     string j = await Http.GetStringAsync("https://api.github.com/repos/microsoft/vcpkg/commits/master");
                     sha = (string)JObject.Parse(j)["sha"];
                 }
-                catch { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             if (string.IsNullOrEmpty(sha) && File.Exists(shaFile)) sha = File.ReadAllText(shaFile).Trim();
             if (string.IsNullOrEmpty(sha)) return dir;
@@ -172,7 +172,7 @@ namespace KCppAssist.Vcpkg
                     catch (Exception ex) { result.ExitCode = -1; result.Output = ex.Message; return result; }
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
-                    using (ct.Register(() => { try { Kill(p); } catch { } }))
+                    using (ct.Register(() => { try { Kill(p); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }))
                     {
                         p.WaitForExit();
                     }
@@ -270,7 +270,7 @@ namespace KCppAssist.Vcpkg
                 }));
                 File.WriteAllText(path, arr.ToString(Newtonsoft.Json.Formatting.None), new UTF8Encoding(false));
             }
-            catch { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
 
         private static List<PortInfo> ReadCache(string path)
@@ -315,7 +315,7 @@ namespace KCppAssist.Vcpkg
                     p.OutputDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
                     p.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
                     p.Start(); p.BeginOutputReadLine(); p.BeginErrorReadLine();
-                    using (ct.Register(() => { try { Kill(p); } catch { } })) p.WaitForExit();
+                    using (ct.Register(() => { try { Kill(p); } catch (Exception swallowed) { Safe.Ignore(swallowed); } })) p.WaitForExit();
                     p.WaitForExit();
                     lock (sb) output = sb.ToString();
                     return p.ExitCode;
@@ -374,7 +374,7 @@ namespace KCppAssist.Vcpkg
                     p.OutputDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
                     p.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (sb) sb.AppendLine(e.Data); };
                     p.Start(); p.BeginOutputReadLine(); p.BeginErrorReadLine();
-                    using (ct.Register(() => { try { Kill(p); } catch { } })) p.WaitForExit();
+                    using (ct.Register(() => { try { Kill(p); } catch (Exception swallowed) { Safe.Ignore(swallowed); } })) p.WaitForExit();
                     p.WaitForExit();
                     lock (sb) output = sb.ToString();
                     return p.ExitCode;

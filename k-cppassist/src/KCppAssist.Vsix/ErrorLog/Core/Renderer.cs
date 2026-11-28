@@ -66,7 +66,7 @@ namespace KCppAssist.ErrorLog
                     string full = Path.GetFullPath(path);
                     if (full.StartsWith(dir, StringComparison.OrdinalIgnoreCase)) return full.Substring(dir.Length);
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             try { return Path.GetFileName(path); } catch (Exception) { return path; }
         }

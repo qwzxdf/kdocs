@@ -101,7 +101,7 @@ namespace KCppAssist
                     {
                         if (!SourceExt.Contains(Path.GetExtension(f).ToLowerInvariant())) continue;
                         read++;
-                        try { if (re.IsMatch(File.ReadAllText(f))) found.Add(f); } catch (Exception) { }
+                        try { if (re.IsMatch(File.ReadAllText(f))) found.Add(f); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     }
                     foreach (string d in Directory.GetDirectories(dir))
                     {
@@ -109,7 +109,7 @@ namespace KCppAssist
                         if (!skip.Contains(leaf) && !leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase)) stack.Push(d);
                     }
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             return found;
         }
@@ -166,7 +166,7 @@ namespace KCppAssist
         public static void Replace(ITextBuffer buffer, int start, int length, string text, ITextUndoHistoryRegistry undo, string description)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(description))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
@@ -180,7 +180,7 @@ namespace KCppAssist
         public static void Insert(ITextBuffer buffer, int position, string text, ITextUndoHistoryRegistry undo, string description)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(description))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
@@ -194,7 +194,7 @@ namespace KCppAssist
         public static void ApplyEdits(ITextBuffer buffer, List<Tuple<int, int, string>> edits, ITextUndoHistoryRegistry undo, string description)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(description))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
@@ -222,13 +222,13 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!view.HasAggregateFocus) return true;
-            try { if (completion != null && completion.IsCompletionActive(view)) return true; } catch (Exception) { }
+            try { if (completion != null && completion.IsCompletionActive(view)) return true; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             try
             {
                 var dte = (DTE)Package.GetGlobalService(typeof(DTE));
                 if (dte != null && dte.Solution.SolutionBuild.BuildState == vsBuildState.vsBuildStateInProgress) return true;
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             return false;
         }
 

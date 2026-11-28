@@ -193,7 +193,7 @@ namespace KCppAssist
                             : RenameSync.RewriteIncludes(disk, Path.GetDirectoryName(path), moves, roots, File.Exists);
                         if (need.Count > 0) notes.Add(L.F("{0} は開いているのに書き換えられませんでした (手で直してください)", Path.GetFileName(path)));
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     continue;
                 }
                 string text = buf.CurrentSnapshot.GetText();
@@ -274,7 +274,7 @@ namespace KCppAssist
                         if (!skip.Contains(leaf) && !leaf.StartsWith("cmake-build", StringComparison.OrdinalIgnoreCase)) stack.Push(d);
                     }
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             return edited;
         }
@@ -327,7 +327,7 @@ namespace KCppAssist
                 var dte = (DTE)Package.GetGlobalService(typeof(DTE));
                 foreach (Document d in dte.Documents)
                 {
-                    try { if (!string.IsNullOrEmpty(d.FullName)) set.Add(d.FullName); } catch (Exception) { }
+                    try { if (!string.IsNullOrEmpty(d.FullName)) set.Add(d.FullName); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
             }
             catch (Exception ex) { KCppAssistPackage.Log("rename: list documents failed: " + ex.Message); }
@@ -337,7 +337,7 @@ namespace KCppAssist
         private static void ApplyToBuffer(ITextBuffer buffer, List<RenameSync.TextEdit> edits, ITextUndoHistoryRegistry undo)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(L.T("K-Cpp: ファイル名の変更を反映")))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);

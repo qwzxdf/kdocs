@@ -58,7 +58,7 @@ namespace KCppAssist
                     if (path.StartsWith(d + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) return d;
                 }
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             string dir = path == null ? "" : Path.GetDirectoryName(path);
             for (string p = dir; !string.IsNullOrEmpty(p); p = Path.GetDirectoryName(p))
                 if (Directory.Exists(Path.Combine(p, ".git"))) return p;
@@ -163,7 +163,7 @@ namespace KCppAssist
         public static void Apply(ITextBuffer buffer, int position, string text, ITextUndoHistoryRegistry undo, string description)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(description))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);
@@ -177,7 +177,7 @@ namespace KCppAssist
         public static void Remove(ITextBuffer buffer, int position, int length, ITextUndoHistoryRegistry undo, string description)
         {
             ITextUndoHistory history = null;
-            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception) { } }
+            if (undo != null) { try { undo.TryGetHistory(buffer, out history); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
             using (var tx = history == null ? null : history.CreateTransaction(description))
             {
                 var edit = buffer.CreateEdit(EditOptions.None, null, EditTag);

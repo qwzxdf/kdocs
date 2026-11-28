@@ -122,7 +122,7 @@ namespace KCppAssist
         {
             var cts = _enrichCts;
             _enrichCts = null;
-            if (cts != null) { try { cts.Cancel(); } catch (Exception) { } }
+            if (cts != null) { try { cts.Cancel(); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
         }
 
         /// <summary>.lib とソースの検索を、別のスレッドで行う。終わったら、窓を描き直す。</summary>

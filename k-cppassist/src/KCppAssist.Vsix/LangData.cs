@@ -1672,6 +1672,20 @@ namespace KCppAssist
             ["宣言の生成"] = new[] { "Declaration generation", "", "", "", "", "", "", "" },
             ["定数 (static constexpr) を置く位置"] = new[] { "Where to put constants (static constexpr)", "", "", "", "", "", "", "" },
             ["電球で定数として宣言するとき、クラスの区画(public: か private:)のどこに置くか。AfterTypes: 型・using の直後(なければ区画の先頭)。SectionTop: 区画の一番上(型・using よりも前)。BeforeMembers: メンバー変数の直前。"] = new[] { "Where in the class section (public: or private:) a constant declared from the light bulb goes. AfterTypes: right after types and using (or at the section top if there are none). SectionTop: the very top of the section (before types and using). BeforeMembers: just before the member variables.", "", "", "", "", "", "", "" },
+            ["クラステンプレート"] = new[] { "class template", "", "", "", "", "", "", "" },
+            ["変数テンプレート"] = new[] { "variable template", "", "", "", "", "", "", "" },
+            ["{0} を移す .cpp を作れませんでした"] = new[] { "Could not create the .cpp to move {0} into", "", "", "", "", "", "", "" },
+            ["コンストラクター・デストラクターを cpp に移す"] = new[] { "Move constructors and destructors to the cpp", "", "", "", "", "", "", "" },
+            ["K-Cpp: コンストラクター・デストラクターを cpp に移す"] = new[] { "K-Cpp: Move constructors and destructors to the cpp", "", "", "", "", "", "", "" },
+            ["{0} を {1} に移しました ({2}。保存はしていません)"] = new[] { "Moved {0} to {1} ({2}; not saved)", "", "", "", "", "", "", "" },
+            ["ヘッダーに本体のある関数 ({0}) が、移すメンバーを使っています。先に「実装を cpp に移す」で cpp に移してください"] = new[] { "The function with a body in the header ({0}) uses the members to be moved. Move it to the cpp first with \"Move implementation to cpp\"", "", "", "", "", "", "", "" },
+            ["実装を cpp に移す"] = new[] { "Move implementation to cpp", "", "", "", "", "", "", "" },
+            ["実装をヘッダーに移す"] = new[] { "Move implementation to header", "", "", "", "", "", "", "" },
+            ["cpp に移せるコンストラクター・デストラクターがありません (宣言だけのものは、そのままです)"] = new[] { "No constructors or destructors to move to the cpp (declaration-only ones are left as they are)", "", "", "", "", "", "", "" },
+            ["すでに struct です"] = new[] { "It is already a struct", "", "", "", "", "", "", "" },
+            ["class の行を読めませんでした"] = new[] { "Could not read the class line", "", "", "", "", "", "", "" },
+            ["{0} を struct にしました{1}"] = new[] { "Made {0} a struct{1}", "", "", "", "", "", "", "" },
+            [" (デフォルトのコンストラクター・デストラクターを {0} 個消しました)"] = new[] { " (removed {0} default constructors/destructors)", "", "", "", "", "", "", "" },
         };
     }
 }

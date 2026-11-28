@@ -209,7 +209,7 @@ namespace KCppAssist.Vcpkg
             string root = System.IO.Path.Combine(Dir, "vcpkg_installed");
             var files = new List<string> { System.IO.Path.Combine(root, "vcpkg", "status") };
             try { if (Directory.Exists(root)) foreach (string d in Directory.GetDirectories(root)) files.Add(System.IO.Path.Combine(d, "vcpkg", "status")); }
-            catch { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             foreach (string status in files.Where(File.Exists)) ReadStatus(status, map);
             return map;
         }
@@ -242,7 +242,7 @@ namespace KCppAssist.Vcpkg
                     else if (k == "Feature") feature = true;
                 }
             }
-            catch { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
 
         /// <summary>入っているバージョンを、トリプレットを問わずに引く(複数あれば、いちばん新しい物)。</summary>
@@ -301,7 +301,7 @@ namespace KCppAssist.Vcpkg
                 {
                     if (Directory.GetFiles(d, "*.cmake").Any(f => File.ReadAllText(f).Contains("VCPKG_TARGET_ARCHITECTURE"))) list.Add(d);
                 }
-                catch { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             return list;
         }

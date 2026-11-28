@@ -100,7 +100,7 @@ namespace KCppAssist
                         else if (si.ProjectItem != null && si.ProjectItem.ContainingProject != null) projects.Add(si.ProjectItem.ContainingProject);
                     }
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             if (projects.Count == 0 && dte.Solution != null) foreach (Project p in dte.Solution.Projects) projects.Add(p);
 
@@ -112,7 +112,7 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             ProjectItems items = null;
-            try { items = p.ProjectItems; } catch (Exception) { }
+            try { items = p.ProjectItems; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             if (items == null) yield break;
             // ソリューション フォルダーの中のプロジェクトも辿る
             foreach (string f in Walk(items, seen)) yield return f;
@@ -125,13 +125,13 @@ namespace KCppAssist
             foreach (ProjectItem it in items)
             {
                 string file = null;
-                try { if (it.FileCount > 0) file = it.FileNames[1]; } catch (Exception) { }
+                try { if (it.FileCount > 0) file = it.FileNames[1]; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (!string.IsNullOrEmpty(file) && File.Exists(file) && CodeExt.Contains(Path.GetExtension(file).ToLowerInvariant()) && seen.Add(file)) yield return file;
                 ProjectItems sub = null;
-                try { sub = it.ProjectItems; } catch (Exception) { }
+                try { sub = it.ProjectItems; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (sub != null) foreach (string f in Walk(sub, seen)) yield return f;
                 Project subProject = null;
-                try { subProject = it.SubProject; } catch (Exception) { }
+                try { subProject = it.SubProject; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (subProject != null) foreach (string f in Walk(subProject, seen)) yield return f;
             }
         }
@@ -243,7 +243,7 @@ namespace KCppAssist
                 dirs.AddRange(RenameService.ProjectIncludeDirs(curPath));      // .vcxproj の「追加のインクルード ディレクトリ」
                 foreach (string d in dirs)
                 {
-                    try { string full = Path.GetFullPath(Path.Combine(d, rel)); if (File.Exists(full)) return full; } catch (Exception) { }
+                    try { string full = Path.GetFullPath(Path.Combine(d, rel)); if (File.Exists(full)) return full; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
                 return null;
             }
@@ -275,7 +275,7 @@ namespace KCppAssist
                 if (!parsed.TryGetValue(file, out p))
                 {
                     string text = null;
-                    try { Encoding enc; text = RenameSync.ReadKeepingEncoding(file, out enc); } catch (Exception) { }
+                    try { Encoding enc; text = RenameSync.ReadKeepingEncoding(file, out enc); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     p = text == null
                         ? new Parsed { Own = new HashSet<string>(), Includes = new List<IncludeTidy.Item>() }
                         : new Parsed { Own = IncludeTidy.Provided(text), Includes = IncludeTidy.Parse(text) };

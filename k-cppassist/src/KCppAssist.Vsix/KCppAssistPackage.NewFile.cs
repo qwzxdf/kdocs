@@ -64,7 +64,7 @@ namespace KCppAssist
                             stack.Push(d);
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
             }
             catch (Exception ex) { KCppAssistPackage.Log("new file: scan failed: " + ex.Message); }
@@ -87,7 +87,7 @@ namespace KCppAssist
                     if (fi.Length > 512 * 1024) continue;
                     texts.Add(File.ReadAllText(kv.Value));
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             var st = new Style { Namespace = NewFileGen.DetectNamespace(texts) };
             string ind = NewFileGen.DetectIndent(texts);

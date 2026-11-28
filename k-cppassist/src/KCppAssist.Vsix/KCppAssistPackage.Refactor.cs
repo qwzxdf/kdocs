@@ -190,9 +190,9 @@ namespace KCppAssist
             var cls = MemberScan.At(a.Text, a.Caret);
             if (cls == null || cls.Members.Count == 0) { await ReportAsync(L.T("データ メンバーのあるクラスの中で押してください"), true); return; }
             Project proj = null;
-            try { proj = a.Dte.ActiveDocument.ProjectItem?.ContainingProject; } catch (Exception) { }
+            try { proj = a.Dte.ActiveDocument.ProjectItem?.ContainingProject; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             string projFile = null;
-            try { projFile = proj?.FullName; } catch (Exception) { }
+            try { projFile = proj?.FullName; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             if (string.IsNullOrEmpty(projFile)) { await ReportAsync(L.T("このファイルはプロジェクトに入っていません"), true); return; }
             string file = Path.Combine(Path.GetDirectoryName(projFile), Path.GetFileNameWithoutExtension(projFile) + ".natvis");
             bool exists = File.Exists(file);

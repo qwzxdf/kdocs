@@ -167,13 +167,13 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!view.HasAggregateFocus) return true;
-            try { if (owner.Completion.IsCompletionActive(view)) return true; } catch (Exception) { }
+            try { if (owner.Completion.IsCompletionActive(view)) return true; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             try
             {
                 var dte = (DTE)Package.GetGlobalService(typeof(DTE));
                 if (dte != null && dte.Solution.SolutionBuild.BuildState == vsBuildState.vsBuildStateInProgress) return true;
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             return false;
         }
 

@@ -138,7 +138,7 @@ namespace KCppAssist.Vcpkg
         {
             foreach (string dir in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
             {
-                try { string p = Path.Combine(dir.Trim().Trim('"'), "git.exe"); if (File.Exists(p)) return p; } catch { }
+                try { string p = Path.Combine(dir.Trim().Trim('"'), "git.exe"); if (File.Exists(p)) return p; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             foreach (string pf in new[] { Environment.GetEnvironmentVariable("ProgramFiles"), Environment.GetEnvironmentVariable("ProgramFiles(x86)") })
             {
@@ -188,7 +188,7 @@ namespace KCppAssist.Vcpkg
                     catch (Exception ex) { result.ExitCode = -1; result.Output = ex.Message; return result; }
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
-                    using (ct.Register(() => { try { VcpkgTool.Kill(p); } catch { } })) { p.WaitForExit(); }
+                    using (ct.Register(() => { try { VcpkgTool.Kill(p); } catch (Exception swallowed) { Safe.Ignore(swallowed); } })) { p.WaitForExit(); }
                     p.WaitForExit();
                     result.Canceled = ct.IsCancellationRequested;
                     result.ExitCode = p.ExitCode;

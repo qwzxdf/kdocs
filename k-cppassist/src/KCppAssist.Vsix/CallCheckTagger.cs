@@ -212,7 +212,7 @@ namespace KCppAssist
             string root = IncludeService.RootFor(path);
             var skip = IncludeService.SkipDirs(opt);
             int caret = -1;
-            try { if (view != null) caret = view.Caret.Position.BufferPosition.TranslateTo(snap, PointTrackingMode.Positive).Position; } catch (Exception) { }
+            try { if (view != null) caret = view.Caret.Position.BufferPosition.TranslateTo(snap, PointTrackingMode.Positive).Position; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             var o = new CallCheck.Options
             {
                 Make = opt.CallCheckMake,

@@ -29,7 +29,7 @@ namespace KCppAssist
                 Command cmd = null;
                 foreach (string name in new[] { "Refactor.Rename", "Edit.Rename" })
                 {
-                    try { cmd = dte.Commands.Item(name, -1); if (cmd != null) break; } catch (Exception) { }
+                    try { cmd = dte.Commands.Item(name, -1); if (cmd != null) break; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
                 if (cmd == null) { Log("class rename: Refactor.Rename was not found"); return; }
                 _refactorRenameEvents = dte.Events.get_CommandEvents(cmd.Guid, cmd.ID);
@@ -141,7 +141,7 @@ namespace KCppAssist
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
             var undo = model.GetService<ITextUndoHistoryRegistry>();
             var dte = (DTE)await GetServiceAsync(typeof(DTE));
-            try { foreach (Document d in dte.Documents) { try { if (string.Equals(d.FullName, header, StringComparison.OrdinalIgnoreCase)) d.Save(); } catch (Exception) { } } } catch (Exception) { }
+            try { foreach (Document d in dte.Documents) { try { if (string.Equals(d.FullName, header, StringComparison.OrdinalIgnoreCase)) d.Save(); } catch (Exception swallowed) { Safe.Ignore(swallowed); } } } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             string msg;
             // 名前を変える前に、自分の変更だと覚える(フォルダーの監視の通知が先に届くと、ファイル名の変更のダイアログがもう一度出る)
             RenameHub.Remember(move);

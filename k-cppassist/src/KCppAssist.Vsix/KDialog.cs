@@ -245,7 +245,7 @@ namespace KCppAssist
 
             public void Show()
             {
-                try { Owner(Window); } catch (Exception) { }
+                try { Owner(Window); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 Window.ShowDialog();
             }
         }
@@ -332,7 +332,7 @@ namespace KCppAssist
             TextOptions.SetTextFormattingMode(w, TextFormattingMode.Display);
             w.Resources.MergedDictionaries.Add(f.Res);
             // 枠のどこをつかんでも動かせる(ボタンや入力欄の上は、それぞれの操作が先)
-            card.MouseLeftButtonDown += (s, e) => { try { if (e.ButtonState == MouseButtonState.Pressed) w.DragMove(); } catch (Exception) { } };
+            card.MouseLeftButtonDown += (s, e) => { try { if (e.ButtonState == MouseButtonState.Pressed) w.DragMove(); } catch (Exception swallowed) { Safe.Ignore(swallowed); } };
             close.Click += (s, e) => w.Close();
             w.KeyDown += (s, e) => { if (e.Key == Key.Escape) w.Close(); };
             f.Window = w;

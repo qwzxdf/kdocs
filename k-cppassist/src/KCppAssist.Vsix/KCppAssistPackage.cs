@@ -126,7 +126,7 @@ namespace KCppAssist
                 Directory.CreateDirectory(dir);
                 File.AppendAllText(Path.Combine(dir, "vsix.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine);
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
@@ -164,6 +164,7 @@ namespace KCppAssist
             catch (Exception ex) { Log("migrate defaults failed: " + ex.Message); }
             await InitializeErrorLogAsync();
             await InitializeRenameAsync();
+            Safe.Sink = Log;   // 握りつぶした例外を vsix.log に残す
             Log("package initialized");
         }
 
@@ -375,7 +376,7 @@ namespace KCppAssist
                 IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
                 Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, workPath, Guid.Empty, out hier, out itemId, out frame);
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
 
         private sealed class Located
@@ -610,7 +611,7 @@ namespace KCppAssist
             {
                 IVsUIHierarchy hier; uint id; IVsWindowFrame frame;
                 try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out hier, out id, out frame); }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             var writtenList = SignatureSync.SplitParams(newInner);
             string warnText = !wantDef && writtenList != null && SignatureSync.DefaultsOutOfOrder(writtenList) ? L.T("(注意: 既定値のある引数のあとに、既定値のない引数があります)") : "";
@@ -830,7 +831,7 @@ namespace KCppAssist
             {
                 IVsUIHierarchy h2; uint i2; IVsWindowFrame f2;
                 try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out h2, out i2, out f2); }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
             await ReportAsync(L.F("{0} を追加しました", string.Join(" / ", lines.Where(l => l.Length > 0).Select(l => l.Substring(0, l.IndexOf('{')).Trim()))), false);
         }
@@ -869,7 +870,7 @@ namespace KCppAssist
                     foreach (string d in Directory.GetDirectories(dir))
                         if (!skip.Contains(Path.GetFileName(d))) stack.Push(d);
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
 
             string stem = cppPath == null ? "" : Path.GetFileNameWithoutExtension(cppPath);
@@ -896,7 +897,7 @@ namespace KCppAssist
                 string sln = dte.Solution.FullName;
                 if (!string.IsNullOrEmpty(sln)) return Path.GetDirectoryName(sln);
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             return cppPath == null ? "" : Path.GetDirectoryName(cppPath);
         }
 

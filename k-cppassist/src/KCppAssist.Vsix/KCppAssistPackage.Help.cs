@@ -82,7 +82,7 @@ namespace KCppAssist
                 var c = Microsoft.VisualStudio.PlatformUI.VSColorTheme.GetThemedColor(key);
                 return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(c.A, c.R, c.G, c.B));
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             return new System.Windows.Media.SolidColorBrush(fallback);
         }
 

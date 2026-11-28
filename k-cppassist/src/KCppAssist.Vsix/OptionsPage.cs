@@ -483,7 +483,7 @@ namespace KCppAssist
                     if (k > 0) return s.Substring(0, k);
                 }
             }
-            catch (Exception) { }
+            catch (Exception swallowed) { Safe.Ignore(swallowed); }
             return null;
         }
 

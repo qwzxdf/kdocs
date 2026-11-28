@@ -313,7 +313,7 @@ namespace KCppAssist
             if (File.Exists(newPath)) { await ReportAsync(L.F("{0} はすでにあります", Path.GetFileName(newPath)), true); return; }
 
             // 開いている文書を保存して、名前を変える(プロジェクトに入っていれば、プロジェクトごと)
-            try { dte.ActiveDocument.Save(); } catch (Exception) { }
+            try { dte.ActiveDocument.Save(); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             var first = new RenameSync.Move { Old = path, New = newPath };
             // 名前を変える前に、自分の変更だと覚える(フォルダーの監視の通知が先に届くと、もう一度「名前が変わった」と見つけてしまう)
             RenameHub.Remember(first);

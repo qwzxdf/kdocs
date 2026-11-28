@@ -96,10 +96,10 @@ namespace KCppAssist.ErrorLog
             {
                 string dir = stack.Pop();
                 string[] files = null;
-                try { files = Directory.GetFiles(dir, "*.lib"); } catch (Exception) { }
+                try { files = Directory.GetFiles(dir, "*.lib"); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (files != null) foreach (string f in files) yield return f;
                 string[] subs = null;
-                try { subs = Directory.GetDirectories(dir); } catch (Exception) { }
+                try { subs = Directory.GetDirectories(dir); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (subs == null) continue;
                 foreach (string sub in subs)
                 {

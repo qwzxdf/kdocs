@@ -92,7 +92,7 @@ namespace KCppAssist
                 return;
             }
             string full = null;
-            try { full = p.FullName; } catch { }
+            try { full = p.FullName; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             if (string.IsNullOrEmpty(full)) return;
             string dir = Path.GetDirectoryName(full);
             if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir)) list.Add(new KeyValuePair<string, string>(p.Name, dir));

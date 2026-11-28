@@ -180,7 +180,7 @@ namespace KCppAssist.ErrorLog
             {
                 string dir = stack.Pop();
                 string[] list = null;
-                try { list = Directory.GetFiles(dir); } catch (Exception) { }
+                try { list = Directory.GetFiles(dir); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (list != null)
                     foreach (string f in list)
                     {
@@ -190,7 +190,7 @@ namespace KCppAssist.ErrorLog
                                 found[t.Key].Add(f);
                     }
                 string[] subs = null;
-                try { subs = Directory.GetDirectories(dir); } catch (Exception) { }
+                try { subs = Directory.GetDirectories(dir); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (subs == null) continue;
                 foreach (string sub in subs)
                     if (!SkipDirs.Contains(Path.GetFileName(sub))) stack.Push(sub);

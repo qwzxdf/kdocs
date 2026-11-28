@@ -105,7 +105,7 @@ namespace KCppAssist
                 {
                     var r = list.SelectedItem as EncRow;
                     if (r == null) return;
-                    try { dte.ItemOperations.OpenFile(r.File); } catch (Exception) { }
+                    try { dte.ItemOperations.OpenFile(r.File); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 };
 
                 var panel = new StackPanel { Margin = new Thickness(12) };
@@ -185,7 +185,7 @@ namespace KCppAssist
                 {
                     scanButton.IsEnabled = convertButton.IsEnabled = copyButton.IsEnabled = false;
                     summary.Text = L.T("調べています…");
-                    if (saveFirst.IsChecked == true) { try { dte.ExecuteCommand("File.SaveAll"); } catch (Exception) { } }
+                    if (saveFirst.IsChecked == true) { try { dte.ExecuteCommand("File.SaveAll"); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
 
                     var extSet = Exts();
                     string sln = dte.Solution != null ? dte.Solution.FullName : null;
@@ -212,7 +212,7 @@ namespace KCppAssist
 
                     // 未保存の文書(書き換えると、保存したときに上書きされる)
                     var dirty = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    try { foreach (Document d in dte.Documents) { try { if (!d.Saved) dirty.Add(d.FullName); } catch (Exception) { } } } catch (Exception) { }
+                    try { foreach (Document d in dte.Documents) { try { if (!d.Saved) dirty.Add(d.FullName); } catch (Exception swallowed) { Safe.Ignore(swallowed); } } } catch (Exception swallowed) { Safe.Ignore(swallowed); }
 
                     var t = Target();
                     var e = Eol();
@@ -263,7 +263,7 @@ namespace KCppAssist
             {
                 var sb = new StringBuilder();
                 foreach (var r in rows) sb.Append(r.Shown).Append('\t').Append(r.Current).Append('\t').Append(r.Eol).Append('\t').Append(r.Action).Append("\r\n");
-                try { Clipboard.SetText(sb.ToString()); } catch (Exception) { }
+                try { Clipboard.SetText(sb.ToString()); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
             }
 
             // ---- 変換する ----
@@ -333,7 +333,7 @@ namespace KCppAssist
                     string updated = EncodingTool.UpdateEditorConfig(old, header, charset, endOfLine, eolText);
                     if (updated == old) return L.T(".editorconfig は、すでにこの設定です。");
                     RenameSync.WriteKeepingEncoding(path, updated, enc);
-                    try { if (dte.Solution != null) { var item = dte.Solution.FindProjectItem(path); } } catch (Exception) { }
+                    try { if (dte.Solution != null) { var item = dte.Solution.FindProjectItem(path); } } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     return L.F(".editorconfig に書きました: {0}", path);
                 }
                 catch (Exception ex) { return L.F(".editorconfig に書けませんでした: {0}", ex.Message); }
@@ -403,7 +403,7 @@ namespace KCppAssist
                     }
                     if (list.Count == 0 && dte.ActiveDocument != null && dte.ActiveDocument.ProjectItem != null) list.Add(dte.ActiveDocument.ProjectItem.ContainingProject);
                 }
-                catch (Exception) { }
+                catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 return list.Where(p => p != null).Distinct().ToList();
             }
 
@@ -414,12 +414,12 @@ namespace KCppAssist
                 if (p == null) return;
                 into.Add(p);
                 ProjectItems items = null;
-                try { items = p.ProjectItems; } catch (Exception) { }
+                try { items = p.ProjectItems; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 if (items == null) return;
                 foreach (ProjectItem it in items)
                 {
                     Project sub = null;
-                    try { sub = it.SubProject; } catch (Exception) { }
+                    try { sub = it.SubProject; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     if (sub != null) Flatten(sub, into);
                 }
             }
@@ -428,7 +428,7 @@ namespace KCppAssist
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
                 ProjectItems items = null;
-                try { items = p.ProjectItems; } catch (Exception) { }
+                try { items = p.ProjectItems; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 var result = new List<string>();
                 Walk(items, exts, seen, result);
                 return result;
@@ -441,10 +441,10 @@ namespace KCppAssist
                 foreach (ProjectItem it in items)
                 {
                     string file = null;
-                    try { if (it.FileCount > 0) file = it.FileNames[1]; } catch (Exception) { }
+                    try { if (it.FileCount > 0) file = it.FileNames[1]; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     if (!string.IsNullOrEmpty(file) && File.Exists(file) && exts.Contains(Path.GetExtension(file)) && seen.Add(file)) result.Add(file);
                     ProjectItems sub = null;
-                    try { sub = it.ProjectItems; } catch (Exception) { }
+                    try { sub = it.ProjectItems; } catch (Exception swallowed) { Safe.Ignore(swallowed); }
                     if (sub != null) Walk(sub, exts, seen, result);
                 }
             }
@@ -467,7 +467,7 @@ namespace KCppAssist
                             stack.Push(d);
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
                 return list;
             }

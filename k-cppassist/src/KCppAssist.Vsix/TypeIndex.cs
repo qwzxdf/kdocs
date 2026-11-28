@@ -122,7 +122,7 @@ namespace KCppAssist
                             stack.Push(d);
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception swallowed) { Safe.Ignore(swallowed); }
                 }
                 foreach (string gone in files.Keys.Where(k => !seen.Contains(k)).ToList()) { files.Remove(gone); changed = true; }
                 List<string> roots = null;

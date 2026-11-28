@@ -623,7 +623,7 @@ namespace KCppAssist.Vcpkg
 
         private string TripletFile { get { return Path.Combine(VcpkgTool.DataDir, "triplet.txt"); } }
         private string LoadSavedTriplet() { try { return File.Exists(TripletFile) ? File.ReadAllText(TripletFile).Trim() : null; } catch { return null; } }
-        private void SaveTriplet() { try { var t = _triplet.SelectedItem as string; if (t != null) File.WriteAllText(TripletFile, TripletName(t)); } catch { } }
+        private void SaveTriplet() { try { var t = _triplet.SelectedItem as string; if (t != null) File.WriteAllText(TripletFile, TripletName(t)); } catch (Exception swallowed) { Safe.Ignore(swallowed); } }
         private string Triplet { get { var t = _triplet.SelectedItem as string; return t != null ? TripletName(t) : "x64-windows-static-md"; } }
 
         /// <summary>選択欄の表示(おすすめの印つき)。名前は、前の部分だけ。</summary>
@@ -891,7 +891,7 @@ namespace KCppAssist.Vcpkg
         {
             Uri uri;
             if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || (uri.Scheme != "https" && uri.Scheme != "http")) return;
-            try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); } catch { }
+            try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); } catch (Exception swallowed) { Safe.Ignore(swallowed); }
         }
 
         private async void ShowDetail(PortInfo port)
