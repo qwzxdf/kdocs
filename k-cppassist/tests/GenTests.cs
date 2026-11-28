@@ -607,6 +607,9 @@ static class GenTests
         };
         string K = "static constexpr int kMax = 3;";
         string V = "int hp_;";
+        // 1 行に書かれたクラスには入れない(クラスの外に入ってしまうため)
+        Check("pm one-line class var", pm("class A { public: A(); private: int x_; };\n", "private", false, V), "(null)");
+        Check("pm one-line class const", pm("class A { public: A(); };\n", "public", true, K), "(null)");
         // class: private の変数は、private: の末尾(関数のあとに空行で分けて)
         Check("pm private var after func", pm("class A {\n public:\n  A();\n  void F();\n\n private:\n  int x_;\n};\n", "private", false, V),
             "class A {\n public:\n  A();\n  void F();\n\n private:\n  int x_;\n  int hp_;\n};\n");

@@ -102,6 +102,8 @@ namespace KCppAssist
             string m = CppText.Mask(text);
             int close = Scopes.MatchBrace(m, open);
             if (close < 0) return null;
+            // 中身のある 1 行のクラスは、宣言が行の外(クラスの外)に入ってしまうので、作らない
+            if (text.IndexOf('\n', open, close - open) < 0 && m.Substring(open + 1, close - open - 1).Trim().Length > 0) return null;
             string head = m.Substring(0, open);
             bool isStruct = Regex.IsMatch(head.Substring(Math.Max(0, head.LastIndexOfAny(new[] { ';', '{', '}' }) + 1)), @"\bstruct\b");
 
