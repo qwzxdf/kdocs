@@ -642,6 +642,21 @@ static class GenTests
         // struct
         Check("pm struct public var", pm("struct A {\n  int x;\n};\n", "public", false, "int y;"),
             "struct A {\n  int x;\n  int y;\n};\n");
+        // ---- 定数を置く位置の設定 ----
+        Func<string, ConstantPlacement, string> pc = (text, pl) =>
+        {
+            var e = HeaderEditor.PlanMember(text, text.IndexOf('{'), "private", true, K, "\n", pl);
+            return e == null ? "(null)" : text.Insert(e.Position, e.Text);
+        };
+        string cls3 = "class A {\n private:\n  using T = int;\n\n  A();\n  void F();\n\n  int x_;\n};\n";
+        Check("pc after types", pc(cls3, ConstantPlacement.AfterTypes),
+            "class A {\n private:\n  using T = int;\n  static constexpr int kMax = 3;\n\n  A();\n  void F();\n\n  int x_;\n};\n");
+        Check("pc section top", pc(cls3, ConstantPlacement.SectionTop),
+            "class A {\n private:\n  static constexpr int kMax = 3;\n  using T = int;\n\n  A();\n  void F();\n\n  int x_;\n};\n");
+        Check("pc before members", pc(cls3, ConstantPlacement.BeforeMembers),
+            "class A {\n private:\n  using T = int;\n\n  A();\n  void F();\n\n  static constexpr int kMax = 3;\n  int x_;\n};\n");
+        Check("pc before members no blank", pc("class A {\n private:\n  void F();\n  int x_;\n};\n", ConstantPlacement.BeforeMembers),
+            "class A {\n private:\n  void F();\n\n  static constexpr int kMax = 3;\n  int x_;\n};\n");
         Console.WriteLine("gen: " + pass + " passed, " + fail + " failed");
         return fail;
     }

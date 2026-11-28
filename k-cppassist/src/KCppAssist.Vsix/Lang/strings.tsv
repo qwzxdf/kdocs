@@ -1657,3 +1657,6 @@ private メンバー変数としてヘッダーに宣言する ({0})	Declare in 
 public メンバー変数としてヘッダーに宣言する ({0})	Declare in header as public member variable ({0})							
 private 定数 (static constexpr) としてヘッダーに宣言する ({0})	Declare in header as private constant (static constexpr) ({0})							
 public 定数 (static constexpr) としてヘッダーに宣言する ({0})	Declare in header as public constant (static constexpr) ({0})							
+宣言の生成	Declaration generation							
+定数 (static constexpr) を置く位置	Where to put constants (static constexpr)							
+電球で定数として宣言するとき、クラスの区画(public: か private:)のどこに置くか。AfterTypes: 型・using の直後(なければ区画の先頭)。SectionTop: 区画の一番上(型・using よりも前)。BeforeMembers: メンバー変数の直前。	Where in the class section (public: or private:) a constant declared from the light bulb goes. AfterTypes: right after types and using (or at the section top if there are none). SectionTop: the very top of the section (before types and using). BeforeMembers: just before the member variables.							

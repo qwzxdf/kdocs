@@ -24,6 +24,7 @@ namespace KCppAssist
     /// <summary>ファイル名からクラス名を決める規則。SameAsFile: ファイル名のまま。</summary>
     public enum ClassNaming { SameAsFile, PascalCase, SnakeCase, CamelCase }
 
+    // HeaderEditor.cs の ConstantPlacement を使う
     public enum IndentKind { Auto, Tab, Spaces2, Spaces4 }
 
     public enum GuardKind { PragmaOnce, IncludeGuard }
@@ -549,6 +550,11 @@ namespace KCppAssist
         [LocDisplayName("Natvis の項目を出す")]
         [LocDescription("True のとき、クラスの電球に「デバッガーの表示 (Natvis) を作る」を出します。初期値は False。")]
         public bool OfferNatvis { get; set; } = false;
+
+        [LocCategory("宣言の生成")]
+        [LocDisplayName("定数 (static constexpr) を置く位置")]
+        [LocDescription("電球で定数として宣言するとき、クラスの区画(public: か private:)のどこに置くか。AfterTypes: 型・using の直後(なければ区画の先頭)。SectionTop: 区画の一番上(型・using よりも前)。BeforeMembers: メンバー変数の直前。")]
+        public ConstantPlacement ConstantPlacement { get; set; } = ConstantPlacement.AfterTypes;
 
         [LocCategory("switch")]
         [LocDisplayName("switch を打ったら、case と default を自動で入れる")]

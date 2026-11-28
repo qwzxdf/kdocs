@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.34.1")]
+    [InstalledProductRegistration("K-CppUltimateAssist", "C++ の宣言・include・引数の同期・ファイル名の同期・呼び出しのチェック・エラーログ・書き換えと生成", "0.34.2")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppUltimateAssist", "全般", 0, 0, true)]
     [ProvideToolWindow(typeof(KCppAssist.Vcpkg.VcpkgToolWindow), Style = VsDockStyle.Float, Transient = true, Width = 1500, Height = 950)]
@@ -357,7 +357,7 @@ namespace KCppAssist
             { await ReportAsync(L.F("{0} は {1} の {2} にすでにあります", name, Path.GetFileName(loc.File), classRef.Name), true); return false; }
 
             string eol = CppText.Eol(all);
-            var edit = HeaderEditor.PlanMember(all, loc.Scope.Open, access, constant, declaration, eol);
+            var edit = HeaderEditor.PlanMember(all, loc.Scope.Open, access, constant, declaration, eol, ((OptionsPage)GetDialogPage(typeof(OptionsPage))).ConstantPlacement);
             if (edit == null) { await ReportAsync(L.F("{0} の中でクラス {1} の本体を読めませんでした", Path.GetFileName(loc.File), classRef.Name), true); return false; }
 
             loc.View.TextBuffer.Insert(edit.Position, edit.Text);

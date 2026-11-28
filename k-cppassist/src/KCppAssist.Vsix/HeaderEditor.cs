@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace KCppAssist
 {
+    /// <summary>定数(static constexpr)を、区画のどこに置くか。</summary>
+    public enum ConstantPlacement { AfterTypes, SectionTop, BeforeMembers }
+
     /// <summary>クラスの宣言(ヘッダーの文字)を探し、メンバー変数を足す場所と文字を決める。VS に依存しない。</summary>
     internal static class HeaderEditor
     {
@@ -107,7 +110,7 @@ namespace KCppAssist
         /// access は "public" か "private"。置き場所は、その指定子の最後の区画の中で、並び順(型 → 定数 → コンストラクター → 関数 → メンバー変数)を守る位置。
         /// その指定子の区画がなければ、public はクラスの先頭、private はクラスの末尾に、指定子ごと作る。空行は、前後の宣言と種類が違うときだけ入れる。
         /// </summary>
-        public static Edit PlanMember(string text, int open, string access, bool constant, string declaration, string eol)
+        public static Edit PlanMember(string text, int open, string access, bool constant, string declaration, string eol, ConstantPlacement placement = ConstantPlacement.AfterTypes)
         {
             string m = CppText.Mask(text);
             int close = Scopes.MatchBrace(m, open);
@@ -116,7 +119,7 @@ namespace KCppAssist
             bool isStruct = Regex.IsMatch(head.Substring(Math.Max(0, head.LastIndexOfAny(new[] { ';', '{', '}' }) + 1)), @"\bstruct\b");
 
             var ranked = DefinitionGen.TryPlanRanked(text, open, isStruct,
-                new[] { new DefinitionGen.Item { Rank = constant ? -1 : 5, Text = declaration } }, eol, access);
+                new[] { MakeItem(constant, placement, declaration) }, eol, access);
             if (ranked != null && ranked.Count == 1) return new Edit { Position = ranked[0].Position, Text = ranked[0].Text };
 
             // 直下の指定子(波括弧の深さ 1)を集める
@@ -191,6 +194,17 @@ namespace KCppAssist
             else if (hasContent && !blankBefore) sb.Append(eol);
             sb.Append(label).Append("private:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);
             return new Edit { Position = insertAt, Text = sb.ToString() };
+        }
+
+        private static DefinitionGen.Item MakeItem(bool constant, ConstantPlacement placement, string declaration)
+        {
+            if (!constant) return new DefinitionGen.Item { Rank = 5, Text = declaration };
+            switch (placement)
+            {
+                case ConstantPlacement.SectionTop: return new DefinitionGen.Item { Rank = -2, Text = declaration };            // 区画の先頭(型・using よりも前)
+                case ConstantPlacement.BeforeMembers: return new DefinitionGen.Item { Rank = 5, Before = true, Text = declaration };   // メンバー変数の直前
+                default: return new DefinitionGen.Item { Rank = -1, Text = declaration };                                        // 型・using の直後
+            }
         }
 
         /// <summary>open の '{' に対応する '}' の位置。コメントと文字列の中は数えない。</summary>

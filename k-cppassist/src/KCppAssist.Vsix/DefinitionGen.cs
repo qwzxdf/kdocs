@@ -256,6 +256,7 @@ namespace KCppAssist
             public int Rank;            // -1: 型・using・friend・定数(static constexpr) / 0: コンストラクター / 1: デストラクター / 2: コピー / 3: ムーブ / 4: 関数 / 5: メンバー変数
             public string Text;         // 宣言(字下げなし。Raw なら、字下げ済みで複数行でもよい)
             public bool Raw;
+            public bool Before;         // true: 同じ種類の宣言の「前」に置く(定数をメンバー変数の直前に置くとき)
         }
 
         private static int Group(int rank) { return rank < 0 ? 0 : rank <= 3 ? 1 : rank == 4 ? 2 : 3; }
@@ -389,7 +390,7 @@ namespace KCppAssist
             var after = new Dictionary<int, Stmt>();
             foreach (var it in items.OrderBy(x => x.Rank))
             {
-                int g = stmts.FindIndex(x => x.Rank > it.Rank);
+                int g = it.Before ? stmts.FindIndex(x => x.Rank >= it.Rank) : stmts.FindIndex(x => x.Rank > it.Rank);
                 int anchor = g < 0 ? stmts.Count - 1 : g - 1;
                 int pos = anchor >= 0 ? LineEndOf(text, stmts[anchor].End + 1) : stmts[0].Start;
                 if (!groups.ContainsKey(pos)) { groups[pos] = new List<Item>(); after[pos] = anchor >= 0 ? stmts[anchor] : null; }
@@ -397,6 +398,22 @@ namespace KCppAssist
             }
 
             var edits = new List<Edit>();
+
+            // 「同じ種類の前」に置く項目(定数をメンバー変数の直前に置く)は、その宣言の行の頭に入れる。
+            // 前の宣言との間に空行がなければ、種類が違うときだけ空行を足す(元の空行は、定数の前に残る)
+            foreach (var it in items.Where(x => x.Before).ToList())
+            {
+                int g = stmts.FindIndex(x => x.Rank >= it.Rank);
+                if (g < 0) continue;
+                var nxt0 = stmts[g];
+                var prev0 = g > 0 ? stmts[g - 1] : null;
+                string ind = LeadIndent(text, nxt0.CodeStart);
+                string gap0 = prev0 == null ? "" : text.Substring(Math.Min(prev0.End + 1, nxt0.Start), Math.Max(0, nxt0.Start - prev0.End - 1));
+                bool needBlank = prev0 != null && Group(prev0.Rank) != Group(it.Rank) && !Regex.IsMatch(gap0, @"\n[ \t]*\r?\n");
+                edits.Add(new Edit { Position = nxt0.Start, Text = (needBlank ? eol : "") + ind + it.Text + eol });
+            }
+            if (edits.Count > 0 && items.All(x => x.Before)) return edits;
+
             foreach (var kv in groups)
             {
                 int pos = kv.Key;
