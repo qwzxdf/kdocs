@@ -42,25 +42,12 @@ namespace KCppAssist
 
         private static Edit PlanAtCore(string text, int open, string declaration, string eol)
         {
-            int close = FindClose(text, open);
+            int close = AccessorEditor.FindClose(text, open);
             if (close < 0) return null;
 
-            // クラスの直下(波括弧の深さ 0)にある、最後のアクセス指定子
-            string body = text.Substring(open + 1, close - open - 1);
-            string lastSpec = null;
-            int lastSpecAt = -1;
-            int depth = 0;
-            for (int i = 0; i < body.Length; i++)
-            {
-                char c = body[i];
-                if (c == '{') depth++;
-                else if (c == '}') depth--;
-                else if (depth == 0 && (c == 'p') && (i == 0 || !CppText.IsId(body[i - 1])))
-                {
-                    var s = Regex.Match(body.Substring(i), @"^(public|protected|private)\s*:(?!:)");
-                    if (s.Success) { lastSpec = s.Groups[1].Value; lastSpecAt = i; }
-                }
-            }
+            // クラスの直下にある、最後のアクセス指定子
+            var labels = ClassPlace.Labels(CppText.Mask(text), open, close);
+            string lastSpec = labels.Count > 0 ? labels[labels.Count - 1].Name : null;
 
             // 閉じ括弧の行の頭
             int lineStart = close;
@@ -122,21 +109,7 @@ namespace KCppAssist
                 new[] { MakeItem(constant, placement, declaration) }, eol, access);
             if (ranked != null && ranked.Count == 1) return new Edit { Position = ranked[0].Position, Text = ranked[0].Text };
 
-            // 直下の指定子(波括弧の深さ 1)を集める
-            var specs = new List<KeyValuePair<int, string>>();
-            var specEnd = new Dictionary<int, int>();
-            int depth = 0;
-            for (int i = open; i < close; i++)
-            {
-                char c = m[i];
-                if (c == '{') depth++;
-                else if (c == '}') depth--;
-                else if (depth == 1 && c == 'p' && !CppText.IsId(m[i - 1]))
-                {
-                    var s = Regex.Match(m.Substring(i, Math.Min(m.Length - i, 16)), @"^(public|protected|private)\s*:(?!:)");
-                    if (s.Success) { specs.Add(new KeyValuePair<int, string>(i, s.Groups[1].Value)); specEnd[i] = i + s.Length; }
-                }
-            }
+            var specs = ClassPlace.Labels(m, open, close);
 
             int lineStart = close;
             while (lineStart > 0 && text[lineStart - 1] != '\n') lineStart--;
@@ -146,17 +119,17 @@ namespace KCppAssist
             string memberIndent = closeIndent + unit;
             string label = closeIndent + CppText.LabelOffset(text);
 
-            int idx = specs.FindLastIndex(x => x.Value == access);
+            int idx = specs.FindLastIndex(x => x.Name == access);
             if (idx >= 0)
             {
                 // 指定子はあるが、中身が空。指定子の行の下に入れる。すぐ次が別の指定子なら、空行で分ける
-                int at = specEnd[specs[idx].Key];
+                int at = specs[idx].End;
                 while (at < text.Length && text[at] != '\n' && text[at] != '\r') at++;
                 var sb2 = new StringBuilder();
                 sb2.Append(eol).Append(memberIndent).Append(declaration);
                 if (idx + 1 < specs.Count)
                 {
-                    int nextLine = specs[idx + 1].Key;
+                    int nextLine = specs[idx + 1].Start;
                     while (nextLine > 0 && text[nextLine - 1] != '\n') nextLine--;
                     string gap = text.Substring(at, Math.Max(0, nextLine - at));
                     if (!Regex.IsMatch(gap, @"\n[ \t]*\r?\n")) sb2.Append(eol);
@@ -170,7 +143,7 @@ namespace KCppAssist
                 int nlOpen = text.IndexOf('\n', open);
                 if (braceFirst && nlOpen > open && nlOpen < close && m.Substring(open + 1, nlOpen - open - 1).Trim().Length == 0)
                 {
-                    int firstSpec = specs.Count > 0 ? specs[0].Key : close;
+                    int firstSpec = specs.Count > 0 ? specs[0].Start : close;
                     bool implicitPrivate = m.Substring(open + 1, firstSpec - open - 1).Trim().Length > 0;
                     bool hasBody = m.Substring(open + 1, close - open - 1).Trim().Length > 0;
                     var top = new StringBuilder();
@@ -205,33 +178,6 @@ namespace KCppAssist
                 case ConstantPlacement.BeforeMembers: return new DefinitionGen.Item { Rank = 5, Before = true, Text = declaration };   // メンバー変数の直前
                 default: return new DefinitionGen.Item { Rank = -1, Text = declaration };                                        // 型・using の直後
             }
-        }
-
-        /// <summary>open の '{' に対応する '}' の位置。コメントと文字列の中は数えない。</summary>
-        private static int FindClose(string s, int open)
-        {
-            int depth = 0;
-            for (int i = open; i < s.Length; i++)
-            {
-                char c = s[i];
-                if (c == '/' && i + 1 < s.Length && s[i + 1] == '/') { while (i < s.Length && s[i] != '\n') i++; continue; }
-                if (c == '/' && i + 1 < s.Length && s[i + 1] == '*')
-                {
-                    int e = s.IndexOf("*/", i + 2, StringComparison.Ordinal);
-                    if (e < 0) return -1;
-                    i = e + 1;
-                    continue;
-                }
-                if (c == '"' || c == '\'')
-                {
-                    char q = c;
-                    for (i++; i < s.Length && s[i] != q; i++) if (s[i] == '\\') i++;
-                    continue;
-                }
-                if (c == '{') depth++;
-                else if (c == '}') { depth--; if (depth == 0) return i; }
-            }
-            return -1;
         }
     }
 }

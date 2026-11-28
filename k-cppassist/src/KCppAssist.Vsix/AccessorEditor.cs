@@ -209,36 +209,22 @@ namespace KCppAssist
 
         private static HeaderEditor.Edit PlanPublicCore(string text, ClassSpan c, List<string> lines, string eol, bool blankBefore)
         {
-            string body = text.Substring(c.Open + 1, c.Close - c.Open - 1);
-            // 直下(波括弧の深さ 0)のアクセス指定子
-            var specs = new List<KeyValuePair<string, int>>();
-            int depth = 0;
-            for (int i = 0; i < body.Length; i++)
-            {
-                char ch = body[i];
-                if (ch == '{') depth++;
-                else if (ch == '}') depth--;
-                else if (depth == 0 && ch == 'p' && (i == 0 || !(char.IsLetterOrDigit(body[i - 1]) || body[i - 1] == '_')))
-                {
-                    var s = Regex.Match(body.Substring(i), @"^(public|protected|private)\s*:(?!:)");
-                    if (s.Success) specs.Add(new KeyValuePair<string, int>(s.Groups[1].Value, i));
-                }
-            }
+            var specs = ClassPlace.Labels(CppText.Mask(text), c.Open, c.Close);     // 直下のアクセス指定子
 
             int lineStartOfClose = c.Close;
             while (lineStartOfClose > 0 && text[lineStartOfClose - 1] != '\n') lineStartOfClose--;
             bool braceFirst = text.Substring(lineStartOfClose, c.Close - lineStartOfClose).Trim().Length == 0;
             string closeIndent = braceFirst ? text.Substring(lineStartOfClose, c.Close - lineStartOfClose) : "";
 
-            int pubIdx = specs.FindLastIndex(s => s.Key == "public");
+            int pubIdx = specs.FindLastIndex(s => s.Name == "public");
             int boundary;            // この位置の「行の頭」の手前までが public の範囲
             string specIndent = closeIndent + " ";
             bool needSpec = false;
             if (pubIdx >= 0)
             {
-                int pubAbs = c.Open + 1 + specs[pubIdx].Value;
+                int pubAbs = specs[pubIdx].Start;
                 specIndent = LineIndent(text, pubAbs);
-                boundary = pubIdx + 1 < specs.Count ? c.Open + 1 + specs[pubIdx + 1].Value : c.Close;
+                boundary = pubIdx + 1 < specs.Count ? specs[pubIdx + 1].Start : c.Close;
             }
             else if (c.IsStruct && specs.Count == 0)
             {

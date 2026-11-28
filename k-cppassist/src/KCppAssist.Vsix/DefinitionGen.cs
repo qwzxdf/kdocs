@@ -446,32 +446,19 @@ namespace KCppAssist
         private static bool PublicRegion(string m, int open, int close, bool isStruct, out int regionStart, out int regionEnd, string access = "public")
         {
             regionStart = -1; regionEnd = close;
-            var specs = new List<KeyValuePair<int, string>>();
-            var specEnd = new Dictionary<int, int>();
-            int depth = 0;
-            for (int i = open; i < close; i++)
-            {
-                char c = m[i];
-                if (c == '{') depth++;
-                else if (c == '}') depth--;
-                else if (depth == 1 && c == 'p' && (i == 0 || !(char.IsLetterOrDigit(m[i - 1]) || m[i - 1] == '_')))
-                {
-                    var s = Regex.Match(m.Substring(i, Math.Min(m.Length - i, 16)), @"^(public|protected|private)\s*:(?!:)");
-                    if (s.Success) { specs.Add(new KeyValuePair<int, string>(i, s.Groups[1].Value)); specEnd[i] = i + s.Length; }
-                }
-            }
-            int last = specs.FindLastIndex(x => x.Value == access);
+            var specs = ClassPlace.Labels(m, open, close);
+            int last = specs.FindLastIndex(x => x.Name == access);
             if (last >= 0)
             {
-                regionStart = specEnd[specs[last].Key];
-                if (last + 1 < specs.Count) regionEnd = specs[last + 1].Key;
+                regionStart = specs[last].End;
+                if (last + 1 < specs.Count) regionEnd = specs[last + 1].Start;
                 return true;
             }
             // struct は、指定子がなければ public。class は、指定子がなければ private(最初の指定子の前まで)
             if ((isStruct && access == "public") || (!isStruct && access == "private"))
             {
                 regionStart = open + 1;
-                if (specs.Count > 0) regionEnd = specs[0].Key;
+                if (specs.Count > 0) regionEnd = specs[0].Start;
                 return true;
             }
             return false;
@@ -488,20 +475,7 @@ namespace KCppAssist
                 if (ranked != null && ranked.Count == 1) return ranked[0];
             }
 
-            var specs = new List<KeyValuePair<int, string>>();     // (指定子の頭, 名前)
-            var specEnd = new Dictionary<int, int>();
-            int depth = 0;
-            for (int i = open; i < close; i++)
-            {
-                char c = m[i];
-                if (c == '{') depth++;
-                else if (c == '}') depth--;
-                else if (depth == 1 && c == 'p' && (i == 0 || !(char.IsLetterOrDigit(m[i - 1]) || m[i - 1] == '_')))
-                {
-                    var s = Regex.Match(m.Substring(i, Math.Min(m.Length - i, 16)), @"^(public|protected|private)\s*:(?!:)");
-                    if (s.Success) { specs.Add(new KeyValuePair<int, string>(i, s.Groups[1].Value)); specEnd[i] = i + s.Length; }
-                }
-            }
+            var specs = ClassPlace.Labels(m, open, close);
 
             int lineStart = close;
             while (lineStart > 0 && text[lineStart - 1] != '\n') lineStart--;
@@ -510,16 +484,16 @@ namespace KCppAssist
             string memberIndent = closeIndent + CppText.IndentUnit(text);
 
             int regionStart = -1, regionEnd = close;
-            int last = specs.FindLastIndex(s => s.Value == "public");
+            int last = specs.FindLastIndex(s => s.Name == "public");
             if (last >= 0)
             {
-                regionStart = specEnd[specs[last].Key];
-                if (last + 1 < specs.Count) regionEnd = specs[last + 1].Key;
+                regionStart = specs[last].End;
+                if (last + 1 < specs.Count) regionEnd = specs[last + 1].Start;
             }
             else if (isStruct)
             {
                 regionStart = open + 1;
-                if (specs.Count > 0) regionEnd = specs[0].Key;
+                if (specs.Count > 0) regionEnd = specs[0].Start;
             }
 
             if (regionStart < 0)
@@ -530,7 +504,7 @@ namespace KCppAssist
                 int nlOpen = text.IndexOf('\n', open);
                 if (braceFirst && nlOpen > open && nlOpen < close && m.Substring(open + 1, nlOpen - open - 1).Trim().Length == 0)
                 {
-                    int firstSpec = specs.Count > 0 ? specs[0].Key : close;
+                    int firstSpec = specs.Count > 0 ? specs[0].Start : close;
                     bool implicitPrivate = m.Substring(open + 1, firstSpec - open - 1).Trim().Length > 0;
                     var top = new StringBuilder();
                     top.Append(label).Append("public:").Append(eol).Append(memberIndent).Append(declaration).Append(eol);

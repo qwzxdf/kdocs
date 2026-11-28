@@ -31,6 +31,39 @@ namespace KCppAssist
             return sb.ToString();
         }
 
+        /// <summary>クラス本体の直下の、アクセス指定子(「public:」など)。位置は元の文字(text)のもの。</summary>
+        public sealed class AccessLabel
+        {
+            public int Start;       // 「public」の p の位置
+            public int End;         // 「:」の次の位置
+            public string Name;     // public / protected / private
+        }
+
+        private static readonly Regex LabelAt = new Regex(@"\G(public|protected|private)\s*:(?!:)", RegexOptions.Compiled);
+
+        /// <summary>
+        /// open の「{」で始まるクラスの本体(close の「}」まで)の直下にあるアクセス指定子を、先頭から順に返す。
+        /// m は Mask 済みの文字。入れ子の { } の中(メンバー関数の本体や入れ子の型)にあるものは数えない。
+        /// クラスの中の並びを読む処理は、指定子の走査を自分で書かず、これを使う。
+        /// </summary>
+        public static List<AccessLabel> Labels(string m, int open, int close)
+        {
+            var list = new List<AccessLabel>();
+            int depth = 0;
+            for (int i = open; i < close && i < m.Length; i++)
+            {
+                char c = m[i];
+                if (c == '{') depth++;
+                else if (c == '}') depth--;
+                else if (depth == 1 && c == 'p' && (i == 0 || !CppText.IsId(m[i - 1])))
+                {
+                    var s = LabelAt.Match(m, i);
+                    if (s.Success) list.Add(new AccessLabel { Start = i, End = i + s.Length, Name = s.Groups[1].Value });
+                }
+            }
+            return list;
+        }
+
         private static readonly Regex Label = new Regex(@"(?<![:\w])(public|private|protected)\s*:(?!:)", RegexOptions.Compiled);
 
         /// <summary>block(宣言の並び。末尾は改行)を入れる位置と、実際に入れる文字。</summary>
