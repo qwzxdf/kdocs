@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -193,6 +194,20 @@ namespace KCppAssist
         /// blankBefore が true で、直前がメンバーの行なら、最初の行の前にも空行を入れる。
         /// </summary>
         public static HeaderEditor.Edit PlanPublic(string text, ClassSpan c, List<string> lines, string eol, bool blankBefore)
+        {
+            var old = PlanPublicCore(text, c, lines, eol, blankBefore);
+            // public: の中に、関数より後ろにメンバー変数があるときは、関数をメンバー変数の前に置く(並びは 関数 → メンバー変数)
+            if (old != null && lines.Count > 0 && lines.All(l => l.Length > 0 && l.IndexOf('\n') < 0 && (l.EndsWith(";") || l.EndsWith("}"))
+                && l.Count(ch => ch == '{') == l.Count(ch => ch == '}') && l.Count(ch => ch == '(') == l.Count(ch => ch == ')')))
+            {
+                var items = lines.Select(l => new DefinitionGen.Item { Rank = 4, Text = l }).ToList();
+                var ranked = DefinitionGen.TryPlanRanked(text, c.Open, c.IsStruct, items, eol);
+                if (ranked != null && ranked.Count == 1 && ranked[0].Position < old.Position) return new HeaderEditor.Edit { Position = ranked[0].Position, Text = ranked[0].Text };
+            }
+            return old;
+        }
+
+        private static HeaderEditor.Edit PlanPublicCore(string text, ClassSpan c, List<string> lines, string eol, bool blankBefore)
         {
             string body = text.Substring(c.Open + 1, c.Close - c.Open - 1);
             // 直下(波括弧の深さ 0)のアクセス指定子

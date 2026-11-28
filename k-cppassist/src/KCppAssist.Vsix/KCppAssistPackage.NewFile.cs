@@ -323,8 +323,16 @@ namespace KCppAssist
         }
 
         /// <summary>ヘッダーと同じ名前の cpp を作る(すでにあれば、そのパス)。プロジェクトにも足す。</summary>
-        private async System.Threading.Tasks.Task<string> EnsureCppAsync(Active a, MemberScan.ClassInfo cls)
+        private System.Threading.Tasks.Task<string> EnsureCppAsync(Active a, MemberScan.ClassInfo cls)
         {
+            return EnsureCppAsync(a.Path, a.Dte, cls.Name, NamespaceOf(cls));
+        }
+
+        /// <summary>ヘッダー path と同じ名前の cpp を作る(すでにあれば、そのパス)。ns は cpp を囲む namespace(「A::B」。なければ空)。</summary>
+        private async System.Threading.Tasks.Task<string> EnsureCppAsync(string headerPath, DTE dte, string className, string ns)
+        {
+            var a = new { Path = headerPath, Dte = dte };
+            var cls = new { Name = className };
             string dir = Path.GetDirectoryName(a.Path), stem = Path.GetFileNameWithoutExtension(a.Path);
             string existing = new[] { ".cpp", ".cc", ".cxx" }.Select(e => Path.Combine(dir, stem + e)).FirstOrDefault(File.Exists);
             if (existing != null) return existing;
@@ -337,7 +345,7 @@ namespace KCppAssist
             var st = await Task.Run(() => NewFileService.Detect(root, IncludeService.SkipDirs(opt), dir));
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var o = NewFileService.Build(opt, st);
-            o.Namespace = NamespaceOf(cls);                         // cpp は、クラスを囲んでいる namespace に合わせる
+            o.Namespace = ns;                         // cpp は、クラスを囲んでいる namespace に合わせる
             string cppPath = Path.Combine(dir, stem + ".cpp");
             string src = NewFileGen.Source(Path.GetFileName(a.Path), o);
             File.WriteAllText(cppPath, src, new UTF8Encoding(true));

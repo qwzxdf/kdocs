@@ -24,6 +24,20 @@ namespace KCppAssist
         /// <summary>open の「{」で始まるクラスの本体の末尾に、メンバー 1 行を入れる編集を返す。</summary>
         public static Edit PlanAt(string text, int open, string declaration, string eol)
         {
+            var old = PlanAtCore(text, open, declaration, eol);
+            // 末尾の private: に、メンバー変数より後ろへ関数を足すときは、メンバー変数の前に置く(並びは 関数 → メンバー変数)
+            if (old != null && declaration.IndexOf('\n') < 0 && declaration.Contains("("))
+            {
+                string head = CppText.Mask(text).Substring(0, open);
+                bool isStruct = Regex.IsMatch(head.Substring(Math.Max(0, head.LastIndexOfAny(new[] { ';', '{', '}' }) + 1)), @"\bstruct\b");
+                var rk = DefinitionGen.TryPlanRanked(text, open, isStruct, new[] { new DefinitionGen.Item { Rank = DefinitionGen.RankOf(declaration, DefinitionGen.ClassNameAt(text, open)), Text = declaration } }, eol, "private");
+                if (rk != null && rk.Count == 1 && rk[0].Position < old.Position) return new Edit { Position = rk[0].Position, Text = rk[0].Text };
+            }
+            return old;
+        }
+
+        private static Edit PlanAtCore(string text, int open, string declaration, string eol)
+        {
             int close = FindClose(text, open);
             if (close < 0) return null;
 

@@ -237,7 +237,9 @@ namespace KCppAssist
                 sb.Append(" override;").Append(eol);
                 plan.Added.Add(f.Name);
             }
-            ClassPlace.Insert(text, m, cls, sb.ToString(), eol, out plan.Position, out plan.Text);
+            var ranked = DefinitionGen.TryPlanRanked(text, cls.Open, cls.IsStruct, new[] { new DefinitionGen.Item { Rank = 4, Text = sb.ToString(), Raw = true } }, eol);
+            if (ranked != null && ranked.Count == 1) { plan.Position = ranked[0].Position; plan.Text = ranked[0].Text; }
+            else ClassPlace.Insert(text, m, cls, sb.ToString(), eol, out plan.Position, out plan.Text);
             return plan;
         }
     }

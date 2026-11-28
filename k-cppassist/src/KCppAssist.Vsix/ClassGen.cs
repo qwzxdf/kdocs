@@ -30,6 +30,7 @@ namespace KCppAssist
             // コンストラクター・デストラクターは 3 通り。3 つ目(.h に宣言、.cpp に定義)は、ファイルをまたぐので、パッケージの側で、この 2 つのすぐ後ろに足す
             Try("ctordtor-default", "コンストラクター・デストラクターを作る (= default)");
             Try("ctordtor-inline", "コンストラクター・デストラクターを作る (.h に {} で書く)");
+            if (OnHead(text, caret)) Try("tostruct", "struct にする (デフォルトのコンストラクター・デストラクターを消す)");
             Try("nocopymove", "コピー・ムーブを禁止する (= delete)");
             Try("nocopy", "コピー禁止・ムーブ可にする (= delete / = default)");
             Try("rule5", "コピー・ムーブ・デストラクターを = default で書く");
@@ -58,6 +59,7 @@ namespace KCppAssist
                 case "ctordtor": return CtorDtor(text, cls, eol, CtorStyle.Declare, out why);
                 case "ctordtor-default": return CtorDtor(text, cls, eol, CtorStyle.Default, out why);
                 case "ctordtor-inline": return CtorDtor(text, cls, eol, CtorStyle.Inline, out why);
+                case "tostruct": return SpecialMove.ToStruct(text, cls, eol, out why);
                 case "nocopymove": return NoCopyMove(text, cls, eol, out why);
                 case "nocopy": return Special(text, cls, eol, false, out why);
                 case "rule5": return Special(text, cls, eol, true, out why);
@@ -79,8 +81,17 @@ namespace KCppAssist
         /// </summary>
         private static void AddPublic(Refactor.Change ch, string text, MemberScan.ClassInfo cls, IList<string> lines, string eol)
         {
+            if (lines.Count > 0 && lines.All(l => l.Length > 0 && l.IndexOf('\n') < 0 && (l.EndsWith(";") || l.EndsWith("}")) && !l.StartsWith("template")
+                && l.Count(c => c == '{') == l.Count(c => c == '}') && l.Count(c => c == '(') == l.Count(c => c == ')')))
+            {
+                var items = lines.Select(l => new DefinitionGen.Item { Rank = DefinitionGen.RankOf(l, cls.Name), Text = l }).ToList();
+                var ranked = DefinitionGen.TryPlanRanked(text, cls.Scope.Open, cls.IsStruct, items, eol);
+                if (ranked != null) { foreach (var r in ranked) ch.Add(r.Position, 0, r.Text); return; }
+            }
             const string Mark = "\u0001";
-            var e = DefinitionGen.PlanPublicMember(text, cls.Scope.Open, cls.IsStruct, Mark, eol);
+            // 複数行のひとまとまり(template と本体など)は、関数として、メンバー変数より前に置く
+            var one = DefinitionGen.TryPlanRanked(text, cls.Scope.Open, cls.IsStruct, new[] { new DefinitionGen.Item { Rank = 4, Text = Mark } }, eol);
+            var e = one != null && one.Count == 1 ? one[0] : DefinitionGen.PlanPublicMember(text, cls.Scope.Open, cls.IsStruct, Mark, eol);
             int k = e.Text.IndexOf(Mark, StringComparison.Ordinal);
             int ls = e.Text.LastIndexOf('\n', k) + 1;
             string indent = e.Text.Substring(ls, k - ls);
@@ -151,13 +162,7 @@ namespace KCppAssist
             if (lines.Count == 0) { why = L.T("コンストラクターとデストラクターは、もう宣言してあります"); return null; }
             var ch = new Refactor.Change();
             // コピー・ムーブの宣言があれば、その上に置く(コンストラクター → デストラクター → コピー → ムーブ の並びにする)
-            int at = FirstCopyMoveLine(text, cls);
-            if (at >= 0)
-            {
-                string ind = MemberScan.Indent(text, at);
-                ch.Add(at, 0, string.Concat(lines.Select(l => ind + l + eol)));
-            }
-            else AddPublic(ch, text, cls, lines, eol);
+            AddPublic(ch, text, cls, lines, eol);
             string what = string.Join(L.T(" と "), lines.Select(l => "~" + cls.Name == l.Replace("virtual ", "").Split('(')[0] ? "~" + cls.Name + "()" : cls.Name + "()"));
             ch.Message = L.F("{0} に {1}{2}", cls.Name, what, (style == CtorStyle.Default ? L.T(" を = default で作りました") : style == CtorStyle.Inline ? L.T(" を {} で作りました") : L.T(" を宣言しました")));
             return ch;

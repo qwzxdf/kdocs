@@ -58,7 +58,7 @@ static class FwdTests
         Check("unique_ptr: moved list", string.Join(",", mv), "E::E,E::~E,E::E(&&),E::operator=(&&)");
         string nodtor = "class G {\n public:\n  void F();\n private:\n  std::unique_ptr<Scene> s_;\n};\n";
         Check("unique_ptr: adds ~G(); when missing", ForwardDecl.MoveSpecialsOut(nodtor, new[] { "game::Scene" }, "\n", out mv),
-            "class G {\n public:\n  void F();\n  ~G();\n private:\n  std::unique_ptr<Scene> s_;\n};\n");
+            "class G {\n public:\n  ~G();\n\n  void F();\n private:\n  std::unique_ptr<Scene> s_;\n};\n");
         Check("unique_ptr: other class untouched", ForwardDecl.MoveSpecialsOut("class G {\n public:\n  ~G() = default;\n  std::unique_ptr<Other> o_;\n};\n", new[] { "Scene" }, "\n", out mv), "class G {\n public:\n  ~G() = default;\n  std::unique_ptr<Other> o_;\n};\n");
         Check("unique_ptr: = default body", ForwardDecl.AsDefaulted("E::~E()\n{\n}", "\n"), "E::~E() = default;");
 

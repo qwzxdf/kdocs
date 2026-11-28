@@ -46,7 +46,7 @@ namespace KCppAssist
             }
             if (bad.Count > 0)
             {
-                why = L.F("ヘッダーに本体のある関数 ({0}) が、移すメンバーを使っています。先に「関数の本体を cpp に移す」で cpp に移してください", string.Join(", ", bad.Distinct()));
+                why = L.F("ヘッダーに本体のある関数 ({0}) が、移すメンバーを使っています。先に「実装を cpp に移す」で cpp に移してください", string.Join(", ", bad.Distinct()));
                 return null;
             }
             foreach (var m in moved)

@@ -83,6 +83,7 @@ namespace KCppAssist
                 case "extract": await ExtractAsync(a); return;
                 case "makecpp": await MakeCppAsync(a); return;
                 case "ctordtor-cpp": await CtorDtorCppAsync(a); return;
+                case "ctordtor-move": await CtorDtorMoveAsync(a); return;
                 case "pimpl": await PimplAsync(a); return;
             }
             string why;
@@ -162,6 +163,10 @@ namespace KCppAssist
                     // 「.h に宣言、.cpp に定義」は、ほかの 2 通りのすぐ後ろに並べる
                     int k = list.FindLastIndex(o => o.Id == "ctordtor-default" || o.Id == "ctordtor-inline");
                     if (k >= 0) list.Insert(k + 1, new Refactor.Offer { Id = "ctordtor-cpp", Title = L.T("コンストラクター・デストラクターを作る (.h に宣言、.cpp に定義)") });
+                    // すでにあるコンストラクター・デストラクター(本体か = default)を cpp に移す
+                    string whyMove;
+                    if (SpecialMove.Make(text, caret, "", eol, out whyMove) != null)
+                        list.Add(new Refactor.Offer { Id = "ctordtor-move", Title = L.T("コンストラクター・デストラクターを cpp に移す") });
                 }
                 // クラス全体の項目は、クラスそのものを指している行でだけ(メンバーの行では出さない)
                 bool classLevel = ClassGen.AtClassLevel(text, caret);
@@ -225,6 +230,26 @@ namespace KCppAssist
             SyncService.ApplyEdits(a.View.TextBuffer, SyncService.Diff(a.Text, r.Header), a.Undo, L.T("K-Cpp: pimpl にする"));
             ReturnTo(a.Path, cpp);
             await ReportAsync(L.F("{0} を pimpl にしました ({1} を {2} の Impl に移しました。保存はしていません)", cls.Name, string.Join(", ", r.Moved), Path.GetFileName(cpp)), false);
+        }
+
+
+        /// <summary>すでにあるコンストラクター・デストラクターを、ヘッダーから cpp に移す(宣言をヘッダーに残す)。cpp がなければ作る。</summary>
+        private async Task CtorDtorMoveAsync(Active a)
+        {
+            var cls = MemberScan.At(a.Text, a.Caret);
+            if (cls == null) { await ReportAsync(L.T("クラスの中で押してください"), true); return; }
+            string cpp = await EnsureCppAsync(a, cls);
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            ITextBuffer buf = cpp == null ? null : SyncService.OpenForEdit(cpp, a.Adapters);
+            if (buf == null) { await ReportAsync(L.F("{0} の cpp を開けませんでした", cls.Name), true); return; }
+            string cppText = buf.CurrentSnapshot.GetText();
+            string why;
+            var r = SpecialMove.Make(a.Text, a.Caret, cppText, CppText.Eol(cppText, a.Eol), out why);
+            if (r == null) { await ReportAsync(why, true); return; }
+            SyncService.ApplyEdits(buf, SyncService.Diff(cppText, r.Cpp), a.Undo, L.T("K-Cpp: コンストラクター・デストラクターを cpp に移す"));
+            SyncService.ApplyEdits(a.View.TextBuffer, SyncService.Diff(a.Text, r.Header), a.Undo, L.T("K-Cpp: コンストラクター・デストラクターを cpp に移す"));
+            ReturnTo(a.Path, cpp);
+            await ReportAsync(L.F("{0} を {1} に移しました ({2}。保存はしていません)", string.Join(", ", r.Moved), Path.GetFileName(cpp), cls.Name), false);
         }
 
         private async Task AllDefinitionsAsync(Active a)

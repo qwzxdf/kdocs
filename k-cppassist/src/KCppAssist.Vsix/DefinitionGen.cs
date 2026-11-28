@@ -99,6 +99,7 @@ namespace KCppAssist
             // 置き場所の定義がない(新しい cpp で、namespace の枠だけある)ときは、同じ namespace の枠の中の末尾に置く。
             // 枠の外の末尾に「Prest::Foo::Foo()」と書くより、枠の中に「Foo::Foo()」と書くほうが、ふつうの書き方
             Scopes.Scope nsBox = null;
+            string newNs = null;
             if (anchor == null)
             {
                 int ownClasses = decl.Class != null ? 1 : 0;
@@ -109,6 +110,8 @@ namespace KCppAssist
                     .OrderByDescending(s => s.Chain().Count).ThenByDescending(s => s.Open)
                     .FirstOrDefault();
                 if (nsBox != null) skip = nsBox.Chain().Count;
+                // cpp に namespace の枠がなければ、末尾に枠を作って、その中に書く(「Prest::Foo::Bar()」と修飾して書かない)
+                else if (nsCount > 0) { skip = nsCount; newNs = string.Join("::", decl.Chain.Take(nsCount)); }
             }
             var quals = decl.Chain.Skip(skip).ToList();
             string name = (quals.Count > 0 ? string.Join("::", quals) + "::" : "") + decl.Name;
@@ -152,6 +155,8 @@ namespace KCppAssist
                 return new Edit { Position = last + 1, Text = eol + eol + stub };
             }
             bool endsWithNewline = cppText.EndsWith("\n");
+            if (newNs != null)
+                return new Edit { Position = cppText.Length, Text = (cppText.Length == 0 ? "" : (endsWithNewline ? eol : eol + eol)) + "namespace " + newNs + " {" + eol + eol + stub + eol + eol + "}  // namespace " + newNs + eol };
             return new Edit { Position = cppText.Length, Text = (cppText.Length == 0 ? "" : (endsWithNewline ? eol : eol + eol)) + stub + eol };
         }
 
@@ -242,11 +247,223 @@ namespace KCppAssist
         /// open の「{」で始まるクラスの本体の、public の区画の末尾に、メンバー 1 行(宣言)を入れる編集を返す。
         /// public: がなければ、末尾に作る(struct は先頭から public)。読めなければ null。
         /// </summary>
+        // ---- 並び順つきの挿入 ----
+        // クラスの中の並びは、コンストラクター → デストラクター → コピー → ムーブ → 関数 → メンバー変数。
+        // 区画の末尾に足すだけだと、この順が崩れる(public: にメンバー変数があるとき、関数が変数の後ろに入る、など)。
+
+        public sealed class Item
+        {
+            public int Rank;            // -1: 型・using・friend / 0: コンストラクター / 1: デストラクター / 2: コピー / 3: ムーブ / 4: 関数 / 5: メンバー変数
+            public string Text;         // 宣言(字下げなし。Raw なら、字下げ済みで複数行でもよい)
+            public bool Raw;
+        }
+
+        private static int Group(int rank) { return rank < 0 ? 0 : rank <= 3 ? 1 : rank == 4 ? 2 : 3; }
+
+        /// <summary>クラス本体の直下の宣言 1 つ(「;」までか、本体の「}」まで)の種類。Item.Rank の値を返す。</summary>
+        public static int RankOf(string stmt, string cls)
+        {
+            string s = Regex.Replace(stmt ?? "", @"\s+", " ").Trim();
+            s = AttrRx.Replace(s, "").Trim();
+            if (Regex.IsMatch(s, @"^(?:using|typedef|enum|class|struct|union|friend|static_assert)\b")) return -1;
+            if (Regex.IsMatch(s, @"^template\b") && Regex.IsMatch(s, @"\b(?:using|class|struct)\s+\w+\s*(?:=|\{|;)")) return -1;
+            string t = Regex.Replace(s, @"^(?:(?:explicit|virtual|inline|constexpr|consteval|static|\w+_API|__declspec\s*\([^)]*\))\s+)*", "");
+            int p = t.IndexOf('(');
+            if (p < 0) return 5;
+            string head = t.Substring(0, p);
+            if (Regex.IsMatch(Regex.Replace(head, @"operator\s*[^\s(\w]+|operator\s*\w+", " "), @"[={]")) return 5;
+            string rest = t.Substring(p);
+            string cn = string.IsNullOrEmpty(cls) ? null : Regex.Escape(cls);
+            if (Regex.IsMatch(head, @"operator\s*=\s*$"))
+            {
+                if (cn != null && Regex.IsMatch(rest, @"^\(\s*(?:const\s+)?(?:[\w:]*::)?" + cn + @"\s*&&")) return 3;
+                if (cn != null && Regex.IsMatch(rest, @"^\(\s*(?:const\s+)?(?:[\w:]*::)?" + cn + @"\s*&")) return 2;
+                return 4;
+            }
+            var nm = Regex.Match(head, @"(~?)\s*(\w+)\s*$");
+            if (cn != null && nm.Success && nm.Groups[2].Value == cls)
+            {
+                if (nm.Groups[1].Value.Length > 0) return 1;
+                if (Regex.IsMatch(rest, @"^\(\s*(?:const\s+)?" + cn + @"\s*&&")) return 3;
+                if (Regex.IsMatch(rest, @"^\(\s*(?:const\s+)?" + cn + @"\s*&")) return 2;
+                return 0;
+            }
+            return 4;
+        }
+
+        /// <summary>open の「{」で始まるクラスの名前(直前の class / struct の名前)。読めなければ null。</summary>
+        public static string ClassNameAt(string text, int open)
+        {
+            string head = CppText.Mask(text).Substring(0, open);
+            Match last = null;
+            foreach (Match x in Regex.Matches(head, @"\b(?:class|struct)\s+(?:[A-Z][A-Z0-9_]*_API\s+)?([A-Za-z_]\w*)")) last = x;
+            return last == null ? null : last.Groups[1].Value;
+        }
+
+        private static int LineEndOf(string text, int pos)
+        {
+            while (pos < text.Length && text[pos] != '\n' && text[pos] != '\r') pos++;
+            return pos;
+        }
+
+        private static string LeadIndent(string text, int pos)
+        {
+            int a = pos;
+            while (a > 0 && text[a - 1] != '\n') a--;
+            int e = a;
+            while (e < text.Length && (text[e] == ' ' || text[e] == '\t')) e++;
+            return text.Substring(a, e - a);
+        }
+
+        private sealed class Stmt { public int Start, CodeStart, End, Rank; }
+
+        /// <summary>
+        /// 最後の public: の区画(struct で指定子がなければ先頭から)に、項目を、種類の並び順を守って入れる編集を返す(位置ごとに 1 つ)。
+        /// 区画に宣言が 1 つもない・public: がないときは null(呼び出し側が、末尾か先頭に作る)。
+        /// </summary>
+        public static List<Edit> TryPlanRanked(string text, int open, bool isStruct, IList<Item> items, string eol, string access = "public")
+        {
+            string m = CppText.Mask(text);
+            int close = Scopes.MatchBrace(m, open);
+            if (close < 0 || items.Count == 0) return null;
+            int rs, re;
+            if (!PublicRegion(m, open, close, isStruct, out rs, out re, access)) return null;
+            string cls = ClassNameAt(text, open);
+
+            // 区画の中の宣言を 1 つずつ(「;」か、本体の「}」まで)
+            var stmts = new List<Stmt>();
+            int depth = 0, codeStart = -1;
+            for (int i = rs; i < re; i++)
+            {
+                char c = m[i];
+                if (depth == 0 && codeStart < 0 && !char.IsWhiteSpace(c)) codeStart = i;
+                bool end = false;
+                int endAt = i;
+                if (c == '{') depth++;
+                else if (c == '}')
+                {
+                    if (--depth == 0)
+                    {
+                        int j = i + 1;
+                        while (j < re && char.IsWhiteSpace(m[j])) j++;
+                        if (j < re && (m[j] == ',' || m[j] == '{')) continue;      // 初期化子リストの {} の続き
+                        end = true;
+                        if (j < re && m[j] == ';') endAt = j;
+                    }
+                    if (depth < 0) depth = 0;
+                }
+                else if (c == ';' && depth == 0) end = true;
+                if (!end) continue;
+                if (codeStart >= 0)
+                {
+                    var st = new Stmt { CodeStart = codeStart, End = endAt };
+                    st.Rank = RankOf(m.Substring(codeStart, endAt - codeStart + 1), cls);
+                    // 直前のコメントの行は、この宣言の一部として、一緒に動かす
+                    int ls = codeStart;
+                    while (ls > 0 && text[ls - 1] != '\n') ls--;
+                    st.Start = ls;
+                    while (st.Start > rs)
+                    {
+                        int pe = st.Start - 1;
+                        if (pe > 0 && text[pe - 1] == '\r') pe--;
+                        int ps = pe;
+                        while (ps > 0 && text[ps - 1] != '\n') ps--;
+                        string prev = text.Substring(ps, pe - ps).Trim();
+                        if (ps < rs || !(prev.StartsWith("//") || prev.StartsWith("/*") || prev.StartsWith("*"))) break;
+                        st.Start = ps;
+                    }
+                    stmts.Add(st);
+                }
+                codeStart = -1;
+                i = endAt;
+            }
+            if (stmts.Count == 0) return null;
+
+            // 項目ごとに、置く位置を決める(同じ位置のものは、種類の順にまとめる)
+            var groups = new SortedDictionary<int, List<Item>>();
+            var after = new Dictionary<int, Stmt>();
+            foreach (var it in items.OrderBy(x => x.Rank))
+            {
+                int g = stmts.FindIndex(x => x.Rank > it.Rank);
+                int anchor = g < 0 ? stmts.Count - 1 : g - 1;
+                int pos = anchor >= 0 ? LineEndOf(text, stmts[anchor].End + 1) : stmts[0].Start;
+                if (!groups.ContainsKey(pos)) { groups[pos] = new List<Item>(); after[pos] = anchor >= 0 ? stmts[anchor] : null; }
+                groups[pos].Add(it);
+            }
+
+            var edits = new List<Edit>();
+            foreach (var kv in groups)
+            {
+                int pos = kv.Key;
+                var anc = after[pos];
+                Stmt nxt = anc == null ? stmts[0] : stmts.FirstOrDefault(x => x.Start > anc.End);
+                string indent = LeadIndent(text, (anc ?? stmts[0]).CodeStart);
+                var sb = new StringBuilder();
+                foreach (var it in kv.Value)
+                {
+                    string body = it.Raw ? it.Text.TrimEnd('\r', '\n') : indent + it.Text;
+                    if (anc != null) sb.Append(eol).Append(body); else sb.Append(body).Append(eol);
+                }
+                string head = "", tail = "";
+                int firstGroup = Group(kv.Value[0].Rank), lastGroup = Group(kv.Value[kv.Value.Count - 1].Rank);
+                // 前の宣言と種類が違えば、空行で分ける
+                if (anc != null && Group(anc.Rank) != firstGroup && !(anc.Rank < 0 && firstGroup == 0)) head = eol;
+                if (nxt != null && Group(nxt.Rank) != lastGroup)
+                {
+                    // 次の宣言との間に空行がなければ、足す
+                    int from = anc == null ? nxt.Start : pos;
+                    string gap = text.Substring(Math.Min(from, nxt.Start), Math.Max(0, nxt.Start - from));
+                    if (anc == null || !Regex.IsMatch(gap, @"\n[ \t]*\r?\n")) tail = eol;
+                }
+                edits.Add(new Edit { Position = pos, Text = head + sb.ToString() + tail });
+            }
+            return edits;
+        }
+
+        /// <summary>最後の public: の区画の範囲。struct で指定子がなければ先頭から。public がなければ false。</summary>
+        private static bool PublicRegion(string m, int open, int close, bool isStruct, out int regionStart, out int regionEnd, string access = "public")
+        {
+            regionStart = -1; regionEnd = close;
+            var specs = new List<KeyValuePair<int, string>>();
+            var specEnd = new Dictionary<int, int>();
+            int depth = 0;
+            for (int i = open; i < close; i++)
+            {
+                char c = m[i];
+                if (c == '{') depth++;
+                else if (c == '}') depth--;
+                else if (depth == 1 && c == 'p' && (i == 0 || !(char.IsLetterOrDigit(m[i - 1]) || m[i - 1] == '_')))
+                {
+                    var s = Regex.Match(m.Substring(i, Math.Min(m.Length - i, 16)), @"^(public|protected|private)\s*:(?!:)");
+                    if (s.Success) { specs.Add(new KeyValuePair<int, string>(i, s.Groups[1].Value)); specEnd[i] = i + s.Length; }
+                }
+            }
+            int last = specs.FindLastIndex(x => x.Value == access);
+            if (last >= 0)
+            {
+                regionStart = specEnd[specs[last].Key];
+                if (last + 1 < specs.Count) regionEnd = specs[last + 1].Key;
+                return true;
+            }
+            if (isStruct && access == "public")
+            {
+                regionStart = open + 1;
+                if (specs.Count > 0) regionEnd = specs[0].Key;
+                return true;
+            }
+            return false;
+        }
+
         public static Edit PlanPublicMember(string text, int open, bool isStruct, string declaration, string eol)
         {
             string m = CppText.Mask(text);
             int close = Scopes.MatchBrace(m, open);
             if (close < 0) return null;
+            if (declaration.IndexOf('\n') < 0)
+            {
+                var ranked = TryPlanRanked(text, open, isStruct, new[] { new Item { Rank = RankOf(declaration, ClassNameAt(text, open)), Text = declaration } }, eol);
+                if (ranked != null && ranked.Count == 1) return ranked[0];
+            }
 
             var specs = new List<KeyValuePair<int, string>>();     // (指定子の頭, 名前)
             var specEnd = new Dictionary<int, int>();

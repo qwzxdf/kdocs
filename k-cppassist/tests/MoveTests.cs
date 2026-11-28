@@ -65,7 +65,7 @@ static class MoveTests
         string h5 ="namespace n {\ninline int Twice(int x) { return x * 2; }\n}\n";
         Check("クラス外の inline",
             ToCpp(h5, "", "Twice"),
-            "namespace n {\nint Twice(int x);\n}\n=====\nint n::Twice(int x) {\n	return x * 2;\n}\n");
+            "namespace n {\nint Twice(int x);\n}\n=====\nnamespace n {\n\nint Twice(int x) {\n	return x * 2;\n}\n\n}  // namespace n\n");
 
         string h6 = "class D {\n public:\n  D() = default;\n  virtual int V() const override { return 1; }\n};\n";
         Check("override を定義に書かない",

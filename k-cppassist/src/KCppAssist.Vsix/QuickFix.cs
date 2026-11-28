@@ -118,9 +118,9 @@ namespace KCppAssist
                 // 本体のある関数: ヘッダーなら cpp へ、cpp の Class::Func ならヘッダーへ、本体を移す
                 if (sig != null && sig.HasBody && !sig.InTemplate)
                 {
-                    if (header && sig.InClass && sig.Class != null) list.Add(Action("関数の本体を cpp に移す", () => Invoke(p => p.RunMove())));
-                    else if (header && !sig.InClass && sig.Class == null) list.Add(Action("関数の本体を cpp に移す", () => Invoke(p => p.RunMove())));
-                    else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("関数の本体をヘッダーに移す", () => Invoke(p => p.RunMove())));
+                    if (header && sig.InClass && sig.Class != null) list.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
+                    else if (header && !sig.InClass && sig.Class == null) list.Add(Action("実装を cpp に移す", () => Invoke(p => p.RunMove())));
+                    else if (!header && !sig.InClass && sig.Class != null) list.Add(Action("実装をヘッダーに移す", () => Invoke(p => p.RunMove())));
                 }
 
                 // class / struct の行: override・コンストラクターを作る

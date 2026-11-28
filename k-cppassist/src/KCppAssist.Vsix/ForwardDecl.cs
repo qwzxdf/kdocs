@@ -223,7 +223,7 @@ namespace KCppAssist
         /// DefinitionGen.PlanDefinition では作れない)。置き場所は、Foo:: の最後の定義の後ろ、なければ同じ namespace の枠の中、なければ末尾。
         /// kind は "dtor" か "moveassign"。すでに定義があれば、cpp をそのまま返す。
         /// </summary>
-        public static string AddOutOfClassDef(string header, string cpp, string cls, string kind, bool noexcept, string eol)
+        public static string AddOutOfClassDef(string header, string cpp, string cls, string kind, bool noexcept, string eol, string body = null, bool allman = false)
         {
             string c = Regex.Escape(cls);
             string cm = CppText.Mask(cpp ?? "");
@@ -257,7 +257,7 @@ namespace KCppAssist
             }
             string q = string.Join("", ns.Skip(skip).Select(n => n + "::")) + cls + "::";
             string def = kind == "dtor"
-                ? q + "~" + cls + "() = default;"
+                ? q + "~" + cls + "()" + (noexcept ? " noexcept" : "") + (body == null ? " = default;" : (allman ? eol : " ") + "{" + eol + body + "}")
                 : string.Join("", ns.Skip(skip).Select(n => n + "::")) + cls + "& " + q + "operator=(" + cls + "&&)" + (noexcept ? " noexcept" : "") + " = default;";
             if (box != null && tail == eol + eol)
             {

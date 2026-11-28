@@ -82,12 +82,16 @@ namespace KCppAssist
             int brace = stub.LastIndexOf(eol + "{" + eol, StringComparison.Ordinal);
             if (brace < 0) { why = L.T("定義の雛形を読めませんでした"); return null; }
             string head = stub.Substring(0, brace);
+            // 雛形のあとに続くもの(新しく作った namespace の枠を閉じる「}」など)は、本体のあとに残す
+            string afterStub = stub.Substring(brace + (eol + "{" + eol).Length);
+            int closeAt = afterStub.IndexOf('}');
+            string stubTail = closeAt >= 0 ? afterStub.Substring(closeAt + 1) : "";
 
             string indent = IndentOf(headerText, FirstCode(m, sig.PrefixStart));
             string hUnit = CppText.IndentUnit(headerText), cUnit = CppText.IndentUnit(cppText, headerText);
             string bodyText = Reunit(Dedent(headerText.Substring(bodyFirst, sig.End + 1 - bodyFirst), indent, eol), hUnit, cUnit, eol);
             bool allman = AllmanOf(cppText) ?? gap.Contains("\n");   // cpp の流儀があればそれに合わせる
-            string composed = Compose(head, bodyText, sig.InitStart >= 0, sig.BodyOpen - bodyFirst, allman, eol, cUnit);
+            string composed = Compose(head, bodyText, sig.InitStart >= 0, sig.BodyOpen - bodyFirst, allman, eol, cUnit) + stubTail;
             plan.Target.Add(new Edit { Position = edit.Position, Length = 0, Text = pre + composed + suf });
             plan.TargetCaret = edit.Position + pre.Length;
             return plan;
@@ -274,7 +278,7 @@ namespace KCppAssist
         }
 
         /// <summary>cpp の関数定義が「{」を別の行に書く流儀(Allman)か。「{」だけの行と、行末の「{」を数えて多い方。どちらもなければ null。</summary>
-        private static bool? AllmanOf(string cppText)
+        internal static bool? AllmanOf(string cppText)
         {
             if (string.IsNullOrEmpty(cppText)) return null;
             string m = CppText.Mask(cppText);

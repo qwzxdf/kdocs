@@ -180,8 +180,42 @@ static class RefactorTests
         // コンストラクター・デストラクター: コピー・ムーブの宣言の上に置く。コピー・ムーブがあっても Foo() を作る
         string cm = "class E|\n{\npublic:\n\tE(const E&) = delete;\n\tE& operator=(const E&) = delete;\n\n\tint x_;\n};\n";
         Check("ctor default above copy", R("ctordtor-default", cm), "class E\n{\npublic:\n\tE() = default;\n\t~E() = default;\n\tE(const E&) = delete;\n\tE& operator=(const E&) = delete;\n\n\tint x_;\n};\n");
-        Check("ctor inline", R("ctordtor-inline", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  void F();\n  A() {}\n  ~A() {}\n};\n");
-        Check("ctor declare (for cpp)", R("ctordtor", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  void F();\n  A();\n  ~A();\n};\n");
+        Check("ctor inline", R("ctordtor-inline", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  A() {}\n  ~A() {}\n\n  void F();\n};\n");
+        Check("ctor declare (for cpp)", R("ctordtor", "class A| {\n public:\n  void F();\n};\n"), "class A {\n public:\n  A();\n  ~A();\n\n  void F();\n};\n");
+        // 並び順(コンストラクター → デストラクター → コピー → ムーブ → 関数 → メンバー)
+        Check("order: ctor goes before functions and members",
+            R("ctordtor", "class A| {\n public:\n  void F();\n  int x_;\n};\n"),
+            "class A {\n public:\n  A();\n  ~A();\n\n  void F();\n  int x_;\n};\n");
+        Check("order: dtor goes after existing ctor",
+            R("ctordtor", "class A| {\n public:\n  A(int v);\n  void F();\n};\n"),
+            "class A {\n public:\n  A(int v);\n  A();\n  ~A();\n\n  void F();\n};\n".Replace("  A(int v);\n  A();\n  ~A();\n", "  A(int v);\n  A();\n  ~A();\n"));
+        Check("order: move goes after copy, before functions",
+            R("rule5", "class A| {\n public:\n  A() = default;\n  ~A() = default;\n  A(const A&) = default;\n  A& operator=(const A&) = default;\n  void F();\n};\n"),
+            "class A {\n public:\n  A() = default;\n  ~A() = default;\n  A(const A&) = default;\n  A& operator=(const A&) = default;\n  A(A&&) noexcept = default;\n  A& operator=(A&&) noexcept = default;\n\n  void F();\n};\n");
+        // class → struct
+        Check("tostruct: drops default ctor/dtor and public:",
+            R("tostruct", "class P| {\n public:\n  P() = default;\n  ~P() {}\n\n  int x;\n};\n"),
+            "struct P {\n  int x;\n};\n");
+        Check("tostruct: keeps private members private",
+            R("tostruct", "class P| {\n  int x;\n public:\n  int y;\n};\n"),
+            "struct P {\n private:\n  int x;\n public:\n  int y;\n};\n");
+        Check("tostruct: keeps other ctor, default ctor stays",
+            R("tostruct", "class P| {\n public:\n  P() = default;\n  P(int a);\n  int x;\n};\n"),
+            "struct P {\n  P() = default;\n  P(int a);\n  int x;\n};\n");
+        Check("tostruct: bare base becomes private",
+            R("tostruct", "class D| : Base {\n public:\n  int x;\n};\n"),
+            "struct D : private Base {\n  int x;\n};\n");
+        Check("tostruct: struct is refused", R("tostruct", "struct S| {\n  int x;\n};\n").StartsWith("!") ? "refused" : "ok", "refused");
+        // コンストラクター・デストラクターを cpp に移す
+        {
+            string whyMv;
+            var mv = SpecialMove.Make("namespace g {\nclass A {\n public:\n  A() {}\n  ~A() {}\n  void F();\n};\n}\n", 20, "", "\n", out whyMv);
+            Check("move ctor/dtor to cpp: header", mv == null ? "!" + whyMv : mv.Header, "namespace g {\nclass A {\n public:\n  A();\n  ~A();\n  void F();\n};\n}\n");
+            Check("move ctor/dtor to cpp: cpp", mv == null ? "!" + whyMv : mv.Cpp, "namespace g {\n\nA::A() {\n}\n\nA::~A() {\n}\n\n}  // namespace g\n");
+            var mv2 = SpecialMove.Make("class B {\n public:\n  B() = default;\n  virtual ~B() = default;\n  void F();\n};\n", 8, "#include \"b.h\"\n", "\n", out whyMv);
+            Check("move defaulted ctor/dtor to cpp: header", mv2 == null ? "!" + whyMv : mv2.Header, "class B {\n public:\n  B();\n  virtual ~B();\n  void F();\n};\n");
+            Check("move defaulted ctor/dtor to cpp: cpp", mv2 == null ? "!" + whyMv : mv2.Cpp, "#include \"b.h\"\n\nB::B() = default;\n\nB::~B() = default;\n");
+        }
         Check("offers if",string.Join(",", Offers("void F() {\n  if (a) {|\n    G();\n  }\n}\n")), "guard");
 
         // ---- pimpl ----

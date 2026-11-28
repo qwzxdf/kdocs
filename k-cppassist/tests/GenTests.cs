@@ -287,10 +287,10 @@ static class GenTests
         Check("override: pure virtuals only", Ov(d1, "Circle(", baseH),
             "class Circle : public Shape {\n" +
             " public:\n" +
+            "  Circle(float r);\n" +
+            "\n" +
             "  void Draw(Renderer& r, int layer) const override;\n" +
             "  float Area() const override;\n" +
-            "\n" +
-            "  Circle(float r);\n" +
             "\n" +
             " private:\n" +
             "  float r_;\n" +
@@ -305,10 +305,9 @@ static class GenTests
         Check("override: remaining non-pure virtuals", Ov(d2, "Draw", baseH),
             "class Circle : public Shape {\n" +
             " public:\n" +
-            "  void Update(float dt) override;\n" +
-            "\n" +
             "  void Draw(Renderer& r, int layer) const override;\n" +
             "  float Area() const override;\n" +
+            "  void Update(float dt) override;\n" +
             "};\n");
 
         string d3 = "struct Sq : Shape {\n  float w;\n};\n";
@@ -394,7 +393,7 @@ static class GenTests
         Check("override: final skipped",
             Ov("class Boss : public Enemy {\n public:\n  void Draw() const override;\n};\n", "Draw",
                "class Enemy {\n public:\n  void Update(float dt) override final;\n  virtual void Draw() const;\n  virtual void Hit(int n);\n};\n"),
-            "class Boss : public Enemy {\n public:\n  void Hit(int n) override;\n\n  void Draw() const override;\n};\n");
+            "class Boss : public Enemy {\n public:\n  void Draw() const override;\n  void Hit(int n) override;\n};\n");
 
         // 関数作成: 別の関数の同じ名前の変数を見ない
         Check("usage: other function's variable ignored",

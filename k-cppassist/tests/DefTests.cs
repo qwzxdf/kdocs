@@ -61,10 +61,10 @@ static class DefTests
         Check("noexcept と後置の戻り値の型", Def("class A {\n public:\n  auto F(int a) const noexcept -> int;\n};\n", "", "F"), "auto A::F(int a) const noexcept -> int\n{\n}\n");
         Check("SAL 注釈と export マクロを落とす", Def("class A {\n public:\n  DX_API void __cdecl Draw(_In_ ID3D11Device* d, _Out_ int* n);\n};\n", "", "Draw"), "void A::Draw(ID3D11Device* d, int* n)\n{\n}\n");
         Check("コメントと public: を落とす", Def("class A {\n public:\n  // 描く\n  void F();\n};\n", "", "F"), "void A::F()\n{\n}\n");
-        Check("namespace の中のクラスは完全修飾", Def("namespace g {\nclass A {\n public:\n  void F();\n};\n}\n", "", "F"), "void g::A::F()\n{\n}\n");
+        Check("namespace の中のクラスは完全修飾", Def("namespace g {\nclass A {\n public:\n  void F();\n};\n}\n", "", "F"), "namespace g {\n\nvoid A::F()\n{\n}\n\n}  // namespace g\n");
         Check("cpp が namespace の中なら、修飾しない", Def("namespace g {\nclass A {\n public:\n  void F();\n  void H();\n};\n}\n", "namespace g {\nvoid A::F() {}\n}  // namespace g\n", "H"),
               "namespace g {\nvoid A::F() {}\n\nvoid A::H()\n{\n}\n}  // namespace g\n");
-        Check("自由関数(namespace の中)", Def("namespace g {\nvoid Free(int a);\n}\n", "", "Free"), "void g::Free(int a)\n{\n}\n");
+        Check("自由関数(namespace の中)", Def("namespace g {\nvoid Free(int a);\n}\n", "", "Free"), "namespace g {\n\nvoid Free(int a)\n{\n}\n\n}  // namespace g\n");
         Check("グローバルの自由関数", Def("void Free(int a);\n", "", "Free"), "void Free(int a)\n{\n}\n");
         {
             string hdr = "class A {\n public:\n  void F();\n};\n";
@@ -88,7 +88,7 @@ static class DefTests
         Check("public がない class は先頭に作る", Member("class A {\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void G();\n\n private:\n  int x_;\n};\n");
         Check("指定子のない class は public: と private: を作る", Member("namespace P {\n    class E\n    {\n\n        std::unique_ptr<T> s_;\n    };\n}\n", "E", "E() = default;"),
             "namespace P {\n    class E\n    {\n    public:\n        E() = default;\n\n    private:\n\n        std::unique_ptr<T> s_;\n    };\n}\n");
-        Check("struct は先頭から public", Member("struct P {\n  int x;\n};\n", "P", "void G();"), "struct P {\n  int x;\n  void G();\n};\n");
+        Check("struct は先頭から public", Member("struct P {\n  int x;\n};\n", "P", "void G();"), "struct P {\n  void G();\n\n  int x;\n};\n");
         Check("コメントの中の public: は無視", Member("class A {\n public:\n  void F();  // public: です\n private:\n  int x_;\n};\n", "A", "void G();"), "class A {\n public:\n  void F();  // public: です\n  void G();\n private:\n  int x_;\n};\n");
 
         // 新しい cpp に namespace の枠だけあるとき: 枠の中に、namespace を付けない名前で置く
@@ -98,7 +98,7 @@ static class DefTests
         Check("空の namespace の枠の中に置く", afterCtor, "#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\n}\n");
         Check("2 つ目は 1 つ目の後ろ", Def(nsh, afterCtor, "Count"), "#include \"RPCDispatcher.h\"\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\nint RPCDispatcher::Count() const\n{\n\treturn 0;\n}\n\n}\n");
         Check("枠が {} だけ", Def(nsh, "namespace Prest {}\n", "RPCDispatcher"), "namespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\n}\n");
-        Check("別の namespace の枠には入れない", Def(nsh, "namespace Other {\n}\n", "RPCDispatcher"), "namespace Other {\n}\n\nPrest::RPCDispatcher::RPCDispatcher()\n{\n}\n");
+        Check("別の namespace の枠には入れない", Def(nsh, "namespace Other {\n}\n", "RPCDispatcher"), "namespace Other {\n}\n\nnamespace Prest {\n\nRPCDispatcher::RPCDispatcher()\n{\n}\n\n}  // namespace Prest\n");
 
         Console.WriteLine("def: pass=" + pass + " fail=" + fail);
         return fail;

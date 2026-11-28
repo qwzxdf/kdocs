@@ -61,7 +61,16 @@ namespace KCppAssist
                 List<string> files = await Task.Run(() => SyncService.Candidates(path, sig.Class, root, true, opt));
                 await JoinableTaskFactory.SwitchToMainThreadAsync();
                 var sources = files.Where(f => !IncludeService.IsHeader(f)).ToList();
-                if (sources.Count == 0) { await ReportAsync(L.F("{0} を移す .cpp が見つかりません ({1}.cpp を作ってください)", label, Path.GetFileNameWithoutExtension(path)), true); return; }
+                if (sources.Count == 0)
+                {
+                    // cpp がなければ、ヘッダーと同じ名前で作る(クラスを囲む namespace の枠つき。プロジェクトにも足す)
+                    int nsCount = sig.Chain.Count - (sig.Class != null ? 1 : 0);
+                    string ns = string.Join("::", sig.Chain.Take(Math.Max(0, nsCount)));
+                    string made = await EnsureCppAsync(path, dte, sig.Class, ns);
+                    await JoinableTaskFactory.SwitchToMainThreadAsync();
+                    if (made == null || !File.Exists(made)) { await ReportAsync(L.F("{0} を移す .cpp を作れませんでした", label), true); return; }
+                    sources.Add(made);
+                }
                 string cppFile = sources[0];
                 if (sources.Count > 1)
                 {
